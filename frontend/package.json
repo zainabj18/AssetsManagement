@@ -9,6 +9,7 @@
     "i": "^0.3.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.6.2",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
@@ -27,20 +28,20 @@
     ],
     "rules": {
       "indent": [
-          "error",
-          "tab"
+        "error",
+        "tab"
       ],
       "linebreak-style": [
-          "error",
-          "unix"
+        "error",
+        "unix"
       ],
       "quotes": [
-          "error",
-          "single"
+        "error",
+        "single"
       ],
       "semi": [
-          "error",
-          "always"
+        "error",
+        "always"
       ]
     }
   },
