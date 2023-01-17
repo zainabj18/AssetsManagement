@@ -1,11 +1,12 @@
 import { Outlet } from 'react-router-dom';
+import { Heading, VStack } from '@chakra-ui/react';
 
 const Layout = () => {
 	return (
-		<div>
-			<h1>Code Groover Asset Manager</h1>
+		<VStack minW="100vw">
+			<Heading>Code Groover Assets Metadata Repository</Heading>
 			<Outlet />
-		</div>
+		</VStack>
 	);
 };
 

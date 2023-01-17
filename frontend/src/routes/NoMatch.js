@@ -1,9 +1,6 @@
+import { Container } from '@chakra-ui/react';
 const NoMatch = () => {
-	return (
-		<div>
-			<p>Sorry Page Not Found!</p>
-		</div>
-	);
+	return <Container centerContent>Sorry Page Not Found!</Container>;
 };
 
 export default NoMatch;
