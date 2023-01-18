@@ -1,0 +1,8 @@
+# Configuration
+.env
+
+# Development database
+*.db
+
+#python files
+__pycache__
