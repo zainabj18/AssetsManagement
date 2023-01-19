@@ -1,5 +1,5 @@
 from app import create_app
-from app.core.config import Base,DevelopmentConfig
+from app.core.config import Base,DevelopmentConfig,ProductionConfig
 from unittest import mock
 from pydantic.error_wrappers import ValidationError
 import os
@@ -35,3 +35,7 @@ def test_development_config():
     assert flask_app.config["DEBUG"]==True
     assert flask_app.config["ENV"]=="development"
     
+def test_production():
+    flask_app=create_app(ProductionConfig())
+    assert flask_app.config["DEBUG"]==False
+    assert flask_app.config["ENV"]=="production"

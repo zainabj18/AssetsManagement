@@ -42,3 +42,9 @@ class DevelopmentConfig(Base):
     DEBUG=True
     class Config:
         env_prefix: str = "DEV_"
+
+class ProductionConfig(Base):
+    """Production configurations."""
+    DEBUG=False
+    class Config:
+        env_prefix: str = "PROD_"
