@@ -7,3 +7,7 @@ class Base(BaseSettings):
     API_VERSION: str = "v1"
     APPLICATION_ROOT_URL:str=f"/api/{API_VERSION}"
     DEBUG:bool=False
+
+    class Config:
+        env_file = '.env'
+        env_file_encoding = 'utf-8'
