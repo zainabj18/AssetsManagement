@@ -22,6 +22,11 @@ def test_base_config_read_env():
 
 @mock.patch.dict(os.environ, {"POSTGRES_DATABASE_URI": "hello"})
 def test_db_uri_format():
-    with pytest.raises(ValidationError) as e_info:
+    with pytest.raises(ValidationError):
         create_app(Base())
 
+@mock.patch.dict(os.environ, {"POSTGRES_HOST":"testing","POSTGRES_USER":"test","POSTGRES_PASSWORD":"test","POSTGRES_DB":"test"})
+def test_db_uri_build():
+    print(os.environ.get("POSTGRES_HOST"))
+    flask_app=create_app(Base())
+    assert flask_app.config["POSTGRES_DATABASE_URI"]=="postgresql://test:test@testing:5432/test"
