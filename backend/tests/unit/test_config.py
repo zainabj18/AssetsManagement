@@ -1,5 +1,5 @@
 from app import create_app
-from app.core.config import Base
+from app.core.config import Base,DevelopmentConfig
 from unittest import mock
 from pydantic.error_wrappers import ValidationError
 import os
@@ -27,6 +27,11 @@ def test_db_uri_format():
 
 @mock.patch.dict(os.environ, {"POSTGRES_HOST":"testing","POSTGRES_USER":"test","POSTGRES_PASSWORD":"test","POSTGRES_DB":"test"})
 def test_db_uri_build():
-    print(os.environ.get("POSTGRES_HOST"))
     flask_app=create_app(Base())
     assert flask_app.config["POSTGRES_DATABASE_URI"]=="postgresql://test:test@testing:5432/test"
+
+def test_development_config():
+    flask_app=create_app(DevelopmentConfig())
+    assert flask_app.config["DEBUG"]==True
+    assert flask_app.config["ENV"]=="development"
+    

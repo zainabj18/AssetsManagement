@@ -36,4 +36,9 @@ class Base(DatabaseSettings):
         env_file_encoding = 'utf-8'
 
 
-
+class DevelopmentConfig(Base):
+    """Development configurations."""
+    ENV="development"
+    DEBUG=True
+    class Config:
+        env_prefix: str = "DEV_"
