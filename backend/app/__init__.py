@@ -1,9 +1,8 @@
 from flask import Flask
-from .core.config import Base
+from .core.config import settings
 
-def create_app(config_class=None):
+def create_app(config_class=settings):
     app = Flask(__name__)
-    config_class=config_class if config_class else Base()
     app.config.from_object(config_class)
     return app
 

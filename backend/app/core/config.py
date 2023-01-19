@@ -1,6 +1,7 @@
-from typing import Optional,Dict,Any
+from typing import Optional,Dict,Any,Union
 from pydantic import BaseSettings,validator,PostgresDsn
 from typing import Optional
+import os
 
 class DatabaseSettings(BaseSettings):
     POSTGRES_HOST: str
@@ -48,3 +49,6 @@ class ProductionConfig(Base):
     DEBUG=False
     class Config:
         env_prefix: str = "PROD_"
+
+config=dict(DEV=DevelopmentConfig,PROD=ProductionConfig)
+settings: Union[DevelopmentConfig, ProductionConfig] = config[os.environ.get('ENV_STATE', 'dev').upper()]()
