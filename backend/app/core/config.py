@@ -1,6 +1,10 @@
-from pydantic import BaseSettings
+from pydantic import BaseSettings,PostgresDsn
+from typing import Optional
 
-class Base(BaseSettings):
+class DatabaseSettings(BaseSettings):
+    POSTGRES_DATABASE_URI: Optional[PostgresDsn] = None
+
+class Base(DatabaseSettings):
     """Base configurations."""
     APPLICATION_NAME: str = "Asset Repository"
     APPLICATION_PORT: int = 5050
@@ -11,3 +15,6 @@ class Base(BaseSettings):
     class Config:
         env_file = '.env'
         env_file_encoding = 'utf-8'
+
+
+
