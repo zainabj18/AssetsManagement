@@ -11,15 +11,18 @@ import FormField from '../components/FormField';
 import data from './../api.json';
 const AssetViewer = () => {
 	const { id } = useParams();
-	const [assetSate, setAssetSate] = useState(null);
-	const [isDisabled, setIsDisabled] = useState(true);
+	const [assetSate, setAssetState] = useState(null);
+	const [isDisabled, setIsDisabled] = useState(false);
 	const [startWithEditView, setStartWithEditView] = useState(true);
-	const handleChange = (e) => {
-		console.log(e);
+	const handleChange = (attributeName, attributeValue) => {
+		setAssetState((prevAssetState) => ({
+			...prevAssetState,
+			[attributeName]: attributeValue,
+		}));
 	};
 
 	useEffect(() => {
-		setAssetSate(data[id]);
+		setAssetState(data[id]);
 	}, [id]);
 
 	return assetSate ? (

@@ -24,7 +24,7 @@ const FormField = ({
 				startWithEditView={startWithEditView}
 				isDisabled={isDisabled}
 				onSubmit={(e) => {
-					onSubmitHandler(e);
+					onSubmitHandler(fieldName, e);
 				}}
 			>
 				<EditablePreview />
