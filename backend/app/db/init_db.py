@@ -19,3 +19,8 @@ VALUES (%(username)s,%(password)s,'ADMIN','CONFIDENTIAL');""",{'username':curren
     # closes db so when next need a new pool will be created to map enums
     close_db()
 
+
+@click.command('init-db')
+def init_db_command():
+    init_db()
+    click.echo('Databse intialised.')
