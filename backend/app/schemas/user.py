@@ -1,4 +1,4 @@
-from pydantic import BaseModel,ValidationError, validator
+from pydantic import BaseModel,validator,Field
 from typing import Optional
 from app.db import DataAccess,UserRole
 
@@ -9,9 +9,12 @@ class UserBase(BaseModel):
     account_type:UserRole=UserRole.VIEWER
     account_privileges:DataAccess=DataAccess.PUBLIC
 
-class UserCreate(BaseModel):
+class UserCreate(UserBase):
     password:str
-    confirm_password:str
+    confirm_password:str=Field(...,alias="confirmPassword")
+
+    class Config:
+        allow_population_by_field_name = True
 
     @validator('confirm_password')
     def passwords_match(cls, v, values):
