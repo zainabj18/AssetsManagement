@@ -1,4 +1,4 @@
-from app.db import get_db,init_db
+from app.db import get_db,init_db,UserRole,DataAccess
 from psycopg_pool import ConnectionPool
 from werkzeug.security import check_password_hash
 from psycopg.rows import dict_row
@@ -27,5 +27,17 @@ def test_db_init(flask_app):
                 assert superuser['account_id']==1
                 assert superuser['username']==flask_app.config["DEFAULT_SUPERUSER_USERNAME"]
                 assert check_password_hash(superuser['hashed_password'],flask_app.config["DEFAULT_SUPERUSER_USERNAME"])
-                assert superuser['account_type']=="ADMIN"
-                assert superuser['account_privileges']=="CONFIDENTIAL"
+                assert superuser['account_type']==UserRole.ADMIN
+                assert superuser['account_privileges']==DataAccess.CONFIDENTIAL
+
+def test_connection_map_enums(flask_app):
+     with flask_app.app_context():
+        init_db.init_db()
+        db_conn=get_db()
+        with db_conn.connection() as conn:
+                user_roles=[role for role in UserRole]
+                user_roles_sql_select=conn.execute("SELECT %s;",(user_roles,)).fetchone()
+                assert user_roles_sql_select[0]==user_roles
+                data_acess_classifications=[priv for priv in DataAccess]
+                data_acess_classifications_sql_select=conn.execute("SELECT %s;",(data_acess_classifications,)).fetchone()
+                assert data_acess_classifications_sql_select[0]==data_acess_classifications
