@@ -25,7 +25,7 @@ def test_db_uri_format():
     with pytest.raises(ValidationError):
         create_app(Base())
 
-@mock.patch.dict(os.environ, {"POSTGRES_HOST":"testing","POSTGRES_USER":"test","POSTGRES_PASSWORD":"test","POSTGRES_DB":"test"})
+@mock.patch.dict(os.environ, {"POSTGRES_HOST":"testing","POSTGRES_USER":"test","POSTGRES_PASSWORD":"test","POSTGRES_DB":"test"},clear=True)
 def test_db_uri_build():
     flask_app=create_app(Base())
     assert flask_app.config["POSTGRES_DATABASE_URI"]=="postgresql://test:test@testing:5432/test"
@@ -39,3 +39,8 @@ def test_production():
     flask_app=create_app(ProductionConfig())
     assert flask_app.config["DEBUG"]==False
     assert flask_app.config["ENV"]=="production"
+
+def test_default_superuser_in_base_config():
+    flask_app=create_app(Base())
+    assert flask_app.config["DEFAULT_SUPERUSER_USERNAME"]=="admin"
+    assert flask_app.config["DEFAULT_SUPERUSER_PASSWORD"]=="admin"

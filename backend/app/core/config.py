@@ -31,6 +31,8 @@ class Base(DatabaseSettings):
     API_VERSION: str = "v1"
     APPLICATION_ROOT_URL:str=f"/api/{API_VERSION}"
     DEBUG:bool=False
+    DEFAULT_SUPERUSER_USERNAME:str='admin'
+    DEFAULT_SUPERUSER_PASSWORD:str='admin'
 
     class Config:
         env_file = '.env'
