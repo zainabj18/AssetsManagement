@@ -1,5 +1,5 @@
 from app import create_app
-from app.core.config import Base,DevelopmentConfig,ProductionConfig,TestingConfig
+from app.core.config import Base,DevelopmentConfig,ProductionConfig,BaseTestConfig
 from unittest import mock
 from pydantic.error_wrappers import ValidationError
 import os
@@ -46,6 +46,6 @@ def test_default_superuser_in_base_config():
     assert flask_app.config["DEFAULT_SUPERUSER_PASSWORD"]==os.environ.get("DEFAULT_SUPERUSER_PASSWORD")
 
 def test_test_config():
-    flask_app=create_app(TestingConfig())
+    flask_app=create_app(BaseTestConfig())
     assert flask_app.config["DEBUG"]==True
     assert flask_app.config["ENV"]=="test"

@@ -52,9 +52,9 @@ class ProductionConfig(Base):
     class Config:
         env_prefix: str = "PROD_"
 
-class TestingConfig(Base):
+class BaseTestConfig(Base):
     ENV="test"
     DEBUG=True
 
-config=dict(DEV=DevelopmentConfig,PROD=ProductionConfig,TEST=TestingConfig)
-settings: Union[DevelopmentConfig, ProductionConfig,TestingConfig] = config[os.environ.get('ENV_STATE', 'dev').upper()]()
+config=dict(DEV=DevelopmentConfig,PROD=ProductionConfig,TEST=BaseTestConfig)
+settings: Union[DevelopmentConfig, ProductionConfig,BaseTestConfig] = config[os.environ.get('ENV_STATE', 'dev').upper()]()
