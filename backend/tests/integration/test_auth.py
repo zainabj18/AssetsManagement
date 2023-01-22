@@ -36,3 +36,16 @@ def test_register_requires_confrim_password(client):
         "msg": "field required",
         "type": "value_error.missing"
     }]
+
+def test_register_requires_password_match(client):
+    res=client.post("/api/v1/auth/register",json={"username":"user","password":"user","confirm_password":"u1ser"}
+)
+    assert res.status_code==400
+    assert res.json==[
+    {
+        "loc": [
+            "confirmPassword"
+        ],
+        "msg": "Passwords do not match",
+        "type": "value_error"
+    }]
