@@ -1,3 +1,4 @@
+import os
 def test_register_requires_username(client):
     res=client.post("/api/v1/auth/register",json={"password":"user","confirm_password":"user"}
 )
@@ -67,3 +68,15 @@ def test_register_accepts_an_account_type(client):
     res=client.post("/api/v1/auth/register",json={"username":"user","password":"user","confirm_password":"user","account_type":"ADMIN"}
 )
     assert res.status_code==200
+
+def test_register_accepts_account_privileges(client):
+    res=client.post("/api/v1/auth/register",json={"username":"user","password":"user","confirm_password":"user","account_privileges":"PUBLIC"}
+)
+    assert res.status_code==200
+
+def test_register_enforces_username_unique(client):
+    res=client.post("/api/v1/auth/register",json={"username":os.environ["DEFAULT_SUPERUSER_USERNAME"],"password":"user","confirm_password":"user","account_privileges":"PUBLIC"}
+)
+    assert res.status_code==400
+    assert res.json=={"msg":"User already exist with the same username please try a different one."}
+
