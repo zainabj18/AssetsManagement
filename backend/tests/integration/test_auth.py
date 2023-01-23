@@ -62,3 +62,8 @@ def test_register_requires_password_match(client):
         "msg": "Passwords do not match",
         "type": "value_error"
     }]
+
+def test_register_accepts_an_account_type(client):
+    res=client.post("/api/v1/auth/register",json={"username":"user","password":"user","confirm_password":"user","account_type":"ADMIN"}
+)
+    assert res.status_code==200

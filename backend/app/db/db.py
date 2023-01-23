@@ -3,9 +3,10 @@ from psycopg_pool import ConnectionPool
 from psycopg.types.enum import EnumInfo, register_enum
 from enum import Enum,auto
 class UserRole(Enum):
-    VIEWER = auto()
-    USER = auto()
-    ADMIN = auto()
+    VIEWER = "VIEWER"
+    USER = "USER"
+    ADMIN = "ADMIN"
+
 class DataAccess(Enum):
     PUBLIC = auto()
     INTERNAL = auto()
