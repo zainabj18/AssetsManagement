@@ -6,8 +6,11 @@ class UserBase(BaseModel):
     first_name:Optional[str]
     last_name:Optional[str]
     username:str
-    account_type:UserRole=UserRole.VIEWER
-    account_privileges:DataAccess=DataAccess.PUBLIC
+    account_type:UserRole=Field(UserRole.VIEWER,alias="accountType")
+    account_privileges:DataAccess=Field(DataAccess.PUBLIC,alias="accountPrivileges")
+
+    class Config:
+        allow_population_by_field_name = True
 
 class UserCreate(UserBase):
     password:str
@@ -21,3 +24,4 @@ class UserCreate(UserBase):
         if 'password' in values and v != values['password']:
             raise ValueError('Passwords do not match')
         return v
+    

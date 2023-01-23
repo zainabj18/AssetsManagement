@@ -80,3 +80,8 @@ def test_register_enforces_username_unique(client):
     assert res.status_code==400
     assert res.json=={"msg":"User already exist with the same username please try a different one."}
 
+
+def test_register_accepts_aliases(client):
+    res=client.post("/api/v1/auth/register",json={"username":"user","password":"user","confirmPassword":"user","accountPrivileges":"PUBLIC","accountType":"VIEWER"}
+)
+    assert res.status_code==200
