@@ -1,4 +1,7 @@
 import os
+from app.db import get_db,UserRole,DataAccess
+from psycopg.rows import dict_row
+from werkzeug.security import check_password_hash
 def test_register_requires_username(client):
     res=client.post("/api/v1/auth/register",json={"password":"fit!xog4?aze08noqLda","confirm_password":"fit!xog4?aze08noqLda"}
 )
@@ -206,10 +209,32 @@ def test_register_password_validation_special_chars(client):
             "loc": [
                 "password"
             ],
-            "msg":"password must contain a charecter from {'!', '#', '$', '@', '*'}",
+            "msg":"password must contain a charecter from ['$', '#', '@', '!', '*']",
             "type": "assertion_error"
         }
     ],
     "error": "Failed to create user from on data provided",
     "msg": "Data provided is invalid"
 }
+
+def test_register_password_succes(flask_app):
+    client=flask_app.test_client()
+    username="user"
+    password="fit!xog4?aze08noqLda"
+    res=client.post("/api/v1/auth/register",json={"username":username,"password":password,"confirmPassword":"fit!xog4?aze08noqLda","accountPrivileges":"PUBLIC","accountType":"VIEWER"})
+    assert res.status_code==200
+    assert res.json=={"msg":"User registered"}
+    with flask_app.app_context():
+        db_conn=get_db()
+        with db_conn.connection() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("""SELECT * FROM accounts WHERE username=%(username)s;""",{"username":"user"})
+                user=cur.fetchone()
+                assert user['username']=='user'
+                assert user['hashed_password']!=password
+                assert check_password_hash(user['hashed_password'],password)
+                assert user['account_type']==UserRole.VIEWER
+                assert user['account_privileges']==DataAccess.PUBLIC
+                assert user['first_name']==None
+                assert user['last_name']==None
+

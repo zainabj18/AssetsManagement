@@ -6,6 +6,8 @@ CREATE TYPE data_classification AS ENUM ('PUBLIC', 'INTERNAL','RESTRICTED','CONF
 CREATE TABLE accounts
 (
 	account_id SERIAL,
+	first_name VARCHAR,
+	last_name VARCHAR,
 	username VARCHAR NOT NULL UNIQUE,
 	hashed_password VARCHAR NOT NULL,
 	account_type account_role NOT NULL DEFAULT 'VIEWER',
