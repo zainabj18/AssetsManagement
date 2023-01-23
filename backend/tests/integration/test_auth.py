@@ -270,3 +270,12 @@ def test_login_check_account_exist(client):
 )
     assert res.status_code==400
     assert res.json=={"msg":"account doesn't exist","error":"Invalid credentials"}
+
+def test_login_check_account_exist_db_error(client):
+    with mock.patch('app.auth.routes.get_user',side_effect=Error("Fake error executing query")) as p:
+        res=client.post("/api/v1/auth/login",json={"username":os.environ["DEFAULT_SUPERUSER_USERNAME"],"password":os.environ["DEFAULT_SUPERUSER_PASSWORD"]}
+    )
+        assert res.status_code==500
+        assert res.json=={'error': 'Database Connection Error', 'msg': 'Fake error executing query'}
+        p.assert_called()
+        
