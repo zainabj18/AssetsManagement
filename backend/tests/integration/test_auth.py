@@ -92,3 +92,21 @@ def test_register_accepts_aliases(client):
     res=client.post("/api/v1/auth/register",json={"username":"user","password":"fit!xog4?aze08noqLda","confirmPassword":"fit!xog4?aze08noqLda","accountPrivileges":"PUBLIC","accountType":"VIEWER"}
 )
     assert res.status_code==200
+
+def test_register_password_validation_min_length(client):
+    res=client.post("/api/v1/auth/register",json={"username":"user","password":"1","confirmPassword":"1","accountPrivileges":"PUBLIC","accountType":"VIEWER"}
+)
+    assert res.status_code==400
+    assert res.json=={
+    "data": [
+        {
+            "loc": [
+                "password"
+            ],
+            "msg": "password length must be greater than 10",
+            "type": "assertion_error"
+        }
+    ],
+    "error": "Failed to create user from on data provided",
+    "msg": "Data provided is invalid"
+}
