@@ -1,7 +1,7 @@
 from flask import current_app, g
 from psycopg_pool import ConnectionPool
 from psycopg.types.enum import EnumInfo, register_enum
-from enum import Enum,auto
+from enum import Enum
 class UserRole(Enum):
     VIEWER = "VIEWER"
     USER = "USER"
@@ -26,6 +26,5 @@ def get_db():
 
 def close_db(e=None):
     db = g.pop('db', None)
-
     if db is not None:
         db.close()

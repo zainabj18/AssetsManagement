@@ -2,6 +2,9 @@ import os
 from app.db import get_db,UserRole,DataAccess
 from psycopg.rows import dict_row
 from werkzeug.security import check_password_hash
+from unittest import mock
+from psycopg import Error
+
 def test_register_requires_username(client):
     res=client.post("/api/v1/auth/register",json={"password":"fit!xog4?aze08noqLda","confirm_password":"fit!xog4?aze08noqLda"}
 )
@@ -217,24 +220,35 @@ def test_register_password_validation_special_chars(client):
     "msg": "Data provided is invalid"
 }
 
-def test_register_password_succes(flask_app):
+def test_register_password_succes(flask_app,db_conn):
     client=flask_app.test_client()
     username="user"
     password="fit!xog4?aze08noqLda"
     res=client.post("/api/v1/auth/register",json={"username":username,"password":password,"confirmPassword":"fit!xog4?aze08noqLda","accountPrivileges":"PUBLIC","accountType":"VIEWER"})
     assert res.status_code==200
     assert res.json=={"msg":"User registered"}
-    with flask_app.app_context():
-        db_conn=get_db()
-        with db_conn.connection() as conn:
-            with conn.cursor(row_factory=dict_row) as cur:
-                cur.execute("""SELECT * FROM accounts WHERE username=%(username)s;""",{"username":"user"})
-                user=cur.fetchone()
-                assert user['username']=='user'
-                assert user['hashed_password']!=password
-                assert check_password_hash(user['hashed_password'],password)
-                assert user['account_type']==UserRole.VIEWER
-                assert user['account_privileges']==DataAccess.PUBLIC
-                assert user['first_name']==None
-                assert user['last_name']==None
 
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute("""SELECT * FROM accounts WHERE username=%(username)s;""",{"username":"user"})
+        user=cur.fetchone()
+        assert user['username']=='user'
+        assert user['hashed_password']!=password
+        assert check_password_hash(user['hashed_password'],password)
+        assert user['account_type']==UserRole.VIEWER
+        assert user['account_privileges']==DataAccess.PUBLIC
+        assert user['first_name']==None
+        assert user['last_name']==None
+
+def test_register_db_error(flask_app,db_conn):
+    with mock.patch('app.auth.routes.create_user',side_effect=Error("Fake error executing query")) as p:
+        client=flask_app.test_client()
+        username="user"
+        password="fit!xog4?aze08noqLda"
+        res=client.post("/api/v1/auth/register",json={"username":username,"password":password,"confirmPassword":"fit!xog4?aze08noqLda","accountPrivileges":"PUBLIC","accountType":"VIEWER"})
+        assert res.status_code==400
+        assert res.json=={'error': 'Database Connection Error', 'msg': 'Fake error executing query'}
+        p.assert_called()
+        with db_conn.cursor(row_factory=dict_row) as cur:
+            cur.execute("""SELECT * FROM accounts WHERE username=%(username)s;""",{"username":username})
+            user=cur.fetchone()
+            assert user==None

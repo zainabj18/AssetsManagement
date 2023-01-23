@@ -3,7 +3,15 @@ from app.schemas import UserCreate
 from app.db import get_db
 from pydantic.error_wrappers import ValidationError
 from werkzeug.security import generate_password_hash
+from psycopg import Error
 bp = Blueprint("auth", __name__,url_prefix="/auth")
+
+#TODO:Add to a common_func in db
+def create_user(db,user):
+    with db.connection() as conn:
+        conn.execute("""
+        INSERT INTO accounts (first_name,last_name,username, hashed_password, account_type,account_privileges)
+VALUES (%(first_name)s,%(last_name)s,%(username)s,%(password)s,%(acc_type)s,%(acc_priv)s);""",{"first_name":user.first_name,"last_name":user.last_name,"username":user.username,"password":generate_password_hash(user.password.get_secret_value()),"acc_type":user.account_type,"acc_priv":user.account_privileges})
 
 @bp.route('/register',methods =['POST'])
 def login():
@@ -20,10 +28,10 @@ def login():
     except ValidationError as e:
         return jsonify({"msg":"Data provided is invalid","data":e.errors(),"error":"Failed to create user from on data provided"}),400
 
-    with db.connection() as conn:
-        conn.execute("""
-        INSERT INTO accounts (first_name,last_name,username, hashed_password, account_type,account_privileges)
-VALUES (%(first_name)s,%(last_name)s,%(username)s,%(password)s,%(acc_type)s,%(acc_priv)s);""",{"first_name":user.first_name,"last_name":user.last_name,"username":user.username,"password":generate_password_hash(user.password.get_secret_value()),"acc_type":user.account_type,"acc_priv":user.account_privileges})
-
+    try:
+        create_user(db,user)
+    except Error as e:
+        #TODO:Add an error enum
+        return {"msg":str(e),"error":"Database Connection Error"},400
 
     return {"msg":"User registered"}

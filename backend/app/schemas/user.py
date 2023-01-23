@@ -1,7 +1,7 @@
 from pydantic import BaseModel,validator,Field,SecretStr
 from typing import Optional
 from app.db import DataAccess,UserRole
-SPECIAL_CHARECTERS = set('$#@!*')
+SPECIAL_CHARECTERS = list('$#@!*')
 PASSWORD_MIN_LENGTH=10
 PASSWORD_MAX_LENGTH=20
 class UserBase(BaseModel):
@@ -24,8 +24,6 @@ class UserCreate(UserBase):
     @validator('confirm_password')
     def passwords_match(cls, v, values):
         if 'password' in values and v.get_secret_value() != values['password'].get_secret_value():
-            print(values['password'].get_secret_value())
-            print(v.get_secret_value())
             raise ValueError('Passwords do not match')
         return v
     
@@ -39,5 +37,5 @@ class UserCreate(UserBase):
         assert any(is_digits) and not all(is_digits), 'password must be contain letters and numbers'
         assert any(i.isdigit() for i in pwd), 'password must be contain letters and numbers'
         assert any(letter.islower() for letter in pwd) and any(letter.isupper() for letter in pwd),'password must be mixed case'
-        assert len(SPECIAL_CHARECTERS.intersection(set(pwd)))>0,f'password must contain a charecter from {SPECIAL_CHARECTERS}'
+        assert len(set(SPECIAL_CHARECTERS).intersection(set(pwd)))>0,f'password must contain a charecter from {SPECIAL_CHARECTERS}'
         return v
