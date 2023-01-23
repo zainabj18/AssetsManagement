@@ -1,87 +1,94 @@
 import os
 def test_register_requires_username(client):
-    res=client.post("/api/v1/auth/register",json={"password":"user","confirm_password":"user"}
+    res=client.post("/api/v1/auth/register",json={"password":"fit!xog4?aze08noqLda","confirm_password":"fit!xog4?aze08noqLda"}
 )
     assert res.status_code==400
-    assert res.json==[
-    {
-        "loc": [
-            "username"
-        ],
-        "msg": "field required",
-        "type": "value_error.missing"
-    }]
+    assert res.json=={
+    "data": [
+        {
+            "loc": [
+                "username"
+            ],
+            "msg": "field required",
+            "type": "value_error.missing"
+        }
+    ],
+    "error": "Failed to create user from on data provided",
+    "msg": "Data provided is invalid"
+}
 
 def test_register_requires_password(client):
-    res=client.post("/api/v1/auth/register",json={"username":"user","confirm_password":"user"}
+    res=client.post("/api/v1/auth/register",json={"username":"user","confirm_password":"fit!xog4?aze08noqLda"}
 )
     assert res.status_code==400
-    assert res.json==[
-    {
-        "loc": [
-            "password"
-        ],
-        "msg": "field required",
-        "type": "value_error.missing"
-    }]
+    assert res.json=={
+    "data": [
+        {
+            "loc": [
+                "password"
+            ],
+            "msg": "field required",
+            "type": "value_error.missing"
+        }
+    ],
+    "error": "Failed to create user from on data provided",
+    "msg": "Data provided is invalid"
+}
 
 def test_register_requires_confrim_password(client):
-    res=client.post("/api/v1/auth/register",json={"username":"user","password":"user"}
+    res=client.post("/api/v1/auth/register",json={"username":"user","password":"fit!xog4?aze08noqLda"}
 )
     assert res.status_code==400
-    assert res.json==[
-    {
-        "loc": [
-            "confirmPassword"
-        ],
-        "msg": "field required",
-        "type": "value_error.missing"
-    }]
+    assert res.json=={
+    "data": [
+        {
+            "loc": [
+                "confirmPassword"
+            ],
+            "msg": "field required",
+            "type": "value_error.missing"
+        }
+    ],
+    "error": "Failed to create user from on data provided",
+    "msg": "Data provided is invalid"
+}
 
 def test_register_requires_password_match(client):
-    res=client.post("/api/v1/auth/register",json={"username":"user","password":"user","confirm_password":"u1ser"}
+    res=client.post("/api/v1/auth/register",json={"username":"user","password":"fit!xog4?aze08noqLda","confirm_password":"u1ser"}
 )
     assert res.status_code==400
-    assert res.json==[
-    {
-        "loc": [
-            "confirmPassword"
-        ],
-        "msg": "Passwords do not match",
-        "type": "value_error"
-    }]
-
-def test_register_requires_password_match(client):
-    res=client.post("/api/v1/auth/register",json={"username":"user","password":"user","confirm_password":"u1ser"}
-)
-    assert res.status_code==400
-    assert res.json==[
-    {
-        "loc": [
-            "confirmPassword"
-        ],
-        "msg": "Passwords do not match",
-        "type": "value_error"
-    }]
+    assert res.json=={
+    "data": [
+        {
+            "loc": [
+                "confirmPassword"
+            ],
+            "msg": "Passwords do not match",
+            "type": "value_error"
+        }
+    ],
+    "error": "Failed to create user from on data provided",
+    "msg": "Data provided is invalid"
+}
 
 def test_register_accepts_an_account_type(client):
-    res=client.post("/api/v1/auth/register",json={"username":"user","password":"user","confirm_password":"user","account_type":"ADMIN"}
+    res=client.post("/api/v1/auth/register",json={"username":"user","password":"fit!xog4?aze08noqLda","confirm_password":"fit!xog4?aze08noqLda","account_type":"ADMIN"}
 )
     assert res.status_code==200
 
 def test_register_accepts_account_privileges(client):
-    res=client.post("/api/v1/auth/register",json={"username":"user","password":"user","confirm_password":"user","account_privileges":"PUBLIC"}
+    res=client.post("/api/v1/auth/register",json={"username":"user","password":"fit!xog4?aze08noqLda","confirm_password":"fit!xog4?aze08noqLda","account_privileges":"PUBLIC"}
 )
     assert res.status_code==200
 
 def test_register_enforces_username_unique(client):
-    res=client.post("/api/v1/auth/register",json={"username":os.environ["DEFAULT_SUPERUSER_USERNAME"],"password":"user","confirm_password":"user","account_privileges":"PUBLIC"}
+    res=client.post("/api/v1/auth/register",json={"username":os.environ["DEFAULT_SUPERUSER_USERNAME"],"password":"fit!xog4?aze08noqLda","confirm_password":"fit!xog4?aze08noqLda","account_privileges":"PUBLIC"}
 )
     assert res.status_code==400
-    assert res.json=={"msg":"User already exist with the same username please try a different one."}
+    assert res.json=={"msg":"User already exist with the same username please try a different one.","error":"Username already exist"}
 
 
 def test_register_accepts_aliases(client):
-    res=client.post("/api/v1/auth/register",json={"username":"user","password":"user","confirmPassword":"user","accountPrivileges":"PUBLIC","accountType":"VIEWER"}
+    res=client.post("/api/v1/auth/register",json={"username":"user","password":"fit!xog4?aze08noqLda","confirmPassword":"fit!xog4?aze08noqLda","accountPrivileges":"PUBLIC","accountType":"VIEWER"}
 )
     assert res.status_code==200

@@ -15,10 +15,8 @@ def login():
                 cur.execute("""SELECT * FROM accounts WHERE username=%(username)s;""",{"username":user.username})
                 user_in_db=cur.fetchone()
         if user_in_db:
-            return jsonify({"msg":"User already exist with the same username please try a different one."}),400
-
+            return jsonify({"msg":"User already exist with the same username please try a different one.","error":"Username already exist"}),400
     except ValidationError as e:
-        return e.json(),400
-    
+        return jsonify({"msg":"Data provided is invalid","data":e.errors(),"error":"Failed to create user from on data provided"}),400
 
-    return {"msg":"auth"}
+    return {"msg":"User registered"}
