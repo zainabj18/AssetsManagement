@@ -196,3 +196,20 @@ def test_register_password_validation_letter_and_numbers(client):
     "msg": "Data provided is invalid"
 }
 
+def test_register_password_validation_special_chars(client):
+    res=client.post("/api/v1/auth/register",json={"username":"user","password":"chodIpRaf2udrif","confirmPassword":"chodIpRaf2udrif","accountPrivileges":"PUBLIC","accountType":"VIEWER"}
+)
+    assert res.status_code==400
+    assert res.json=={
+    "data": [
+        {
+            "loc": [
+                "password"
+            ],
+            "msg":"password must contain a charecter from {'!', '#', '$', '@', '*'}",
+            "type": "assertion_error"
+        }
+    ],
+    "error": "Failed to create user from on data provided",
+    "msg": "Data provided is invalid"
+}

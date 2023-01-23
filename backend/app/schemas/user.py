@@ -1,7 +1,7 @@
 from pydantic import BaseModel,validator,Field,SecretStr
 from typing import Optional
 from app.db import DataAccess,UserRole
-
+SPECIAL_CHARECTERS = set('$#@!*')
 PASSWORD_MIN_LENGTH=10
 PASSWORD_MAX_LENGTH=20
 class UserBase(BaseModel):
@@ -39,4 +39,5 @@ class UserCreate(UserBase):
         assert any(is_digits) and not all(is_digits), 'password must be contain letters and numbers'
         assert any(i.isdigit() for i in pwd), 'password must be contain letters and numbers'
         assert any(letter.islower() for letter in pwd) and any(letter.isupper() for letter in pwd),'password must be mixed case'
+        assert len(SPECIAL_CHARECTERS.intersection(set(pwd)))>0,f'password must contain a charecter from {SPECIAL_CHARECTERS}'
         return v
