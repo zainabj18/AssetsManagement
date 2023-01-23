@@ -80,12 +80,12 @@ def test_register_requires_password_match(client):
 def test_register_accepts_an_account_type(client):
     res=client.post("/api/v1/auth/register",json={"username":"user","password":"fit!xog4?aze08noqLda","confirm_password":"fit!xog4?aze08noqLda","account_type":"ADMIN"}
 )
-    assert res.status_code==200
+    assert res.status_code==201
 
 def test_register_accepts_account_privileges(client):
     res=client.post("/api/v1/auth/register",json={"username":"user","password":"fit!xog4?aze08noqLda","confirm_password":"fit!xog4?aze08noqLda","account_privileges":"PUBLIC"}
 )
-    assert res.status_code==200
+    assert res.status_code==201
 
 def test_register_enforces_username_unique(client):
     res=client.post("/api/v1/auth/register",json={"username":os.environ["DEFAULT_SUPERUSER_USERNAME"],"password":"fit!xog4?aze08noqLda","confirm_password":"fit!xog4?aze08noqLda","account_privileges":"PUBLIC"}
@@ -97,7 +97,7 @@ def test_register_enforces_username_unique(client):
 def test_register_accepts_aliases(client):
     res=client.post("/api/v1/auth/register",json={"username":"user","password":"fit!xog4?aze08noqLda","confirmPassword":"fit!xog4?aze08noqLda","accountPrivileges":"PUBLIC","accountType":"VIEWER"}
 )
-    assert res.status_code==200
+    assert res.status_code==201
 
 def test_register_password_validation_min_length(client):
     res=client.post("/api/v1/auth/register",json={"username":"user","password":"1","confirmPassword":"1","accountPrivileges":"PUBLIC","accountType":"VIEWER"}
@@ -225,7 +225,7 @@ def test_register_password_succes(flask_app,db_conn):
     username="user"
     password="fit!xog4?aze08noqLda"
     res=client.post("/api/v1/auth/register",json={"username":username,"password":password,"confirmPassword":"fit!xog4?aze08noqLda","accountPrivileges":"PUBLIC","accountType":"VIEWER"})
-    assert res.status_code==200
+    assert res.status_code==201
     assert res.json=={"msg":"User registered"}
 
     with db_conn.cursor(row_factory=dict_row) as cur:
@@ -279,3 +279,8 @@ def test_login_check_account_exist_db_error(client):
         assert res.json=={'error': 'Database Connection Error', 'msg': 'Fake error executing query'}
         p.assert_called()
         
+def test_login_invalid_password(client):
+    res=client.post("/api/v1/auth/login",json={"username":os.environ["DEFAULT_SUPERUSER_USERNAME"],"password":os.environ["DEFAULT_SUPERUSER_PASSWORD"]+"s"}
+)
+    assert res.json=={'error': 'Invalid credentials', 'msg': 'invalid username/password combination'}
+    assert res.status_code==400

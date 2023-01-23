@@ -1,8 +1,8 @@
 from flask import Blueprint,request,jsonify
-from app.schemas import UserCreate
+from app.schemas import UserCreate,UserInDB
 from app.db import get_db
 from pydantic.error_wrappers import ValidationError
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash,check_password_hash
 from psycopg import Error
 from psycopg.rows import class_row
 bp = Blueprint("auth", __name__,url_prefix="/auth")
@@ -16,7 +16,7 @@ VALUES (%(first_name)s,%(last_name)s,%(username)s,%(password)s,%(acc_type)s,%(ac
 
 def get_user(db,username):
     with db.connection() as conn:
-        with conn.cursor() as cur:
+        with conn.cursor(row_factory=class_row(UserInDB)) as cur:
             cur.execute("""SELECT * FROM accounts WHERE username=%(username)s;""",{"username":username})
             user_in_db=cur.fetchone()
             return user_in_db
@@ -43,18 +43,19 @@ def register():
         #TODO:Add an error enum
         return {"msg":str(e),"error":"Database Connection Error"},500
 
-    return {"msg":"User registered"}
+    return {"msg":"User registered"},201
 
 @bp.route('/login',methods =['POST'])
 def login():
     if 'username' not in request.json or 'password' not in request.json:
         return {"msg":"username and password required","error":"Invalid credentials"},400
     username=request.json['username']
+    pwd=request.json['password']
     db = get_db()
     try:
-        if not get_user(db,username):
+        if not (user_in_db:=get_user(db,username)):
             return {"msg":"account doesn't exist","error":"Invalid credentials"},400
     except Error as e:
         return {"msg":str(e),"error":"Database Connection Error"},500
-
-
+    if not check_password_hash(user_in_db.hashed_password.get_secret_value(),pwd):
+        return {"msg":"invalid username/password combination","error":"Invalid credentials"},400
