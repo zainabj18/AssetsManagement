@@ -35,4 +35,5 @@ class UserCreate(UserBase):
         pwd_len=len(pwd)
         assert pwd_len>=PASSWORD_MIN_LENGTH,f'password length must be greater than {PASSWORD_MIN_LENGTH}'
         assert pwd_len<=PASSWORD_MAX_LENGTH,f'password length must be less than {PASSWORD_MAX_LENGTH}'
+        assert any(letter.islower() for letter in pwd) and any(letter.isupper() for letter in pwd),'password must be mixed case'
         return v

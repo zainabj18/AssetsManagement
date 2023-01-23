@@ -130,3 +130,35 @@ def test_register_password_validation_max_length(client):
     "msg": "Data provided is invalid"
 }
 
+def test_register_password_validation_mixed_case(client):
+    res=client.post("/api/v1/auth/register",json={"username":"user","password":"crahlkap86frasw","confirmPassword":"crahlkap86frasw","accountPrivileges":"PUBLIC","accountType":"VIEWER"})
+    assert res.status_code==400
+    assert res.json=={
+    "data": [
+        {
+            "loc": [
+                "password"
+            ],
+            "msg": "password must be mixed case",
+            "type": "assertion_error"
+        }
+    ],
+    "error": "Failed to create user from on data provided",
+    "msg": "Data provided is invalid"
+}
+    res=client.post("/api/v1/auth/register",json={"username":"user","password":"CRAHLKAP86FRASW","confirmPassword":"CRAHLKAP86FRASW","accountPrivileges":"PUBLIC","accountType":"VIEWER"})
+    assert res.status_code==400
+    assert res.json=={
+    "data": [
+        {
+            "loc": [
+                "password"
+            ],
+            "msg": "password must be mixed case",
+            "type": "assertion_error"
+        }
+    ],
+    "error": "Failed to create user from on data provided",
+    "msg": "Data provided is invalid"
+}
+
