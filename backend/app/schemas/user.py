@@ -33,7 +33,10 @@ class UserCreate(UserBase):
     def passwords_valid(cls, v):
         pwd=v.get_secret_value()
         pwd_len=len(pwd)
+        is_digits=[i.isdigit() for i in pwd]
         assert pwd_len>=PASSWORD_MIN_LENGTH,f'password length must be greater than {PASSWORD_MIN_LENGTH}'
         assert pwd_len<=PASSWORD_MAX_LENGTH,f'password length must be less than {PASSWORD_MAX_LENGTH}'
+        assert any(is_digits) and not all(is_digits), 'password must be contain letters and numbers'
+        assert any(i.isdigit() for i in pwd), 'password must be contain letters and numbers'
         assert any(letter.islower() for letter in pwd) and any(letter.isupper() for letter in pwd),'password must be mixed case'
         return v

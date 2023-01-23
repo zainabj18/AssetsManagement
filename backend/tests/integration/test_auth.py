@@ -162,3 +162,37 @@ def test_register_password_validation_mixed_case(client):
     "msg": "Data provided is invalid"
 }
 
+
+
+def test_register_password_validation_letter_and_numbers(client):
+    res=client.post("/api/v1/auth/register",json={"username":"user","password":"tHlyUZiRlFoSplx","confirmPassword":"tHlyUZiRlFoSplx","accountPrivileges":"PUBLIC","accountType":"VIEWER"})
+    assert res.status_code==400
+    assert res.json=={
+    "data": [
+        {
+            "loc": [
+                "password"
+            ],
+            "msg": "password must be contain letters and numbers",
+            "type": "assertion_error"
+        }
+    ],
+    "error": "Failed to create user from on data provided",
+    "msg": "Data provided is invalid"
+}
+    res=client.post("/api/v1/auth/register",json={"username":"user","password":"177524253713245","confirmPassword":"177524253713245","accountPrivileges":"PUBLIC","accountType":"VIEWER"})
+    assert res.status_code==400
+    assert res.json=={
+    "data": [
+        {
+            "loc": [
+                "password"
+            ],
+            "msg": "password must be contain letters and numbers",
+            "type": "assertion_error"
+        }
+    ],
+    "error": "Failed to create user from on data provided",
+    "msg": "Data provided is invalid"
+}
+
