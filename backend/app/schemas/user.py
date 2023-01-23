@@ -1,8 +1,9 @@
 from pydantic import BaseModel,validator,Field,SecretStr
 from typing import Optional
 from app.db import DataAccess,UserRole
-PASSWORD_MIN_LENGTH=10
 
+PASSWORD_MIN_LENGTH=10
+PASSWORD_MAX_LENGTH=20
 class UserBase(BaseModel):
     first_name:Optional[str]
     last_name:Optional[str]
@@ -33,4 +34,5 @@ class UserCreate(UserBase):
         pwd=v.get_secret_value()
         pwd_len=len(pwd)
         assert pwd_len>=PASSWORD_MIN_LENGTH,f'password length must be greater than {PASSWORD_MIN_LENGTH}'
+        assert pwd_len<=PASSWORD_MAX_LENGTH,f'password length must be less than {PASSWORD_MAX_LENGTH}'
         return v

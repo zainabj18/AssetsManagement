@@ -110,3 +110,23 @@ def test_register_password_validation_min_length(client):
     "error": "Failed to create user from on data provided",
     "msg": "Data provided is invalid"
 }
+
+
+def test_register_password_validation_max_length(client):
+    res=client.post("/api/v1/auth/register",json={"username":"user","password":"tuGlPrutHech0vOzo*lvowaphe2r","confirmPassword":"tuGlPrutHech0vOzo*lvowaphe2r","accountPrivileges":"PUBLIC","accountType":"VIEWER"}
+)
+    assert res.status_code==400
+    assert res.json=={
+    "data": [
+        {
+            "loc": [
+                "password"
+            ],
+            "msg": "password length must be less than 20",
+            "type": "assertion_error"
+        }
+    ],
+    "error": "Failed to create user from on data provided",
+    "msg": "Data provided is invalid"
+}
+
