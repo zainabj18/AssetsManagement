@@ -4,7 +4,7 @@ from psycopg.rows import dict_row
 from werkzeug.security import check_password_hash
 from unittest import mock
 from psycopg import Error
-
+import jwt
 def test_register_requires_username(client):
     res=client.post("/api/v1/auth/register",json={"password":"fit!xog4?aze08noqLda","confirm_password":"fit!xog4?aze08noqLda"}
 )
@@ -268,7 +268,7 @@ def test_login_requires_username_password_comb(client):
 def test_login_check_account_exist(client):
     res=client.post("/api/v1/auth/login",json={"username":"no one","password":"fit!xog4?aze08noqLda"}
 )
-    assert res.status_code==400
+    assert res.status_code==401
     assert res.json=={"msg":"account doesn't exist","error":"Invalid credentials"}
 
 def test_login_check_account_exist_db_error(client):
@@ -283,4 +283,18 @@ def test_login_invalid_password(client):
     res=client.post("/api/v1/auth/login",json={"username":os.environ["DEFAULT_SUPERUSER_USERNAME"],"password":os.environ["DEFAULT_SUPERUSER_PASSWORD"]+"s"}
 )
     assert res.json=={'error': 'Invalid credentials', 'msg': 'invalid username/password combination'}
-    assert res.status_code==400
+    assert res.status_code==401
+
+def test_login(client):
+    res=client.post("/api/v1/auth/login",json={"username":os.environ["DEFAULT_SUPERUSER_USERNAME"],"password":os.environ["DEFAULT_SUPERUSER_PASSWORD"]}
+)
+    
+    assert res.status_code==201
+    assert "token" in res.json
+    token=res.json["token"]
+    
+    data=jwt.decode(token, os.environ['SECRET_KEY'],algorithms=[client.application.config['JWT_ALGO']])
+    assert data["account_id"]==1
+    assert data["account_type"]=="ADMIN"
+
+

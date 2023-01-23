@@ -4,6 +4,9 @@ from app.db import get_db
 from pydantic.error_wrappers import ValidationError
 from werkzeug.security import generate_password_hash,check_password_hash
 from psycopg import Error
+from flask import current_app
+from datetime import timedelta,datetime
+import jwt
 from psycopg.rows import class_row
 bp = Blueprint("auth", __name__,url_prefix="/auth")
 
@@ -54,8 +57,17 @@ def login():
     db = get_db()
     try:
         if not (user_in_db:=get_user(db,username)):
-            return {"msg":"account doesn't exist","error":"Invalid credentials"},400
+            return {"msg":"account doesn't exist","error":"Invalid credentials"},401
     except Error as e:
         return {"msg":str(e),"error":"Database Connection Error"},500
     if not check_password_hash(user_in_db.hashed_password.get_secret_value(),pwd):
-        return {"msg":"invalid username/password combination","error":"Invalid credentials"},400
+        return {"msg":"invalid username/password combination","error":"Invalid credentials"},401
+    
+    token = jwt.encode({
+            'account_id': int(user_in_db.account_id),
+            'account_type':user_in_db.account_type.value,
+            'exp' : datetime.utcnow() + timedelta(minutes = 30)
+        }, current_app.config["SECRET_KEY"])
+    return {"msg":"Success","token":token},201
+  
+    

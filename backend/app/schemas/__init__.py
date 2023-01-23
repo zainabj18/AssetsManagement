@@ -1,1 +1,1 @@
-from .user import UserBase,UserCreate
+from .user import UserBase,UserCreate,UserInDB

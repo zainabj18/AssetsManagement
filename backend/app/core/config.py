@@ -2,6 +2,7 @@ from typing import Optional,Dict,Any,Union
 from pydantic import BaseSettings,validator,PostgresDsn
 from typing import Optional
 import os
+import secrets
 
 class DatabaseSettings(BaseSettings):
     POSTGRES_HOST: str
@@ -33,6 +34,8 @@ class Base(DatabaseSettings):
     DEBUG:bool=False
     DEFAULT_SUPERUSER_USERNAME:str='admin'
     DEFAULT_SUPERUSER_PASSWORD:str='admin'
+    SECRET_KEY:str=secrets.token_urlsafe(16)
+    JWT_ALGO:str="HS256"
 
     class Config:
         env_file = '.env'

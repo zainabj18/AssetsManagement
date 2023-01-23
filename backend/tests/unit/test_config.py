@@ -49,3 +49,11 @@ def test_test_config():
     flask_app=create_app(BaseTestConfig())
     assert flask_app.config["DEBUG"]==True
     assert flask_app.config["ENV"]=="test"
+
+def test_seceret_key_in_base_config():
+    flask_app=create_app(Base())
+    assert flask_app.config["SECRET_KEY"]==os.environ.get("SECRET_KEY")
+
+def test_seceret_key_in_base_config():
+    flask_app=create_app(Base())
+    assert flask_app.config["JWT_ALGO"]==os.environ.get("JWT_ALGO","HS256")

@@ -13,7 +13,9 @@ class UserBase(BaseModel):
 
     class Config:
         allow_population_by_field_name = True
-
+class UserInDB(UserBase):
+    account_id:str
+    hashed_password:SecretStr
 class UserCreate(UserBase):
     password:SecretStr
     confirm_password:SecretStr=Field(...,alias="confirmPassword")
