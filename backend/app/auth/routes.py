@@ -27,6 +27,9 @@ def register():
             return jsonify({"msg":"User already exist with the same username please try a different one.","error":"Username already exist"}),400
     except ValidationError as e:
         return jsonify({"msg":"Data provided is invalid","data":e.errors(),"error":"Failed to create user from on data provided"}),400
+    except Error as e:
+        #TODO:Add an error enum
+        return {"msg":str(e),"error":"Database Connection Error"},500
 
     try:
         create_user(db,user)
@@ -40,3 +43,14 @@ def register():
 def login():
     if 'username' not in request.json or 'password' not in request.json:
         return {"msg":"username and password required","error":"Invalid credentials"},400
+    username=request.json['username']
+  
+    db = get_db()
+    user_in_db=None
+    with db.connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""SELECT hashed_password FROM accounts WHERE username=%(username)s;""",{"username":username})
+            user_in_db=cur.fetchone()
+    if not user_in_db:
+        return {"msg":"account doesn't exist","error":"Invalid credentials"},400
+

@@ -264,3 +264,9 @@ def test_login_requires_username_password_comb(client):
 )
     assert res.status_code==400
     assert res.json=={"msg":"username and password required","error":"Invalid credentials"}
+
+def test_login_check_account_exist(client):
+    res=client.post("/api/v1/auth/login",json={"username":"no one","password":"fit!xog4?aze08noqLda"}
+)
+    assert res.status_code==400
+    assert res.json=={"msg":"account doesn't exist","error":"Invalid credentials"}
