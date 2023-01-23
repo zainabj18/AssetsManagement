@@ -1,6 +1,7 @@
 from flask import Blueprint,request,jsonify
 from app.schemas import UserCreate,UserInDB
 from app.db import get_db
+from app.core.utils import protected
 from pydantic.error_wrappers import ValidationError
 from werkzeug.security import generate_password_hash,check_password_hash
 from psycopg import Error
@@ -66,8 +67,15 @@ def login():
     token = jwt.encode({
             'account_id': int(user_in_db.account_id),
             'account_type':user_in_db.account_type.value,
+            'account_privileges':user_in_db.account_privileges.value,
             'exp' : datetime.utcnow() + timedelta(minutes = 30)
         }, current_app.config["SECRET_KEY"])
     return {"msg":"Success","token":token},201
   
-    
+
+@bp.route('/admin-status',methods =['GET'])
+@protected()
+def is_admin(user_id,access_level):
+    return {"msg":f"{user_id} You have admin privileges and data access level of {access_level}"},200
+
+

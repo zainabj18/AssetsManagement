@@ -212,7 +212,7 @@ def test_register_password_validation_special_chars(client):
             "loc": [
                 "password"
             ],
-            "msg":"password must contain a charecter from ['$', '#', '@', '!', '*']",
+            "msg":"password must contain a charecter from ['$', '#', '@', '!', '*', '&']",
             "type": "assertion_error"
         }
     ],
@@ -296,5 +296,12 @@ def test_login(client):
     data=jwt.decode(token, os.environ['SECRET_KEY'],algorithms=[client.application.config['JWT_ALGO']])
     assert data["account_id"]==1
     assert data["account_type"]=="ADMIN"
+    assert data["account_privileges"]=="CONFIDENTIAL"
+
+def test_protected_route_admin_no_token(client):
+    res=client.get("/api/v1/auth/admin-status")
+    assert res.status_code==401
+    assert res.json=={'error': 'Missing Token', 'msg': 'Please provide a token in the header'}
+
 
 
