@@ -8,10 +8,10 @@ class UserRole(Enum):
     ADMIN = "ADMIN"
 
 class DataAccess(Enum):
-    PUBLIC = auto()
-    INTERNAL = auto()
-    RESTRICTED = auto()
-    CONFIDENTIAL = auto()
+    PUBLIC = "PUBLIC"
+    INTERNAL = "INTERNAL"
+    RESTRICTED = "RESTRICTED"
+    CONFIDENTIAL = "CONFIDENTIAL"
 def custom_pool_config(conn):
     register_enum(EnumInfo.fetch(conn, "account_role"), conn, UserRole)
     register_enum(EnumInfo.fetch(conn, "data_classification"), conn, DataAccess)

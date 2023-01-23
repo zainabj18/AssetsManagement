@@ -3,5 +3,5 @@ from pydantic.error_wrappers import ValidationError
 import pytest
 def test_user_create_requires_same_password():
     with pytest.raises(ValidationError) as e_info:
-        UserCreate(first_name="John",last_name="Doe",username="JohnDoe",password="Welcome",confirm_password="Welcome1")
+        UserCreate(first_name="John",last_name="Doe",username="JohnDoe",password="fit!xog4?aze08noqLda",confirm_password="1fit!xog4?aze08noqLda")
     assert "Passwords do not match" in str(e_info.value)
