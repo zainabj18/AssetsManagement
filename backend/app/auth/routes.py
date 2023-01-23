@@ -14,7 +14,7 @@ def create_user(db,user):
 VALUES (%(first_name)s,%(last_name)s,%(username)s,%(password)s,%(acc_type)s,%(acc_priv)s);""",{"first_name":user.first_name,"last_name":user.last_name,"username":user.username,"password":generate_password_hash(user.password.get_secret_value()),"acc_type":user.account_type,"acc_priv":user.account_privileges})
 
 @bp.route('/register',methods =['POST'])
-def login():
+def register():
     try:
         user=UserCreate(**request.json)
         user_in_db=None
@@ -32,6 +32,11 @@ def login():
         create_user(db,user)
     except Error as e:
         #TODO:Add an error enum
-        return {"msg":str(e),"error":"Database Connection Error"},400
+        return {"msg":str(e),"error":"Database Connection Error"},500
 
     return {"msg":"User registered"}
+
+@bp.route('/login',methods =['POST'])
+def login():
+    if 'username' not in request.json or 'password' not in request.json:
+        return {"msg":"username and password required","error":"Invalid credentials"},400

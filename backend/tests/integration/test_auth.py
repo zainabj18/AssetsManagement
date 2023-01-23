@@ -245,10 +245,22 @@ def test_register_db_error(flask_app,db_conn):
         username="user"
         password="fit!xog4?aze08noqLda"
         res=client.post("/api/v1/auth/register",json={"username":username,"password":password,"confirmPassword":"fit!xog4?aze08noqLda","accountPrivileges":"PUBLIC","accountType":"VIEWER"})
-        assert res.status_code==400
+        assert res.status_code==500
         assert res.json=={'error': 'Database Connection Error', 'msg': 'Fake error executing query'}
         p.assert_called()
         with db_conn.cursor(row_factory=dict_row) as cur:
             cur.execute("""SELECT * FROM accounts WHERE username=%(username)s;""",{"username":username})
             user=cur.fetchone()
             assert user==None
+
+
+def test_login_requires_username_password_comb(client):
+    res=client.post("/api/v1/auth/login",json={"password":"fit!xog4?aze08noqLda"}
+)
+    assert res.status_code==400
+    assert res.json=={"msg":"username and password required","error":"Invalid credentials"}
+
+    res=client.post("/api/v1/auth/login",json={"username":"user"}
+)
+    assert res.status_code==400
+    assert res.json=={"msg":"username and password required","error":"Invalid credentials"}
