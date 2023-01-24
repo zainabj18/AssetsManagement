@@ -3,6 +3,7 @@ from app.core.config import settings
 from app.api import bp as api_bp
 from flask import Flask, Response
 from app.db import close_db,init_db_command
+from flask_cors import CORS
 
 class JSONResponse(Response):
     default_mimetype = 'application/json'
@@ -13,9 +14,11 @@ class FlaskAPI(Flask):
 
 def create_app(config_class=settings):
     app = FlaskAPI(__name__)
+    CORS(app)
     app.config.from_object(config_class)
     app.register_blueprint(api_bp)
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+    
     return app
 
