@@ -81,7 +81,12 @@ def is_admin(user_id,access_level):
 
 @bp.route('/user-status',methods =['GET'])
 @protected(role=UserRole.USER)
-def j(user_id,access_level):
+def is_user(user_id,access_level):
     return {"msg":f"{user_id} You have user privileges and data access level of {access_level}"},200
+
+@bp.route('/viewer-status',methods =['GET'])
+@protected(role=UserRole.VIEWER)
+def is_viewer(user_id,access_level):
+    return {"msg":f"{user_id} You have viewer privileges and data access level of {access_level}"},200
 
 
