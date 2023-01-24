@@ -22,10 +22,22 @@ class UserRole(Enum):
         return NotImplemented
 
 class DataAccess(Enum):
-    PUBLIC = "PUBLIC"
-    INTERNAL = "INTERNAL"
-    RESTRICTED = "RESTRICTED"
-    CONFIDENTIAL = "CONFIDENTIAL"
+    PUBLIC = "PUBLIC",1
+    INTERNAL = "INTERNAL",2
+    RESTRICTED = "RESTRICTED",3
+    CONFIDENTIAL = "CONFIDENTIAL",4
+
+    def __new__(cls, value, permission_level):
+        obj = object.__new__(cls)
+        obj._value_ = value
+        obj.permission_level = permission_level
+        return obj
+    
+    def __lt__(self, other):
+        if self.__class__ is other.__class__:
+            return self.permission_level < other.permission_level
+        return NotImplemented
+
 def custom_pool_config(conn):
     register_enum(EnumInfo.fetch(conn, "account_role"), conn, UserRole)
     register_enum(EnumInfo.fetch(conn, "data_classification"), conn, DataAccess)
