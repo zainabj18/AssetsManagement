@@ -33,6 +33,25 @@ const AssetViewer = () => {
 		}));
 	};
 
+	const handleMetadataChange = (attributeName, attributeValue) => {
+		let metadata=assetSate.metadata;
+		let newMetadata = metadata.map(attribute => {
+			if (attribute.attributeName === attributeName) {
+				return {
+					...attribute,
+					'attributeValue':attributeValue,
+				  };
+			} else {
+			  return attribute;
+			}
+		  });
+		setAssetState((prevAssetState) => ({
+			...prevAssetState,
+			'metadata':newMetadata,
+		}));
+		console.log(assetSate);
+	};
+
 	const onTagClick = (e, value) => {
 		e.preventDefault();
 		let newTags = assetSate.tags.filter((tag) => value !== tag);
@@ -141,7 +160,7 @@ const AssetViewer = () => {
 								fieldDefaultValue={value.attributeValue}
 								isDisabled={isDisabled}
 								startWithEditView={startWithEditView}
-								onSubmitHandler={handleChange}
+								onSubmitHandler={handleMetadataChange}
 							/>
 						</Fragment>
 					);
