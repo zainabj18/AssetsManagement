@@ -334,3 +334,13 @@ def test_protected_rbac_admin(client,valid_token,expected_res):
     res=client.get("/api/v1/auth/admin-status",headers={'x-access-token':valid_token})
     assert res.status_code==expected_res["status_code"]
     assert expected_res["msg"] in res.json['msg']
+
+
+@pytest.mark.parametrize('valid_token,expected_res', [({'account_type':UserRole.ADMIN,
+            'account_privileges':DataAccess.CONFIDENTIAL},{'status_code':200,'msg':'You have user privileges'}),({'account_type':UserRole.USER,
+            'account_privileges':DataAccess.CONFIDENTIAL},{'status_code':200,'msg':'You have user privileges'}),({'account_type':UserRole.VIEWER,
+            'account_privileges':DataAccess.CONFIDENTIAL},{'status_code':401,'msg':'unauthorised'})], indirect=True)
+def test_protected_rbac_user(client,valid_token,expected_res):
+    res=client.get("/api/v1/auth/user-status",headers={'x-access-token':valid_token})
+    assert res.status_code==expected_res["status_code"]
+    assert expected_res["msg"] in res.json['msg']

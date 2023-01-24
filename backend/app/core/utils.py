@@ -1,9 +1,10 @@
 from flask import request,current_app
 from app.db import UserRole
+from functools import wraps
 import jwt
 def protected(role=UserRole.VIEWER):
- 
     def decorated_route(func):
+        @wraps(func)
         def wrapper(*args, **kwargs):
             token=None
             if 'x-access-token' in request.headers:
