@@ -1,5 +1,6 @@
 import os
 from app.db import get_db,UserRole,DataAccess
+from datetime import datetime,timedelta
 from psycopg.rows import dict_row
 from werkzeug.security import check_password_hash
 from unittest import mock
@@ -297,11 +298,23 @@ def test_login(client):
     assert data["account_id"]==1
     assert data["account_type"]=="ADMIN"
     assert data["account_privileges"]=="CONFIDENTIAL"
+    assert datetime.utcfromtimestamp(data["exp"])>datetime.now()
 
-def test_protected_route_admin_no_token(client):
+def test_protected_route_no_token(client):
     res=client.get("/api/v1/auth/admin-status")
     assert res.status_code==401
-    assert res.json=={'error': 'Missing Token', 'msg': 'Please provide a token in the header'}
+    assert res.json=={'error': 'Missing Token', 'msg': 'Please provide a valid token in the header'}
 
+
+def test_protected_route_expired_token(client):
+    token = jwt.encode({
+            'account_id': 1,
+            'account_type':'ADMIN',
+            'account_privileges':"CONFIDENTIAL",
+            'exp' : datetime.utcnow() - timedelta(minutes = 30)
+        }, client.application.config["SECRET_KEY"],algorithm=client.application.config['JWT_ALGO'])
+    res=client.get("/api/v1/auth/admin-status",headers={'x-access-token':token})
+    assert res.status_code==401
+    assert res.json=={'error': 'Invalid Token', 'msg': 'Signature has expired'}
 
 
