@@ -6,6 +6,7 @@
         "description": "A custom frontend framework",
         "owner": "@carlos",
         "tags": ["React","UI"],
+        "project":"General",
         "created_at": "2018-10-10T13:45:00.000Z",
         "last_modified_at": "2021-12-10T13:45:00.000Z",
         "metadata": [
@@ -27,7 +28,7 @@
             {
                 "attributeName": "Built On",
                 "attributeType": "datetime-local",
-                "attributeValue": "2021-12-10T13:45:00.000Z"
+                "attributeValue": "2021-12-10T13:45"
             },
             {
                 "attributeName": "version",

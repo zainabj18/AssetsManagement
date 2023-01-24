@@ -102,6 +102,14 @@ const AssetViewer = () => {
 					onSubmitHandler={handleChange}
 				/>
 				<FormField
+					fieldName="project"
+					fieldType="text"
+					fieldDefaultValue={assetSate.project}
+					isDisabled={isDisabled}
+					startWithEditView={startWithEditView}
+					onSubmitHandler={handleChange}
+				/>
+				<FormField
 					fieldName="description"
 					fieldType="text"
 					fieldDefaultValue={assetSate.description}
