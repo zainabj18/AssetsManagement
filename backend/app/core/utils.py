@@ -1,7 +1,7 @@
 from flask import request,current_app
 from app.db import UserRole
 import jwt
-def protected():
+def protected(role=UserRole.VIEWER):
  
     def decorated_route(func):
         def wrapper(*args, **kwargs):
@@ -14,6 +14,9 @@ def protected():
                 data=jwt.decode(token,current_app.config['SECRET_KEY'],algorithms=[current_app.config['JWT_ALGO']])
             except jwt.ExpiredSignatureError as e:
                 return {"msg":str(e),"error":"Invalid Token"},401
+            if UserRole(data["account_type"]) < role:
+                return {"msg":"Your account is unauthorised to acces this please speak to your admin","error":"Invalid Token"},401
+
             return func(data["account_id"],data["account_privileges"],*args, **kwargs)    
         return wrapper
     return decorated_route

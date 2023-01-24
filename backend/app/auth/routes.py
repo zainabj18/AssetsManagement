@@ -1,6 +1,6 @@
 from flask import Blueprint,request,jsonify
 from app.schemas import UserCreate,UserInDB
-from app.db import get_db
+from app.db import get_db,UserRole
 from app.core.utils import protected
 from pydantic.error_wrappers import ValidationError
 from werkzeug.security import generate_password_hash,check_password_hash
@@ -74,7 +74,7 @@ def login():
   
 
 @bp.route('/admin-status',methods =['GET'])
-@protected()
+@protected(role=UserRole.ADMIN)
 def is_admin(user_id,access_level):
     return {"msg":f"{user_id} You have admin privileges and data access level of {access_level}"},200
 

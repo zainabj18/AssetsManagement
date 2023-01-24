@@ -32,3 +32,7 @@ def valid_token(request):
             'exp' : datetime.utcnow() + timedelta(minutes = 30)
         }, current_app.config["SECRET_KEY"],algorithm=current_app.config['JWT_ALGO'])
     return token
+
+@pytest.fixture()
+def expected_res(request):
+    return request.param
