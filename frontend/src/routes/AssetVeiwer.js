@@ -12,7 +12,8 @@ import {
 	TagCloseButton,
 	Wrap,
 	WrapItem,
-	Input
+	Input,
+	Button
 } from '@chakra-ui/react';
 import { Fragment } from 'react';
 import { useEffect, useState } from 'react';
@@ -23,6 +24,7 @@ const AssetViewer = () => {
 	const { id } = useParams();
 	const [assetSate, setAssetState] = useState(null);
 	const [isDisabled, setIsDisabled] = useState(false);
+	const [tag, setTag] = useState('');
 	const [startWithEditView, setStartWithEditView] = useState(true);
 	const handleChange = (attributeName, attributeValue) => {
 		setAssetState((prevAssetState) => ({
@@ -31,14 +33,31 @@ const AssetViewer = () => {
 		}));
 	};
 
-	const onTagClick=(e,value)=> {
+	const onTagClick = (e, value) => {
 		e.preventDefault();
-		let newTags=assetSate.tags.filter((tag)=>(value !== tag));
+		let newTags = assetSate.tags.filter((tag) => value !== tag);
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
 			tags: newTags,
 		}));
 	};
+
+	const onNewTag = (e) => {
+		e.preventDefault();
+		console.log(assetSate);
+		console.log(tag);
+		setAssetState((prevAssetState) => ({
+			...prevAssetState,
+			tags: [...prevAssetState.tags,tag],
+		}));
+		setTag('');
+		console.log(assetSate);
+		
+	};
+	const handleTagChange = (event) => {
+		const value = event.target.value;
+		setTag(value);
+	  };
 
 	useEffect(() => {
 		setAssetState(data[id]);
@@ -91,18 +110,16 @@ const AssetViewer = () => {
 					onSubmitHandler={handleChange}
 				/>
 				<Wrap spacing={4}>
-					{assetSate.tags.map((value,key) => (
+					{assetSate.tags.map((value, key) => (
 						<WrapItem key={key}>
-							<Tag
-								size={'md'}
-								key={key}
-							>
+							<Tag size={'md'} key={key}>
 								<TagLabel>{value}</TagLabel>
-								<TagCloseButton onClick={e => onTagClick(e,value)}/>
+								<TagCloseButton onClick={(e) => onTagClick(e, value)} />
 							</Tag>
 						</WrapItem>
 					))}
-					<Input placeholder='Enter Tag' />
+					<Input placeholder="Enter Tag" value={tag} onChange={handleTagChange}/>
+					<Button onClick={onNewTag}>Add Tag</Button>
 				</Wrap>
 				<Divider />
 				<Heading size={'md'}>Type Attributes:</Heading>
