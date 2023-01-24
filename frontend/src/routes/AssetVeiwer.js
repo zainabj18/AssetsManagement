@@ -7,6 +7,12 @@ import {
 	Divider,
 	VStack,
 	Heading,
+	Tag,
+	TagLabel,
+	TagCloseButton,
+	Wrap,
+	WrapItem,
+	Input
 } from '@chakra-ui/react';
 import { Fragment } from 'react';
 import { useEffect, useState } from 'react';
@@ -22,6 +28,15 @@ const AssetViewer = () => {
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
 			[attributeName]: attributeValue,
+		}));
+	};
+
+	const onTagClick=(e,value)=> {
+		e.preventDefault();
+		let newTags=assetSate.tags.filter((tag)=>(value !== tag));
+		setAssetState((prevAssetState) => ({
+			...prevAssetState,
+			tags: newTags,
 		}));
 	};
 
@@ -75,14 +90,20 @@ const AssetViewer = () => {
 					startWithEditView={startWithEditView}
 					onSubmitHandler={handleChange}
 				/>
-				<FormField
-					fieldName="ds"
-					fieldType="checkbox"
-					fieldDefaultValue={true}
-					isDisabled={isDisabled}
-					startWithEditView={startWithEditView}
-					onSubmitHandler={handleChange}
-				/>
+				<Wrap spacing={4}>
+					{assetSate.tags.map((value,key) => (
+						<WrapItem key={key}>
+							<Tag
+								size={'md'}
+								key={key}
+							>
+								<TagLabel>{value}</TagLabel>
+								<TagCloseButton onClick={e => onTagClick(e,value)}/>
+							</Tag>
+						</WrapItem>
+					))}
+					<Input placeholder='Enter Tag' />
+				</Wrap>
 				<Divider />
 				<Heading size={'md'}>Type Attributes:</Heading>
 
