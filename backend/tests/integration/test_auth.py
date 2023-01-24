@@ -6,6 +6,7 @@ from werkzeug.security import check_password_hash
 from unittest import mock
 from psycopg import Error
 import jwt
+import pytest
 def test_register_requires_username(client):
     res=client.post("/api/v1/auth/register",json={"password":"fit!xog4?aze08noqLda","confirm_password":"fit!xog4?aze08noqLda"}
 )
@@ -318,3 +319,9 @@ def test_protected_route_expired_token(client):
     assert res.json=={'error': 'Invalid Token', 'msg': 'Signature has expired'}
 
 
+@pytest.mark.parametrize('valid_token', [{'account_type':UserRole.ADMIN,
+            'account_privileges':DataAccess.CONFIDENTIAL}], indirect=True)
+def test_protected_valid_token(client,valid_token):
+    res=client.get("/api/v1/auth/admin-status",headers={'x-access-token':valid_token})
+    assert res.status_code==200
+    assert res.json=={'msg': f'None You have admin privileges and data access level of {DataAccess.CONFIDENTIAL.value}'}

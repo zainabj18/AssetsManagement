@@ -1,6 +1,9 @@
 from app import create_app
 from app.db import init_db,get_db
 import pytest
+from datetime import datetime,timedelta
+from flask import current_app
+import jwt
 
 @pytest.fixture
 def flask_app():
@@ -19,3 +22,13 @@ def db_conn(flask_app):
     db_conn=get_db()
     with db_conn.connection() as conn:
         yield conn
+
+@pytest.fixture()
+def valid_token(request):
+    token = jwt.encode({
+            'account_id': None,
+            'account_type':request.param["account_type"].value,
+            'account_privileges':request.param["account_privileges"].value,
+            'exp' : datetime.utcnow() + timedelta(minutes = 30)
+        }, current_app.config["SECRET_KEY"],algorithm=current_app.config['JWT_ALGO'])
+    return token
