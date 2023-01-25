@@ -8,13 +8,14 @@ import {
 	FormErrorMessage,
 	FormHelperText,
   } from '@chakra-ui/react'
+import { Button, ButtonGroup } from '@chakra-ui/react'
 
 
 const TypeAdder = () => {
 	return (
 		<VStack minW="100vw">
 			<Text>TypeAdder</Text>
-			<FormControl>
+			<FormControl isRequired>
   				<FormLabel>Name</FormLabel>
   				<Input type='text' placeholder = 'Name'/>
 			</FormControl>
@@ -26,6 +27,7 @@ const TypeAdder = () => {
   				<FormLabel>Data Type</FormLabel>
   				<Input type='text' placeholder = 'DataType'/>
 			</FormControl>
+			<Button colorScheme='blue'>Save</Button>
 		</VStack>
 	);
 };
