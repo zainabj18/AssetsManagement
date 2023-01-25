@@ -7,7 +7,7 @@ function App() {
 	return (
 		<Routes>
 			<Route path="/" element={<Layout />}>
-				<Route path="newuser" element={<User />} />
+				<Route path="User" element={<User />} />
 				<Route path="*" element={<NoMatch />} />
 			</Route>
 		</Routes>
