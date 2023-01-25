@@ -14,6 +14,11 @@ import { Button, ButtonGroup } from '@chakra-ui/react'
 
 
 const TypeAdder = () => {
+	const [inputFields, setInputFields] = useState([
+		{ attrName: 'programming language', attrType: 'text' },
+		{ attrName: 'country of origin', attrType: 'text' }
+
+	  ])
 	return (
 		<VStack minW="100vw">
 			<Text>TypeAdder</Text>
@@ -21,16 +26,18 @@ const TypeAdder = () => {
   				<FormLabel>Name</FormLabel>
   				<Input type='text' placeholder = 'Name'/>
 			</FormControl>
-			<HStack>
+			{inputFields.map((attr,index) => {return (
+				<HStack>
 				<FormControl>
 					<FormLabel>Attribute Name</FormLabel>
-					<Input type='text' placeholder = 'AttributeName'/>
+					<Input type='text' placeholder = 'AttributeName' value = {attr.attrName} />
 				</FormControl>
 				<FormControl>
 					<FormLabel>Data Type</FormLabel>
-					<Input type='text' placeholder = 'DataType'/>
+					<Input type='text' placeholder = 'DataType' value = {attr.attrType} />
 				</FormControl>
-			</HStack>
+			</HStack>)})}
+			
 			
 			<Button colorScheme='blue'>Save</Button>
 		</VStack>
