@@ -30,14 +30,14 @@ const TypeAdder = () => {
   				<Input type='text' placeholder = 'Name'/>
 			</FormControl>
 			{inputFields.map((attr,index) => {return (
-				<HStack>
+				<HStack key={index}>
 				<FormControl>
 					<FormLabel>Attribute Name</FormLabel>
-					<Input type='text' placeholder = 'AttributeName' value = {attr.attrName} />
+					<Input type='text' placeholder = 'AttributeName' defaultvalue = {attr.attrName} onChange/>
 				</FormControl>
 				<FormControl>
 					<FormLabel>Data Type</FormLabel>
-					<Input type='text' placeholder = 'DataType' value = {attr.attrType} />
+					<Input type='text' placeholder = 'DataType' defaultvalue = {attr.attrType} />
 				</FormControl>
 			</HStack>)})}
 			
