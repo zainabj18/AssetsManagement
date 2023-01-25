@@ -6,7 +6,7 @@ from app.db import get_db,close_db
 from flask import current_app
 
 def init_db():
-    db = get_db()
+    db = get_db(new=True)
     absolute_path = os.path.dirname(__file__)
     relative_path = "schema.sql"
     full_path = os.path.join(absolute_path, relative_path)
@@ -23,4 +23,4 @@ VALUES (%(username)s,%(password)s,'ADMIN','CONFIDENTIAL');""",{'username':curren
 @click.command('init-db')
 def init_db_command():
     init_db()
-    click.echo('Databse intialised.')
+    click.echo('Database intialised.')

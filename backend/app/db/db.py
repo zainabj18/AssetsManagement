@@ -43,9 +43,13 @@ def custom_pool_config(conn):
     register_enum(EnumInfo.fetch(conn, "data_classification"), conn, DataAccess)
     return conn
 
-def get_db():
+def get_db(new=False):
     if 'db' not in g:
-        pool = ConnectionPool(current_app.config['POSTGRES_DATABASE_URI'],configure=custom_pool_config)
+        if new:
+            configure=None
+        else:
+            configure=custom_pool_config
+        pool = ConnectionPool(current_app.config['POSTGRES_DATABASE_URI'], configure=configure)
         pool.open()
         g.db = pool
     return g.db
