@@ -1,29 +1,38 @@
 [
     {
-        "asset": "Authenticating class"
+        "asset": "Authenticating",
+        "language": "Java",
+        "data": "class"
+
     },
 
     {
-        "asset": "Merged class"
+        "asset": "Merged",
+        "language": "Java",
+        "data": "class"
     },
 
     {
-        "asset": "Wrapped class"
+        "asset": "Wrapped",
+        "language": "Java",
+        "data": "class"
     },
 
     {
-        "asset": "Auth Java class"
+        "asset": "Auth",
+        "language": "Java",
+        "data": "class"
     },
 
     {
-        "asset": "Auth Py class"
+        "asset": "Auth",
+        "language": "Python",
+        "data": "class"
     },
 
     {
-        "asset": "Merged Java class"
-    },
-
-    {
-        "asset": "Merged Py class"
+        "asset": "Merged",
+        "language": "Python",
+        "data": "class"
     }
 ]
