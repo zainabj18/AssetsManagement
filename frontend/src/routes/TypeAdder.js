@@ -22,6 +22,12 @@ const TypeAdder = () => {
 		let newAttribute = { attrName: '', attrType: '' }
 		setInputFields([...inputFields, newAttribute])
 	}
+	const handleFormChange = (index, event) => {
+    	let data = [...inputFields];
+    	data[index][event.target.name] = event.target.value;
+		console.log(data)
+		setInputFields(data)
+	}
 	return (
 		<VStack minW="100vw">
 			<Text>TypeAdder</Text>
@@ -33,11 +39,11 @@ const TypeAdder = () => {
 				<HStack key={index}>
 				<FormControl>
 					<FormLabel>Attribute Name</FormLabel>
-					<Input type='text' placeholder = 'AttributeName' defaultvalue = {attr.attrName} onChange/>
+					<Input type='text' placeholder = 'AttributeName' defaultValue = {attr.attrName} onChange={event => handleFormChange(index, event)} name='attrName'/>
 				</FormControl>
 				<FormControl>
 					<FormLabel>Data Type</FormLabel>
-					<Input type='text' placeholder = 'DataType' defaultvalue = {attr.attrType} />
+					<Input type='text' placeholder = 'DataType' defaultValue = {attr.attrType} onChange={event => handleFormChange(index, event)} name='attrType'/>
 				</FormControl>
 			</HStack>)})}
 			
