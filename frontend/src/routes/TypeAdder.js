@@ -5,10 +5,12 @@ import React, { useState, useEffect } from 'react';
 import {
 	FormControl,
 	FormLabel,
+	HStack,
 	FormErrorMessage,
 	FormHelperText,
   } from '@chakra-ui/react'
 import { Button, ButtonGroup } from '@chakra-ui/react'
+
 
 
 const TypeAdder = () => {
@@ -19,14 +21,17 @@ const TypeAdder = () => {
   				<FormLabel>Name</FormLabel>
   				<Input type='text' placeholder = 'Name'/>
 			</FormControl>
-			<FormControl>
-  				<FormLabel>Attribute Name</FormLabel>
-  				<Input type='text' placeholder = 'AttributeName'/>
-			</FormControl>
-			<FormControl>
-  				<FormLabel>Data Type</FormLabel>
-  				<Input type='text' placeholder = 'DataType'/>
-			</FormControl>
+			<HStack>
+				<FormControl>
+					<FormLabel>Attribute Name</FormLabel>
+					<Input type='text' placeholder = 'AttributeName'/>
+				</FormControl>
+				<FormControl>
+					<FormLabel>Data Type</FormLabel>
+					<Input type='text' placeholder = 'DataType'/>
+				</FormControl>
+			</HStack>
+			
 			<Button colorScheme='blue'>Save</Button>
 		</VStack>
 	);
