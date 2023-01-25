@@ -10,6 +10,8 @@ import {
 	FormHelperText,
   } from '@chakra-ui/react'
 import { Button, ButtonGroup } from '@chakra-ui/react'
+import { DeleteIcon } from '@chakra-ui/icons'
+import { IconButton } from '@chakra-ui/react'
 
 
 
@@ -26,6 +28,11 @@ const TypeAdder = () => {
     	let data = [...inputFields];
     	data[index][event.target.name] = event.target.value;
 		console.log(data)
+		setInputFields(data)
+	}
+	const deleteAttribute = (index) => {
+		let data = [...inputFields]
+		data.splice(index,1)
 		setInputFields(data)
 	}
 	return (
@@ -45,6 +52,11 @@ const TypeAdder = () => {
 					<FormLabel>Data Type</FormLabel>
 					<Input type='text' placeholder = 'DataType' defaultValue = {attr.attrType} onChange={event => handleFormChange(index, event)} name='attrType'/>
 				</FormControl>
+				<IconButton
+					icon={<DeleteIcon />}
+					colorScheme='blue'
+					onClick={event => deleteAttribute(index)}
+				/>
 			</HStack>)})}
 			
 			<Button colorScheme='blue' onClick={addAttribute}>Add</Button>
