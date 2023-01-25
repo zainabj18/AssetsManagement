@@ -3,5 +3,5 @@ def test_init_db(flask_app):
         runner = flask_app.test_cli_runner()
         result = runner.invoke(args=['init-db'])
         assert result.exit_code == 0
-        assert 'Databse intialised' in result.output
+        assert 'Database intialised' in result.output
 
