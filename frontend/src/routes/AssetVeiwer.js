@@ -14,6 +14,8 @@ import {
 	WrapItem,
 	Input,
 	Button,
+	FormControl,
+	FormLabel,
 	Select,
 } from '@chakra-ui/react';
 import { Fragment } from 'react';
@@ -27,9 +29,10 @@ const AssetViewer = () => {
 	const [isDisabled, setIsDisabled] = useState(false);
 	const [tag, setTag] = useState('');
 	const [startWithEditView, setStartWithEditView] = useState(true);
-	const [projects, setProjects] = useState(['General', 'LDAP services']);
-	const [type, setType] = useState({
-		'Framework': [
+	const access_levels=['PUBLIC','INTERNAL','RESTRICTED','CONFIDENTIAL'];
+	const projects = ['General', 'LDAP services'];
+	const type ={
+		Framework: [
 			{
 				attributeName: 'Programming Language(s)',
 				attributeType: 'text',
@@ -51,7 +54,7 @@ const AssetViewer = () => {
 				attributeValue: 'v1',
 			},
 		],
-		'Document': [
+		Document: [
 			{
 				attributeName: 'draf',
 				attributeType: 'checkbox',
@@ -61,9 +64,9 @@ const AssetViewer = () => {
 				attributeName: 'version',
 				attributeType: 'text',
 				attributeValue: 'v1',
-			}
+			},
 		],
-	});
+	};
 	const handleChange = (attributeName, attributeValue) => {
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
@@ -152,34 +155,57 @@ const AssetViewer = () => {
 					startWithEditView={startWithEditView}
 					onSubmitHandler={handleChange}
 				/>
-				<Select
-					isDisabled={isDisabled}
-					onChange={(e) => {
-						handleTypeChange(e.target.value);
-					}}
-				>
-					{Object.keys(type).map((value, key) => {
-						return (
-							<option key={key} value={value}>
-								{value}
-							</option>
-						);
-					})}
-				</Select>
-				<Select
-					isDisabled={isDisabled}
-					onChange={(e) => {
-						handleChange('project', e.target.value);
-					}}
-				>
-					{projects.map((value, key) => {
-						return (
-							<option key={key} value={value}>
-								{value}
-							</option>
-						);
-					})}
-				</Select>
+				<FormControl bg="white" color="black">
+					<FormLabel>project</FormLabel>
+					<Select
+						isDisabled={isDisabled}
+						onChange={(e) => {
+							handleTypeChange(e.target.value);
+						}}
+					>
+						{Object.keys(type).map((value, key) => {
+							return (
+								<option key={key} value={value}>
+									{value}
+								</option>
+							);
+						})}
+					</Select>
+				</FormControl>
+				<FormControl bg="white" color="black">
+					<FormLabel>project</FormLabel>
+					<Select
+						isDisabled={isDisabled}
+						onChange={(e) => {
+							handleChange('project', e.target.value);
+						}}
+					>
+						{projects.map((value, key) => {
+							return (
+								<option key={key} value={value}>
+									{value}
+								</option>
+							);
+						})}
+					</Select>
+				</FormControl>
+				<FormControl bg="white" color="black">
+					<FormLabel>Access Level</FormLabel>
+					<Select
+						isDisabled={isDisabled}
+						onChange={(e) => {
+							handleChange('access_level', e.target.value);
+						}}
+					>
+						{access_levels.map((value, key) => {
+							return (
+								<option key={key} value={value}>
+									{value}
+								</option>
+							);
+						})}
+					</Select>
+				</FormControl>
 				<FormField
 					fieldName="description"
 					fieldType="text"
