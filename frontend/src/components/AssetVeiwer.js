@@ -22,10 +22,10 @@ import { Fragment } from 'react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import FormField from './FormField';
-import data from '../api.json';
+import axios from 'axios';
 const AssetViewer = ({ canEdit, isNew }) => {
 	const { id } = useParams();
-	const [assetSate, setAssetState] = useState(null);
+	const [assetSate, setAssetState] = useState(undefined);
 	const [isDisabled, setIsDisabled] = useState(!canEdit);
 	const [tag, setTag] = useState('');
 	const [openEdit, setOpenEdit] = useState(isNew);
@@ -34,53 +34,53 @@ const AssetViewer = ({ canEdit, isNew }) => {
 	const type = {
 		Framework: [
 			{
-				attributeName: 'trogramming tanguage(s)',
-				attributeType: 'text',
-				attributeValue: 'React,JS,CSS',
+				attribute_name: 'Programming language(s)',
+				attribute_type: 'text',
+				attribute_value: 'React,JS,CSS',
 			},
 			{
-				attributeName: 'no. of issues',
-				attributeType: 'number',
-				attributeValue: 2,
+				attribute_name: 'no. of issues',
+				attribute_type: 'number',
+				attribute_value: 2,
 			},
 			{
-				attributeName: 'built On',
-				attributeType: 'datetime-local',
-				attributeValue: '2021-12-10T13:45',
+				attribute_name: 'built On',
+				attribute_type: 'datetime-local',
+				attribute_value: '2021-12-10T13:45',
 			},
 			{
-				attributeName: 'version',
-				attributeType: 'text',
-				attributeValue: 'v1',
+				attribute_name: 'version',
+				attribute_type: 'text',
+				attribute_value: 'v1',
 			},
 		],
 		Document: [
 			{
-				attributeName: 'draf',
-				attributeType: 'checkbox',
-				attributeValue: false,
+				attribute_name: 'draf',
+				attribute_type: 'checkbox',
+				attribute_value: false,
 			},
 			{
-				attributeName: 'version',
-				attributeType: 'text',
-				attributeValue: 'v1',
+				attribute_name: 'version',
+				attribute_type: 'text',
+				attribute_value: 'v1',
 			},
 		],
 	};
-	const handleChange = (attributeName, attributeValue) => {
+	const handleChange = (attribute_name, attribute_value) => {
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
-			[attributeName]: attributeValue,
+			[attribute_name]: attribute_value,
 		}));
 	};
 
-	const handleMetadataChange = (attributeName, attributeValue) => {
+	const handleMetadataChange = (attribute_name, attribute_value) => {
 		let metadata = assetSate.metadata;
 		let newMetadata = metadata.map((attribute) => {
-			if (attribute.attributeName === attributeName) {
+			if (attribute.attribute_name === attribute_name) {
 				return {
 					...attribute,
-					attributeValue: attributeValue,
+					attribute_value: attribute_value,
 				};
 			} else {
 				return attribute;
@@ -114,53 +114,39 @@ const AssetViewer = ({ canEdit, isNew }) => {
 		setTag(value);
 	};
 
-	const handleTypeChange = (e, attributeValue) => {
+	const handleTypeChange = (e, attribute_value) => {
 		e.preventDefault();
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
-			metadata: type[attributeValue],
+			type: attribute_value,
+			metadata: type[attribute_value],
 		}));
 	};
-	
-	const createNewAsset=(e)=> {
-		console.log('new asse');
+
+	const createNewAsset = (e) => {
 		e.preventDefault();
-		fetch('http://127.0.0.1:5000/api/v1/asset/new',{
-			methods: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Access-Control-Allow-Origin': 'true'
-			},
-			body: JSON.stringify(assetSate)});
+		axios.post('http://127.0.0.1:5000/api/v1/asset/new', assetSate);
 	};
 
 	useEffect(() => {
 		if (id) {
-			setAssetState(data[id]);
-			fetch('http://127.0.0.1:5000/api/v1/asset/'+id, {
-				methods: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-					'Access-Control-Allow-Origin': 'true',
-				},
-			}).then((res) =>
-				res.json().then((data) => {
-					//setAssetState(data);
-					console.log(data);
-				})
-			);
+			const fetchData = async () => {
+				const res = await axios.get('http://127.0.0.1:5000/api/v1/asset/' + id);
+				console.log(res.data);
+				return res;
+			};
+			fetchData().then((res)=>{setAssetState(res.data);}).catch((err) => {console.log(err);});
+
 			setOpenEdit(false);
 		} else {
-			console.log('here');
 			setAssetState({
 				name: '',
 				link: '',
-				type: '',
+				type: 'Framework',
 				description: '',
-				owner: '',
 				tags: [],
 				project: '',
-				access_level: '',
+				access_level: 'PUBLIC',
 				metadata: [],
 			});
 		}
@@ -168,7 +154,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 
 	return assetSate ? (
 		<Container>
-			<VStack>
+			{assetSate && <VStack>
 				<Heading size={'2xl'}>Asset Attributes</Heading>
 				<StatGroup>
 					<Stat>
@@ -234,9 +220,6 @@ const AssetViewer = ({ canEdit, isNew }) => {
 					<FormLabel>Access Level</FormLabel>
 					<Select
 						isDisabled={isDisabled}
-						placeholder={
-							assetSate.access_level ? assetSate.access_level : 'PUBLIC'
-						}
 						onChange={(e) => {
 							handleChange('access_level', e.target.value);
 						}}
@@ -281,9 +264,9 @@ const AssetViewer = ({ canEdit, isNew }) => {
 					return (
 						<Fragment key={key}>
 							<FormField
-								fieldName={value.attributeName}
-								fieldType={value.attributeType}
-								fieldDefaultValue={value.attributeValue}
+								fieldName={value.attribute_name}
+								fieldType={value.attribute_type}
+								fieldDefaultValue={value.attribute_value}
 								isDisabled={isDisabled}
 								startWithEditView={openEdit}
 								onSubmitHandler={handleMetadataChange}
@@ -291,7 +274,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 						</Fragment>
 					);
 				})}
-			</VStack>
+			</VStack>}
 			<Button onClick={createNewAsset}>Sumbit</Button>
 		</Container>
 	) : null;
