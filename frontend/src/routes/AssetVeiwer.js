@@ -13,7 +13,8 @@ import {
 	Wrap,
 	WrapItem,
 	Input,
-	Button
+	Button,
+	Select,
 } from '@chakra-ui/react';
 import { Fragment } from 'react';
 import { useEffect, useState } from 'react';
@@ -34,20 +35,20 @@ const AssetViewer = () => {
 	};
 
 	const handleMetadataChange = (attributeName, attributeValue) => {
-		let metadata=assetSate.metadata;
-		let newMetadata = metadata.map(attribute => {
+		let metadata = assetSate.metadata;
+		let newMetadata = metadata.map((attribute) => {
 			if (attribute.attributeName === attributeName) {
 				return {
 					...attribute,
-					'attributeValue':attributeValue,
-				  };
+					attributeValue: attributeValue,
+				};
 			} else {
-			  return attribute;
+				return attribute;
 			}
-		  });
+		});
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
-			'metadata':newMetadata,
+			metadata: newMetadata,
 		}));
 		console.log(assetSate);
 	};
@@ -67,16 +68,17 @@ const AssetViewer = () => {
 		console.log(tag);
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
-			tags: [...prevAssetState.tags,tag],
+			tags: [...prevAssetState.tags, tag],
 		}));
 		setTag('');
 		console.log(assetSate);
-		
 	};
 	const handleTagChange = (event) => {
 		const value = event.target.value;
 		setTag(value);
-	  };
+	};
+
+	const [projects, setProjects] = useState(['General','LDAP services']);
 
 	useEffect(() => {
 		setAssetState(data[id]);
@@ -120,14 +122,12 @@ const AssetViewer = () => {
 					startWithEditView={startWithEditView}
 					onSubmitHandler={handleChange}
 				/>
-				<FormField
-					fieldName="project"
-					fieldType="text"
-					fieldDefaultValue={assetSate.project}
-					isDisabled={isDisabled}
-					startWithEditView={startWithEditView}
-					onSubmitHandler={handleChange}
-				/>
+				<Select isDisabled={isDisabled} onChange={(e) => {
+					handleChange('project', e.target.value);
+				}}>
+					{projects.map((value, key) => {
+						return (<option key={key} value={value}>{value}</option>);})}
+				</Select>
 				<FormField
 					fieldName="description"
 					fieldType="text"
@@ -145,7 +145,11 @@ const AssetViewer = () => {
 							</Tag>
 						</WrapItem>
 					))}
-					<Input placeholder="Enter Tag" value={tag} onChange={handleTagChange}/>
+					<Input
+						placeholder="Enter Tag"
+						value={tag}
+						onChange={handleTagChange}
+					/>
 					<Button onClick={onNewTag}>Add Tag</Button>
 				</Wrap>
 				<Divider />
