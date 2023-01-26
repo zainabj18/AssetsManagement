@@ -1,4 +1,4 @@
-from pydantic import BaseModel,Field
+from pydantic import BaseModel,Field,validator,ValidationError
 from typing import List,Any
 from app.db import DataAccess
 
@@ -14,6 +14,18 @@ class AssetBase(BaseModel):
     link:str
     type:str
     description:str
+    project:str
     tags:List[str]
     access_level:DataAccess
     metadata:List[Attribute]
+
+    @validator('metadata', each_item=True)
+    def check_metadata(cls, v):
+        print("here")
+        try:
+            Attribute(**v)
+        except ValidationError as e:
+            print("errre")
+            raise e
+        print("passed")
+        return v

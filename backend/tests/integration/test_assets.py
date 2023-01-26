@@ -104,7 +104,7 @@ def test_new_assset_requires_metadata(client):
             "type": "value_error.missing"
         } in res.json["data"]
 
-@pytest.mark.parametrize("attribute,json", [("name",{"name":"assetName"}),("link",{"link":"assetLink"}),("type",{"type":"assetType"}),("description",{"description":"assetDescription"}),("tags",{"tags":["assetTag1","assetTag2"]}),("access_level",{"access_level":"CONFIDENTIAL"}),("metadata",{"metadata":[{
+@pytest.mark.parametrize("attribute,json", [("name",{"name":"assetName"}),("link",{"link":"assetLink"}),("type",{"type":"assetType"}),("description",{"description":"assetDescription"}),("tags",{"tags":["assetTag1","assetTag2"]}),("access_level",{"access_level":"CONFIDENTIAL"}),("project",{"project":"projectName"}),("metadata",{"metadata":[{
                 "attributeName": "programming Language(s)",
                 "attributeType": "text",
                 "attributeValue": "React,JS,CSS"
@@ -133,7 +133,7 @@ def test_new_assset_tyes_correct(client,attribute,json):
         } not in res.json["data"]
 
 
-@pytest.mark.parametrize("attribute,json", [("name",{"name":[]}),("link",{"link":[]}),("type",{"type":[]}),("description",{"description":[]})])
+@pytest.mark.parametrize("attribute,json", [("name",{"name":[]}),("link",{"link":[]}),("type",{"type":[]}),("description",{"description":[]}),("project",{"project":[]})])
 def test_new_assset_string_types_incorect(client,attribute,json):
     res=client.post("/api/v1/asset/new",json=json)
     assert res.status_code==400
@@ -163,7 +163,54 @@ def test_new_assset_acces_level_incorrect(client):
     assert  None == res.json["data"]
 
 def test_new_assset_metadata_incorrect(client):
-    res=client.post("/api/v1/asset/new",json={"metadata":[1,2]})
+    res=client.post("/api/v1/asset/new",json={"metadata":1})
     assert res.json["error"]=="Failed to create asset from the data provided"
     assert res.json["msg"]=="Data provided is invalid"
-    assert  None == res.json["data"]
+    assert  {
+            'loc': ['metadata'],
+            "msg": 'value is not a valid list',
+            "type": 'type_error.list'
+        } in res.json["data"]
+
+    res=client.post("/api/v1/asset/new",json={"metadata":[{"s":"s"},{"attributeName":"s","attribute_type":[]}]})
+    assert res.json["error"]=="Failed to create asset from the data provided"
+    assert res.json["msg"]=="Data provided is invalid"
+    assert  {
+            'loc': ['metadata',0,'attributeName'],
+            "msg": 'field required',
+            "type": 'alue_error.missing'
+        } in res.json["data"]
+    assert  {
+            'loc': ['metadata',0,'attributeType'],
+            "msg": 'field required',
+            "type": 'alue_error.missing'
+        } in res.json["data"]
+    assert  {
+            'loc': ['metadata',0,'attributeValue'],
+            "msg": 'field required',
+            "type": 'alue_error.missing'
+        } in res.json["data"]
+    assert  {
+            'loc': ['metadata',1,'attributeValue'],
+            "msg": 'field required',
+            "type": 'value_error.missing'
+        } in res.json["data"]
+    assert  {
+            'loc': ['metadata',1,'attributeType'],
+            "msg": 'str type expected',
+            "type": 'type_error.str'
+        } in res.json["data"]
+
+
+def test_new_assset_requires_project(client):
+    res=client.post("/api/v1/asset/new",json={})
+    assert res.status_code==400
+    assert res.json["error"]=="Failed to create asset from the data provided"
+    assert res.json["msg"]=="Data provided is invalid"
+    assert  {
+            "loc": [
+                "project"
+            ],
+            "msg": "field required",
+            "type": "value_error.missing"
+        } in res.json["data"]
