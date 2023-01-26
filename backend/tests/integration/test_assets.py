@@ -156,3 +156,14 @@ def test_new_assset_tags_list_incorect(client):
             "msg": 'str type expected',
             "type": 'type_error.str'
         } in res.json["data"]
+def test_new_assset_acces_level_incorrect(client):
+    res=client.post("/api/v1/asset/new",json={"access_level":[]})
+    assert res.json["error"]=="Failed to create asset from the data provided"
+    assert res.json["msg"]=="Data provided is invalid"
+    assert  None == res.json["data"]
+
+def test_new_assset_metadata_incorrect(client):
+    res=client.post("/api/v1/asset/new",json={"metadata":[1,2]})
+    assert res.json["error"]=="Failed to create asset from the data provided"
+    assert res.json["msg"]=="Data provided is invalid"
+    assert  None == res.json["data"]
