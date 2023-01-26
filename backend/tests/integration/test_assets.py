@@ -1,4 +1,6 @@
 import pytest
+from psycopg.rows import dict_row
+from app.schemas import Attribute
 from app.db import DataAccess
 def test_new_assset_requires_name(client):
     res=client.post("/api/v1/asset/new",json={})
@@ -178,17 +180,17 @@ def test_new_assset_metadata_incorrect(client):
     assert  {
             'loc': ['metadata',0,'attributeName'],
             "msg": 'field required',
-            "type": 'alue_error.missing'
+            "type": 'value_error.missing'
         } in res.json["data"]
     assert  {
             'loc': ['metadata',0,'attributeType'],
             "msg": 'field required',
-            "type": 'alue_error.missing'
+            "type": 'value_error.missing'
         } in res.json["data"]
     assert  {
             'loc': ['metadata',0,'attributeValue'],
             "msg": 'field required',
-            "type": 'alue_error.missing'
+            "type": 'value_error.missing'
         } in res.json["data"]
     assert  {
             'loc': ['metadata',1,'attributeValue'],
@@ -214,3 +216,56 @@ def test_new_assset_requires_project(client):
             "msg": "field required",
             "type": "value_error.missing"
         } in res.json["data"]
+
+def test_asset_added_to_db(client,db_conn):
+    data={
+        "name": "My Framework",
+        "link": "https://github.com/",
+        "type": "Framework",
+        "description": "A custom frontend framework",
+        "tags": ["React","UI"],
+        "project":"General",
+        "access_level":"PUBLIC",
+        "metadata": [
+            {
+                "attributeName": "programming Language(s)",
+                "attributeType": "text",
+                "attributeValue": "React,JS,CSS"
+            },
+            {
+                "attributeName": "public",
+                "attributeType": "checkbox",
+                "attributeValue": True
+            },
+            {
+                "attributeName": "no. of issues",
+                "attributeType": "number",
+                "attributeValue": 2
+            },
+            {
+                "attributeName": "built on",
+                "attributeType": "datetime-local",
+                "attributeValue": "2021-12-10T13:45"
+            },
+            {
+                "attributeName": "version",
+                "attributeType": "text",
+                "attributeValue": "v1"
+            }
+        ]
+    }
+    res=client.post("/api/v1/asset/new",json=data)
+    assert res.status_code==200
+
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute("""SELECT * FROM assets WHERE name=%(name)s;""",{"name":data["name"]})
+        asset=cur.fetchone()
+        assert asset['name']==data['name']
+        assert asset['link']==data['link']
+        assert asset['type']==data['type']
+        assert asset['description']==data['description']
+        assert asset['tags']==data['tags']
+        assert asset['project']==data['project']
+        assert asset['access_level']==DataAccess.PUBLIC
+        assert asset['metadata']==[Attribute(**x) for x in data['metadata']]
+    

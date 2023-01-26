@@ -1,17 +1,27 @@
 from flask import Blueprint,request,jsonify
 from pydantic import ValidationError
 from app.schemas import AssetBase
+from app.db import get_db
 bp = Blueprint("asset", __name__,url_prefix="/asset")
-
+import json
 @bp.route('/new',methods =['POST'])
 def create():
     try:
         try:
-            
-            print(AssetBase(**request.json))
+            asset=AssetBase(**request.json)
         except ValidationError as e:
             return jsonify({"msg":"Data provided is invalid","data":e.errors(),"error":"Failed to create asset from the data provided"}),400
     except Exception as e:
         return jsonify({"msg":"Data provided is invalid","data":None,"error":"Failed to create asset from the data provided"}),400
+    db=get_db()
+    db_asset=asset.dict(exclude={"metadata"})
+    db_asset["metadata"]=[json.dumps(x.dict()) for x in asset.metadata]
+    with db.connection() as conn:
+        conn.execute("""
+        INSERT INTO assets (name,link,type, description, access_level,metadata,project,tags)
+VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(access_level)s,%(metadata)s,%(project)s,%(tags)s);""",db_asset)
+
+    return jsonify({"msg":"Added asset"}),200
+
    
 

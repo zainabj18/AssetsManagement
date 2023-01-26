@@ -19,13 +19,10 @@ class AssetBase(BaseModel):
     access_level:DataAccess
     metadata:List[Attribute]
 
-    @validator('metadata', each_item=True)
+    @validator('metadata', each_item=True,pre=True)
     def check_metadata(cls, v):
-        print("here")
         try:
             Attribute(**v)
         except ValidationError as e:
-            print("errre")
             raise e
-        print("passed")
         return v

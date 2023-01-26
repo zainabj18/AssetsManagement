@@ -34,7 +34,6 @@ def register():
         db = get_db()
         if get_user(db,user.username) is not None:
             return jsonify({"msg":"User already exist with the same username please try a different one.","error":"Username already exist"}),400
-        print(get_user(db,user.username))
     except ValidationError as e:
         return jsonify({"msg":"Data provided is invalid","data":e.errors(),"error":"Failed to create user from on data provided"}),400
     except Error as e:
