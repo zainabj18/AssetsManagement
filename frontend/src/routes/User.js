@@ -61,6 +61,9 @@ const User = () => {
 				<Button colorScheme='blue' variant='solid' size='lg'>
 					Save
 				</Button>
+				<Button colorScheme='red' variant='solid' size='lg' left={70}>
+					Delete
+				</Button>
 			</Stack>
 		</Box>
 	);
