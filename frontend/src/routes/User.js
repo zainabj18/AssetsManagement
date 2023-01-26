@@ -1,9 +1,9 @@
 import { HStack, Input, VStack} from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
-import { Text } from '@chakra-ui/react';
 import { React } from 'react';
 import { Flex, InputGroup, InputLeftAddon } from '@chakra-ui/react';
 import { Select } from '@chakra-ui/react';
+import { Stack, Button} from '@chakra-ui/react';
 
 const User = () => {
 	return (
@@ -33,7 +33,7 @@ const User = () => {
 					</InputGroup>
 				</Box>
 			</HStack>
-			<Flex mt={7}>
+			<Flex mt={8}>
 				<Box mr={280}>
 					Access Level
 				</Box>
@@ -57,6 +57,11 @@ const User = () => {
 					</Select>
 				</Box>
 			</HStack>
+			<Stack direction='row' spacing={4} align='center' mt={14}>
+				<Button colorScheme='blue' variant='solid' size='lg'>
+					Save
+				</Button>
+			</Stack>
 		</Box>
 	);
 };
