@@ -1,6 +1,7 @@
 import { VStack } from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
 import {Accordion,AccordionItem,AccordionButton,AccordionPanel,AccordionIcon} from '@chakra-ui/react';
+import { Checkbox } from '@chakra-ui/react';
 
 const FilterBasedSearch = () => {
 	return (
@@ -14,7 +15,8 @@ const FilterBasedSearch = () => {
 						</AccordionButton>
 					</h2>
 					<AccordionPanel pb={4}>
-						...
+						<Checkbox colorScheme='green' defaultChecked>Framework</Checkbox>
+						<Checkbox colorScheme='green' defaultChecked>Documentation</Checkbox>
 					</AccordionPanel>
 				</AccordionItem>
 				<AccordionItem>
@@ -25,7 +27,7 @@ const FilterBasedSearch = () => {
 						</AccordionButton>
 					</h2>
 					<AccordionPanel pb={4}>
-						...
+						<Checkbox colorScheme='green' defaultChecked>React</Checkbox>
 					</AccordionPanel>
 				</AccordionItem>
 				<AccordionItem>
@@ -36,7 +38,10 @@ const FilterBasedSearch = () => {
 						</AccordionButton>
 					</h2>
 					<AccordionPanel pb={4}>
-						...
+						<Checkbox colorScheme='green' defaultChecked>Project A</Checkbox>
+						<Checkbox colorScheme='green' defaultChecked>Project B</Checkbox>
+						<Checkbox colorScheme='green' defaultChecked>Project C</Checkbox>
+						<Checkbox colorScheme='green' defaultChecked>Project D</Checkbox>
 					</AccordionPanel>
 				</AccordionItem>
 			</Accordion>
