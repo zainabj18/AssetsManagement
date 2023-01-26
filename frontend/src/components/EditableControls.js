@@ -14,12 +14,12 @@ const EditableControls = () => {
 	} = useEditableControls();
 	const { isDisabled } = useEditableState();
 	return isDisabled ? null : isEditing ? (
-		<ButtonGroup>
+		<ButtonGroup m={'2'}>
 			<IconButton icon={<CheckIcon />} {...getSubmitButtonProps()} />
 			<IconButton icon={<CloseIcon />} {...getCancelButtonProps()} />
 		</ButtonGroup>
 	) : (
-		<ButtonGroup>
+		<ButtonGroup m={'2'}>
 			<IconButton icon={<EditIcon />} {...getEditButtonProps()} />
 		</ButtonGroup>
 	);

@@ -57,8 +57,8 @@ const TypeAdder = () => {
 					/>
 				</HStack>);})}
 			
-			<Button colorScheme='blue' onClick={addAttribute}>Add</Button>
-			<Button colorScheme='blue'>Save</Button>
+			<Button onClick={addAttribute}>Add</Button>
+			<Button>Save</Button>
 		</VStack>
 	);
 };

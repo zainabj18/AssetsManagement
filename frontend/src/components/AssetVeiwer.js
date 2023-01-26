@@ -156,16 +156,6 @@ const AssetViewer = ({ canEdit, isNew }) => {
 		<Container>
 			{assetSate && <VStack>
 				<Heading size={'2xl'}>Asset Attributes</Heading>
-				<StatGroup>
-					<Stat>
-						<StatLabel>Created At</StatLabel>
-						<StatNumber>{assetSate.created_at}</StatNumber>
-					</Stat>
-					<Stat>
-						<StatLabel>Last Modified</StatLabel>
-						<StatNumber>{assetSate.last_modified_at}</StatNumber>
-					</Stat>
-				</StatGroup>
 				<FormField
 					fieldName="name"
 					fieldType="text"
@@ -182,7 +172,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 					startWithEditView={openEdit}
 					onSubmitHandler={handleChange}
 				/>
-				<FormControl bg="white" color="black">
+				<FormControl bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
 					<FormLabel>Type</FormLabel>
 					<Select
 						isDisabled={isDisabled || !isNew}
@@ -199,7 +189,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 						})}
 					</Select>
 				</FormControl>
-				<FormControl bg="white" color="black">
+				<FormControl  bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
 					<FormLabel>Project</FormLabel>
 					<Select
 						isDisabled={isDisabled}
@@ -216,7 +206,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 						})}
 					</Select>
 				</FormControl>
-				<FormControl bg="white" color="black">
+				<FormControl  bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
 					<FormLabel>Access Level</FormLabel>
 					<Select
 						isDisabled={isDisabled}
@@ -241,22 +231,25 @@ const AssetViewer = ({ canEdit, isNew }) => {
 					startWithEditView={openEdit}
 					onSubmitHandler={handleChange}
 				/>
-				<Wrap spacing={4}>
-					{assetSate.tags.map((value, key) => (
-						<WrapItem key={key}>
-							<Tag size={'md'} key={key}>
-								<TagLabel>{value}</TagLabel>
-								<TagCloseButton onClick={(e) => onTagClick(e, value)} />
-							</Tag>
-						</WrapItem>
-					))}
-					<Input
-						placeholder="Enter Tag"
-						value={tag}
-						onChange={handleTagChange}
-					/>
-					<Button onClick={onNewTag}>Add Tag</Button>
-				</Wrap>
+				<FormControl  bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
+					<FormLabel>Tags</FormLabel>
+					<Wrap spacing={4}>
+						{assetSate.tags.map((value, key) => (
+							<WrapItem key={key}>
+								<Tag size={'md'} key={key}>
+									<TagLabel>{value}</TagLabel>
+									<TagCloseButton onClick={(e) => onTagClick(e, value)} />
+								</Tag>
+							</WrapItem>
+						))}
+						<Input
+							placeholder="Enter Tag"
+							value={tag}
+							onChange={handleTagChange}
+						/>
+						<Button onClick={onNewTag}>Add Tag</Button>
+					</Wrap>
+				</FormControl>
 				<Divider />
 				<Heading size={'md'}>Type Attributes:</Heading>
 
@@ -275,6 +268,17 @@ const AssetViewer = ({ canEdit, isNew }) => {
 					);
 				})}
 			</VStack>}
+			{!isNew && (<StatGroup>
+				<Stat>
+					<StatLabel>Created At</StatLabel>
+					<StatNumber>{assetSate.created_at}</StatNumber>
+				</Stat>
+				<Stat>
+					<StatLabel>Last Modified</StatLabel>
+					<StatNumber>{assetSate.last_modified_at}</StatNumber>
+				</Stat>
+			</StatGroup>)}
+			
 			<Button onClick={createNewAsset}>Sumbit</Button>
 		</Container>
 	) : null;

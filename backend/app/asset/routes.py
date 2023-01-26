@@ -3,7 +3,7 @@ from psycopg.rows import class_row
 from pydantic import ValidationError
 
 from app.db import get_db
-from app.schemas import AssetBase
+from app.schemas import AssetBase,AssetBaseInDB
 
 bp = Blueprint("asset", __name__, url_prefix="/asset")
 import json
@@ -54,7 +54,7 @@ VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(access_level)s,%(metadata)s
 def get(id):
     db = get_db()
     with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(AssetBase)) as cur:
+        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
             cur.execute("""SELECT * FROM assets WHERE asset_id=%(id)s;""", {"id": id})
             asset = cur.fetchone()
     return asset.json(), 200
