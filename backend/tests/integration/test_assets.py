@@ -270,7 +270,7 @@ def test_asset_added_to_db(client,db_conn):
         assert asset['metadata']==[Attribute(**x) for x in data['metadata']]
 
 
-def test_get_asset_added_to_db(client,db_conn):
+def test_get_asset_added_to_db(client):
     data={
         "name": "My Framework",
         "link": "https://github.com/",
@@ -309,7 +309,7 @@ def test_get_asset_added_to_db(client,db_conn):
     }
     res=client.post("/api/v1/asset/new",json=data)
     assert res.status_code==200
-    res=client.get("/api/v1/asset/1")
+    res=client.get("/api/v1/asset/get/1")
     assert res.status_code==200
     asset=res.json
     assert asset['name']==data['name']
