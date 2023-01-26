@@ -24,7 +24,7 @@ VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(access_level)s,%(metadata)s
 
     return jsonify({"msg":"Added asset"}),200
 
-@bp.route('/<id>',methods =['GET'])
+@bp.route('/get/<id>',methods =['GET'])
 def get(id):
     db=get_db()
     with db.connection() as db_conn:

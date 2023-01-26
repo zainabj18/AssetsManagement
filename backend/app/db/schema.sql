@@ -26,8 +26,8 @@ CREATE TABLE assets
     tags VARCHAR ARRAY,
 	access_level data_classification NOT NULL DEFAULT 'PUBLIC',
     metadata JSON ARRAY,
-	creation_date date NOT NULL DEFAULT now(),
-	last_modified_at date NOT NULL DEFAULT now(),
+	created_at timestamp NOT NULL DEFAULT now(),
+	last_modified_at timestamp NOT NULL DEFAULT now(),
 	project VARCHAR NOT NULL,
 	PRIMARY KEY (asset_id)
 );

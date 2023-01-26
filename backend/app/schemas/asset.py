@@ -1,5 +1,6 @@
 from pydantic import BaseModel,Field,validator,ValidationError
-from typing import List,Any
+from typing import List,Any,Optional
+from datetime import datetime
 from app.db import DataAccess
 
 class Attribute(BaseModel):
@@ -26,3 +27,7 @@ class AssetBase(BaseModel):
         except ValidationError as e:
             raise e
         return v
+
+class AssetBaseInDB(AssetBase):
+    created_at:Optional[datetime]
+    last_modified_at:Optional[datetime]

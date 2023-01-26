@@ -14,7 +14,6 @@ class FlaskAPI(Flask):
 
 def create_app(config_class=settings):
     app = FlaskAPI(__name__)
-    CORS(app)
     app.config.from_object(config_class)
     app.register_blueprint(api_bp)
     app.teardown_appcontext(close_db)

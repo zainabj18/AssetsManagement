@@ -125,13 +125,13 @@ const AssetViewer = ({ canEdit, isNew }) => {
 
 	const createNewAsset = (e) => {
 		e.preventDefault();
-		axios.post('http://127.0.0.1:5000/api/v1/asset/new', assetSate);
+		axios.post('/api/v1/asset/new', assetSate);
 	};
 
 	useEffect(() => {
 		if (id) {
 			const fetchData = async () => {
-				const res = await axios.get('http://127.0.0.1:5000/api/v1/asset/' + id);
+				const res = await axios.get('/api/v1/asset/get/' + id);
 				console.log(res.data);
 				return res;
 			};
