@@ -21,30 +21,30 @@ import {
 import { Fragment } from 'react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import FormField from '../components/FormField';
-import data from './../api.json';
-const AssetViewer = () => {
+import FormField from './FormField';
+import data from '../api.json';
+const AssetViewer = ({canEdit,isNew}) => {
 	const { id } = useParams();
 	const [assetSate, setAssetState] = useState(null);
-	const [isDisabled, setIsDisabled] = useState(false);
+	const [isDisabled, setIsDisabled] = useState(!canEdit);
 	const [tag, setTag] = useState('');
-	const [startWithEditView, setStartWithEditView] = useState(true);
-	const access_levels=['PUBLIC','INTERNAL','RESTRICTED','CONFIDENTIAL'];
+	const [openEdit, setOpenEdit] = useState(isNew);
+	const access_levels = ['PUBLIC', 'INTERNAL', 'RESTRICTED', 'CONFIDENTIAL'];
 	const projects = ['General', 'LDAP services'];
-	const type ={
+	const type = {
 		Framework: [
 			{
-				attributeName: 'Programming Language(s)',
+				attributeName: 'trogramming tanguage(s)',
 				attributeType: 'text',
 				attributeValue: 'React,JS,CSS',
 			},
 			{
-				attributeName: 'No. of Issues',
+				attributeName: 'no. of issues',
 				attributeType: 'number',
 				attributeValue: 2,
 			},
 			{
-				attributeName: 'Built On',
+				attributeName: 'built On',
 				attributeType: 'datetime-local',
 				attributeValue: '2021-12-10T13:45',
 			},
@@ -114,7 +114,8 @@ const AssetViewer = () => {
 		setTag(value);
 	};
 
-	const handleTypeChange = (attributeValue) => {
+	const handleTypeChange = (e,attributeValue) => {
+		e.preventDefault();
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
 			metadata: type[attributeValue],
@@ -122,7 +123,23 @@ const AssetViewer = () => {
 	};
 
 	useEffect(() => {
-		setAssetState(data[id]);
+		if (id) {
+			setAssetState(data[id]);
+			setOpenEdit(false);
+		} else {
+			console.log('here');
+			setAssetState({
+				name: '',
+				link: '',
+				type: '',
+				description: '',
+				owner: '',
+				tags: [],
+				project: '',
+				access_level: '',
+				metadata:[]
+			});		
+		}
 	}, [id]);
 
 	return assetSate ? (
@@ -144,7 +161,7 @@ const AssetViewer = () => {
 					fieldType="text"
 					fieldDefaultValue={assetSate.name}
 					isDisabled={isDisabled}
-					startWithEditView={startWithEditView}
+					startWithEditView={openEdit}
 					onSubmitHandler={handleChange}
 				/>
 				<FormField
@@ -152,15 +169,15 @@ const AssetViewer = () => {
 					fieldType="url"
 					fieldDefaultValue={assetSate.link}
 					isDisabled={isDisabled}
-					startWithEditView={startWithEditView}
+					startWithEditView={openEdit}
 					onSubmitHandler={handleChange}
 				/>
 				<FormControl bg="white" color="black">
-					<FormLabel>project</FormLabel>
+					<FormLabel>Type</FormLabel>
 					<Select
-						isDisabled={isDisabled}
+						isDisabled={isDisabled||!isNew}
 						onChange={(e) => {
-							handleTypeChange(e.target.value);
+							handleTypeChange(e,e.target.value);
 						}}
 					>
 						{Object.keys(type).map((value, key) => {
@@ -173,7 +190,7 @@ const AssetViewer = () => {
 					</Select>
 				</FormControl>
 				<FormControl bg="white" color="black">
-					<FormLabel>project</FormLabel>
+					<FormLabel>Project</FormLabel>
 					<Select
 						isDisabled={isDisabled}
 						onChange={(e) => {
@@ -193,6 +210,7 @@ const AssetViewer = () => {
 					<FormLabel>Access Level</FormLabel>
 					<Select
 						isDisabled={isDisabled}
+						placeholder={assetSate.access_level ? assetSate.access_level:'PUBLIC'}
 						onChange={(e) => {
 							handleChange('access_level', e.target.value);
 						}}
@@ -211,7 +229,7 @@ const AssetViewer = () => {
 					fieldType="text"
 					fieldDefaultValue={assetSate.description}
 					isDisabled={isDisabled}
-					startWithEditView={startWithEditView}
+					startWithEditView={openEdit}
 					onSubmitHandler={handleChange}
 				/>
 				<Wrap spacing={4}>
@@ -241,7 +259,7 @@ const AssetViewer = () => {
 								fieldType={value.attributeType}
 								fieldDefaultValue={value.attributeValue}
 								isDisabled={isDisabled}
-								startWithEditView={startWithEditView}
+								startWithEditView={openEdit}
 								onSubmitHandler={handleMetadataChange}
 							/>
 						</Fragment>

@@ -16,9 +16,14 @@ const FormField = ({
 	startWithEditView,
 	onSubmitHandler,
 }) => {
+
+	const toTitle = (label) => {
+		return label.charAt(0).toUpperCase()+label.substr(1).toLowerCase();
+	};
+
 	return (
 		<FormControl bg="white" color="black">
-			<FormLabel>{fieldName}</FormLabel>
+			<FormLabel>{toTitle(fieldName)}</FormLabel>
 			{fieldType === 'checkbox' ? (
 				<Checkbox
 					isDisabled={isDisabled}

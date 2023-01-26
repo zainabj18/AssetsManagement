@@ -12,22 +12,22 @@
         "last_modified_at": "2021-12-10T13:45:00.000Z",
         "metadata": [
             {
-                "attributeName": "Programming Language(s)",
+                "attributeName": "programming Language(s)",
                 "attributeType": "text",
                 "attributeValue": "React,JS,CSS"
             },
             {
-                "attributeName": "Public",
+                "attributeName": "public",
                 "attributeType": "checkbox",
                 "attributeValue": true
             },
             {
-                "attributeName": "No. of Issues",
+                "attributeName": "no. of issues",
                 "attributeType": "number",
                 "attributeValue": 2
             },
             {
-                "attributeName": "Built On",
+                "attributeName": "built on",
                 "attributeType": "datetime-local",
                 "attributeValue": "2021-12-10T13:45"
             },
