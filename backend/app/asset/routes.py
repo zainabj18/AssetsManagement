@@ -1,0 +1,60 @@
+from flask import Blueprint, jsonify, request
+from psycopg.rows import class_row
+from pydantic import ValidationError
+
+from app.db import get_db
+from app.schemas import AssetBase,AssetBaseInDB
+
+bp = Blueprint("asset", __name__, url_prefix="/asset")
+import json
+
+
+@bp.route("/new", methods=["POST"])
+def create():
+    try:
+        try:
+            asset = AssetBase(**request.json)
+        except ValidationError as e:
+            return (
+                jsonify(
+                    {
+                        "msg": "Data provided is invalid",
+                        "data": e.errors(),
+                        "error": "Failed to create asset from the data provided",
+                    }
+                ),
+                400,
+            )
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "msg": "Data provided is invalid",
+                    "data": None,
+                    "error": "Failed to create asset from the data provided",
+                }
+            ),
+            400,
+        )
+    db = get_db()
+    db_asset = asset.dict(exclude={"metadata"})
+    db_asset["metadata"] = [json.dumps(x.dict()) for x in asset.metadata]
+    with db.connection() as conn:
+        conn.execute(
+            """
+        INSERT INTO assets (name,link,type, description, access_level,metadata,project,tags)
+VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(access_level)s,%(metadata)s,%(project)s,%(tags)s);""",
+            db_asset,
+        )
+
+    return jsonify({"msg": "Added asset"}), 200
+
+
+@bp.route("/get/<id>", methods=["GET"])
+def get(id):
+    db = get_db()
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+            cur.execute("""SELECT * FROM assets WHERE asset_id=%(id)s;""", {"id": id})
+            asset = cur.fetchone()
+    return asset.json(), 200

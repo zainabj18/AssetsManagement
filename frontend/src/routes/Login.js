@@ -24,8 +24,6 @@ function Login() {
 				body: JSON.stringify({username,
 					password})}).then((res) =>
 				res.json().then((data) => {
-				// Setting a data from api
-
 					console.log('hello');
 					console.log('Bye');
 					if (data.isAuthenticated){

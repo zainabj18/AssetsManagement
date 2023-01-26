@@ -1,8 +1,8 @@
-from typing import Optional, Dict, Any, Union
-from pydantic import BaseSettings, validator, PostgresDsn
-from typing import Optional
 import os
 import secrets
+from typing import Any, Dict, Optional, Union
+
+from pydantic import BaseSettings, PostgresDsn, validator
 
 
 class DatabaseSettings(BaseSettings):
@@ -29,23 +29,25 @@ class DatabaseSettings(BaseSettings):
 
 class Base(DatabaseSettings):
     """Base configurations."""
+
     APPLICATION_NAME: str = "Asset Repository"
     APPLICATION_PORT: int = 5000
     API_VERSION: str = "v1"
     APPLICATION_ROOT_URL: str = f"/api/{API_VERSION}"
     DEBUG: bool = False
-    DEFAULT_SUPERUSER_USERNAME: str = 'admin'
-    DEFAULT_SUPERUSER_PASSWORD: str = 'admin'
+    DEFAULT_SUPERUSER_USERNAME: str = "admin"
+    DEFAULT_SUPERUSER_PASSWORD: str = "admin"
     SECRET_KEY: str = secrets.token_urlsafe(16)
     JWT_ALGO: str = "HS256"
 
     class Config:
-        env_file = '.env'
-        env_file_encoding = 'utf-8'
+        env_file = ".env"
+        env_file_encoding = "utf-8"
 
 
 class DevelopmentConfig(Base):
     """Development configurations."""
+
     ENV = "development"
     DEBUG = True
 
@@ -55,6 +57,7 @@ class DevelopmentConfig(Base):
 
 class ProductionConfig(Base):
     """Production configurations."""
+
     DEBUG = False
 
     class Config:
@@ -66,7 +69,7 @@ class BaseTestConfig(Base):
     DEBUG = True
 
 
-config = dict(DEV=DevelopmentConfig,
-              PROD=ProductionConfig, TEST=BaseTestConfig)
-settings: Union[DevelopmentConfig, ProductionConfig,
-                BaseTestConfig] = config[os.environ.get('ENV_STATE', 'dev').upper()]()
+config = dict(DEV=DevelopmentConfig, PROD=ProductionConfig, TEST=BaseTestConfig)
+settings: Union[DevelopmentConfig, ProductionConfig, BaseTestConfig] = config[
+    os.environ.get("ENV_STATE", "dev").upper()
+]()
