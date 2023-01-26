@@ -3,6 +3,7 @@ import { Box } from '@chakra-ui/react';
 import { Text } from '@chakra-ui/react';
 import { React } from 'react';
 import { Flex, InputGroup, InputLeftAddon } from '@chakra-ui/react';
+import { Select } from '@chakra-ui/react';
 
 const User = () => {
 	return (
@@ -30,6 +31,20 @@ const User = () => {
 						<InputLeftAddon children='#' />
 						<Input bg='white'/>
 					</InputGroup>
+				</Box>
+			</HStack>
+			<Flex mt={7}>
+				<Box mr={280}>
+					Access Level
+				</Box>
+			</Flex>
+			<HStack>
+				<Box>
+					<Select placeholder='Select option' color='black' bg='white' right={6}>
+						<option value='option1'>Option 1</option>
+						<option value='option2'>Option 2</option>
+						<option value='option3'>Option 3</option>
+					</Select>
 				</Box>
 			</HStack>
 		</Box>
