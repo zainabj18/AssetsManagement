@@ -23,7 +23,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import FormField from './FormField';
 import data from '../api.json';
-const AssetViewer = ({canEdit,isNew}) => {
+const AssetViewer = ({ canEdit, isNew }) => {
 	const { id } = useParams();
 	const [assetSate, setAssetState] = useState(null);
 	const [isDisabled, setIsDisabled] = useState(!canEdit);
@@ -114,17 +114,41 @@ const AssetViewer = ({canEdit,isNew}) => {
 		setTag(value);
 	};
 
-	const handleTypeChange = (e,attributeValue) => {
+	const handleTypeChange = (e, attributeValue) => {
 		e.preventDefault();
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
 			metadata: type[attributeValue],
 		}));
 	};
+	
+	const createNewAsset=(e)=> {
+		console.log('new asse');
+		e.preventDefault();
+		fetch('http://127.0.0.1:5000/api/v1/asset/new',{
+			methods: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Access-Control-Allow-Origin': 'true'
+			},
+			body: JSON.stringify(assetSate)});
+	};
 
 	useEffect(() => {
 		if (id) {
 			setAssetState(data[id]);
+			fetch('http://127.0.0.1:5000/api/v1/asset/'+id, {
+				methods: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': 'true',
+				},
+			}).then((res) =>
+				res.json().then((data) => {
+					//setAssetState(data);
+					console.log(data);
+				})
+			);
 			setOpenEdit(false);
 		} else {
 			console.log('here');
@@ -137,8 +161,8 @@ const AssetViewer = ({canEdit,isNew}) => {
 				tags: [],
 				project: '',
 				access_level: '',
-				metadata:[]
-			});		
+				metadata: [],
+			});
 		}
 	}, [id]);
 
@@ -175,9 +199,9 @@ const AssetViewer = ({canEdit,isNew}) => {
 				<FormControl bg="white" color="black">
 					<FormLabel>Type</FormLabel>
 					<Select
-						isDisabled={isDisabled||!isNew}
+						isDisabled={isDisabled || !isNew}
 						onChange={(e) => {
-							handleTypeChange(e,e.target.value);
+							handleTypeChange(e, e.target.value);
 						}}
 					>
 						{Object.keys(type).map((value, key) => {
@@ -210,7 +234,9 @@ const AssetViewer = ({canEdit,isNew}) => {
 					<FormLabel>Access Level</FormLabel>
 					<Select
 						isDisabled={isDisabled}
-						placeholder={assetSate.access_level ? assetSate.access_level:'PUBLIC'}
+						placeholder={
+							assetSate.access_level ? assetSate.access_level : 'PUBLIC'
+						}
 						onChange={(e) => {
 							handleChange('access_level', e.target.value);
 						}}
@@ -266,6 +292,7 @@ const AssetViewer = ({canEdit,isNew}) => {
 					);
 				})}
 			</VStack>
+			<Button onClick={createNewAsset}>Sumbit</Button>
 		</Container>
 	) : null;
 };

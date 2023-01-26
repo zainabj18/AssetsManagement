@@ -5,16 +5,13 @@ import React, { useState, useEffect } from 'react';
 const Layout = () => {
 	const [api, setAPI] = useState();
 	useEffect(() => {
-		// Using fetch to fetch the api from
-		// flask server it will be redirected to proxy
-		fetch('http://127.0.0.1:5000/api/v1/',{
-			methods: 'GET',
+		fetch('http://127.0.0.1:5000/api/v1/cr',{
+			methods: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 				'Access-Control-Allow-Origin': 'true'
 			}}).then((res) =>
 			res.json().then((data) => {
-				// Setting a data from api
 				setAPI(data.version);
 				console.log('hello');
 			})
