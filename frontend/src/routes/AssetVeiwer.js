@@ -27,6 +27,43 @@ const AssetViewer = () => {
 	const [isDisabled, setIsDisabled] = useState(false);
 	const [tag, setTag] = useState('');
 	const [startWithEditView, setStartWithEditView] = useState(true);
+	const [projects, setProjects] = useState(['General', 'LDAP services']);
+	const [type, setType] = useState({
+		'Framework': [
+			{
+				attributeName: 'Programming Language(s)',
+				attributeType: 'text',
+				attributeValue: 'React,JS,CSS',
+			},
+			{
+				attributeName: 'No. of Issues',
+				attributeType: 'number',
+				attributeValue: 2,
+			},
+			{
+				attributeName: 'Built On',
+				attributeType: 'datetime-local',
+				attributeValue: '2021-12-10T13:45',
+			},
+			{
+				attributeName: 'version',
+				attributeType: 'text',
+				attributeValue: 'v1',
+			},
+		],
+		'Document': [
+			{
+				attributeName: 'draf',
+				attributeType: 'checkbox',
+				attributeValue: false,
+			},
+			{
+				attributeName: 'version',
+				attributeType: 'text',
+				attributeValue: 'v1',
+			}
+		],
+	});
 	const handleChange = (attributeName, attributeValue) => {
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
@@ -50,7 +87,6 @@ const AssetViewer = () => {
 			...prevAssetState,
 			metadata: newMetadata,
 		}));
-		console.log(assetSate);
 	};
 
 	const onTagClick = (e, value) => {
@@ -64,21 +100,23 @@ const AssetViewer = () => {
 
 	const onNewTag = (e) => {
 		e.preventDefault();
-		console.log(assetSate);
-		console.log(tag);
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
 			tags: [...prevAssetState.tags, tag],
 		}));
 		setTag('');
-		console.log(assetSate);
 	};
 	const handleTagChange = (event) => {
 		const value = event.target.value;
 		setTag(value);
 	};
 
-	const [projects, setProjects] = useState(['General','LDAP services']);
+	const handleTypeChange = (attributeValue) => {
+		setAssetState((prevAssetState) => ({
+			...prevAssetState,
+			metadata: type[attributeValue],
+		}));
+	};
 
 	useEffect(() => {
 		setAssetState(data[id]);
@@ -114,19 +152,33 @@ const AssetViewer = () => {
 					startWithEditView={startWithEditView}
 					onSubmitHandler={handleChange}
 				/>
-				<FormField
-					fieldName="type"
-					fieldType="text"
-					fieldDefaultValue={assetSate.type}
+				<Select
 					isDisabled={isDisabled}
-					startWithEditView={startWithEditView}
-					onSubmitHandler={handleChange}
-				/>
-				<Select isDisabled={isDisabled} onChange={(e) => {
-					handleChange('project', e.target.value);
-				}}>
+					onChange={(e) => {
+						handleTypeChange(e.target.value);
+					}}
+				>
+					{Object.keys(type).map((value, key) => {
+						return (
+							<option key={key} value={value}>
+								{value}
+							</option>
+						);
+					})}
+				</Select>
+				<Select
+					isDisabled={isDisabled}
+					onChange={(e) => {
+						handleChange('project', e.target.value);
+					}}
+				>
 					{projects.map((value, key) => {
-						return (<option key={key} value={value}>{value}</option>);})}
+						return (
+							<option key={key} value={value}>
+								{value}
+							</option>
+						);
+					})}
 				</Select>
 				<FormField
 					fieldName="description"
