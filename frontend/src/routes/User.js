@@ -1,24 +1,38 @@
-import { Input, VStack } from '@chakra-ui/react';
+import { HStack, Input, VStack} from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
 import { Text } from '@chakra-ui/react';
 import { React } from 'react';
+import { Flex, InputGroup, InputLeftAddon } from '@chakra-ui/react';
 
 const User = () => {
 	return (
-		<VStack>
-			<Box mb={6} mr={900}>
-				First Name
-			</Box>
-			<Box mt={5} mr={900}>
-				Last Name
-			</Box>
-			<Box color ='black'>
-				<Input  bg = 'white' placeholder='Name' top={3} right={450}/>
-			</Box>
-			<Box color ='black'>
-				<Input  bg = 'white' bottom={9} placeholder='Surname'/>
-			</Box>
-		</VStack>
+		<Box p={50}>
+			<Flex>
+				<Box mr={280}>
+					First Name
+				</Box>
+				<Box mr={210}>
+					Last Name
+				</Box>
+				<Box mr={105}>
+					Username
+				</Box>
+			</Flex>
+			<HStack>
+				<Box color ='black'>
+					<Input  bg = 'white' placeholder='Name' right={70}/>
+				</Box>
+				<Box color ='black'>
+					<Input  bg = 'white' placeholder='Surname' left={71}/>
+				</Box>
+				<Box color ='black'>
+					<InputGroup left={48}>
+						<InputLeftAddon children='#' />
+						<Input bg='white'/>
+					</InputGroup>
+				</Box>
+			</HStack>
+		</Box>
 	);
 };
 
