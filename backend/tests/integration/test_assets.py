@@ -131,3 +131,18 @@ def test_new_assset_tyes_correct(client,attribute,json):
             "msg": "field required",
             "type": "value_error.missing"
         } not in res.json["data"]
+
+
+@pytest.mark.parametrize("attribute,json", [("name",{"name":[]}),("link",{"link":[]}),("type",{"type":[]}),("description",{"description":[]})])
+def test_new_assset_string_types_incorect(client,attribute,json):
+    res=client.post("/api/v1/asset/new",json=json)
+    assert res.status_code==400
+    assert res.json["error"]=="Failed to create asset from the data provided"
+    assert res.json["msg"]=="Data provided is invalid"
+    assert  {
+            "loc": [
+                attribute
+            ],
+            "msg": 'str type expected',
+            "type": 'type_error.str'
+        } in res.json["data"]
