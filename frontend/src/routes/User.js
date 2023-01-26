@@ -1,4 +1,4 @@
-import { FormControl, FormLabel, HStack, Input, VStack} from '@chakra-ui/react';
+import { FormControl, FormLabel, HStack, Input} from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
 import { React } from 'react';
 import { Flex, InputGroup, InputLeftAddon } from '@chakra-ui/react';

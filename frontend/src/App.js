@@ -12,14 +12,11 @@ function App() {
 	return (
 		<Routes>
 			<Route path="/" element={<Layout />}>
-<<<<<<< HEAD
 				<Route path="newasset" element={<CreateAsset />} />
 				<Route path="asset/:id" element={<AssetViewer canEdit={true} isNew={false}/>} />
-=======
 				<Route path="login" element={<Login />} />
 				<Route path="Filter" element={<FilterBasedSearch />} />
 				<Route path="User" element={<User />} />
->>>>>>> main
 				<Route path="*" element={<NoMatch />} />
 				<Route path="type/adder" element={<TypeAdder />} />
 			</Route>

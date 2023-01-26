@@ -1,17 +1,19 @@
-from flask import Blueprint,request,jsonify
-from app.schemas import UserCreate,UserInDB
-from app.db import get_db,UserRole
-from app.core.utils import protected
-from pydantic.error_wrappers import ValidationError
-from werkzeug.security import generate_password_hash,check_password_hash
-from psycopg import Error
-from flask import current_app
-from datetime import timedelta,datetime
+from datetime import datetime, timedelta
+
 import jwt
+from flask import Blueprint, current_app, jsonify, request
+from psycopg import Error
 from psycopg.rows import class_row
-bp = Blueprint("type", __name__,url_prefix="/type")
+from pydantic.error_wrappers import ValidationError
+from werkzeug.security import check_password_hash, generate_password_hash
 
-@bp.route('/adder',methods =['GET'])
+from app.core.utils import protected
+from app.db import UserRole, get_db
+from app.schemas import UserCreate, UserInDB
+
+bp = Blueprint("type", __name__, url_prefix="/type")
+
+
+@bp.route("/adder", methods=["GET"])
 def types():
-    return {"msg":""},200
-
+    return {"msg": ""}, 200
