@@ -268,4 +268,58 @@ def test_asset_added_to_db(client,db_conn):
         assert asset['project']==data['project']
         assert asset['access_level']==DataAccess.PUBLIC
         assert asset['metadata']==[Attribute(**x) for x in data['metadata']]
+
+
+def test_get_asset_added_to_db(client,db_conn):
+    data={
+        "name": "My Framework",
+        "link": "https://github.com/",
+        "type": "Framework",
+        "description": "A custom frontend framework",
+        "tags": ["React","UI"],
+        "project":"General",
+        "access_level":"PUBLIC",
+        "metadata": [
+            {
+                "attributeName": "programming Language(s)",
+                "attributeType": "text",
+                "attributeValue": "React,JS,CSS"
+            },
+            {
+                "attributeName": "public",
+                "attributeType": "checkbox",
+                "attributeValue": True
+            },
+            {
+                "attributeName": "no. of issues",
+                "attributeType": "number",
+                "attributeValue": 2
+            },
+            {
+                "attributeName": "built on",
+                "attributeType": "datetime-local",
+                "attributeValue": "2021-12-10T13:45"
+            },
+            {
+                "attributeName": "version",
+                "attributeType": "text",
+                "attributeValue": "v1"
+            }
+        ]
+    }
+    res=client.post("/api/v1/asset/new",json=data)
+    assert res.status_code==200
+    res=client.get("/api/v1/asset/1")
+    assert res.status_code==200
+    asset=res.json
+    assert asset['name']==data['name']
+    assert asset['link']==data['link']
+    assert asset['type']==data['type']
+    assert asset['description']==data['description']
+    assert asset['tags']==data['tags']
+    assert asset['project']==data['project']
+    assert asset['access_level']=="PUBLIC"
+    assert asset['metadata']==[Attribute(**x) for x in data['metadata']]
+
+    
     
