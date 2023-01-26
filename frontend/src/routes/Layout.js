@@ -5,8 +5,6 @@ import React, { useState, useEffect } from 'react';
 const Layout = () => {
 	const [api, setAPI] = useState();
 	useEffect(() => {
-		// Using fetch to fetch the api from
-		// flask server it will be redirected to proxy
 		fetch('http://127.0.0.1:5000/api/v1/',{
 			methods: 'GET',
 			headers: {
