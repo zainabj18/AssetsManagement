@@ -23,3 +23,16 @@ def test_new_assset_requires_link(client):
             "msg": "field required",
             "type": "value_error.missing"
         } in res.json["data"]
+
+def test_new_assset_requires_type_name(client):
+    res=client.post("/api/v1/asset/new",json={})
+    assert res.status_code==400
+    assert res.json["error"]=="Failed to create asset from the data provided"
+    assert res.json["msg"]=="Data provided is invalid"
+    assert  {
+            "loc": [
+                "type"
+            ],
+            "msg": "field required",
+            "type": "value_error.missing"
+        } in res.json["data"]
