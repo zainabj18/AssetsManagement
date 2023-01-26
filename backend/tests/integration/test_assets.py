@@ -146,3 +146,13 @@ def test_new_assset_string_types_incorect(client,attribute,json):
             "msg": 'str type expected',
             "type": 'type_error.str'
         } in res.json["data"]
+
+def test_new_assset_tags_list_incorect(client):
+    res=client.post("/api/v1/asset/new",json={"tags":["1",[]]})
+    assert res.json["error"]=="Failed to create asset from the data provided"
+    assert res.json["msg"]=="Data provided is invalid"
+    assert  {
+            'loc': ['tags', 1],
+            "msg": 'str type expected',
+            "type": 'type_error.str'
+        } in res.json["data"]
