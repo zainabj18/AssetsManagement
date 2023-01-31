@@ -1,10 +1,12 @@
 
 import {
 	Button,
+	Checkbox,
 	FormControl, FormLabel,
 	IconButton,
 	Input,
 	HStack, VStack,
+	Table, Thead, Tbody, Tr, Th, Td, TableContainer, TableCaption,
 	Text
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
@@ -12,61 +14,90 @@ import { DeleteIcon } from '@chakra-ui/icons';
 
 
 const TypeAdder = () => {
-	const [inputFields, setInputFields] = useState([
+	const [selectedAttributes, setSelectedAttributes] = useState([
+	]);
+	const [attributes, setAttributes] = useState([
 		{ attrName: 'programming language', attrType: 'text' },
 		{ attrName: 'country of origin', attrType: 'text' }
 	]);
-	const addAttribute = () => {
-		let newAttribute = { attrName: '', attrType: '' };
-		setInputFields([...inputFields, newAttribute]);
+	const ajustSelectedAttributes = (checked, index) => {
+		if (checked) {
+			addAttribute(index);
+		}
+		if (!checked) {
+			let attrData = [...attributes];
+			removeAttrByEqualAttr(attrData[index]);
+		}
 	};
-	const handleFormChange = (index, event) => {
-		let data = [...inputFields];
-		data[index][event.target.name] = event.target.value;
-		console.log(data); // TODO remove
-		setInputFields(data);
+	const addAttribute = (attrindex) => {
+		let data = [...attributes];
+		let newAttribute = data[attrindex];
+		setSelectedAttributes([...selectedAttributes, newAttribute]);
 	};
-	const deleteAttribute = (index) => {
-		let data = [...inputFields];
+	const removeAttrByEqualAttr = (attr) => {
+		let selectedData = [...selectedAttributes];
+		let index = selectedData.indexOf(attr);
+		selectedData.splice(index, 1);
+		setSelectedAttributes(selectedData);
+	};
+	const removeAttributeByIndex = (index) => {
+		let data = [...selectedAttributes];
 		data.splice(index, 1);
-		setInputFields(data);
+		setSelectedAttributes(data);
 	};
 	return (
-		<VStack minW="100vw">
+		<VStack width="90vw">
 			<Text>TypeAdder</Text>
 			<FormControl isRequired>
 				<FormLabel>Name</FormLabel>
 				<Input type='text' placeholder='Name' />
 			</FormControl>
-			{inputFields.map((attr, index) => {
-				return (
-					<HStack key={index}>
-						<FormControl>
-							<FormLabel>Attribute Name</FormLabel>
-							<Input type='text'
-								placeholder='AttributeName'
-								defaultValue={attr.attrName}
-								onChange={event => handleFormChange(index, event)}
-								name='attrName'
-							/>
-						</FormControl>
-						<FormControl>
-							<FormLabel>Data Type</FormLabel>
-							<Input type='text'
-								placeholder='DataType'
-								defaultValue={attr.attrType}
-								onChange={event => handleFormChange(index, event)}
-								name='attrType'
-							/>
-						</FormControl>
-						<IconButton
-							icon={<DeleteIcon />}
-							colorScheme='blue'
-							onClick={event => deleteAttribute(index)}
-						/>
-					</HStack>);
-			})}
-			<Button onClick={addAttribute}>Add</Button>
+			{/** The List of selected attributes */}
+			<HStack minW='80%'>
+				{/** The list of all attributes */}
+				<FormControl width='30%'>
+					<FormLabel>Selet attributes</FormLabel>
+					{attributes.map((attr, index) => {
+						return (
+							<VStack key={index} align="left">
+								<Checkbox
+									value={attr.attrName}
+									onChange={(e) => ajustSelectedAttributes(e.target.checked, index)}
+								> {attr.attrName}
+								</Checkbox>
+							</VStack>
+						);
+					})}
+				</FormControl>
+				<TableContainer width='70%'>
+					<Table varient='simple'>
+						<TableCaption placement='top'>Selected Attributes</TableCaption>
+						<Thead>
+							<Tr>
+								<Th>Attribute Name</Th>
+								<Th>Data Type</Th>
+								<Th>Delete</Th>
+							</Tr>
+						</Thead>
+						<Tbody>
+							{selectedAttributes.map((attr, index) => {
+								return (
+									<Tr key={index}>
+										<Td>{attr.attrName}</Td>
+										<Td>{attr.attrType}</Td>
+										<Td><IconButton
+											icon={<DeleteIcon />}
+											colorScheme='blue'
+											onClick={event => removeAttributeByIndex(index)}
+										/></Td>
+									</Tr>
+								);
+							})}
+						</Tbody>
+					</Table>
+				</TableContainer>
+			</HStack>
+			<Button>Add</Button>
 			<Button>Save</Button>
 		</VStack>
 	);
