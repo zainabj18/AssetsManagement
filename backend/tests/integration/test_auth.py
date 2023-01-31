@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timedelta
 from unittest import mock
-
+from werkzeug.http import parse_cookie
 import jwt
 import pytest
 from psycopg import Error
@@ -453,17 +453,21 @@ def test_login(client):
     )
 
     assert res.status_code == 200
- 
-
-    # data = jwt.decode(
-    #     token,
-    #     os.environ["SECRET_KEY"],
-    #     algorithms=[client.application.config["JWT_ALGO"]],
-    # )
-    # assert data["account_id"] == 1
-    # assert data["account_type"] == "ADMIN"
-    # assert data["account_privileges"] == "CONFIDENTIAL"
-    # assert datetime.utcfromtimestamp(data["exp"]) > datetime.now()
+    access_token_cookie=next((cookie for cookie in res.headers.getlist('Set-Cookie') if 'access-token' in cookie),None)
+    assert access_token_cookie!=None
+    cookie_attrs = parse_cookie(access_token_cookie)
+    assert 'Secure' in cookie_attrs
+    assert 'HttpOnly' in cookie_attrs
+    token=cookie_attrs['access-token' ] 
+    data = jwt.decode(
+        token,
+        os.environ["SECRET_KEY"],
+        algorithms=[client.application.config["JWT_ALGO"]],
+    )
+    assert data["account_id"] == 1
+    assert data["account_type"] == "ADMIN"
+    assert data["account_privileges"] == "CONFIDENTIAL"
+    assert datetime.utcfromtimestamp(data["exp"]) > datetime.now()
 
 
 def test_protected_route_no_token(client):
