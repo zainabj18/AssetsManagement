@@ -31,8 +31,7 @@ const TypeAdder = () => {
 	};
 	const addAttribute = (attrindex) => {
 		let data = [...attributes];
-		let newAttribute = data[attrindex];
-		setSelectedAttributes([...selectedAttributes, newAttribute]);
+		setSelectedAttributes([...selectedAttributes, data[attrindex]]);
 	};
 	const removeAttrByEqualAttr = (attr) => {
 		let selectedData = [...selectedAttributes];
@@ -52,7 +51,6 @@ const TypeAdder = () => {
 				<FormLabel>Name</FormLabel>
 				<Input type='text' placeholder='Name' />
 			</FormControl>
-			{/** The List of selected attributes */}
 			<HStack minW='80%'>
 				{/** The list of all attributes */}
 				<FormControl width='30%'>
@@ -69,6 +67,7 @@ const TypeAdder = () => {
 						);
 					})}
 				</FormControl>
+				{/** The List of selected attributes */}
 				<TableContainer width='70%'>
 					<Table varient='simple'>
 						<TableCaption placement='top'>Selected Attributes</TableCaption>
