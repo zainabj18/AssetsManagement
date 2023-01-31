@@ -10,10 +10,8 @@ def protected(role=UserRole.VIEWER):
     def decorated_route(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            token = None
-            if "x-access-token" in request.headers:
-                token = request.headers["x-access-token"]
-            else:
+            token = request.cookies.get('access-token')
+            if not token:
                 return {
                     "msg": "Please provide a valid token in the header",
                     "error": "Missing Token",

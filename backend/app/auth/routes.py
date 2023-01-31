@@ -114,7 +114,9 @@ def login():
         current_app.config["SECRET_KEY"],
         algorithm=current_app.config["JWT_ALGO"],
     )
-    return {"msg": "Success", "token": token}, 201
+    resp=jsonify({"msg": "logged in"})
+    resp.set_cookie('access-token', value=token,secure=True,httponly=True)
+    return resp
 
 
 @bp.route("/admin-status", methods=["GET"])
