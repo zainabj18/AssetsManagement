@@ -72,7 +72,7 @@ const TypeAdder = () => {
 			<HStack minW='80%'>
 				{/** The list of all attributes */}
 				<FormControl width='30%'>
-					<FormLabel>Selet attributes</FormLabel>
+					<FormLabel>Select attributes</FormLabel>
 					{attributes.map((attr, index) => {
 						return (
 							<VStack key={attr.priKey} align="left">
@@ -89,11 +89,11 @@ const TypeAdder = () => {
 				{/** The List of selected attributes */}
 				<TableContainer width='70%'>
 					<Table varient='simple'>
-						<TableCaption placement='top'>Selected Attributes</TableCaption>
+						<TableCaption placement='top' color='white'>Selected Attributes</TableCaption>
 						<Thead>
 							<Tr>
-								<Th>Attribute Name</Th>
-								<Th>Data Type</Th>
+								<Th color='white'>Attribute Name</Th>
+								<Th color='white'>Data Type</Th>
 							</Tr>
 						</Thead>
 						<Tbody>
