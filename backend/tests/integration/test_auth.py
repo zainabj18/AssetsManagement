@@ -633,7 +633,7 @@ def test_protected_rbac_user(client, valid_token, expected_res):
     [{"account_type": UserRole.VIEWER, "account_privileges": DataAccess.PUBLIC}],
     indirect=True,
 )
-def test_protected_identify_valid_token(client, valid_token):
+def test_identify_valid_token(client, valid_token):
     client.set_cookie("localhost","access-token",valid_token)
     res = client.get(
         "/api/v1/auth/identify"
@@ -647,7 +647,7 @@ def test_protected_identify_valid_token(client, valid_token):
         }
 
 
-def test_protected_identify_no_token(client):
+def test_identify_no_token(client):
     res = client.get(
         "/api/v1/auth/identify"
     )
@@ -656,3 +656,19 @@ def test_protected_identify_no_token(client):
         "error": "Missing Token",
         "msg": "Please provide a valid token in the header",
     }
+
+def test_identify_expired_token(client):
+    token = jwt.encode(
+        {
+            "account_id": 1,
+            "account_type": "ADMIN",
+            "account_privileges": "CONFIDENTIAL",
+            "exp": datetime.utcnow() - timedelta(minutes=30),
+        },
+        client.application.config["SECRET_KEY"],
+        algorithm=client.application.config["JWT_ALGO"],
+    )
+    client.set_cookie("localhost","access-token",token)
+    res = client.get("/api/v1/auth/identify")
+    assert res.status_code == 401
+    assert res.json == {"error": "Invalid Token", "msg": "Signature has expired"}
