@@ -3,22 +3,20 @@ import {
 	Button,
 	Checkbox,
 	FormControl, FormLabel,
-	IconButton,
 	Input,
 	HStack, VStack,
 	Table, Thead, Tbody, Tr, Th, Td, TableContainer, TableCaption,
 	Text
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
-import { DeleteIcon } from '@chakra-ui/icons';
-
 
 const TypeAdder = () => {
 	const [selectedAttributes, setSelectedAttributes] = useState([
+		{ priKey: '0', attrName: 'programming language', attrType: 'text' }
 	]);
 	const [attributes, setAttributes] = useState([
-		{ attrName: 'programming language', attrType: 'text' },
-		{ attrName: 'country of origin', attrType: 'text' }
+		{ priKey: '0', attrName: 'programming language', attrType: 'text' },
+		{ priKey: '1', attrName: 'country of origin', attrType: 'text' }
 	]);
 	const ajustSelectedAttributes = (checked, index) => {
 		if (checked) {
@@ -26,24 +24,31 @@ const TypeAdder = () => {
 		}
 		if (!checked) {
 			let attrData = [...attributes];
-			removeAttrByEqualAttr(attrData[index]);
+			removeAttr(attrData[index]);
 		}
 	};
 	const addAttribute = (attrindex) => {
 		let data = [...attributes];
 		setSelectedAttributes([...selectedAttributes, data[attrindex]]);
 	};
-	const removeAttrByEqualAttr = (attr) => {
+	const removeAttr = (attr) => {
 		let selectedData = [...selectedAttributes];
 		let index = selectedData.indexOf(attr);
 		selectedData.splice(index, 1);
 		setSelectedAttributes(selectedData);
 	};
-	const removeAttributeByIndex = (index) => {
-		let data = [...selectedAttributes];
-		data.splice(index, 1);
-		setSelectedAttributes(data);
+	function sameChecked(priKey) {
+		let selectedData = [...selectedAttributes];
+		let i;
+		for (i = 0; i < selectedData.length; i++) {
+			// eslint-disable-next-line
+			if (priKey == selectedData[i].priKey) {
+				return true;
+			}
+		}
+		return false;
 	};
+
 	return (
 		<VStack width="90vw">
 			<Text>TypeAdder</Text>
@@ -57,8 +62,9 @@ const TypeAdder = () => {
 					<FormLabel>Selet attributes</FormLabel>
 					{attributes.map((attr, index) => {
 						return (
-							<VStack key={index} align="left">
+							<VStack key={attr.priKey} align="left">
 								<Checkbox
+									isChecked={sameChecked(index)}
 									value={attr.attrName}
 									onChange={(e) => ajustSelectedAttributes(e.target.checked, index)}
 								> {attr.attrName}
@@ -75,20 +81,14 @@ const TypeAdder = () => {
 							<Tr>
 								<Th>Attribute Name</Th>
 								<Th>Data Type</Th>
-								<Th>Delete</Th>
 							</Tr>
 						</Thead>
 						<Tbody>
 							{selectedAttributes.map((attr, index) => {
 								return (
-									<Tr key={index}>
+									<Tr key={attr.priKey}>
 										<Td>{attr.attrName}</Td>
 										<Td>{attr.attrType}</Td>
-										<Td><IconButton
-											icon={<DeleteIcon />}
-											colorScheme='blue'
-											onClick={event => removeAttributeByIndex(index)}
-										/></Td>
 									</Tr>
 								);
 							})}
