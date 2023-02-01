@@ -1,7 +1,7 @@
-import { useContext } from 'react';
+import { useContext,useEffect } from 'react';
 import { createContext,useMemo,useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../api';
+import { loginUser,indentifyUser } from '../api';
 export const AuthContext = createContext({
 	loggedIn:false,
 	user: null,
@@ -26,6 +26,10 @@ export const AuthProvider = ({children}) => {
 			setAuthError(err.response.data);
 		});
 	};
+
+	useEffect(() => {
+		indentifyUser().then(res => setUser(res.data)).catch(() => {});
+	},[]);
 	const value = useMemo(
 		() => ({loggedIn,user,authError,login}), 
 		[user,authError]
