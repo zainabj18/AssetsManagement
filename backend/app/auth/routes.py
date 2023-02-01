@@ -159,3 +159,9 @@ def identify():
             "userPrivileges": data["account_privileges"]
         }})
     return resp
+
+@bp.route("/logout", methods=["DELETE"])
+def logout():
+    resp=jsonify({"msg": "logged out","data": {}})
+    resp.set_cookie('access-token', '', expires=0)
+    return resp

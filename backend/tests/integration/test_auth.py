@@ -672,3 +672,21 @@ def test_identify_expired_token(client):
     res = client.get("/api/v1/auth/identify")
     assert res.status_code == 401
     assert res.json == {"error": "Invalid Token", "msg": "Signature has expired"}
+
+@pytest.mark.parametrize(
+    "valid_token",
+    [{"account_type": UserRole.VIEWER, "account_privileges": DataAccess.PUBLIC}],
+    indirect=True,
+)
+def test_logout(client,valid_token):
+    client.set_cookie("localhost","access-token",valid_token)
+    res = client.delete(
+        "/api/v1/auth/logout"
+    )
+    assert res.status_code == 200
+    access_token_cookie=next((cookie for cookie in res.headers.getlist('Set-Cookie') if 'access-token' in cookie),None)
+    assert access_token_cookie!=None
+    cookie_attrs = parse_cookie(access_token_cookie)
+    assert datetime.strptime(cookie_attrs["Expires"],'%a, %d %b %Y %H:%M:%S %Z')  < datetime.now()
+    token=cookie_attrs['access-token'] 
+    assert token==''
