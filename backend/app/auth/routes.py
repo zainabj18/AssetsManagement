@@ -115,7 +115,7 @@ def login():
         algorithm=current_app.config["JWT_ALGO"],
     )
     resp=jsonify({"msg": "logged in"})
-    resp.set_cookie('access-token', value=token,secure=True,httponly=True)
+    resp.set_cookie('access-token', value=token,secure=True,httponly=True,expires=datetime.utcnow() + timedelta(minutes=30))
     return resp
 
 

@@ -458,7 +458,8 @@ def test_login(client):
     cookie_attrs = parse_cookie(access_token_cookie)
     assert 'Secure' in cookie_attrs
     assert 'HttpOnly' in cookie_attrs
-    token=cookie_attrs['access-token' ] 
+    assert datetime.strptime(cookie_attrs["Expires"],'%a, %d %b %Y %H:%M:%S %Z')  > datetime.now()
+    token=cookie_attrs['access-token'] 
     data = jwt.decode(
         token,
         os.environ["SECRET_KEY"],
