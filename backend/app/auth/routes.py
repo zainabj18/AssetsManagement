@@ -7,7 +7,7 @@ from psycopg.rows import class_row
 from pydantic.error_wrappers import ValidationError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app.core.utils import protected
+from app.core.utils import protected,decode_token
 from app.db import UserRole, get_db
 from app.schemas import UserCreate, UserInDB
 
@@ -147,3 +147,15 @@ def is_viewer(user_id, access_level):
     return {
         "msg": f"{user_id} You have viewer privileges and data access level of {access_level}"
     }, 200
+
+
+@bp.route("/identify", methods=["GET"])
+def identify():
+    data=decode_token(request)
+
+    resp=jsonify({"msg": "found you","data": {
+            "userID":data["account_id"],
+            "userRole": data["account_type"],
+            "userPrivileges": data["account_privileges"]
+        }})
+    return resp

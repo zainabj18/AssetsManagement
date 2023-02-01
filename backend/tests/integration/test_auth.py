@@ -535,14 +535,14 @@ def test_protected_valid_token(client, valid_token):
                 "account_type": UserRole.USER,
                 "account_privileges": DataAccess.CONFIDENTIAL,
             },
-            {"status_code": 401, "msg": "unauthorised"},
+            {"status_code": 403, "msg": "forbidden"},
         ),
         (
             {
                 "account_type": UserRole.VIEWER,
                 "account_privileges": DataAccess.CONFIDENTIAL,
             },
-            {"status_code": 401, "msg": "unauthorised"},
+            {"status_code": 403, "msg": "forbidden"},
         ),
     ],
     indirect=True,
@@ -578,7 +578,7 @@ def test_protected_rbac_admin(client, valid_token, expected_res):
                 "account_type": UserRole.VIEWER,
                 "account_privileges": DataAccess.CONFIDENTIAL,
             },
-            {"status_code": 401, "msg": "unauthorised"},
+            {"status_code": 403, "msg": "forbidden"},
         ),
     ],
     indirect=True,
@@ -626,3 +626,22 @@ def test_protected_rbac_user(client, valid_token, expected_res):
     )
     assert res.status_code == expected_res["status_code"]
     assert expected_res["msg"] in res.json["msg"]
+
+
+@pytest.mark.parametrize(
+    "valid_token",
+    [{"account_type": UserRole.VIEWER, "account_privileges": DataAccess.PUBLIC}],
+    indirect=True,
+)
+def test_protected_identify_valid_token(client, valid_token):
+    client.set_cookie("localhost","access-token",valid_token)
+    res = client.get(
+        "/api/v1/auth/identify"
+    )
+    assert res.status_code == 200
+    assert res.json['msg']=='found you'
+    assert res.json['data']=={
+            "userID": None,
+            "userPrivileges": "PUBLIC",
+            "userRole": "VIEWER"
+        }
