@@ -85,13 +85,15 @@ def register():
 
 @bp.route("/login", methods=["POST"])
 def login():
-    if "username" not in request.json or "password" not in request.json:
+    request_dict=dict(request.json)
+    username = request_dict.get("username",None)
+    pwd = request_dict.get("password",None)
+    if not username or not pwd or username=='' or username=='':
         return {
             "msg": "username and password required",
             "error": "Invalid credentials",
         }, 400
-    username = request.json["username"]
-    pwd = request.json["password"]
+  
     db = get_db()
     try:
         if not (user_in_db := get_user(db, username)):
