@@ -116,7 +116,11 @@ def login():
         current_app.config["SECRET_KEY"],
         algorithm=current_app.config["JWT_ALGO"],
     )
-    resp=jsonify({"msg": "logged in"})
+    resp=jsonify({"msg": "logged in","data": {
+            "userID": int(user_in_db.account_id),
+            "userRole": user_in_db.account_type.value,
+            "userPrivileges": user_in_db.account_privileges.value
+        }})
     resp.set_cookie('access-token', value=token,secure=True,httponly=True,expires=datetime.utcnow() + timedelta(minutes=30))
     return resp
 
