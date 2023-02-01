@@ -11,13 +11,19 @@ import {
 import React, { useState } from 'react';
 
 const TypeAdder = () => {
+
+	/** The selected attributes */
 	const [selectedAttributes, setSelectedAttributes] = useState([
 		{ priKey: '0', attrName: 'programming language', attrType: 'text' }
 	]);
+
+	/** All attributes */
 	const [attributes, setAttributes] = useState([
 		{ priKey: '0', attrName: 'programming language', attrType: 'text' },
 		{ priKey: '1', attrName: 'country of origin', attrType: 'text' }
 	]);
+
+	/** Decides if the attribute needs to be added or removed from selected */
 	const ajustSelectedAttributes = (checked, index) => {
 		if (checked) {
 			addAttribute(index);
@@ -27,16 +33,23 @@ const TypeAdder = () => {
 			removeAttr(attrData[index]);
 		}
 	};
+
+	/** Adds an attribute to the selected attributes */
 	const addAttribute = (attrindex) => {
 		let data = [...attributes];
 		setSelectedAttributes([...selectedAttributes, data[attrindex]]);
 	};
+
+	/** Removes an attribute from the selected attributes */
 	const removeAttr = (attr) => {
 		let selectedData = [...selectedAttributes];
 		let index = selectedData.indexOf(attr);
 		selectedData.splice(index, 1);
 		setSelectedAttributes(selectedData);
 	};
+
+	/** Checks to see if the given priKey is also in the selected attributes
+	 * and if so, checks the check box for it */
 	function sameChecked(priKey) {
 		let selectedData = [...selectedAttributes];
 		let i;
