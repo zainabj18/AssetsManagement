@@ -1,5 +1,6 @@
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import { createContext,useMemo,useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../api';
 export const AuthContext = createContext({
 	loggedIn:false,
@@ -9,6 +10,7 @@ export const AuthContext = createContext({
 });
 
 export const AuthProvider = ({children}) => {
+	let navigate = useNavigate();
 	const [user, setUser] = useState(null);
 	const [loggedIn,setLoggedIn]=useState(false);
 	const [authError, setAuthError] = useState(null);
@@ -19,6 +21,7 @@ export const AuthProvider = ({children}) => {
 			setUser(res.data);
 			setLoggedIn(true);
 			setAuthError(null);
+			navigate('/');
 		}).catch(err=>{
 			setAuthError(err.response.data);
 		});
