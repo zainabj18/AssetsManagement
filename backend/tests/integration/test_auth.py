@@ -645,3 +645,14 @@ def test_protected_identify_valid_token(client, valid_token):
             "userPrivileges": "PUBLIC",
             "userRole": "VIEWER"
         }
+
+
+def test_protected_identify_no_token(client):
+    res = client.get(
+        "/api/v1/auth/identify"
+    )
+    assert res.status_code == 401
+    assert res.json == {
+        "error": "Missing Token",
+        "msg": "Please provide a valid token in the header",
+    }
