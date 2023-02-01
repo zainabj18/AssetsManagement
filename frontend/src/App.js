@@ -7,21 +7,14 @@ import NoMatch from './routes/NoMatch';
 import FilterBasedSearch from './routes/FilterBasedSearch';
 import User from './routes/User';
 import TypeAdder from './routes/TypeAdder';
-import { createContext,useMemo,useState } from 'react';
+import { AuthProvider } from './hooks/useAuth';
 
-export const AuthContext = createContext({
-	setUser: () => null,
-	user: null
-});
+
 
 function App() {
-	const [user, setUser] = useState({'userID':1,'userType':'ADMIN','userPrivileges':'PUBLIC'});
-	const value = useMemo(
-		() => ({ user, setUser, }), 
-		[user]
-	);
+	
 	return (
-		<AuthContext.Provider value={value}>
+		<AuthProvider>
 			<Routes>
 				<Route path="/" element={<Layout />}>
 					<Route path="newasset" element={<CreateAsset />} />
@@ -33,7 +26,7 @@ function App() {
 					<Route path="type/adder" element={<TypeAdder />} />
 				</Route>
 			</Routes>
-		</AuthContext.Provider>
+		</AuthProvider>
 	);
 }
 
