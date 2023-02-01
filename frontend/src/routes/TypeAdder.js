@@ -77,7 +77,7 @@ const TypeAdder = () => {
 						return (
 							<VStack key={attr.priKey} align="left">
 								<Checkbox
-									isChecked={sameChecked(index)}
+									isChecked={sameChecked(attr.priKey)}
 									value={attr.attrName}
 									onChange={(e) => ajustSelectedAttributes(e.target.checked, index)}
 								> {attr.attrName}
