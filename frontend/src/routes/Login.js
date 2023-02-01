@@ -16,21 +16,15 @@ import {
 } from '@chakra-ui/react';
 import axios from 'axios';
 import { ViewIcon,ViewOffIcon } from '@chakra-ui/icons';
+import useAuth from '../hooks/useAuth';
 
 function Login() {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
-	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const [show, setShow] = React.useState(false);
-	const [error, setError] = useState(null);
+	const { login,authError } = useAuth();
 	const handleLogin = () => {
-		axios.post('/api/v1/auth/login',{username, password}).then((res) => {
-			console.log(res);
-			setError(null);
-		}
-		).catch( (res) =>{
-			setError(res.response.data);
-		});};
+		login(username,password);};
 
 	return (
 		<Container>
@@ -60,10 +54,10 @@ function Login() {
 						</InputRightElement>
 					</InputGroup>
 				</FormControl>
-				{error && (<Alert status='error'>
+				{authError && (<Alert status='error'>
   							<AlertIcon />
-					<AlertTitle>{error.error}</AlertTitle>
-					<AlertDescription>{error.msg}</AlertDescription>
+					<AlertTitle>{authError.error}</AlertTitle>
+					<AlertDescription>{authError.msg}</AlertDescription>
 				</Alert>)}
 				<Button onClick={handleLogin}>
           Login
