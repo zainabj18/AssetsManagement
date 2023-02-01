@@ -16,7 +16,6 @@ export const AuthProvider = ({children}) => {
 	const [authError, setAuthError] = useState(null);
 
 	const login = ( username, password ) => {
-		console.log({ username, password });
 		loginUser({ username, password }).then(res=> {
 			setUser(res.data);
 			setLoggedIn(true);
