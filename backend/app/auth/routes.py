@@ -43,6 +43,14 @@ def get_user(db, username):
             user_in_db = cur.fetchone()
             return user_in_db
 
+def get_user_by_id(db, user_id):
+    with db.connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """SELECT username FROM accounts WHERE account_id=%(user_id)s;""",
+                {"user_id": user_id},
+            )
+            return cur.fetchone()
 
 @bp.route("/register", methods=["POST"])
 def register():
@@ -119,6 +127,7 @@ def login():
     resp=jsonify({"msg": "logged in","data": {
             "userID": int(user_in_db.account_id),
             "userRole": user_in_db.account_type.value,
+            "username": username,
             "userPrivileges": user_in_db.account_privileges.value
         }})
     resp.set_cookie('access-token', value=token,secure=True,httponly=True,expires=datetime.utcnow() + timedelta(minutes=30))
@@ -152,10 +161,14 @@ def is_viewer(user_id, access_level):
 @bp.route("/identify", methods=["GET"])
 def identify():
     data=decode_token(request)
-
+    db = get_db()
+    username=get_user_by_id(db,data["account_id"])
+    if username:
+        username=username[0]
     resp=jsonify({"msg": "found you","data": {
             "userID":data["account_id"],
             "userRole": data["account_type"],
+            "username": username,
             "userPrivileges": data["account_privileges"]
         }})
     return resp

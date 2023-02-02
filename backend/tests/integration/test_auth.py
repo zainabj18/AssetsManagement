@@ -477,7 +477,21 @@ def test_login(client):
     assert data["account_privileges"] == "CONFIDENTIAL"
     assert datetime.utcfromtimestamp(data["exp"]) > datetime.now()
 
-
+def test_valid_login_response(client):
+    res = client.post(
+        "/api/v1/auth/login",
+        json={
+            "username": os.environ["DEFAULT_SUPERUSER_USERNAME"],
+            "password": os.environ["DEFAULT_SUPERUSER_PASSWORD"],
+        },
+    )
+    assert res.status_code == 200
+    assert res.json["msg"]=="logged in"
+    data=res.json["data"]
+    assert data["userID"]==1
+    assert data["userRole"]=="ADMIN"
+    assert data["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
+    assert data["userPrivileges"]=="CONFIDENTIAL"
 def test_protected_route_no_token(client):
     res = client.get("/api/v1/auth/admin-status")
     assert res.status_code == 401
@@ -643,8 +657,30 @@ def test_identify_valid_token(client, valid_token):
     assert res.json['data']=={
             "userID": None,
             "userPrivileges": "PUBLIC",
-            "userRole": "VIEWER"
+            "userRole": "VIEWER",
+            'username': None
         }
+
+def test_identify_admin(client):
+    res = client.post(
+        "/api/v1/auth/login",
+        json={
+            "username": os.environ["DEFAULT_SUPERUSER_USERNAME"],
+            "password": os.environ["DEFAULT_SUPERUSER_PASSWORD"],
+        },
+    )
+
+    assert res.status_code == 200
+    res = client.get(
+        "/api/v1/auth/identify"
+    )
+    assert res.status_code == 200
+    assert res.json["msg"]=="found you"
+    data=res.json["data"]
+    assert data["userID"]==1
+    assert data["userRole"]=="ADMIN"
+    assert data["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
+    assert data["userPrivileges"]=="CONFIDENTIAL"
 
 
 def test_identify_no_token(client):
