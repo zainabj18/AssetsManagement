@@ -1,8 +1,5 @@
-import {Outlet} from 'react-router-dom';
-
-
 const AssetsOverview = () => {
-	return (<Outlet />);
+	return (<p>List of all assets</p>);
 };
  
 export default AssetsOverview;
