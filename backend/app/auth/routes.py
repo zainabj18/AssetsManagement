@@ -162,8 +162,8 @@ def is_viewer(user_id, access_level):
 def identify():
     data=decode_token(request)
     db = get_db()
-    username=get_user_by_id(db,data["account_id"])
-    if username:
+
+    if (username := get_user_by_id(db,data["account_id"])):
         username=username[0]
     resp=jsonify({"msg": "found you","data": {
             "userID":data["account_id"],
