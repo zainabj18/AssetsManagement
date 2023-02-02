@@ -2,7 +2,7 @@ import { Menu,MenuButton,MenuList,Button,MenuItem,MenuGroup,MenuDivider, Badge, 
 import { FaUserCircle } from 'react-icons/fa';
 import useAuth from '../hooks/useAuth';
 const UserMenuButton = () => {
-	const {user} = useAuth();
+	const {user,logout} = useAuth();
 	return ( <Menu>
 		<MenuButton as={Button} colorScheme='pink' leftIcon={<FaUserCircle size={18} />}>
 			{user.username}
@@ -19,7 +19,7 @@ const UserMenuButton = () => {
 				<MenuItem>View related projects</MenuItem>
 			</MenuGroup>
 			<MenuDivider />
-			<MenuItem>Logout</MenuItem>
+			<MenuItem onClick={logout}>Logout</MenuItem>
 		</MenuList>
 
 	</Menu>);
