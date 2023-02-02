@@ -58,14 +58,12 @@ const TypeAdder = () => {
 		setSelectedAttributes(selectedData);
 	};
 
-	/** Checks to see if the given name is also in the selected attributes
-	 * and if so, checks the check box for it */
-	const sameChecked = (attrName) => {
-		let selectedData = [...selectedAttributes];
+	/** Checks to see if the given name is also in the given list */
+	const isAttrNameIn = (attrName, list) => {
 		let i;
-		for (i = 0; i < selectedData.length; i++) {
+		for (i = 0; i < list.length; i++) {
 			// eslint-disable-next-line
-			if (attrName == selectedData[i].attrName) {
+			if (list[i].attrName == attrName) {
 				return true;
 			}
 		}
@@ -78,7 +76,14 @@ const TypeAdder = () => {
 	/** Creates a new attribute */
 	const createAttribute = () => {
 		let inputs = document.getElementsByClassName('new_attrForm');
-		setAttributes([...attributes , (new Attr(inputs[0].value, inputs[1].value))]);
+		let name = inputs[0].value;
+		let type = inputs[1].value;
+		if (isAttrNameIn(name, [...attributes])) {
+
+		}
+		else {
+			setAttributes([...attributes , (new Attr(name, type))]);
+		}
 	};
 
 	return (
@@ -96,7 +101,7 @@ const TypeAdder = () => {
 						return (
 							<VStack key={attr.attrName} align="left">
 								<Checkbox
-									isChecked={sameChecked(attr.attrName)}
+									isChecked={isAttrNameIn(attr.attrName, [...selectedAttributes])}
 									value={attr.attrName}
 									onChange={(e) => ajustSelectedAttributes(e.target.checked, index)}
 								> {attr.attrName}
