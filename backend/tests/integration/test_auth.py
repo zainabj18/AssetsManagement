@@ -492,6 +492,7 @@ def test_valid_login_response(client):
     assert data["userRole"]=="ADMIN"
     assert data["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
     assert data["userPrivileges"]=="CONFIDENTIAL"
+
 def test_protected_route_no_token(client):
     res = client.get("/api/v1/auth/admin-status")
     assert res.status_code == 401
@@ -682,6 +683,29 @@ def test_identify_admin(client):
     assert data["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
     assert data["userPrivileges"]=="CONFIDENTIAL"
 
+
+def test_identify_db_error(client):
+    with mock.patch(
+        "app.auth.routes.get_user_by_id", side_effect=Error("Fake error executing query")
+    ) as p:
+        res = client.post(
+        "/api/v1/auth/login",
+        json={
+            "username": os.environ["DEFAULT_SUPERUSER_USERNAME"],
+            "password": os.environ["DEFAULT_SUPERUSER_PASSWORD"],
+        },
+    )
+
+        assert res.status_code == 200
+        res = client.get(
+            "/api/v1/auth/identify"
+        )
+        assert res.status_code == 500
+        assert res.json == {
+            "error": "Database Connection Error",
+            "msg": "Fake error executing query",
+        }
+        p.assert_called()
 
 def test_identify_no_token(client):
     res = client.get(

@@ -162,9 +162,12 @@ def is_viewer(user_id, access_level):
 def identify():
     data=decode_token(request)
     db = get_db()
-
-    if (username := get_user_by_id(db,data["account_id"])):
-        username=username[0]
+    try:
+        if (username := get_user_by_id(db,data["account_id"])):
+            username=username[0]
+    except Error as e:
+        return {"msg": str(e), "error": "Database Connection Error"}, 500
+    
     resp=jsonify({"msg": "found you","data": {
             "userID":data["account_id"],
             "userRole": data["account_type"],
