@@ -5,8 +5,10 @@ import {
 	FormControl, FormLabel,
 	Input,
 	HStack, VStack,
+	Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter,
 	Table, Thead, Tbody, Tr, Th, Td, TableContainer, TableCaption,
-	Text
+	Text,
+	useDisclosure
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
 
@@ -62,6 +64,8 @@ const TypeAdder = () => {
 		return false;
 	};
 
+	const { isOpen, onOpen, onClose } = useDisclosure();
+
 	return (
 		<VStack width="90vw">
 			<Text>TypeAdder</Text>
@@ -109,8 +113,29 @@ const TypeAdder = () => {
 					</Table>
 				</TableContainer>
 			</HStack>
-			<Button>Add</Button>
+			<Button onClick={onOpen}>Add</Button>
 			<Button>Save</Button>
+
+			<Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
+				<ModalOverlay />
+				<ModalContent color='black'>
+					<ModalHeader>Create New Attribute</ModalHeader>
+					<ModalCloseButton />
+					<ModalBody>
+						<FormControl>
+							<FormLabel>Attribute Name</FormLabel>
+							<Input type='text' variant='outline'></Input>
+						</FormControl>
+						<FormControl>
+							<FormLabel>Data Type</FormLabel>
+							<Input type='text' variant='outline'></Input>
+						</FormControl>
+					</ModalBody>
+					<ModalFooter>
+						<Button onClick={onClose}>Cancel</Button>
+					</ModalFooter>
+				</ModalContent>
+			</Modal>
 		</VStack>
 	);
 };
