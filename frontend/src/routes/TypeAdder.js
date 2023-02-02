@@ -165,7 +165,7 @@ const TypeAdder = () => {
 			<Button onClick={onOpen}>Add</Button>
 			<Button>Save</Button>
 
-			<Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
+			<Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={() => { clearAttrErrors(); onClose(); }}>
 				<ModalOverlay />
 				<ModalContent color='black'>
 					<ModalHeader>Create New Attribute</ModalHeader>
@@ -192,7 +192,7 @@ const TypeAdder = () => {
 					</ModalBody>
 					<ModalFooter>
 						<Button onClick={createAttribute}>Save</Button>
-						<Button onClick={() => {clearAttrErrors(); onClose();}}>Cancel</Button>
+						<Button onClick={() => { clearAttrErrors(); onClose(); }}>Cancel</Button>
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
