@@ -2,7 +2,7 @@
 import {
 	Button,
 	Checkbox,
-	FormControl, FormLabel,
+	FormControl, FormLabel, FormErrorMessage,
 	Input,
 	HStack, VStack,
 	Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter,
@@ -73,15 +73,16 @@ const TypeAdder = () => {
 	/** States for the Modal */
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
+	const [new_attrName_error,  set_new_attrName_error] = useState(false);
+
 	/** Creates a new attribute */
 	const createAttribute = () => {
 		let inputs = document.getElementsByClassName('new_attrForm');
 		let name = inputs[0].value;
 		let type = inputs[1].value;
-		if (isAttrNameIn(name, [...attributes])) {
-
-		}
-		else {
+		let isGood = isAttrNameIn(name, [...attributes]);
+		set_new_attrName_error(isGood);
+		if (!isGood) {
 			setAttributes([...attributes , (new Attr(name, type))]);
 		}
 	};
@@ -142,13 +143,14 @@ const TypeAdder = () => {
 					<ModalHeader>Create New Attribute</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>
-						<FormControl>
+						<FormControl isInvalid={new_attrName_error}>
 							<FormLabel>Attribute Name</FormLabel>
 							<Input type='text'
 								variant='outline'
 								name='new_attrName'
 								className='new_attrForm'
 							></Input>
+							<FormErrorMessage>Name already in use</FormErrorMessage>
 						</FormControl>
 						<FormControl>
 							<FormLabel>Data Type</FormLabel>
