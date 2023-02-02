@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import CustomNavLink from './CustomNavLink';
 import UserMenuButton from './UserMenuButton';
 
-const Header = ({logout}) => {
+const Header = () => {
 	return ( 
 		<Box>
 			<HStack>

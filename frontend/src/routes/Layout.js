@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import Header from '../components/Header';
 
 const Layout = () => {
-	const {loggedIn,logout} = useAuth();
+	const {loggedIn} = useAuth();
 	let navigate = useNavigate();
 	useEffect(() => {
 		if (!loggedIn){
@@ -15,7 +15,7 @@ const Layout = () => {
 	return (
 		<VStack minW="100vw" bg="blue.600" minH={'100vh'}>
 			<Heading>Code Groover Assets Metadata Repository</Heading>
-			<Header logout={logout}/>
+			<Header />
 			<Container maxW={'full'}>
 				<Outlet />
 			</Container>
