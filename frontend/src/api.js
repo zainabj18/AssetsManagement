@@ -8,6 +8,9 @@ export const loginUser = async ({username,password})=> {
 export const indentifyUser = async ()=> {
 	return await axios.get('/auth/identify').then(res=>res.data);
 };
+export const logoutUser = async ()=> {
+	return await axios.delete('/auth/logout').then(res=>res.data);
+};
 export const fetchAsset= async (id)=> {
 	return await axios.get(`/asset/get/${id}`);
 };
