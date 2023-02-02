@@ -15,8 +15,7 @@ import React, { useState } from 'react';
 const TypeAdder = () => {
 
 	class Attr {
-		constructor(priKey, attrName, attrType) {
-			this.priKey = priKey;
+		constructor(attrName, attrType) {
 			this.attrName = attrName;
 			this.attrType = attrType;
 		}
@@ -24,13 +23,13 @@ const TypeAdder = () => {
 
 	/** The selected attributes */
 	const [selectedAttributes, setSelectedAttributes] = useState([
-		new Attr('0', 'programming language', 'text')
+		new Attr('programming language', 'text')
 	]);
 
 	/** All attributes */
 	const [attributes, setAttributes] = useState([
-		new Attr('0', 'programming language', 'text'),
-		new Attr('1', 'country of origin', 'text')
+		new Attr('programming language', 'text'),
+		new Attr('country of origin', 'text')
 	]);
 
 	/** Decides if the attribute needs to be added or removed from selected */
@@ -58,14 +57,14 @@ const TypeAdder = () => {
 		setSelectedAttributes(selectedData);
 	};
 
-	/** Checks to see if the given priKey is also in the selected attributes
+	/** Checks to see if the given name is also in the selected attributes
 	 * and if so, checks the check box for it */
-	const sameChecked = (priKey) => {
+	const sameChecked = (attrName) => {
 		let selectedData = [...selectedAttributes];
 		let i;
 		for (i = 0; i < selectedData.length; i++) {
 			// eslint-disable-next-line
-			if (priKey == selectedData[i].priKey) {
+			if (attrName == selectedData[i].attrName) {
 				return true;
 			}
 		}
@@ -76,7 +75,7 @@ const TypeAdder = () => {
 
 	const createAttribute = () => {
 		let inputs = document.getElementsByClassName('new_attrForm');
-		setAttributes([...attributes , (new Attr('2',inputs[0].value, inputs[1].value))]);
+		setAttributes([...attributes , (new Attr(inputs[0].value, inputs[1].value))]);
 	};
 
 	return (
@@ -92,9 +91,9 @@ const TypeAdder = () => {
 					<FormLabel>Select attributes</FormLabel>
 					{attributes.map((attr, index) => {
 						return (
-							<VStack key={attr.priKey} align="left">
+							<VStack key={attr.attrName} align="left">
 								<Checkbox
-									isChecked={sameChecked(attr.priKey)}
+									isChecked={sameChecked(attr.attrName)}
 									value={attr.attrName}
 									onChange={(e) => ajustSelectedAttributes(e.target.checked, index)}
 								> {attr.attrName}
@@ -116,7 +115,7 @@ const TypeAdder = () => {
 						<Tbody>
 							{selectedAttributes.map((attr, index) => {
 								return (
-									<Tr key={attr.priKey}>
+									<Tr key={attr.attrName}>
 										<Td>{attr.attrName}</Td>
 										<Td>{attr.attrType}</Td>
 									</Tr>
