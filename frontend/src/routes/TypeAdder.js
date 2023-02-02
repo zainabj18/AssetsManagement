@@ -107,6 +107,7 @@ const TypeAdder = () => {
 		let allGood = !emptyName && !emptyType && !duplicate;
 		if (allGood) {
 			setAttributes([...attributes, (new Attr(name, type))]);
+			onClose();
 		}
 	};
 
