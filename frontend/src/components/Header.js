@@ -1,6 +1,7 @@
 import { Box, Button, HStack, Link } from '@chakra-ui/react';
 import { NavLink } from 'react-router-dom';
 import CustomNavLink from './CustomNavLink';
+import UserMenuButton from './UserMenuButton';
 
 const Header = ({logout}) => {
 	return ( 
@@ -13,7 +14,7 @@ const Header = ({logout}) => {
 				assets
 				</CustomNavLink>
 				<Link>Hello</Link>
-				<Button onClick={logout}>Logout</Button>
+				<UserMenuButton />
 			</HStack>
 			
 		</Box> );
