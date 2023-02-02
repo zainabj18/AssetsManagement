@@ -50,7 +50,7 @@ const TypeAdder = () => {
 
 	/** Checks to see if the given priKey is also in the selected attributes
 	 * and if so, checks the check box for it */
-	function sameChecked(priKey) {
+	const sameChecked = (priKey) => {
 		let selectedData = [...selectedAttributes];
 		let i;
 		for (i = 0; i < selectedData.length; i++) {
