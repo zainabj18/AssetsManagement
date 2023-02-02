@@ -14,6 +14,7 @@ import React, { useState } from 'react';
 
 const TypeAdder = () => {
 
+	/** Class that represents an attribute */
 	class Attr {
 		constructor(attrName, attrType) {
 			this.attrName = attrName;
@@ -71,8 +72,10 @@ const TypeAdder = () => {
 		return false;
 	};
 
+	/** States for the Modal */
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
+	/** Creates a new attribute */
 	const createAttribute = () => {
 		let inputs = document.getElementsByClassName('new_attrForm');
 		setAttributes([...attributes , (new Attr(inputs[0].value, inputs[1].value))]);
@@ -113,7 +116,7 @@ const TypeAdder = () => {
 							</Tr>
 						</Thead>
 						<Tbody>
-							{selectedAttributes.map((attr, index) => {
+							{selectedAttributes.map((attr) => {
 								return (
 									<Tr key={attr.attrName}>
 										<Td>{attr.attrName}</Td>
