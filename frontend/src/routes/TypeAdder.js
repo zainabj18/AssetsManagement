@@ -73,9 +73,13 @@ const TypeAdder = () => {
 	/** States for the Modal */
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
-	/** States for the new attribute form input errors */
+	/** States and methods for the new attribute form input errors */
 	const [new_attrName_errorMessage, set_new_attrName_errorMessage] = useState('');
 	const [new_attrType_errorMessage, set_new_attrType_errorMessage] = useState('');
+	const clearAttrErrors = () => {
+		set_new_attrName_errorMessage('');
+		set_new_attrType_errorMessage('');
+	};
 
 	/** Creates a new attribute if it passes the requirements
 	 * other wise, it sets error messages */
@@ -109,11 +113,6 @@ const TypeAdder = () => {
 			setAttributes([...attributes, (new Attr(name, type))]);
 			onClose();
 		}
-	};
-
-	const clearAttrErrors = () => {
-		set_new_attrName_errorMessage('');
-		set_new_attrType_errorMessage('');
 	};
 
 	return (
