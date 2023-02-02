@@ -110,6 +110,11 @@ const TypeAdder = () => {
 		}
 	};
 
+	const clearAttrErrors = () => {
+		set_new_attrName_errorMessage('');
+		set_new_attrType_errorMessage('');
+	};
+
 	return (
 		<VStack width="90vw">
 			<Text>TypeAdder</Text>
@@ -187,7 +192,7 @@ const TypeAdder = () => {
 					</ModalBody>
 					<ModalFooter>
 						<Button onClick={createAttribute}>Save</Button>
-						<Button onClick={onClose}>Cancel</Button>
+						<Button onClick={() => {clearAttrErrors(); onClose();}}>Cancel</Button>
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
