@@ -1,5 +1,6 @@
 import { Menu,MenuButton,MenuList,Button,MenuItem,MenuGroup,MenuDivider, Badge, HStack} from '@chakra-ui/react';
 import { FaUserCircle } from 'react-icons/fa';
+import { MdLogout } from 'react-icons/md';
 import useAuth from '../hooks/useAuth';
 const UserMenuButton = () => {
 	const {user,logout} = useAuth();
@@ -19,7 +20,7 @@ const UserMenuButton = () => {
 				<MenuItem>View related projects</MenuItem>
 			</MenuGroup>
 			<MenuDivider />
-			<MenuItem onClick={logout}>Logout</MenuItem>
+			<MenuItem onClick={logout} icon={<MdLogout />}>Logout</MenuItem>
 		</MenuList>
 
 	</Menu>);
