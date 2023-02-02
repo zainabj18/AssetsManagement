@@ -6,6 +6,7 @@ import Login from './routes/Login';
 import NoMatch from './routes/NoMatch';
 import FilterBasedSearch from './routes/FilterBasedSearch';
 import User from './routes/User';
+import CreateProject from './routes/CreateProject';
 import TypeAdder from './routes/TypeAdder';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
 				<Route path="login" element={<Login />} />
 				<Route path="filter" element={<FilterBasedSearch />} />
 				<Route path="user" element={<User />} />
+				<Route path="newproject" element={<CreateProject />} />
 				<Route path="*" element={<NoMatch />} />
 				<Route path="type/adder" element={<TypeAdder />} />
 			</Route>
