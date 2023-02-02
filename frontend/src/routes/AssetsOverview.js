@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom';
+import {Outlet} from 'react-router-dom';
 
 
 const AssetsOverview = () => {
-	return ( <Link to={'/newasset'}>Asset 1</Link> );
+	return (<Outlet />);
 };
  
 export default AssetsOverview;

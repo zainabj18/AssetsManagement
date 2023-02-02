@@ -23,6 +23,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import FormField from './FormField';
 import axios from 'axios';
+import { fetchAsset } from '../api';
 const AssetViewer = ({ canEdit, isNew }) => {
 	const { id } = useParams();
 	const [assetSate, setAssetState] = useState(undefined);
@@ -130,13 +131,8 @@ const AssetViewer = ({ canEdit, isNew }) => {
 
 	useEffect(() => {
 		if (id) {
-			const fetchData = async () => {
-				const res = await axios.get('/api/v1/asset/get/' + id);
-				console.log(res.data);
-				return res;
-			};
-			fetchData().then((res)=>{setAssetState(res.data);}).catch((err) => {console.log(err);});
-
+			fetchAsset(id).then((data)=>{
+				setAssetState(data);}).catch((err) => {console.log(err);});
 			setOpenEdit(false);
 		} else {
 			setAssetState({
