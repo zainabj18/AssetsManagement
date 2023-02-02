@@ -73,17 +73,40 @@ const TypeAdder = () => {
 	/** States for the Modal */
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
-	const [new_attrName_error,  set_new_attrName_error] = useState(false);
+	/** States for the new attribute form input errors */
+	const [new_attrName_errorMessage, set_new_attrName_errorMessage] = useState('');
+	const [new_attrType_errorMessage, set_new_attrType_errorMessage] = useState('');
 
-	/** Creates a new attribute */
+	/** Creates a new attribute if it passes the requirements
+	 * other wise, it sets error messages */
 	const createAttribute = () => {
 		let inputs = document.getElementsByClassName('new_attrForm');
 		let name = inputs[0].value;
 		let type = inputs[1].value;
-		let isGood = isAttrNameIn(name, [...attributes]);
-		set_new_attrName_error(isGood);
-		if (!isGood) {
-			setAttributes([...attributes , (new Attr(name, type))]);
+		let duplicate = isAttrNameIn(name, [...attributes]);
+		let emptyName = name === '';
+		let emptyType = type === '';
+
+		if (emptyName) {
+			set_new_attrName_errorMessage('Name is required');
+		}
+		else if (duplicate) {
+			set_new_attrName_errorMessage('Name already in use');
+		}
+		else {
+			set_new_attrName_errorMessage('');
+		}
+
+		if (emptyType) {
+			set_new_attrType_errorMessage('Type is required');
+		}
+		else {
+			set_new_attrType_errorMessage('');
+		}
+
+		let allGood = !emptyName && !emptyType && !duplicate;
+		if (allGood) {
+			setAttributes([...attributes, (new Attr(name, type))]);
 		}
 	};
 
@@ -143,22 +166,23 @@ const TypeAdder = () => {
 					<ModalHeader>Create New Attribute</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>
-						<FormControl isInvalid={new_attrName_error}>
+						<FormControl isRequired isInvalid={new_attrName_errorMessage !== ''}>
 							<FormLabel>Attribute Name</FormLabel>
 							<Input type='text'
 								variant='outline'
 								name='new_attrName'
 								className='new_attrForm'
 							></Input>
-							<FormErrorMessage>Name already in use</FormErrorMessage>
+							<FormErrorMessage>{new_attrName_errorMessage}</FormErrorMessage>
 						</FormControl>
-						<FormControl>
+						<FormControl isRequired isInvalid={new_attrType_errorMessage !== ''}>
 							<FormLabel>Data Type</FormLabel>
 							<Input type='text'
 								variant='outline'
 								name='new_attrType'
 								className='new_attrForm'
 							></Input>
+							<FormErrorMessage>{new_attrType_errorMessage}</FormErrorMessage>
 						</FormControl>
 					</ModalBody>
 					<ModalFooter>
