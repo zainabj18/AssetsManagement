@@ -14,15 +14,23 @@ import React, { useState } from 'react';
 
 const TypeAdder = () => {
 
+	class Attr {
+		constructor(priKey, attrName, attrType) {
+			this.priKey = priKey;
+			this.attrName = attrName;
+			this.attrType = attrType;
+		}
+	}
+
 	/** The selected attributes */
 	const [selectedAttributes, setSelectedAttributes] = useState([
-		{ priKey: '0', attrName: 'programming language', attrType: 'text' }
+		new Attr('0', 'programming language', 'text')
 	]);
 
 	/** All attributes */
 	const [attributes, setAttributes] = useState([
-		{ priKey: '0', attrName: 'programming language', attrType: 'text' },
-		{ priKey: '1', attrName: 'country of origin', attrType: 'text' }
+		new Attr('0', 'programming language', 'text'),
+		new Attr('1', 'country of origin', 'text')
 	]);
 
 	/** Decides if the attribute needs to be added or removed from selected */
@@ -65,6 +73,11 @@ const TypeAdder = () => {
 	};
 
 	const { isOpen, onOpen, onClose } = useDisclosure();
+
+	const createAttribute = () => {
+		let inputs = document.getElementsByClassName('new_attrForm');
+		setAttributes([...attributes , (new Attr('2',inputs[0].value, inputs[1].value))]);
+	};
 
 	return (
 		<VStack width="90vw">
@@ -124,14 +137,23 @@ const TypeAdder = () => {
 					<ModalBody>
 						<FormControl>
 							<FormLabel>Attribute Name</FormLabel>
-							<Input type='text' variant='outline'></Input>
+							<Input type='text'
+								variant='outline'
+								name='new_attrName'
+								className='new_attrForm'
+							></Input>
 						</FormControl>
 						<FormControl>
 							<FormLabel>Data Type</FormLabel>
-							<Input type='text' variant='outline'></Input>
+							<Input type='text'
+								variant='outline'
+								name='new_attrType'
+								className='new_attrForm'
+							></Input>
 						</FormControl>
 					</ModalBody>
 					<ModalFooter>
+						<Button onClick={createAttribute}>Save</Button>
 						<Button onClick={onClose}>Cancel</Button>
 					</ModalFooter>
 				</ModalContent>
