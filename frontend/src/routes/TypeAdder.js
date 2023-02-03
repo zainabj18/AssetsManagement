@@ -188,6 +188,7 @@ const TypeAdder = () => {
 							<FormLabel>Data Type</FormLabel>
 							<Select
 								name='new_attrType'
+								onLoad={update_new_attrForm('type', types[0])}
 								onChange={(e) => update_new_attrForm('type', e.target.value)}
 							>
 								{types.map((types) => {
