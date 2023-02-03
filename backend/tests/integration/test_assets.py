@@ -347,3 +347,10 @@ def test_get_asset_added_to_db(client):
     assert asset["project"] == data["project"]
     assert asset["access_level"] == "PUBLIC"
     assert asset["metadata"] == [Attribute(**x) for x in data["metadata"]]
+
+def test_get_access_levels(client):
+    res = client.get(
+        "/api/v1/asset/classifications"
+    )
+    assert res.status_code == 200
+    assert res.json["data"]==['PUBLIC', 'INTERNAL', 'RESTRICTED', 'CONFIDENTIAL']
