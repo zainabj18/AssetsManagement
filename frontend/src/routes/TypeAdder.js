@@ -73,7 +73,13 @@ const TypeAdder = () => {
 	/** States for the Modal */
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
-	/** States and methods for the new attribute form input errors */
+	/** States and methods for the new attribute form*/
+	const [new_attrForm] = useState([
+		new Map([['name', ''], ['type', '']])
+	]);
+	const update_new_attrForm = (key, data) => {
+		[...new_attrForm][0].set(key, data);
+	};
 	const [new_attrName_errorMessage, set_new_attrName_errorMessage] = useState('');
 	const [new_attrType_errorMessage, set_new_attrType_errorMessage] = useState('');
 	const clearAttrErrors = () => {
@@ -81,13 +87,6 @@ const TypeAdder = () => {
 		set_new_attrType_errorMessage('');
 	};
 
-
-	const [new_attrForm] = useState([
-		new Map([['name',''], ['type','']])
-	]);
-	const update_new_attrForm = (data, key) => {
-		[...new_attrForm][0].set(key,data);
-	};
 	/** Creates a new attribute if it passes the requirements
 	 * other wise, it sets error messages */
 	const createAttribute = () => {
@@ -182,7 +181,7 @@ const TypeAdder = () => {
 							<Input type='text'
 								variant='outline'
 								name='new_attrName'
-								onChange={(e) => update_new_attrForm(e.target.value, 'name')}
+								onChange={(e) => update_new_attrForm('name', e.target.value)}
 							></Input>
 							<FormErrorMessage>{new_attrName_errorMessage}</FormErrorMessage>
 						</FormControl>
@@ -191,7 +190,7 @@ const TypeAdder = () => {
 							<Input type='text'
 								variant='outline'
 								name='new_attrType'
-								onChange={(e) => update_new_attrForm(e.target.value, 'type')}
+								onChange={(e) => update_new_attrForm('type', e.target.value)}
 							></Input>
 							<FormErrorMessage>{new_attrType_errorMessage}</FormErrorMessage>
 						</FormControl>
