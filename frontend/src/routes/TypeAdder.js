@@ -81,12 +81,18 @@ const TypeAdder = () => {
 		set_new_attrType_errorMessage('');
 	};
 
+
+	const [new_attrForm] = useState([
+		new Map([['name',''], ['type','']])
+	]);
+	const update_new_attrForm = (data, key) => {
+		[...new_attrForm][0].set(key,data);
+	};
 	/** Creates a new attribute if it passes the requirements
 	 * other wise, it sets error messages */
 	const createAttribute = () => {
-		let inputs = document.getElementsByClassName('new_attrForm');
-		let name = inputs[0].value;
-		let type = inputs[1].value;
+		let name = [...new_attrForm][0].get('name');
+		let type = [...new_attrForm][0].get('type');
 		let duplicate = isAttrNameIn(name, [...attributes]);
 		let emptyName = name === '';
 		let emptyType = type === '';
@@ -176,7 +182,7 @@ const TypeAdder = () => {
 							<Input type='text'
 								variant='outline'
 								name='new_attrName'
-								className='new_attrForm'
+								onChange={(e) => update_new_attrForm(e.target.value, 'name')}
 							></Input>
 							<FormErrorMessage>{new_attrName_errorMessage}</FormErrorMessage>
 						</FormControl>
@@ -185,7 +191,7 @@ const TypeAdder = () => {
 							<Input type='text'
 								variant='outline'
 								name='new_attrType'
-								className='new_attrForm'
+								onChange={(e) => update_new_attrForm(e.target.value, 'type')}
 							></Input>
 							<FormErrorMessage>{new_attrType_errorMessage}</FormErrorMessage>
 						</FormControl>
