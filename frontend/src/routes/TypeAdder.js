@@ -180,6 +180,7 @@ const TypeAdder = () => {
 							<Input type='text'
 								variant='outline'
 								name='new_attrName'
+								placeholder='Name'
 								onChange={(e) => update_new_attrForm('name', e.target.value)}
 							></Input>
 							<FormErrorMessage>{new_attrName_errorMessage}</FormErrorMessage>
