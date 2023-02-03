@@ -21,6 +21,9 @@ const TypeAdder = () => {
 			this.attrName = attrName;
 			this.attrType = attrType;
 		}
+		toString() {
+			return this.attrName;
+		}
 	}
 
 	/** The selected attributes */
@@ -48,7 +51,9 @@ const TypeAdder = () => {
 	/** Adds an attribute to the selected attributes */
 	const addAttribute = (attrindex) => {
 		let data = [...attributes];
-		setSelectedAttributes([...selectedAttributes, data[attrindex]]);
+		let list = [...selectedAttributes];
+		list.push(data[attrindex]);
+		setSelectedAttributes(list.sort());
 	};
 
 	/** Removes an attribute from the selected attributes */
