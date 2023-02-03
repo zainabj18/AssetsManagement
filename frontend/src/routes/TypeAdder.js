@@ -88,7 +88,7 @@ const TypeAdder = () => {
 	};
 
 	/** Creates a new attribute if it passes the requirements
-	 * other wise, it sets error messages */
+	 * otherwise, it sets error messages */
 	const createAttribute = () => {
 		let name = [...new_attrForm][0].get('name');
 		let type = [...new_attrForm][0].get('type');
