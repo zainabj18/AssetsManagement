@@ -23,14 +23,14 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import FormField from './FormField';
 import axios from 'axios';
-import { fetchAsset } from '../api';
+import { fetchAsset, fetchAssetClassifications } from '../api';
 const AssetViewer = ({ canEdit, isNew }) => {
 	const { id } = useParams();
 	const [assetSate, setAssetState] = useState(undefined);
 	const [isDisabled, setIsDisabled] = useState(!canEdit);
 	const [tag, setTag] = useState('');
 	const [openEdit, setOpenEdit] = useState(isNew);
-	const access_levels = ['PUBLIC', 'INTERNAL', 'RESTRICTED', 'CONFIDENTIAL'];
+	const [classifications,setClassifications] = useState([]);
 	const projects = ['General', 'LDAP services'];
 	const type = {
 		Framework: [
@@ -130,6 +130,8 @@ const AssetViewer = ({ canEdit, isNew }) => {
 	};
 
 	useEffect(() => {
+		fetchAssetClassifications().then((data)=>{
+			setClassifications(data.data);});
 		if (id) {
 			fetchAsset(id).then((data)=>{
 				setAssetState(data);}).catch((err) => {console.log(err);});
@@ -210,7 +212,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 							handleChange('access_level', e.target.value);
 						}}
 					>
-						{access_levels.map((value, key) => {
+						{classifications.map((value, key) => {
 							return (
 								<option key={key} value={value}>
 									{value}
@@ -227,7 +229,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 					startWithEditView={openEdit}
 					onSubmitHandler={handleChange}
 				/>
-				<FormControl  bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
+				<FormControl bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
 					<FormLabel>Tags</FormLabel>
 					<Wrap spacing={4}>
 						{assetSate.tags.map((value, key) => (
@@ -241,9 +243,10 @@ const AssetViewer = ({ canEdit, isNew }) => {
 						<Input
 							placeholder="Enter Tag"
 							value={tag}
+							isDisabled={isDisabled}
 							onChange={handleTagChange}
 						/>
-						<Button onClick={onNewTag}>Add Tag</Button>
+						<Button onClick={onNewTag} isDisabled={isDisabled}>Add Tag</Button>
 					</Wrap>
 				</FormControl>
 				<Divider />
@@ -275,7 +278,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 				</Stat>
 			</StatGroup>)}
 			
-			<Button onClick={createNewAsset}>Sumbit</Button>
+			<Button onClick={createNewAsset} isDisabled={isDisabled} >Sumbit</Button>
 		</Container>
 	) : null;
 };

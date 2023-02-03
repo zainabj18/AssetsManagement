@@ -12,7 +12,7 @@ import AssetsOverview from './routes/assets/AssetsOverview';
 import AssetsLayout from './routes/assets/AssetsLayout';
 
 
-
+//TODO:Wrap in error boundary
 function App() {
 	
 	return (
