@@ -6,6 +6,7 @@ import {
 	Input,
 	HStack, VStack,
 	Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter,
+	Select,
 	Table, Thead, Tbody, Tr, Th, Td, TableContainer, TableCaption,
 	Text,
 	useDisclosure
@@ -73,6 +74,12 @@ const TypeAdder = () => {
 	/** States for the Modal */
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
+	/** Type options
+	 References https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input*/
+	const [types] = useState([
+		'text', 'number', 'checkbox', 'email', 'date', 'time', 'week', 'month'
+	]);
+
 	/** States and methods for the new attribute form*/
 	const [new_attrForm] = useState([
 		new Map([['name', ''], ['type', '']])
@@ -81,11 +88,6 @@ const TypeAdder = () => {
 		[...new_attrForm][0].set(key, data);
 	};
 	const [new_attrName_errorMessage, set_new_attrName_errorMessage] = useState('');
-	const [new_attrType_errorMessage, set_new_attrType_errorMessage] = useState('');
-	const clearAttrErrors = () => {
-		set_new_attrName_errorMessage('');
-		set_new_attrType_errorMessage('');
-	};
 
 	/** Creates a new attribute if it passes the requirements
 	 * otherwise, it sets error messages */
@@ -94,7 +96,6 @@ const TypeAdder = () => {
 		let type = [...new_attrForm][0].get('type');
 		let duplicate = isAttrNameIn(name, [...attributes]);
 		let emptyName = name === '';
-		let emptyType = type === '';
 
 		if (emptyName) {
 			set_new_attrName_errorMessage('Name is required');
@@ -106,14 +107,7 @@ const TypeAdder = () => {
 			set_new_attrName_errorMessage('');
 		}
 
-		if (emptyType) {
-			set_new_attrType_errorMessage('Type is required');
-		}
-		else {
-			set_new_attrType_errorMessage('');
-		}
-
-		let allGood = !emptyName && !emptyType && !duplicate;
+		let allGood = !emptyName && !duplicate;
 		if (allGood) {
 			setAttributes([...attributes, (new Attr(name, type))]);
 			onClose();
@@ -170,7 +164,7 @@ const TypeAdder = () => {
 			<Button onClick={onOpen}>Add</Button>
 			<Button>Save</Button>
 
-			<Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={() => { clearAttrErrors(); onClose(); }}>
+			<Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={() => { set_new_attrName_errorMessage(''); onClose(); }}>
 				<ModalOverlay />
 				<ModalContent color='black'>
 					<ModalHeader>Create New Attribute</ModalHeader>
@@ -185,19 +179,23 @@ const TypeAdder = () => {
 							></Input>
 							<FormErrorMessage>{new_attrName_errorMessage}</FormErrorMessage>
 						</FormControl>
-						<FormControl isRequired isInvalid={new_attrType_errorMessage !== ''}>
+						<FormControl isRequired>
 							<FormLabel>Data Type</FormLabel>
-							<Input type='text'
-								variant='outline'
+							<Select
 								name='new_attrType'
 								onChange={(e) => update_new_attrForm('type', e.target.value)}
-							></Input>
-							<FormErrorMessage>{new_attrType_errorMessage}</FormErrorMessage>
+							>
+								{types.map((types) => {
+									return (
+										<option value={types} key={types}>{types}</option>
+									);
+								})}
+							</Select>
 						</FormControl>
 					</ModalBody>
 					<ModalFooter>
 						<Button onClick={createAttribute}>Save</Button>
-						<Button onClick={() => { clearAttrErrors(); onClose(); }}>Cancel</Button>
+						<Button onClick={() => { set_new_attrName_errorMessage(''); onClose(); }}>Cancel</Button>
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
