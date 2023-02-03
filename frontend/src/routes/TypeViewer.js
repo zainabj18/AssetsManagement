@@ -68,7 +68,33 @@ const TypeViewer = () => {
 					validation: {
 						type: 'url'
 					}
-				}]
+				}
+			]
+		},
+		{
+			type: 'library',
+			metadata: [
+				{
+					attributeName: 'platform',
+					attributeType: 'text',
+				},
+				{
+					attributeName: 'private',
+					attributeType: 'checkbox',
+				},
+				{
+					attributeName: 'last modified',
+					attributeType: 'datetime-local',
+				},
+				{
+					attributeName: 'description',
+					attributeType: 'text',
+				},
+				{
+					attributeName: 'fileSize(kb)',
+					attributeType: 'number',
+				}
+			]
 		}
 		/** End of Dummy Data */
 	]);
@@ -90,7 +116,15 @@ const TypeViewer = () => {
 							return (
 								<Tr key={types.type}>
 									<Td>{types.type}</Td>
-									<Td>{'!Not implimented!'}</Td>
+									<Td>
+										{types.metadata.map((metadata) => {
+											return (
+												<VStack key={metadata.attributeName}>
+													<Text>{metadata.attributeName}</Text>
+												</VStack>
+											);
+										})}
+									</Td>
 								</Tr>
 							);
 						})}
