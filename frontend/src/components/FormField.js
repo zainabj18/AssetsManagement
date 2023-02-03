@@ -31,9 +31,7 @@ const FormField = ({
 					onChange={(e) => {
 						onSubmitHandler(fieldName, e.target.checked);
 					}}
-				>
-          Checkbox
-				</Checkbox>
+				/>
 			) : (
 				<Editable
 					textAlign="center"
