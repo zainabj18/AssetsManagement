@@ -167,6 +167,10 @@ const TypeAdder = () => {
 		set_new_attrName_errorMessage('');
 		onClose();
 	};
+	const openAttrCreator = () => {
+		update_new_attrForm('type', types[0]);
+		onOpen();
+	};
 
 	/** Type options */
 	const [types] = useState([
@@ -174,11 +178,23 @@ const TypeAdder = () => {
 	]);
 
 	/** States and methods for the new attribute form*/
+	const [num_lmt_selected, set_num_lmt_selected] = useState(false);
+	const updateSlectedTypes = (type) => {
+		if (type === 'num_lmt') {
+			set_num_lmt_selected(true);
+		}
+		else {
+			set_num_lmt_selected(false);
+		}
+	};
 	const [new_attrForm] = useState([
 		new Map([['name', ''], ['type', '']])
 	]);
 	const update_new_attrForm = (key, data) => {
 		[...new_attrForm][0].set(key, data);
+		if (key === 'type') {
+			updateSlectedTypes(data);
+		}
 	};
 	const [new_attrName_errorMessage, set_new_attrName_errorMessage] = useState('');
 
@@ -254,7 +270,7 @@ const TypeAdder = () => {
 					</Table>
 				</TableContainer>
 			</HStack>
-			<Button onClick={onOpen}>Add</Button>
+			<Button onClick={openAttrCreator}>Add</Button>
 			<Button>Save</Button>
 
 			<Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={closeAttrCreator}>
@@ -277,7 +293,6 @@ const TypeAdder = () => {
 							<FormLabel>Data Type</FormLabel>
 							<Select
 								name='new_attrType'
-								onLoad={update_new_attrForm('type', types[0])}
 								onChange={(e) => update_new_attrForm('type', e.target.value)}
 							>
 								{types.map((types) => {
@@ -287,6 +302,24 @@ const TypeAdder = () => {
 								})}
 							</Select>
 						</FormControl>
+						{/** Extra form for the num_lmt data type*/}
+						{num_lmt_selected &&
+							<FormControl isRequired>
+								<FormLabel>Number Range</FormLabel>
+								<HStack>
+									<input
+										placeholder='Min'
+										type='number'
+										variant='outline'
+									></input>
+									<input
+										placeholder='Max'
+										type='number'
+										variant='outline'>
+									</input>
+								</HStack>
+							</FormControl>
+						}
 					</ModalBody>
 					<ModalFooter>
 						<Button onClick={createAttribute}>Save</Button>
