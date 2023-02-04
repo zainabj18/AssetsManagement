@@ -15,26 +15,94 @@ import React, { useState } from 'react';
 
 const TypeAdder = () => {
 
-	/** Class that represents an attribute */
-	class Attr {
-		constructor(attrName, attrType) {
-			this.attrName = attrName;
-			this.attrType = attrType;
-		}
-		toString() {
-			return this.attrName;
-		}
-	}
+	const formAttribute = (name, type) => {
+		return {attributeName: name, attributeType: type};
+	};
 
 	/** The selected attributes */
-	const [selectedAttributes, setSelectedAttributes] = useState([
-		new Attr('programming language', 'text')
-	]);
+	const [selectedAttributes, setSelectedAttributes] = useState([ ]);
 
 	/** All attributes */
 	const [attributes, setAttributes] = useState([
-		new Attr('programming language', 'text'),
-		new Attr('country of origin', 'text')
+		/** Dummy Data */
+		{
+			attributeName: 'programming Language(s)',
+			attributeType: 'text',
+		},
+		{
+			attributeName: 'public',
+			attributeType: 'checkbox',
+		},
+		{
+			attributeName: 'no. of issues',
+			attributeType: 'number',
+		},
+		{
+			attributeName: 'built on',
+			attributeType: 'datetime-local',
+		},
+		{
+			attributeName: 'version',
+			attributeType: 'text',
+		},
+		{
+			attributeName: 'stars',
+			attributeType: 'num_lmt',
+			validation: {
+				min: 1,
+				max: 5
+			}
+		},
+		{
+			attributeName: 'license',
+			attributeType: 'options',
+			validation: {
+				values: ['MIT', 'GNU'],
+				isMulti: true
+			}
+		},
+		{
+			attributeName: 'authors',
+			attributeType: 'list',
+			validation: {
+				type: 'text'
+			}
+		},
+		{
+			attributeName: 'authors_emails',
+			attributeType: 'list',
+			validation: {
+				type: 'email'
+			}
+		},
+		{
+			attributeName: 'authors_emails_domain',
+			attributeType: 'list',
+			validation: {
+				type: 'url'
+			}
+		},
+		{
+			attributeName: 'platform',
+			attributeType: 'text',
+		},
+		{
+			attributeName: 'private',
+			attributeType: 'checkbox',
+		},
+		{
+			attributeName: 'last modified',
+			attributeType: 'datetime-local',
+		},
+		{
+			attributeName: 'description',
+			attributeType: 'text',
+		},
+		{
+			attributeName: 'fileSize(kb)',
+			attributeType: 'number',
+		}
+		/** End of Dummy Data */
 	]);
 
 	/** Decides if the attribute needs to be added or removed from selected */
@@ -53,7 +121,7 @@ const TypeAdder = () => {
 		let data = [...attributes];
 		let list = [...selectedAttributes];
 		list.push(data[attrindex]);
-		setSelectedAttributes(list.sort());
+		setSelectedAttributes(sortAttrs(list));
 	};
 
 	/** Removes an attribute from the selected attributes */
@@ -69,11 +137,28 @@ const TypeAdder = () => {
 		let i;
 		for (i = 0; i < list.length; i++) {
 			// eslint-disable-next-line
-			if (list[i].attrName == attrName) {
+			if (list[i].attributeName == attrName) {
 				return true;
 			}
 		}
 		return false;
+	};
+
+	/** An insersion sort for attributes */
+	const sortAttrs = (attrs) => {
+		let size = attrs.length;
+		let index;
+		for (index = 1; index < size; index++) {
+			let pos  = index - 1;
+			let currentItem = attrs[index];
+			while (pos >= 0 && currentItem.attributeName < attrs[pos].attributeName) {
+				let temp = attrs[pos];
+				attrs[pos] = attrs[pos + 1];
+				attrs[pos + 1] = temp;
+				pos -= 1;
+			}
+		}
+		return attrs;
 	};
 
 	/** States for the Modal */
@@ -114,7 +199,7 @@ const TypeAdder = () => {
 
 		let allGood = !emptyName && !duplicate;
 		if (allGood) {
-			setAttributes([...attributes, (new Attr(name, type))]);
+			setAttributes([...attributes, formAttribute(name, type)]);
 			onClose();
 		}
 	};
@@ -132,12 +217,12 @@ const TypeAdder = () => {
 					<FormLabel>Select attributes</FormLabel>
 					{attributes.map((attr, index) => {
 						return (
-							<VStack key={attr.attrName} align="left">
+							<VStack key={attr.attributeName} align="left">
 								<Checkbox
-									isChecked={isAttrNameIn(attr.attrName, [...selectedAttributes])}
-									value={attr.attrName}
+									isChecked={isAttrNameIn(attr.attributeName, [...selectedAttributes])}
+									value={attr.attributeName}
 									onChange={(e) => ajustSelectedAttributes(e.target.checked, index)}
-								> {attr.attrName}
+								> {attr.attributeName}
 								</Checkbox>
 							</VStack>
 						);
@@ -156,9 +241,9 @@ const TypeAdder = () => {
 						<Tbody>
 							{selectedAttributes.map((attr) => {
 								return (
-									<Tr key={attr.attrName}>
-										<Td>{attr.attrName}</Td>
-										<Td>{attr.attrType}</Td>
+									<Tr key={attr.attributeName}>
+										<Td>{attr.attributeName}</Td>
+										<Td>{attr.attributeType}</Td>
 									</Tr>
 								);
 							})}
