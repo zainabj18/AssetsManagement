@@ -16,11 +16,11 @@ import React, { useState } from 'react';
 const TypeAdder = () => {
 
 	const formAttribute = (name, type) => {
-		return {attributeName: name, attributeType: type};
+		return { attributeName: name, attributeType: type };
 	};
 
 	/** The selected attributes */
-	const [selectedAttributes, setSelectedAttributes] = useState([ ]);
+	const [selectedAttributes, setSelectedAttributes] = useState([]);
 
 	/** All attributes */
 	const [attributes, setAttributes] = useState([
@@ -149,7 +149,7 @@ const TypeAdder = () => {
 		let size = attrs.length;
 		let index;
 		for (index = 1; index < size; index++) {
-			let pos  = index - 1;
+			let pos = index - 1;
 			let currentItem = attrs[index];
 			while (pos >= 0 && currentItem.attributeName < attrs[pos].attributeName) {
 				let temp = attrs[pos];
@@ -163,6 +163,10 @@ const TypeAdder = () => {
 
 	/** States for the Modal */
 	const { isOpen, onOpen, onClose } = useDisclosure();
+	const closeAttrCreator = () => {
+		set_new_attrName_errorMessage('');
+		onClose();
+	};
 
 	/** Type options
 	 References https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input*/
@@ -254,7 +258,7 @@ const TypeAdder = () => {
 			<Button onClick={onOpen}>Add</Button>
 			<Button>Save</Button>
 
-			<Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={() => { set_new_attrName_errorMessage(''); onClose(); }}>
+			<Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={closeAttrCreator}>
 				<ModalOverlay />
 				<ModalContent color='black'>
 					<ModalHeader>Create New Attribute</ModalHeader>
@@ -287,7 +291,8 @@ const TypeAdder = () => {
 					</ModalBody>
 					<ModalFooter>
 						<Button onClick={createAttribute}>Save</Button>
-						<Button onClick={() => { set_new_attrName_errorMessage(''); onClose(); }}>Cancel</Button>
+						<Button
+							onClick={closeAttrCreator}>Cancel</Button>
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
