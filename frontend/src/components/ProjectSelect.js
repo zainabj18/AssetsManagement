@@ -8,21 +8,28 @@ import {
 	Tr,
 	Th,
 	Td,
-	TableContainer,
-	Checkbox,
+	TableContainer
 } from '@chakra-ui/react';
+import IndeterminateCheckbox from './IndeterminateCheckbox';
  
+
 function ProjectSelect() {
 	const data = React.useMemo(
 		() => [
 			{
-				col1: 'General',
+				id:1,
+				name: 'General',
+				desc: 'Basic project',
 			},
 			{
-				col1: 'LAPD',
+				id:2,
+				name: 'LAPD',
+				desc: 'Basic project'
 			},
 			{
-				col1: 'Project A',
+				id:3,
+				name: 'Test',
+				desc: 'Test project'
 			},
 		],
 		[]
@@ -31,19 +38,29 @@ function ProjectSelect() {
 	const columns = React.useMemo(
 		() => [
 			{
+				Header: 'Project ID',
+				accessor: 'id',
+			},
+			{
 				Header: 'Project Name',
-				accessor: 'col1',
+				accessor: 'name',
+			},
+			{
+				Header: 'Project Decription',
+				accessor: 'desc',
 			}
 		],
 		[]
 	);
- 
+
 	const {
 		getTableProps,
 		getTableBodyProps,
 		headerGroups,
 		rows,
-		prepareRow
+		prepareRow,
+		selectedFlatRows,
+		state: { selectedRowIds },
 	} = useTable(
 		{
 			columns,
@@ -54,11 +71,11 @@ function ProjectSelect() {
 			hooks.visibleColumns.push(columns => [
 				{
 					id: 'selection',
-					Header: () => (
-						<Checkbox />
+					Header: ({getToggleAllRowsSelectedProps}) => (
+						<IndeterminateCheckbox {...getToggleAllRowsSelectedProps()}/>
 					),
-					Cell: () => (
-						<Checkbox />
+					Cell: ({row}) => (
+						<IndeterminateCheckbox {...row.getToggleRowSelectedProps()}/>
 					),
 				},
 				...columns,
@@ -102,6 +119,14 @@ function ProjectSelect() {
 					})}
 				</Tbody>
 			</Table>
+			<pre>
+				<code>
+					{console.log(selectedFlatRows.map(
+						d=>d.original.id
+
+					))}
+				</code>
+			</pre>
 		</TableContainer>
 	);
 }
