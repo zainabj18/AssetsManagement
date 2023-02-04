@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTable,useRowSelect } from 'react-table';
+import { useTable,useRowSelect,useGlobalFilter } from 'react-table';
 
 import {
 	Table,
@@ -11,6 +11,7 @@ import {
 	TableContainer
 } from '@chakra-ui/react';
 import IndeterminateCheckbox from './IndeterminateCheckbox';
+import GlobalFilter from './GlobalFilter';
  
 
 function ProjectSelect() {
@@ -58,15 +59,17 @@ function ProjectSelect() {
 		getTableBodyProps,
 		headerGroups,
 		rows,
+		state,
 		prepareRow,
 		selectedFlatRows,
-		state: { selectedRowIds },
+		setGlobalFilter,
 	} = useTable(
 		{
 			columns,
 			data,
 		},
 		useRowSelect,
+		useGlobalFilter,
 		hooks => {
 			hooks.visibleColumns.push(columns => [
 				{
@@ -86,6 +89,10 @@ function ProjectSelect() {
  
 	return (
 		<TableContainer>
+			 <GlobalFilter
+				globalFilter={state.globalFilter}
+				setGlobalFilter={setGlobalFilter}
+			/>
 			<Table {...getTableProps()} variant='striped'>
 				<Thead>
 					{headerGroups.map(headerGroup => (
