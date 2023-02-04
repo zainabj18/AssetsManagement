@@ -8,13 +8,24 @@ import {
 	Tr,
 	Th,
 	Td,
-	TableContainer
+	TableContainer,
+	Modal,
+	ModalOverlay,
+	ModalContent,
+	ModalHeader,
+	ModalFooter,
+	ModalBody,
+	ModalCloseButton,
+	useDisclosure,
+	Button,
+	HStack
 } from '@chakra-ui/react';
 import IndeterminateCheckbox from './IndeterminateCheckbox';
 import GlobalFilter from './GlobalFilter';
  
 
 function ProjectSelect() {
+	const { isOpen, onOpen, onClose } = useDisclosure();
 	const data = React.useMemo(
 		() => [
 			{
@@ -87,54 +98,73 @@ function ProjectSelect() {
 	);
     
  
-	return (
-		<TableContainer>
-			 <GlobalFilter
-				globalFilter={state.globalFilter}
-				setGlobalFilter={setGlobalFilter}
-			/>
-			<Table {...getTableProps()} variant='striped'>
-				<Thead>
-					{headerGroups.map(headerGroup => (
-						<Tr {...headerGroup.getHeaderGroupProps()}>
-							{headerGroup.headers.map(column => (
-								<Th
-									{...column.getHeaderProps()}
-								>
-									{column.render('Header')}
-								</Th>
-							))}
-						</Tr>
-					))}
-				</Thead>
-				<Tbody {...getTableBodyProps()}>
-					{rows.map(row => {
-						prepareRow(row);
-						return (
-							<Tr {...row.getRowProps()}>
-								{row.cells.map(cell => {
+	return (<>
+		<Button onClick={onOpen}>Open Modal</Button>
+		<Modal isOpen={isOpen} onClose={onClose} size={'full'}>
+			<ModalOverlay />
+			<ModalContent>
+				<ModalHeader>Project Select</ModalHeader>
+				<ModalCloseButton />
+				<ModalBody>
+					<TableContainer>
+			 			<GlobalFilter
+							globalFilter={state.globalFilter}
+							setGlobalFilter={setGlobalFilter}
+						/>
+						<Table {...getTableProps()} variant='striped'>
+							<Thead>
+								{headerGroups.map(headerGroup => (
+									<Tr {...headerGroup.getHeaderGroupProps()}>
+										{headerGroup.headers.map(column => (
+											<Th
+												{...column.getHeaderProps()}
+											>
+												{column.render('Header')}
+											</Th>
+										))}
+									</Tr>
+								))}
+							</Thead>
+							<Tbody {...getTableBodyProps()}>
+								{rows.map(row => {
+									prepareRow(row);
 									return (
-										<Td
-											{...cell.getCellProps()}
-										>
-											{cell.render('Cell')}
-										</Td>
+										<Tr {...row.getRowProps()}>
+											{row.cells.map(cell => {
+												return (
+													<Td
+														{...cell.getCellProps()}
+													>
+														{cell.render('Cell')}
+													</Td>
+												);
+											})}
+										</Tr>
 									);
 								})}
-							</Tr>
-						);
-					})}
-				</Tbody>
-			</Table>
-			<pre>
-				<code>
-					{console.log(selectedFlatRows.map(
-						d=>d.original.id
+							</Tbody>
+						</Table>
+						<pre>
+							<code>
+								{console.log(selectedFlatRows.map(
+									d=>d.original.id
 
-					))}
-				</code>
-			</pre>
-		</TableContainer>
+								))}
+							</code>
+						</pre>
+					</TableContainer>
+				</ModalBody>
+
+				<ModalFooter>
+					<HStack>
+						<Button>Add</Button>
+						<Button onClick={onClose}>Close</Button>
+					</HStack>	
+				</ModalFooter>
+			</ModalContent>
+			
+		</Modal>
+	</>
 	);
 }
 
