@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTable } from 'react-table';
+import { useTable,useRowSelect } from 'react-table';
 
 import {
 	Table,
@@ -9,6 +9,7 @@ import {
 	Th,
 	Td,
 	TableContainer,
+	Checkbox,
 } from '@chakra-ui/react';
  
 function ProjectSelect() {
@@ -42,12 +43,33 @@ function ProjectSelect() {
 		getTableBodyProps,
 		headerGroups,
 		rows,
-		prepareRow,
-	} = useTable({ columns, data });
+		prepareRow
+	} = useTable(
+		{
+			columns,
+			data,
+		},
+		useRowSelect,
+		hooks => {
+			hooks.visibleColumns.push(columns => [
+				{
+					id: 'selection',
+					Header: () => (
+						<Checkbox />
+					),
+					Cell: () => (
+						<Checkbox />
+					),
+				},
+				...columns,
+			]);
+		}
+	);
+    
  
 	return (
 		<TableContainer>
-			<Table {...getTableProps()} style={{ border: 'solid 1px blue' }}>
+			<Table {...getTableProps()} variant='striped'>
 				<Thead>
 					{headerGroups.map(headerGroup => (
 						<Tr {...headerGroup.getHeaderGroupProps()}>
