@@ -136,8 +136,7 @@ const TypeAdder = () => {
 	const isAttrNameIn = (attrName, list) => {
 		let i;
 		for (i = 0; i < list.length; i++) {
-			// eslint-disable-next-line
-			if (list[i].attributeName == attrName) {
+			if (list[i].attributeName === attrName) {
 				return true;
 			}
 		}
@@ -163,12 +162,10 @@ const TypeAdder = () => {
 
 	/** States for the Modal */
 	const { isOpen, onOpen, onClose } = useDisclosure();
-	const closeAttrCreator = () => {
-		set_new_attrName_errorMessage('');
-		onClose();
-	};
 	const openAttrCreator = () => {
+		update_new_attrForm('name', '');
 		update_new_attrForm('type', types[0]);
+		set_new_attrName_errorMessage('');
 		onOpen();
 	};
 
@@ -273,7 +270,7 @@ const TypeAdder = () => {
 			<Button onClick={openAttrCreator}>Add</Button>
 			<Button>Save</Button>
 
-			<Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={closeAttrCreator}>
+			<Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent color='black'>
 					<ModalHeader>Create New Attribute</ModalHeader>
@@ -324,7 +321,7 @@ const TypeAdder = () => {
 					<ModalFooter>
 						<Button onClick={createAttribute}>Save</Button>
 						<Button
-							onClick={closeAttrCreator}>Cancel</Button>
+							onClick={onClose}>Cancel</Button>
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
