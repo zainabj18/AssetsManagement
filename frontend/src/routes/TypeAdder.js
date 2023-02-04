@@ -19,6 +19,17 @@ const TypeAdder = () => {
 		return { attributeName: name, attributeType: type };
 	};
 
+	const formAttribute_num_lmt = (name, type) => {
+		console.log(specialValues);
+		return {
+			attributeName: name, attributeType: type,
+			validation: {
+				min: specialValues.get('min'),
+				max: specialValues.get('max')
+			}
+		};
+	};
+
 	/** The selected attributes */
 	const [selectedAttributes, setSelectedAttributes] = useState([]);
 
@@ -166,6 +177,7 @@ const TypeAdder = () => {
 		update_new_attrForm('name', '');
 		update_new_attrForm('type', types[0]);
 		set_new_attrName_errorMessage('');
+		setSpecialValues('');
 		onOpen();
 	};
 
@@ -194,6 +206,11 @@ const TypeAdder = () => {
 		}
 	};
 	const [new_attrName_errorMessage, set_new_attrName_errorMessage] = useState('');
+	const [specialValues, setSpecialValues] = useState('');
+	const special_num_lmt = (parent) => {
+		let elements = parent.children;
+		setSpecialValues(new Map([['min', elements[0].value], ['max', elements[1].value]]));
+	};
 
 	/** Creates a new attribute if it passes the requirements
 	 * otherwise, it sets error messages */
@@ -215,8 +232,15 @@ const TypeAdder = () => {
 
 		let allGood = !emptyName && !duplicate;
 		if (allGood) {
-			setAttributes([...attributes, formAttribute(name, type)]);
-			onClose();
+			if (specialValues === '') {
+				setAttributes([...attributes, formAttribute(name, type)]);
+				onClose();
+			}
+			else {
+				if (type === 'num_lmt') {
+					setAttributes([...attributes, formAttribute_num_lmt(name, type)]);
+				};
+			}
 		}
 	};
 
@@ -308,12 +332,14 @@ const TypeAdder = () => {
 										placeholder='Min'
 										type='number'
 										variant='outline'
+										onChange={(e) => special_num_lmt(e.target.parentElement)}
 									></input>
 									<input
 										placeholder='Max'
 										type='number'
-										variant='outline'>
-									</input>
+										variant='outline'
+										onChange={(e) => special_num_lmt(e.target.parentElement)}
+									></input>
 								</HStack>
 							</FormControl>
 						}
