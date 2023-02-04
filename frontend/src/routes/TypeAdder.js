@@ -168,10 +168,9 @@ const TypeAdder = () => {
 		onClose();
 	};
 
-	/** Type options
-	 References https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input*/
+	/** Type options */
 	const [types] = useState([
-		'text', 'number', 'checkbox', 'email', 'date', 'time', 'week', 'month'
+		'text', 'number', 'checkbox', 'datetime-local', 'num_lmt', 'options', 'list'
 	]);
 
 	/** States and methods for the new attribute form*/
