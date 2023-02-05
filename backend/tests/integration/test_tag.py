@@ -38,7 +38,7 @@ def test_tag_create_db_error(client):
             "msg": "Fake error executing query",
         }
 
-def test_tag_duplicate_name(client,db_conn):
+def test_tag_duplicate_name(client):
     res = client.post("/api/v1/tag/",json={"name":"Test"})
     assert res.status_code == 200
     expected={"id":1,"name":"Test"}
@@ -47,3 +47,14 @@ def test_tag_duplicate_name(client,db_conn):
     res = client.post("/api/v1/tag/",json={"name":"Test"})
     assert res.status_code == 500
     assert res.json=={'error': 'Database Error', 'msg': 'Tag Test already exists'}
+
+def test_tag_list(client):
+    expected_results=[]
+    for x in range(100):
+        name=f"Test-{x}"
+        res = client.post("/api/v1/tag/",json={"name":name})
+        assert res.status_code == 200
+        expected_results.append({'id': x+1,'name': name})
+    res = client.get("/api/v1/tag/")
+    assert res.status_code == 200
+    assert res.json=={"msg": "tags","data":expected_results}

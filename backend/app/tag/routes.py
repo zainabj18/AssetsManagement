@@ -3,6 +3,7 @@ from app.db import get_db
 from pydantic import ValidationError
 from app.schemas import TagBase
 from psycopg import Error
+from psycopg.rows import dict_row
 from psycopg.errors import UniqueViolation
 
 bp = Blueprint("tag", __name__, url_prefix="/tag")
@@ -17,6 +18,11 @@ VALUES (%(name)s) RETURNING id;""",
             tag_dict,
         )
             return cur.fetchone()[0]
+def list_tags(db):
+      with db.connection() as conn:
+        with conn.cursor(row_factory=dict_row) as cur:
+            cur.execute("""SELECT * FROM tags;""")
+            return cur.fetchall()
 
 @bp.route("/", methods=["POST"])
 def create():
@@ -42,3 +48,8 @@ def create():
         return {"msg": str(e), "error": "Database Error"}, 500
     tag.id=id
     return jsonify({"msg": "Tag Created","data":tag.dict()})
+
+@bp.route("/", methods=["GET"])
+def list():
+    db = get_db()
+    return jsonify({"msg": "tags","data":list_tags(db)})
