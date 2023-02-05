@@ -51,5 +51,10 @@ def create():
 
 @bp.route("/", methods=["GET"])
 def list():
-    db = get_db()
-    return jsonify({"msg": "tags","data":list_tags(db)})
+   
+    try:
+        db = get_db()
+        tags=list_tags(db)
+    except Error as e:
+        return {"msg": str(e), "error": "Database Error"}, 500
+    return jsonify({"msg": "tags","data":tags})

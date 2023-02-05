@@ -58,3 +58,18 @@ def test_tag_list(client):
     res = client.get("/api/v1/tag/")
     assert res.status_code == 200
     assert res.json=={"msg": "tags","data":expected_results}
+
+def test_tag_list_db_error(client):
+    res = client.post("/api/v1/tag/",json={"name":"Tes"})
+    assert res.status_code == 200
+    with mock.patch(
+        "app.tag.routes.list_tags", side_effect=Error("Fake error executing query")
+    ) as p:
+        res = client.get("/api/v1/tag/")
+        
+        assert res.status_code == 500
+        p.assert_called()
+        assert res.json=={
+            "error": "Database Error",
+            "msg": "Fake error executing query",
+        }
