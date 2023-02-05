@@ -1,17 +1,16 @@
 import {Box, IconButton, Input,Popover,PopoverContent,PopoverTrigger,PopoverAnchor,HStack,PopoverBody, useBoolean} from '@chakra-ui/react';
-import { useEffect,useState,useMemo } from 'react';
+import { useEffect,useState } from 'react';
 import {EditIcon, CloseIcon} from '@chakra-ui/icons';
 const SearchSelect = ({dataFunc,selectedValue,setSelectedValue,createFunc}) => {
 	const defaultVisible=15;
 	const [results, setResults] = useState([]);
+	const [data, setData] = useState([]);
 	const [isEditing, setIsEditing] = useBoolean();
 	const [maxVisible,setMaxVisible] = useState(defaultVisible);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [canCreate, setCanCreate] = useBoolean();
 	const [isDisabled, setIsDisabled] = useBoolean(false);
 	const [newData, setNewData] = useBoolean();
-	const data = useMemo(() => dataFunc(), [newData]);
-
 	const handleScroll = (e) => {
 		const bottom = e.target.scrollHeight-e.target.clientHeight-e.target.scrollTop <5;
 		console.log('scorlling');
@@ -21,40 +20,58 @@ const SearchSelect = ({dataFunc,selectedValue,setSelectedValue,createFunc}) => {
 	};
 
 	const reset=()=>{
+		setSearchQuery('');
 		setIsEditing.off();
 		setCanCreate.off();
 		setMaxVisible(defaultVisible);
-		setSearchQuery('');
+		
 		setResults(data);
 	};
 	const handleClick=(d)=>{
 		setSelectedValue(d);
 		reset();
 	};
+	
 
-	const handleCreate=()=>{
+	const handleCreate=async()=>{
 		console.log('creating'+searchQuery);
 		setIsDisabled.on();
-		createFunc(searchQuery).then((d) => { setSelectedValue(d); });
+		await createFunc(searchQuery).then((d) => { 
+			console.log(d.data);
+			setSelectedValue(d.data); });
 		setIsDisabled.off();
-		setNewData.toggle();
 		reset();
+		//getNewData();
 	};
 
 	const handleQuery=(query)=>{
 		setSearchQuery(query);
-		if (query.length > 0) {
+		if (query===''){
+			setResults(data);
+			setCanCreate.off();
+		}
+		if (query.length > 0 && data.length > 0 && query!=='') {
 			let filteredResults=data.filter((d) => {
 				return d.name.toLowerCase().includes(query.toLowerCase());
 			});
 			setResults(filteredResults);
-			if (filteredResults.length===0){
+			if (filteredResults.length===0 && query!==''){
 				setCanCreate.on();
-			}	
+			}else{
+				setCanCreate.off();
+			}
 		}};
-
+	const getNewData=()=>{
+		dataFunc().then(res=>{
+			setData(res.data);
+			setResults(res.data);
+		});
+		
+	};
 	useEffect(() => {
-		setResults(data);
+		console.log(dataFunc);
+		getNewData();
+		console.log(data.length);
 	}, []);
     
 	return ( 
@@ -66,11 +83,13 @@ const SearchSelect = ({dataFunc,selectedValue,setSelectedValue,createFunc}) => {
 				onClose={setIsEditing.off}
 				closeOnBlur={false}
 				closeOnEsc={false}
+				isLazy
 			>
 				<HStack>
+					
 					<PopoverAnchor>
-						<Input type='text' isDisabled={isDisabled} isReadOnly={!isEditing} value={searchQuery} placeholder={(selectedValue&&selectedValue.name)||''} onChange={e => {
-							handleQuery(e.target.value);}}/>
+						{isEditing ?(<Input type='text' color='red' isDisabled={isDisabled} value={searchQuery} onChange={e => {
+							handleQuery(e.target.value);}}/>):(<Box>{selectedValue&&selectedValue.name}</Box>)}
 					</PopoverAnchor>
 					<PopoverTrigger>
 						<IconButton size='sm' icon={isEditing ? <CloseIcon /> : <EditIcon />} onClick={()=>{

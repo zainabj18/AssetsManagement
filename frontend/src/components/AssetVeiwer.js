@@ -23,7 +23,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import FormField from './FormField';
 import axios from 'axios';
-import { fetchAsset, fetchAssetClassifications } from '../api';
+import { createTag, fetchAsset, fetchAssetClassifications, fetchTags } from '../api';
+import SearchSelect from './SearchSelect';
 const AssetViewer = ({ canEdit, isNew }) => {
 	const { id } = useParams();
 	const [assetSate, setAssetState] = useState(undefined);
@@ -131,7 +132,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 
 	useEffect(() => {
 		fetchAssetClassifications().then((data)=>{
-			setClassifications(data.data);});
+			setClassifications(data.data);}).catch((err) => {console.log(err);});
 		if (id) {
 			fetchAsset(id).then((data)=>{
 				setAssetState(data);}).catch((err) => {console.log(err);});
@@ -235,17 +236,12 @@ const AssetViewer = ({ canEdit, isNew }) => {
 						{assetSate.tags.map((value, key) => (
 							<WrapItem key={key}>
 								<Tag size={'md'} key={key}>
-									<TagLabel>{value}</TagLabel>
+									<TagLabel>{value.name}</TagLabel>
 									<TagCloseButton onClick={(e) => onTagClick(e, value)} />
 								</Tag>
 							</WrapItem>
 						))}
-						<Input
-							placeholder="Enter Tag"
-							value={tag}
-							isDisabled={isDisabled}
-							onChange={handleTagChange}
-						/>
+						<SearchSelect dataFunc={fetchTags} selectedValue={tag} setSelectedValue={setTag} createFunc={createTag}/>
 						<Button onClick={onNewTag} isDisabled={isDisabled}>Add Tag</Button>
 					</Wrap>
 				</FormControl>
