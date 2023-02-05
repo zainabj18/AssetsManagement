@@ -1,6 +1,6 @@
 import {Box, IconButton, Input,Text,Menu,MenuButton,MenuItemOption,MenuList,Popover,PopoverContent,PopoverTrigger, Portal, UnorderedList, PopoverFooter, ButtonGroup, PopoverHeader, PopoverArrow, PopoverCloseButton, PopoverBody,useDisclosure, useBoolean, HStack, Icon, PopoverAnchor} from '@chakra-ui/react';
 import { useEffect,useRef,useState } from 'react';
-import {EditIcon,CheckIcon} from '@chakra-ui/icons';
+import {EditIcon, CloseIcon} from '@chakra-ui/icons';
 import tags from '../MOCK_DATA.json';
 const SearchSelect = () => {
 	const [data, setData] = useState([]);
@@ -55,12 +55,18 @@ const SearchSelect = () => {
 							handleQuery(e.target.value);}}/>
 					</PopoverAnchor>
 					<PopoverTrigger>
-						<IconButton size='sm' icon={isEditing ? <CheckIcon /> : <EditIcon />} />
+						<IconButton size='sm' icon={isEditing ? <CloseIcon /> : <EditIcon />} />
 					</PopoverTrigger>
 				</HStack>
 				
 				<PopoverContent>
 					<PopoverBody overflowY={'scroll'} maxHeight={'xs'} onScroll={handleScroll}>
+						{selectedValue && <Box fontWeight='bold' color='teal.600' background='grey'
+                    	key={selectedValue.id}
+                    	onClick={e=>{
+                    		handleClick(selectedValue);
+                    	}}
+						>{selectedValue.name}</Box>}
 						{results.length>0 &&
                     results.slice(0,maxVisible).map((d)=>{return (<Box
                     	_hover={{ fontWeight: 'semibold',background: 'white',
