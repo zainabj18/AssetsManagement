@@ -14,9 +14,11 @@ const SearchSelect = () => {
 	const getData=()=>{
 		setData(tags.data);
 		setResults(tags.data.slice(0,5));
+		setSelectedValue(tags.data.slice(0,1));
 	};
 
 	const handleClick=(d)=>{
+		setSearchQuery('');
 		setSelectedValue(d);
 		setIsEditing.off();
 	};
@@ -37,7 +39,8 @@ const SearchSelect = () => {
 			>
 				<HStack>
 					<PopoverAnchor>
-						<Input type='text' isReadOnly={!isEditing} onInput={e => setSearchQuery(e.target.value)}/>
+						<Input type='text' isReadOnly={!isEditing} value={searchQuery}  placeholder={selectedValue&&selectedValue.name||''} onInput={e => {
+							setSearchQuery(e.target.value);}}/>
 					</PopoverAnchor>
 					<PopoverTrigger>
 						<IconButton size='sm' icon={isEditing ? <CheckIcon /> : <EditIcon />} />
