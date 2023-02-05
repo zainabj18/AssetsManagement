@@ -354,3 +354,5 @@ def test_get_access_levels(client):
     )
     assert res.status_code == 200
     assert res.json["data"]==['PUBLIC', 'INTERNAL', 'RESTRICTED', 'CONFIDENTIAL']
+
+#TODO:Test asset name is unique
