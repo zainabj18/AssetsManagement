@@ -6,12 +6,19 @@ const SearchSelect = () => {
 	const [data, setData] = useState([]);
 	const [results, setResults] = useState([]);
 	const [isEditing, setIsEditing] = useBoolean();
+	const [selectedValue,setSelectedValue]=useState();
+	const [searchQuery, setSearchQuery] = useState('');
 
 	
 
 	const getData=()=>{
 		setData(tags.data);
 		setResults(tags.data.slice(0,5));
+	};
+
+	const handleClick=(d)=>{
+		setSelectedValue(d);
+		setIsEditing.off();
 	};
 
 	useEffect(() => {
@@ -26,12 +33,11 @@ const SearchSelect = () => {
 				onOpen={setIsEditing.on}
 				onClose={setIsEditing.off}
 				closeOnBlur={false}
-				isLazy
-				lazyBehavior='keepMounted'
+				closeOnEsc={false}
 			>
 				<HStack>
 					<PopoverAnchor>
-						<Input type={'text'}/>
+						<Input type='text' isReadOnly={!isEditing} onInput={e => setSearchQuery(e.target.value)}/>
 					</PopoverAnchor>
 					<PopoverTrigger>
 						<IconButton size='sm' icon={isEditing ? <CheckIcon /> : <EditIcon />} />
@@ -44,6 +50,10 @@ const SearchSelect = () => {
                     results.map((d)=>{return (<Box
                     	_hover={{ fontWeight: 'semibold',background: 'white',
                     		color: 'teal.500', }}
+                    	key={d.id}
+                    	onClick={e=>{
+                    		handleClick(d);
+                    	}}
                     >{d.name}</Box>);})
 						}
 					</PopoverBody>
