@@ -7,15 +7,14 @@ const SearchSelect = () => {
 	const [results, setResults] = useState([]);
 	const [isEditing, setIsEditing] = useBoolean();
 	const [selectedValue,setSelectedValue]=useState();
-	const [searchQuery, setSearchQuery] = useState('');
 	const [maxVisible,setMaxVisible] = useState(15);
+	const [searchQuery, setSearchQuery] = useState('');
 
 	
 
 	const getData=()=>{
 		setData(tags.data);
 		setResults(tags.data);
-		setSelectedValue(tags.data.slice(0,1));
 	};
 	const handleScroll = (e) => {
 		const bottom = e.target.scrollHeight-e.target.clientHeight-e.target.scrollTop <5;
@@ -25,15 +24,20 @@ const SearchSelect = () => {
 			console.log('I need more data'); }
 	};
 	const handleClick=(d)=>{
-		setSearchQuery('');
 		setSelectedValue(d);
 		setIsEditing.off();
 		setMaxVisible(15);
 	};
 
-	const handleQuery=(e)=>{
-
-	};
+	const handleQuery=(query)=>{
+		setSearchQuery(query);
+		if (query.length > 0) {
+            
+			setResults(
+				data.filter((d) => {
+					return d.name.toLowerCase().includes(query.toLowerCase());
+				}));
+		}};
 
 	useEffect(() => {
 		getData();
@@ -51,11 +55,15 @@ const SearchSelect = () => {
 			>
 				<HStack>
 					<PopoverAnchor>
-						<Input type='text' isReadOnly={!isEditing} value={searchQuery}  placeholder={selectedValue&&selectedValue.name||''} onChange={e => {
+						<Input type='text' isReadOnly={!isEditing} value={searchQuery} placeholder={(selectedValue&&selectedValue.name)||''} onChange={e => {
 							handleQuery(e.target.value);}}/>
 					</PopoverAnchor>
 					<PopoverTrigger>
-						<IconButton size='sm' icon={isEditing ? <CloseIcon /> : <EditIcon />} />
+						<IconButton size='sm' icon={isEditing ? <CloseIcon /> : <EditIcon />} onClick={()=>{
+							if (isEditing){
+								setSearchQuery('');
+							}
+						}}/>
 					</PopoverTrigger>
 				</HStack>
 				
@@ -66,7 +74,7 @@ const SearchSelect = () => {
                     	onClick={e=>{
                     		handleClick(selectedValue);
                     	}}
-						>{selectedValue.name}</Box>}
+						>{selectedValue.name} (Selected)</Box>}
 						{results.length>0 &&
                     results.slice(0,maxVisible).map((d)=>{return (<Box
                     	_hover={{ fontWeight: 'semibold',background: 'white',
