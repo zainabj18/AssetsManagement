@@ -1,5 +1,8 @@
+import ProjectSelect from '../../components/ProjectSelect';
+import SearchSelect from '../../components/SearchSelect';
+
 const AssetsOverview = () => {
-	return (<p>List of all assets</p>);
+	return (<SearchSelect />);
 };
  
 export default AssetsOverview;
