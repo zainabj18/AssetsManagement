@@ -10,7 +10,7 @@ class DatabaseSettings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
-    POSTGRES_PORT: Optional[str] = "5432"
+    POSTGRES_PORT: Optional[str] = "5433"
     POSTGRES_DATABASE_URI: Optional[PostgresDsn] = None
 
     @validator("POSTGRES_DATABASE_URI")
@@ -69,7 +69,8 @@ class BaseTestConfig(Base):
     DEBUG = True
 
 
-config = dict(DEV=DevelopmentConfig, PROD=ProductionConfig, TEST=BaseTestConfig)
+config = dict(DEV=DevelopmentConfig,
+              PROD=ProductionConfig, TEST=BaseTestConfig)
 settings: Union[DevelopmentConfig, ProductionConfig, BaseTestConfig] = config[
     os.environ.get("ENV_STATE", "dev").upper()
 ]()
