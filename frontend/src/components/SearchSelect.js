@@ -1,26 +1,38 @@
 import {Box, IconButton, Input,Text,Menu,MenuButton,MenuItemOption,MenuList,Popover,PopoverContent,PopoverTrigger, Portal, UnorderedList, PopoverFooter, ButtonGroup, PopoverHeader, PopoverArrow, PopoverCloseButton, PopoverBody,useDisclosure, useBoolean, HStack, Icon, PopoverAnchor} from '@chakra-ui/react';
 import { useEffect,useRef,useState } from 'react';
 import {EditIcon,CheckIcon} from '@chakra-ui/icons';
-import tags from '../mock_tags.json';
+import tags from '../MOCK_DATA.json';
 const SearchSelect = () => {
 	const [data, setData] = useState([]);
 	const [results, setResults] = useState([]);
 	const [isEditing, setIsEditing] = useBoolean();
 	const [selectedValue,setSelectedValue]=useState();
 	const [searchQuery, setSearchQuery] = useState('');
+	const [maxVisible,setMaxVisible] = useState(15);
 
 	
 
 	const getData=()=>{
 		setData(tags.data);
-		setResults(tags.data.slice(0,5));
+		setResults(tags.data);
 		setSelectedValue(tags.data.slice(0,1));
 	};
-
+	const handleScroll = (e) => {
+		const bottom = e.target.scrollHeight-e.target.clientHeight-e.target.scrollTop <5;
+		console.log('scorlling');
+		if (bottom && maxVisible<results.length) { 
+			setMaxVisible(maxVisible+10);
+			console.log('I need more data'); }
+	};
 	const handleClick=(d)=>{
 		setSearchQuery('');
 		setSelectedValue(d);
 		setIsEditing.off();
+		setMaxVisible(15);
+	};
+
+	const handleQuery=(e)=>{
+
 	};
 
 	useEffect(() => {
@@ -39,8 +51,8 @@ const SearchSelect = () => {
 			>
 				<HStack>
 					<PopoverAnchor>
-						<Input type='text' isReadOnly={!isEditing} value={searchQuery}  placeholder={selectedValue&&selectedValue.name||''} onInput={e => {
-							setSearchQuery(e.target.value);}}/>
+						<Input type='text' isReadOnly={!isEditing} value={searchQuery}  placeholder={selectedValue&&selectedValue.name||''} onChange={e => {
+							handleQuery(e.target.value);}}/>
 					</PopoverAnchor>
 					<PopoverTrigger>
 						<IconButton size='sm' icon={isEditing ? <CheckIcon /> : <EditIcon />} />
@@ -48,9 +60,9 @@ const SearchSelect = () => {
 				</HStack>
 				
 				<PopoverContent>
-					<PopoverBody>
+					<PopoverBody overflowY={'scroll'} maxHeight={'xs'} onScroll={handleScroll}>
 						{results.length>0 &&
-                    results.map((d)=>{return (<Box
+                    results.slice(0,maxVisible).map((d)=>{return (<Box
                     	_hover={{ fontWeight: 'semibold',background: 'white',
                     		color: 'teal.500', }}
                     	key={d.id}
