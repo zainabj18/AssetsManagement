@@ -3,6 +3,7 @@ from app.db import get_db
 from pydantic import ValidationError
 from app.schemas import TagBase
 from psycopg import Error
+from psycopg.errors import UniqueViolation
 
 bp = Blueprint("tag", __name__, url_prefix="/tag")
 
@@ -35,7 +36,9 @@ def create():
     db = get_db()
     try:
         id=create_tag(db,tag.dict())
+    except UniqueViolation as e:
+        return {"msg": f"Tag {tag.name} already exists", "error": "Database Error"}, 500
     except Error as e:
-        return {"msg": str(e), "error": "Database Connection Error"}, 500
+        return {"msg": str(e), "error": "Database Error"}, 500
     tag.id=id
     return jsonify({"msg": "Tag Created","data":tag.dict()})
