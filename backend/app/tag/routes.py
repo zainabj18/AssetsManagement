@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from app.db import get_db
 from pydantic import ValidationError
 from app.schemas import TagBase
+from psycopg import Error
 
 bp = Blueprint("tag", __name__, url_prefix="/tag")
 
@@ -32,6 +33,9 @@ def create():
             400,
         )
     db = get_db()
-    id=create_tag(db,tag.dict())
+    try:
+        id=create_tag(db,tag.dict())
+    except Error as e:
+        return {"msg": str(e), "error": "Database Connection Error"}, 500
     tag.id=id
     return jsonify({"msg": "Tag Created","data":tag.dict()})
