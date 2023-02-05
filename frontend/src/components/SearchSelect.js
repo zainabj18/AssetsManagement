@@ -29,7 +29,9 @@ const SearchSelect = () => {
 					<Input mr={5} onClick={onToggle}/>
 				</PopoverTrigger>
 				<PopoverContent>
-					<Text>Hello</Text>
+					{results.length>0 &&
+                    results.map((d)=>{return (<Box>{d.name}</Box>);})
+					}
 				</PopoverContent>
 			</Popover>
 
