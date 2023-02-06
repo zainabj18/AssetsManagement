@@ -15,6 +15,10 @@ class Attribute(Attribute_Model):
     class Config:
         allow_population_by_field_name = True
 
+class Type(BaseModel):
+    type_name: str = Field(..., alias="typeName")
+    metadata: List[Attribute_Model]
+
 class AssetBase(BaseModel):
     name: str
     link: str

@@ -27,3 +27,36 @@ def test_add_attribute_to_db(client, db_conn):
         attribute = cur.fetchone()
         assert attribute["attribute_name"] == test_attribute["attributeName"]
         assert attribute["attribute_data_type"] == test_attribute["attributeType"]
+
+# Test to see if a type can be added to the database
+
+
+def test_add_type_to_db(client, db_conn):
+    test_type = {
+        "typeName": "framework",
+        "metadata": [
+            {
+                "attributeName": "programming Language(s)",
+                "attributeType": "text",
+            },
+            {
+                "attributeName": "public",
+                "attributeType": "checkbox",
+            },
+            {
+                "attributeName": "no. of issues",
+                "attributeType": "number",
+            }
+        ]
+
+    }
+    res = client.post("/api/v1/type/new", json=test_type)
+    assert res.status_code == 200
+
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT * FROM types WHERE type_name=%(name)s""",
+            {"name": test_type["typeName"]}
+        )
+        type = cur.fetchone()
+        assert type["type_name"] == test_type["typeName"]

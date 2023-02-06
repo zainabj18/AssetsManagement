@@ -3,6 +3,7 @@ DROP TYPE IF EXISTS data_classification CASCADE;
 DROP TABLE IF EXISTS accounts CASCADE;
 DROP TABLE IF EXISTS assets CASCADE;
 DROP TABLE IF EXISTS attributes CASCADE;
+DROP TABLE IF EXISTS types CASCADE;
 CREATE TYPE account_role AS ENUM ('VIEWER', 'USER', 'ADMIN');
 CREATE TYPE data_classification AS ENUM ('PUBLIC', 'INTERNAL','RESTRICTED','CONFIDENTIAL');
 CREATE TABLE accounts
@@ -40,6 +41,14 @@ CREATE TABLE attributes
 	attribute_data_type VARCHAR NOT NULL,
 	PRIMARY KEY (attribute_id)
 );
+ CREATE TABLE types
+ (
+ 	type_id SERIAL,
+ 	type_name VARCHAR NOT NULL UNIQUE,
+	validation_json JSON,
+	
+ 	PRIMARY KEY (type_id)
+ );
 -- CREATE TABLE projects
 -- (
 -- 	project_id SERIAL,

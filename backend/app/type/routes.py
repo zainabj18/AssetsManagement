@@ -1,15 +1,24 @@
 from flask import Blueprint, request
 
 from app.db import get_db
-from app.schemas import Attribute_Model
+from app.schemas import Attribute_Model, Type
 
 bp = Blueprint("type", __name__, url_prefix="/type")
+
+@bp.route("/new", methods=["POST"])
+def add_type():
+    new_type = Type(**request.json)
+    db_type = new_type.dict(exclude={"metadata"})
+    query = """INSERT INTO types (type_name) VALUES (%(type_name)s);"""
+    database = get_db()
+    with database.connection() as conn:
+        conn.execute(query, db_type)
+    return {"msg": ""}, 200
 
 
 @bp.route("/adder", methods=["GET"])
 def types():
     return {"msg": ""}, 200
-
 
 @bp.route("/adder/new", methods=["POST"])
 def add_attribute():
