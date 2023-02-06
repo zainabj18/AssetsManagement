@@ -105,15 +105,17 @@ const AssetViewer = ({ canEdit, isNew }) => {
 
 	const onNewTag = (e) => {
 		e.preventDefault();
-		setAssetState((prevAssetState) => ({
-			...prevAssetState,
-			tags: [...prevAssetState.tags, tag],
-		}));
-		setTag('');
-	};
-	const handleTagChange = (event) => {
-		const value = event.target.value;
-		setTag(value);
+		if (tag){
+			console.log(assetSate);
+			if (!assetSate.tags.some(t => Object.is(t, tag))){
+				setAssetState((prevAssetState) => ({
+					...prevAssetState,
+					tags: [...prevAssetState.tags, tag],
+				}));
+			}
+			setTag(null);
+		}
+
 	};
 
 	const handleTypeChange = (e, attribute_value) => {
