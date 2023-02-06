@@ -7,6 +7,7 @@ import NoMatch from './routes/NoMatch';
 import AssetSearcher from './routes/AssetSearcher';
 import User from './routes/User';
 import TypeAdder from './routes/TypeAdder';
+import KeywordSearch from './routes/KeywordSearch';
 
 function App() {
 	return (
@@ -19,6 +20,7 @@ function App() {
 				<Route path="user" element={<User />} />
 				<Route path="*" element={<NoMatch />} />
 				<Route path="type/adder" element={<TypeAdder />} />
+				<Route path="KeywordSearch" element={<KeywordSearch />} />
 			</Route>
 		</Routes>
 	);
