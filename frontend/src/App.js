@@ -14,11 +14,14 @@ function App() {
 		<Routes>
 			<Route path="/" element={<Layout />}>
 				<Route path="newasset" element={<CreateAsset />} />
-				<Route path="asset/:id" element={<AssetViewer canEdit={true} isNew={false}/>} />
+				<Route
+					path="asset/:id"
+					element={<AssetViewer canEdit={true} isNew={false} />}
+				/>
 				<Route path="login" element={<Login />} />
 				<Route path="filter" element={<FilterBasedSearch />} />
 				<Route path="user" element={<User />} />
-				<Route path="newproject" element={<CreateProject />} />
+				<Route path="project/new" element={<CreateProject />} />
 				<Route path="*" element={<NoMatch />} />
 				<Route path="type/adder" element={<TypeAdder />} />
 			</Route>
