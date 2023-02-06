@@ -15,8 +15,10 @@ const FilterBasedSearch = () => {
 						</AccordionButton>
 					</h2>
 					<AccordionPanel pb={4}>
-						<Checkbox colorScheme='green' defaultChecked>Framework</Checkbox>
-						<Checkbox colorScheme='green' defaultChecked>Documentation</Checkbox>
+						<VStack align = {'left'}>
+							<Checkbox colorScheme='green' defaultChecked>Framework</Checkbox>
+							<Checkbox colorScheme='green' defaultChecked>Documentation</Checkbox>
+						</VStack>
 					</AccordionPanel>
 				</AccordionItem>
 				<AccordionItem>
@@ -27,7 +29,9 @@ const FilterBasedSearch = () => {
 						</AccordionButton>
 					</h2>
 					<AccordionPanel pb={4}>
-						<Checkbox colorScheme='green' defaultChecked>React</Checkbox>
+						<VStack align = {'left'}>
+							<Checkbox colorScheme='green' defaultChecked>React</Checkbox>
+						</VStack>
 					</AccordionPanel>
 				</AccordionItem>
 				<AccordionItem>
@@ -38,10 +42,12 @@ const FilterBasedSearch = () => {
 						</AccordionButton>
 					</h2>
 					<AccordionPanel pb={4}>
-						<Checkbox colorScheme='green' defaultChecked>Project A</Checkbox>
-						<Checkbox colorScheme='green' defaultChecked>Project B</Checkbox>
-						<Checkbox colorScheme='green' defaultChecked>Project C</Checkbox>
-						<Checkbox colorScheme='green' defaultChecked>Project D</Checkbox>
+						<VStack align = {'left'}>
+							<Checkbox colorScheme='green' defaultChecked>Project A</Checkbox>
+							<Checkbox colorScheme='green' defaultChecked>Project B</Checkbox>
+							<Checkbox colorScheme='green' defaultChecked>Project C</Checkbox>
+							<Checkbox colorScheme='green' defaultChecked>Project D</Checkbox>
+						</VStack>
 					</AccordionPanel>
 				</AccordionItem>
 			</Accordion>
