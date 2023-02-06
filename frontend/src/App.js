@@ -4,7 +4,7 @@ import CreateAsset from './routes/CreateAsset';
 import Layout from './routes/Layout';
 import Login from './routes/Login';
 import NoMatch from './routes/NoMatch';
-import FilterBasedSearch from './routes/FilterBasedSearch';
+import AssetSearcher from './routes/AssetSearcher';
 import User from './routes/User';
 import TypeAdder from './routes/TypeAdder';
 
@@ -15,7 +15,7 @@ function App() {
 				<Route path="newasset" element={<CreateAsset />} />
 				<Route path="asset/:id" element={<AssetViewer canEdit={true} isNew={false}/>} />
 				<Route path="login" element={<Login />} />
-				<Route path="filter" element={<FilterBasedSearch />} />
+				<Route path="search" element={<AssetSearcher />} />
 				<Route path="user" element={<User />} />
 				<Route path="*" element={<NoMatch />} />
 				<Route path="type/adder" element={<TypeAdder />} />
