@@ -1,4 +1,4 @@
-import AssetViewer from '../components/AssetVeiwer';
+import AssetViewer from '../../components/AssetVeiwer';
 
 const CreateAsset = () => {
 	return <AssetViewer canEdit={true} isNew={true} />;
