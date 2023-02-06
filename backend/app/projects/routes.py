@@ -36,7 +36,7 @@ def create():
         )
 
     db = get_db()
-    db_project = Project.dict()
+    db_project = project.dict()
     with db.connection() as conn:
         conn.execute(
             """INSERT INTO project (project_id, name, description)VALUES (%(project_id)s,%(name)s,%(description)s);""", db_project,
