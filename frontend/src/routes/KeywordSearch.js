@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Data from './Data.js';
 import { Card, Input } from 'semantic-ui-react';
 import { filter } from '@chakra-ui/react';
 
@@ -11,7 +10,7 @@ export default function KeywordSearch() {
     const [searchInput, setSearchInput] = useState('');
     useEffect(() => {
         //get request to fetch data 
-        axios.get('src/routes/Data.js')
+        axios.get('https://jsonplaceholder.typicode.com/users')
         .then((response) => {
             setAPIData(response.data);
         });
@@ -19,19 +18,19 @@ export default function KeywordSearch() {
 
     //function to handle the search functionality
     const searchItems = (searchValue) => {
-        setSearchInput(searchValue)
+        setSearchInput(searchValue);
         if (searchInput !== '') {
             //filtering data through a method
             const filteredData = APIData.filter((item) => {
                 //setting filtered array into a variable
-                return Object.values(item.join('').toLowerCase().includes(searchInput.toLowerCase()))
-            })
-            setFilteredResults(filteredData)    
+                return Object.values(item.join('').toLowerCase().includes(searchInput.toLowerCase()));
+            });
+            setFilteredResults(filteredData);    
     } 
     else{
-        setFilteredResults(APIData)
+        setFilteredResults(APIData);
         }
-    }
+    };
 
 
     //creating a search bar on he webpage
