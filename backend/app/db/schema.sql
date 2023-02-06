@@ -2,6 +2,7 @@ DROP TYPE IF EXISTS account_role CASCADE;
 DROP TYPE IF EXISTS data_classification CASCADE;
 DROP TABLE IF EXISTS accounts CASCADE;
 DROP TABLE IF EXISTS assets CASCADE;
+DROP TABLE IF EXISTS attributes CASCADE;
 CREATE TYPE account_role AS ENUM ('VIEWER', 'USER', 'ADMIN');
 CREATE TYPE data_classification AS ENUM ('PUBLIC', 'INTERNAL','RESTRICTED','CONFIDENTIAL');
 CREATE TABLE accounts
@@ -30,6 +31,14 @@ CREATE TABLE assets
 	last_modified_at timestamp NOT NULL DEFAULT now(),
 	project VARCHAR NOT NULL,
 	PRIMARY KEY (asset_id)
+);
+
+CREATE TABLE attributes
+(
+	attribute_id SERIAL,
+	attribute_name VARCHAR NOT NULL UNIQUE,
+	attribute_data_type VARCHAR NOT NULL,
+	PRIMARY KEY (attribute_id)
 );
 -- CREATE TABLE projects
 -- (
