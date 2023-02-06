@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timedelta
 from unittest import mock
-
+from werkzeug.http import parse_cookie
 import jwt
 import pytest
 from psycopg import Error
@@ -399,6 +399,13 @@ def test_login_requires_username_password_comb(client):
         "error": "Invalid credentials",
     }
 
+def test_login_requires_username_password_comb_not_blank(client):
+    res = client.post("/api/v1/auth/login", json={"username": "","password": ""})
+    assert res.status_code == 400
+    assert res.json == {
+        "msg": "username and password required",
+        "error": "Invalid credentials",
+    }
 
 def test_login_check_account_exist(client):
     res = client.post(
@@ -452,10 +459,14 @@ def test_login(client):
         },
     )
 
-    assert res.status_code == 201
-    assert "token" in res.json
-    token = res.json["token"]
-
+    assert res.status_code == 200
+    access_token_cookie=next((cookie for cookie in res.headers.getlist('Set-Cookie') if 'access-token' in cookie),None)
+    assert access_token_cookie!=None
+    cookie_attrs = parse_cookie(access_token_cookie)
+    assert 'Secure' in cookie_attrs
+    assert 'HttpOnly' in cookie_attrs
+    assert datetime.strptime(cookie_attrs["Expires"],'%a, %d %b %Y %H:%M:%S %Z')  > datetime.now()
+    token=cookie_attrs['access-token'] 
     data = jwt.decode(
         token,
         os.environ["SECRET_KEY"],
@@ -466,6 +477,21 @@ def test_login(client):
     assert data["account_privileges"] == "CONFIDENTIAL"
     assert datetime.utcfromtimestamp(data["exp"]) > datetime.now()
 
+def test_valid_login_response(client):
+    res = client.post(
+        "/api/v1/auth/login",
+        json={
+            "username": os.environ["DEFAULT_SUPERUSER_USERNAME"],
+            "password": os.environ["DEFAULT_SUPERUSER_PASSWORD"],
+        },
+    )
+    assert res.status_code == 200
+    assert res.json["msg"]=="logged in"
+    data=res.json["data"]
+    assert data["userID"]==1
+    assert data["userRole"]=="ADMIN"
+    assert data["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
+    assert data["userPrivileges"]=="CONFIDENTIAL"
 
 def test_protected_route_no_token(client):
     res = client.get("/api/v1/auth/admin-status")
@@ -487,7 +513,8 @@ def test_protected_route_expired_token(client):
         client.application.config["SECRET_KEY"],
         algorithm=client.application.config["JWT_ALGO"],
     )
-    res = client.get("/api/v1/auth/admin-status", headers={"x-access-token": token})
+    client.set_cookie("localhost","access-token",token)
+    res = client.get("/api/v1/auth/admin-status")
     assert res.status_code == 401
     assert res.json == {"error": "Invalid Token", "msg": "Signature has expired"}
 
@@ -498,8 +525,9 @@ def test_protected_route_expired_token(client):
     indirect=True,
 )
 def test_protected_valid_token(client, valid_token):
+    client.set_cookie("localhost","access-token",valid_token)
     res = client.get(
-        "/api/v1/auth/admin-status", headers={"x-access-token": valid_token}
+        "/api/v1/auth/admin-status"
     )
     assert res.status_code == 200
     assert res.json == {
@@ -522,21 +550,22 @@ def test_protected_valid_token(client, valid_token):
                 "account_type": UserRole.USER,
                 "account_privileges": DataAccess.CONFIDENTIAL,
             },
-            {"status_code": 401, "msg": "unauthorised"},
+            {"status_code": 403, "msg": "forbidden"},
         ),
         (
             {
                 "account_type": UserRole.VIEWER,
                 "account_privileges": DataAccess.CONFIDENTIAL,
             },
-            {"status_code": 401, "msg": "unauthorised"},
+            {"status_code": 403, "msg": "forbidden"},
         ),
     ],
     indirect=True,
 )
 def test_protected_rbac_admin(client, valid_token, expected_res):
+    client.set_cookie("localhost","access-token",valid_token)
     res = client.get(
-        "/api/v1/auth/admin-status", headers={"x-access-token": valid_token}
+        "/api/v1/auth/admin-status"
     )
     assert res.status_code == expected_res["status_code"]
     assert expected_res["msg"] in res.json["msg"]
@@ -564,14 +593,15 @@ def test_protected_rbac_admin(client, valid_token, expected_res):
                 "account_type": UserRole.VIEWER,
                 "account_privileges": DataAccess.CONFIDENTIAL,
             },
-            {"status_code": 401, "msg": "unauthorised"},
+            {"status_code": 403, "msg": "forbidden"},
         ),
     ],
     indirect=True,
 )
 def test_protected_rbac_user(client, valid_token, expected_res):
+    client.set_cookie("localhost","access-token",valid_token)
     res = client.get(
-        "/api/v1/auth/user-status", headers={"x-access-token": valid_token}
+        "/api/v1/auth/user-status"
     )
     assert res.status_code == expected_res["status_code"]
     assert expected_res["msg"] in res.json["msg"]
@@ -605,8 +635,118 @@ def test_protected_rbac_user(client, valid_token, expected_res):
     indirect=True,
 )
 def test_protected_rbac_user(client, valid_token, expected_res):
+    client.set_cookie("localhost","access-token",valid_token)
     res = client.get(
-        "/api/v1/auth/viewer-status", headers={"x-access-token": valid_token}
+        "/api/v1/auth/viewer-status"
     )
     assert res.status_code == expected_res["status_code"]
     assert expected_res["msg"] in res.json["msg"]
+
+
+@pytest.mark.parametrize(
+    "valid_token",
+    [{"account_type": UserRole.VIEWER, "account_privileges": DataAccess.PUBLIC}],
+    indirect=True,
+)
+def test_identify_valid_token(client, valid_token):
+    client.set_cookie("localhost","access-token",valid_token)
+    res = client.get(
+        "/api/v1/auth/identify"
+    )
+    assert res.status_code == 200
+    assert res.json['msg']=='found you'
+    assert res.json['data']=={
+            "userID": None,
+            "userPrivileges": "PUBLIC",
+            "userRole": "VIEWER",
+            'username': None
+        }
+
+def test_identify_admin(client):
+    res = client.post(
+        "/api/v1/auth/login",
+        json={
+            "username": os.environ["DEFAULT_SUPERUSER_USERNAME"],
+            "password": os.environ["DEFAULT_SUPERUSER_PASSWORD"],
+        },
+    )
+
+    assert res.status_code == 200
+    res = client.get(
+        "/api/v1/auth/identify"
+    )
+    assert res.status_code == 200
+    assert res.json["msg"]=="found you"
+    data=res.json["data"]
+    assert data["userID"]==1
+    assert data["userRole"]=="ADMIN"
+    assert data["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
+    assert data["userPrivileges"]=="CONFIDENTIAL"
+
+
+def test_identify_db_error(client):
+    with mock.patch(
+        "app.auth.routes.get_user_by_id", side_effect=Error("Fake error executing query")
+    ) as p:
+        res = client.post(
+        "/api/v1/auth/login",
+        json={
+            "username": os.environ["DEFAULT_SUPERUSER_USERNAME"],
+            "password": os.environ["DEFAULT_SUPERUSER_PASSWORD"],
+        },
+    )
+
+        assert res.status_code == 200
+        res = client.get(
+            "/api/v1/auth/identify"
+        )
+        assert res.status_code == 500
+        assert res.json == {
+            "error": "Database Connection Error",
+            "msg": "Fake error executing query",
+        }
+        p.assert_called()
+
+def test_identify_no_token(client):
+    res = client.get(
+        "/api/v1/auth/identify"
+    )
+    assert res.status_code == 401
+    assert res.json == {
+        "error": "Missing Token",
+        "msg": "Please provide a valid token in the header",
+    }
+
+def test_identify_expired_token(client):
+    token = jwt.encode(
+        {
+            "account_id": 1,
+            "account_type": "ADMIN",
+            "account_privileges": "CONFIDENTIAL",
+            "exp": datetime.utcnow() - timedelta(minutes=30),
+        },
+        client.application.config["SECRET_KEY"],
+        algorithm=client.application.config["JWT_ALGO"],
+    )
+    client.set_cookie("localhost","access-token",token)
+    res = client.get("/api/v1/auth/identify")
+    assert res.status_code == 401
+    assert res.json == {"error": "Invalid Token", "msg": "Signature has expired"}
+
+@pytest.mark.parametrize(
+    "valid_token",
+    [{"account_type": UserRole.VIEWER, "account_privileges": DataAccess.PUBLIC}],
+    indirect=True,
+)
+def test_logout(client,valid_token):
+    client.set_cookie("localhost","access-token",valid_token)
+    res = client.delete(
+        "/api/v1/auth/logout"
+    )
+    assert res.status_code == 200
+    access_token_cookie=next((cookie for cookie in res.headers.getlist('Set-Cookie') if 'access-token' in cookie),None)
+    assert access_token_cookie!=None
+    cookie_attrs = parse_cookie(access_token_cookie)
+    assert datetime.strptime(cookie_attrs["Expires"],'%a, %d %b %Y %H:%M:%S %Z')  < datetime.now()
+    token=cookie_attrs['access-token'] 
+    assert token==''

@@ -17,13 +17,9 @@ const FormField = ({
 	onSubmitHandler,
 }) => {
 
-	const toTitle = (label) => {
-		return label.charAt(0).toUpperCase()+label.substr(1).toLowerCase();
-	};
-
 	return (
 		<FormControl bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
-			<FormLabel>{toTitle(fieldName)}</FormLabel>
+			<FormLabel textTransform='capitalize'>{fieldName}</FormLabel>
 			{fieldType === 'checkbox' ? (
 				<Checkbox
 					isDisabled={isDisabled}
@@ -31,9 +27,7 @@ const FormField = ({
 					onChange={(e) => {
 						onSubmitHandler(fieldName, e.target.checked);
 					}}
-				>
-          Checkbox
-				</Checkbox>
+				/>
 			) : (
 				<Editable
 					textAlign="center"

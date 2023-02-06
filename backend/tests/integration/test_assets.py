@@ -6,7 +6,7 @@ from app.schemas import Attribute
 
 
 def test_new_assset_requires_name(client):
-    res = client.post("/api/v1/asset/new", json={})
+    res = client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -18,7 +18,7 @@ def test_new_assset_requires_name(client):
 
 
 def test_new_assset_requires_link(client):
-    res = client.post("/api/v1/asset/new", json={})
+    res = client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -30,7 +30,7 @@ def test_new_assset_requires_link(client):
 
 
 def test_new_assset_requires_type(client):
-    res = client.post("/api/v1/asset/new", json={})
+    res = client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -42,7 +42,7 @@ def test_new_assset_requires_type(client):
 
 
 def test_new_assset_requires_description(client):
-    res = client.post("/api/v1/asset/new", json={})
+    res = client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -54,7 +54,7 @@ def test_new_assset_requires_description(client):
 
 
 def test_new_assset_requires_tag(client):
-    res = client.post("/api/v1/asset/new", json={})
+    res = client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -66,7 +66,7 @@ def test_new_assset_requires_tag(client):
 
 
 def test_new_assset_requires_tag(client):
-    res = client.post("/api/v1/asset/new", json={})
+    res = client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -78,7 +78,7 @@ def test_new_assset_requires_tag(client):
 
 
 def test_new_assset_requires_access_level(client):
-    res = client.post("/api/v1/asset/new", json={})
+    res = client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -90,7 +90,7 @@ def test_new_assset_requires_access_level(client):
 
 
 def test_new_assset_requires_metadata(client):
-    res = client.post("/api/v1/asset/new", json={})
+    res = client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -136,7 +136,7 @@ def test_new_assset_requires_metadata(client):
     ],
 )
 def test_new_assset_tyes_correct(client, attribute, json):
-    res = client.post("/api/v1/asset/new", json=json)
+    res = client.post("/api/v1/asset/", json=json)
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -158,7 +158,7 @@ def test_new_assset_tyes_correct(client, attribute, json):
     ],
 )
 def test_new_assset_string_types_incorect(client, attribute, json):
-    res = client.post("/api/v1/asset/new", json=json)
+    res = client.post("/api/v1/asset/", json=json)
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -170,7 +170,7 @@ def test_new_assset_string_types_incorect(client, attribute, json):
 
 
 def test_new_assset_tags_list_incorect(client):
-    res = client.post("/api/v1/asset/new", json={"tags": ["1", []]})
+    res = client.post("/api/v1/asset/", json={"tags": ["1", []]})
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
     assert {
@@ -181,14 +181,14 @@ def test_new_assset_tags_list_incorect(client):
 
 
 def test_new_assset_acces_level_incorrect(client):
-    res = client.post("/api/v1/asset/new", json={"access_level": []})
+    res = client.post("/api/v1/asset/", json={"access_level": []})
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
     assert None == res.json["data"]
 
 
 def test_new_assset_metadata_incorrect(client):
-    res = client.post("/api/v1/asset/new", json={"metadata": 1})
+    res = client.post("/api/v1/asset/", json={"metadata": 1})
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
     assert {
@@ -198,7 +198,7 @@ def test_new_assset_metadata_incorrect(client):
     } in res.json["data"]
 
     res = client.post(
-        "/api/v1/asset/new",
+        "/api/v1/asset/",
         json={"metadata": [{"s": "s"}, {"attributeName": "s", "attribute_type": []}]},
     )
     assert res.json["error"] == "Failed to create asset from the data provided"
@@ -231,7 +231,7 @@ def test_new_assset_metadata_incorrect(client):
 
 
 def test_new_assset_requires_project(client):
-    res = client.post("/api/v1/asset/new", json={})
+    res = client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -279,7 +279,7 @@ def test_asset_added_to_db(client, db_conn):
             },
         ],
     }
-    res = client.post("/api/v1/asset/new", json=data)
+    res = client.post("/api/v1/asset/", json=data)
     assert res.status_code == 200
 
     with db_conn.cursor(row_factory=dict_row) as cur:
@@ -334,9 +334,9 @@ def test_get_asset_added_to_db(client):
             },
         ],
     }
-    res = client.post("/api/v1/asset/new", json=data)
+    res = client.post("/api/v1/asset/", json=data)
     assert res.status_code == 200
-    res = client.get("/api/v1/asset/get/1")
+    res = client.get("/api/v1/asset/1")
     assert res.status_code == 200
     asset = res.json
     assert asset["name"] == data["name"]
@@ -347,3 +347,13 @@ def test_get_asset_added_to_db(client):
     assert asset["project"] == data["project"]
     assert asset["access_level"] == "PUBLIC"
     assert asset["metadata"] == [Attribute(**x) for x in data["metadata"]]
+
+def test_get_access_levels(client):
+    res = client.get(
+        "/api/v1/asset/classifications"
+    )
+    assert res.status_code == 200
+    assert res.json["data"]==['PUBLIC', 'INTERNAL', 'RESTRICTED', 'CONFIDENTIAL']
+
+#TODO:Test asset name is unique
+#TODO:Test DB error

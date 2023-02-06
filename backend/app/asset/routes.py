@@ -1,15 +1,14 @@
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row
 from pydantic import ValidationError
-
-from app.db import get_db
+from app.db import get_db,DataAccess
 from app.schemas import AssetBase,AssetBaseInDB
 
 bp = Blueprint("asset", __name__, url_prefix="/asset")
 import json
 
 
-@bp.route("/new", methods=["POST"])
+@bp.route("/", methods=["POST"])
 def create():
     try:
         try:
@@ -49,12 +48,17 @@ VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(access_level)s,%(metadata)s
 
     return jsonify({"msg": "Added asset"}), 200
 
+@bp.route("/classifications", methods=["GET"])
+def get_classifications():
+    return {"data":[a.value for a in DataAccess]}
 
-@bp.route("/get/<id>", methods=["GET"])
-def get(id):
+@bp.route("/<id>", methods=["GET"])
+def view(id):
     db = get_db()
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
             cur.execute("""SELECT * FROM assets WHERE asset_id=%(id)s;""", {"id": id})
             asset = cur.fetchone()
     return asset.json(), 200
+
+
