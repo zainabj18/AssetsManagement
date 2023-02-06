@@ -38,25 +38,18 @@ def test_add_type_to_db(client, db_conn):
             {
                 "attributeName": "programming Language(s)",
                 "attributeType": "text",
-            },
-            {
-                "attributeName": "public",
-                "attributeType": "checkbox",
-            },
-            {
-                "attributeName": "no. of issues",
-                "attributeType": "number",
             }
         ]
-
     }
+    client.post("/api/v1/type/adder/new", json=test_type["metadata"][0])
     res = client.post("/api/v1/type/new", json=test_type)
     assert res.status_code == 200
 
     with db_conn.cursor(row_factory=dict_row) as cur:
         cur.execute(
-            """SELECT * FROM types WHERE type_name=%(name)s""",
-            {"name": test_type["typeName"]}
+            """SELECT * FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t on at.type_id = t.type_id;"""
         )
         type = cur.fetchone()
         assert type["type_name"] == test_type["typeName"]
+        assert type["attribute_name"] == test_type["metadata"][0]["attributeName"]
+        assert type["attribute_data_type"] == test_type["metadata"][0]["attributeType"]
