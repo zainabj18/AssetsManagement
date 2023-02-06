@@ -41,4 +41,5 @@ def create():
         conn.execute(
             """INSERT INTO project (project_id, name, description)VALUES (%(project_id)s,%(name)s,%(description)s);""", db_project,
         )
+
     return jsonify({"msg": "The user have created a new project"}), 200

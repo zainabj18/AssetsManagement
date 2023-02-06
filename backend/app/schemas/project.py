@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-from app.db import DataAccess
 
 
 class Project(BaseModel):
