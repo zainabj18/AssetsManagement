@@ -9,8 +9,6 @@ const SearchSelect = ({dataFunc,selectedValue,setSelectedValue,createFunc}) => {
 	const [maxVisible,setMaxVisible] = useState(defaultVisible);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [canCreate, setCanCreate] = useBoolean();
-	const [isDisabled, setIsDisabled] = useBoolean(false);
-	const [newData, setNewData] = useBoolean();
 	const handleScroll = (e) => {
 		const bottom = e.target.scrollHeight-e.target.clientHeight-e.target.scrollTop <5;
 		console.log('scorlling');
@@ -24,7 +22,6 @@ const SearchSelect = ({dataFunc,selectedValue,setSelectedValue,createFunc}) => {
 		setIsEditing.off();
 		setCanCreate.off();
 		setMaxVisible(defaultVisible);
-		
 		setResults(data);
 	};
 	const handleClick=(d)=>{
@@ -35,13 +32,11 @@ const SearchSelect = ({dataFunc,selectedValue,setSelectedValue,createFunc}) => {
 
 	const handleCreate=async()=>{
 		console.log('creating'+searchQuery);
-		setIsDisabled.on();
 		await createFunc(searchQuery).then((d) => { 
 			console.log(d.data);
 			setSelectedValue(d.data); });
-		setIsDisabled.off();
 		reset();
-		//getNewData();
+		getNewData();
 	};
 
 	const handleQuery=(query)=>{
@@ -88,7 +83,7 @@ const SearchSelect = ({dataFunc,selectedValue,setSelectedValue,createFunc}) => {
 				<HStack>
 					
 					<PopoverAnchor>
-						{isEditing ?(<Input type='text' color='red' isDisabled={isDisabled} value={searchQuery} onChange={e => {
+						{isEditing ?(<Input type='text' color='red' value={searchQuery} onChange={e => {
 							handleQuery(e.target.value);}}/>):(<Box>{selectedValue&&selectedValue.name}</Box>)}
 					</PopoverAnchor>
 					<PopoverTrigger>

@@ -24,14 +24,14 @@ import IndeterminateCheckbox from './IndeterminateCheckbox';
 import GlobalFilter from './GlobalFilter';
  
 
-function ProjectSelect() {
+function ProjectSelect({setSelectedProjects}) {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const data = React.useMemo(
 		() => [
 			{
 				id:1,
 				name: 'General',
-				desc: 'Basic project',
+				desc: 'Basic project'
 			},
 			{
 				id:2,
@@ -64,6 +64,16 @@ function ProjectSelect() {
 		],
 		[]
 	);
+
+	const addProjects=()=>{
+		let selectedProjects=selectedFlatRows.map(
+			(d)=>{
+				return {'id':d.original.id,'name':d.original.name};}
+		);
+		console.log(addProjects);
+		setSelectedProjects(selectedProjects);
+		onClose();
+	};
 
 	const {
 		getTableProps,
@@ -99,7 +109,7 @@ function ProjectSelect() {
     
  
 	return (<>
-		<Button onClick={onOpen}>Open Modal</Button>
+		<Button onClick={onOpen}>Select Projects</Button>
 		<Modal isOpen={isOpen} onClose={onClose} size={'full'}>
 			<ModalOverlay />
 			<ModalContent>
@@ -157,8 +167,7 @@ function ProjectSelect() {
 
 				<ModalFooter>
 					<HStack>
-						<Button>Add</Button>
-						<Button onClick={onClose}>Close</Button>
+						<Button onClick={addProjects}>Save</Button>
 					</HStack>	
 				</ModalFooter>
 			</ModalContent>

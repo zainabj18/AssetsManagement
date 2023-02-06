@@ -17,6 +17,7 @@ import {
 	FormControl,
 	FormLabel,
 	Select,
+	Box,
 } from '@chakra-ui/react';
 import { Fragment } from 'react';
 import { useEffect, useState } from 'react';
@@ -25,6 +26,7 @@ import FormField from './FormField';
 import axios from 'axios';
 import { createTag, fetchAsset, fetchAssetClassifications, fetchTags } from '../api';
 import SearchSelect from './SearchSelect';
+import ProjectSelect from './ProjectSelect';
 const AssetViewer = ({ canEdit, isNew }) => {
 	const { id } = useParams();
 	const [assetSate, setAssetState] = useState(undefined);
@@ -32,7 +34,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 	const [tag, setTag] = useState('');
 	const [openEdit, setOpenEdit] = useState(isNew);
 	const [classifications,setClassifications] = useState([]);
-	const projects = ['General', 'LDAP services'];
+	const [projects,setProjects] = useState([]);
 	const type = {
 		Framework: [
 			{
@@ -192,20 +194,17 @@ const AssetViewer = ({ canEdit, isNew }) => {
 				</FormControl>
 				<FormControl  bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
 					<FormLabel>Project</FormLabel>
-					<Select
-						isDisabled={isDisabled}
-						onChange={(e) => {
-							handleChange('project', e.target.value);
-						}}
-					>
-						{projects.map((value, key) => {
-							return (
-								<option key={key} value={value}>
-									{value}
-								</option>
-							);
-						})}
-					</Select>
+					<Wrap spacing={4}>
+						{projects.map((value, key) => (
+							<WrapItem key={key}>
+								<Tag size={'md'} key={key}>
+									<TagLabel>{value.name}</TagLabel>
+								</Tag>
+							</WrapItem>
+						))}
+						<ProjectSelect setSelectedProjects={setProjects} />
+					</Wrap>
+					
 				</FormControl>
 				<FormControl  bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
 					<FormLabel>Access Level</FormLabel>
