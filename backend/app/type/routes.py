@@ -35,7 +35,7 @@ def add_attribute():
     new_attribute = Attribute_Model(**request.json)
     db_attribute = new_attribute.dict()
     database = get_db()
-    query = """INSERT INTO ATTRIBUTES (attribute_name, attribute_data_type) VALUES (%(attribute_name)s, %(attribute_type)s);"""
+    query = """INSERT INTO attributes (attribute_name, attribute_data_type) VALUES (%(attribute_name)s, %(attribute_type)s);"""
     with database.connection() as conn:
         conn.execute(query, db_attribute)
     return {"msg": ""}, 200
