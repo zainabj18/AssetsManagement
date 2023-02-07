@@ -53,3 +53,23 @@ def test_add_type_to_db(client, db_conn):
         assert type["type_name"] == test_type["typeName"]
         assert type["attribute_name"] == test_type["metadata"][0]["attributeName"]
         assert type["attribute_data_type"] == test_type["metadata"][0]["attributeType"]
+
+# Test to see if a list of types can be returned from the database in alphabetical order
+
+
+def test_get_type(client, db_conn):
+    test_type = {
+        "typeName": "library",
+        "metadata": [
+            {
+                "attributeName": "age",
+                    "attributeType": "number",
+            }
+        ]
+    }
+    client.post("/api/v1/type/adder/new", json=test_type["metadata"][0])
+    client.post("/api/v1/type/new", json=test_type)
+    res = client.post("/api/v1/type/1")
+    assert res.status_code == 200
+    type = res.json
+    assert type == test_type

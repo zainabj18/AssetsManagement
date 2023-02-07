@@ -39,3 +39,21 @@ def add_attribute():
     with database.connection() as conn:
         conn.execute(query, db_attribute)
     return {"msg": ""}, 200
+
+
+@bp.route("/<id>", methods=["POST"])
+def get_all_types(id):
+    database = get_db()
+    query = """SELECT type_name, attribute_name, attribute_data_type FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t on at.type_id = t.type_id WHERE t.type_id = (%(id)s);"""
+    with database.connection() as conn:
+        res = conn.execute(query, {"id": id})
+        type = res.fetchone()
+        return json.dumps({
+            "typeName": type[0],
+            "metadata": [
+                {
+                    "attributeName": type[1],
+                    "attributeType": type[2]
+                }
+            ]
+        }), 200
