@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify
 from psycopg.rows import dict_row
 from app.db import get_db
+from psycopg import Error
 
 bp = Blueprint("project", __name__, url_prefix="/project")
 
@@ -14,5 +15,9 @@ def get_projects(db):
 
 @bp.route("/", methods=["GET"])
 def list():
-    db = get_db()
-    return jsonify({"msg": "projects","data":get_projects(db)})
+    try:
+        db = get_db()
+        projects=get_projects(db)
+    except Error as e:
+        return {"msg": str(e), "error": "Database Error"}, 500
+    return jsonify({"msg": "projects","data":projects})

@@ -1,4 +1,3 @@
-from psycopg.rows import dict_row
 from unittest import mock
 from psycopg import Error
 
@@ -23,3 +22,15 @@ VALUES (%(name)s,%(description)s) RETURNING id;""",
     assert res.status_code == 200
     assert res.json=={"msg": "projects","data":expected_projects}
 
+def test_projects_list_db_error(client):
+    with mock.patch(
+        "app.project.routes.get_projects", side_effect=Error("Fake error executing query")
+    ) as p:
+        res = client.get("/api/v1/project/")
+        
+        assert res.status_code == 500
+        p.assert_called()
+        assert res.json=={
+            "error": "Database Error",
+            "msg": "Fake error executing query",
+        }
