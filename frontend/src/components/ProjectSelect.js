@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect, useMemo,useState} from 'react';
 import { useTable,useRowSelect,useGlobalFilter } from 'react-table';
 
 import {
@@ -18,81 +18,60 @@ import {
 	ModalCloseButton,
 	useDisclosure,
 	Button,
-	HStack
+	HStack,
+	Box,
+	Checkbox
 } from '@chakra-ui/react';
-import IndeterminateCheckbox from './IndeterminateCheckbox';
-import GlobalFilter from './GlobalFilter';
+
 
 function ProjectSelect({setSelectedProjects,projects}) {
-	const { isOpen, onOpen, onClose } = useDisclosure();
+	const { isOpen, onClose,onOpen } = useDisclosure();
+	const [selected,setSelected] = useState([]); 
 	const data = React.useMemo(
 		() => 
-			[...projects],
+			[...projects,{'id': 2, 'name': 'mike', 'description': 'mike','isSelected':true}],
 		[projects]);
- 
-	const columns = React.useMemo(
-		() => [
-			{
-				Header: 'Project ID',
-				accessor: 'id',
-			},
-			{
-				Header: 'Project Name',
-				accessor: 'name',
-			},
-			{
-				Header: 'Project Decription',
-				accessor: 'description',
-			}
-		],
-		[]
-	);
 
+	const columns = useMemo(
+		() => {return {
+			'isSelected':{
+				header: 'Selection'
+			},
+			'id':{
+				header: 'Project ID'
+			},
+			'name':{
+				header: 'Project Name',
+			},
+			'description':{
+				header: 'Project Decription'
+			}
+		};},[]
+	);
 	const addProjects=()=>{
-		let selectedProjects=selectedFlatRows.map(
-			(d)=>{
-				return {'id':d.original.id,'name':d.original.name};}
-		);
-		console.log(addProjects);
+		let selectedProjects=selected.map(
+			(rowID)=>{return data[rowID];});
 		setSelectedProjects(selectedProjects);
 		onClose();
 	};
 
-	const {
-		getTableProps,
-		getTableBodyProps,
-		headerGroups,
-		rows,
-		state,
-		prepareRow,
-		selectedFlatRows,
-		setGlobalFilter,
-	} = useTable(
-		{
-			columns,
-			data,
-			initialState:{selectedRowIds: {0:true}}
-		},
-		useRowSelect,
-		useGlobalFilter,
-		hooks => {
-			hooks.visibleColumns.push(columns => [
-				{
-					id: 'selection',
-					Header: ({getToggleAllRowsSelectedProps}) => (
-						<IndeterminateCheckbox {...getToggleAllRowsSelectedProps()}/>
-					),
-					Cell: ({row}) => (
-						<IndeterminateCheckbox {...row.getToggleRowSelectedProps()}/>
-					),
-				},
-				...columns,
-			]);
-		},
-		
-	);
-    
- 
+	const handleCheck=(rowID,val)=>{
+		if (val){
+			if (!selected.includes(rowID)){
+				setSelected((prev)=>{return  [...prev,rowID];});
+			}
+		}else {
+			let newSelected=selected.filter((id) => id !==rowID);
+			setSelected(newSelected);
+		}	
+	};
+	const renderCell=(key,value)=>{
+		if (columns[key].hasOwnProperty('Cell')){
+			return columns[key].Cell(value);
+		}else{
+			return <Box>{value}</Box>;
+		}
+	};
 	return (<>
 		<Button onClick={onOpen}>Select Projects</Button>
 		<Modal isOpen={isOpen} onClose={onClose} size={'full'}>
@@ -100,53 +79,30 @@ function ProjectSelect({setSelectedProjects,projects}) {
 			<ModalContent>
 				<ModalHeader>Project Select</ModalHeader>
 				<ModalCloseButton />
-				<ModalBody>
+				<ModalBody >
 					{projects && <TableContainer>
-			 			<GlobalFilter
-							globalFilter={state.globalFilter}
-							setGlobalFilter={setGlobalFilter}
-						/>
-						<Table {...getTableProps()} variant='striped'>
-							<Thead>
-								{headerGroups.map(headerGroup => (
-									<Tr {...headerGroup.getHeaderGroupProps()}>
-										{headerGroup.headers.map(column => (
-											<Th
-												{...column.getHeaderProps()}
-											>
-												{column.render('Header')}
-											</Th>
-										))}
-									</Tr>
-								))}
-							</Thead>
-							<Tbody {...getTableBodyProps()}>
-								{rows.map(row => {
-									prepareRow(row);
-									return (
-										<Tr {...row.getRowProps()}>
-											{row.cells.map(cell => {
-												return (
-													<Td
-														{...cell.getCellProps()}
-													>
-														{cell.render('Cell')}
-													</Td>
-												);
-											})}
-										</Tr>
-									);
-								})}
-							</Tbody>
-						</Table>
-						<pre>
-							<code>
-								{console.log(selectedFlatRows.map(
-									d=>d.original.id
+						<Table variant='simple'>
+		  <Thead>
+								<Tr key={'header'}>
+		  {Object.keys(columns).map(key => (
+										<Th key={key}>{columns[key].header}</Th>)
+		  )}
+		  </Tr>
+		  </Thead>
+		  <Tbody>
+		  {data.map((row,index)=> (
 
-								))}
-							</code>
-						</pre>
+									<Tr key={index}>
+										<Td><Checkbox defaultChecked={selected.includes(index)} onChange={(e) => handleCheck(index,e.target.checked)}/></Td>
+										{Object.keys(row).map((key)=>{
+
+						
+	 return <Td key={index+key}>{renderCell(key,row[key])}</Td>;
+										})}</Tr>)
+								)}
+		 
+		  </Tbody>
+						</Table>
 					</TableContainer>}
 				</ModalBody>
 
