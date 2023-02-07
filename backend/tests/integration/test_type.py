@@ -54,7 +54,7 @@ def test_add_type_to_db(client, db_conn):
         assert type["attribute_name"] == test_type["metadata"][0]["attributeName"]
         assert type["attribute_data_type"] == test_type["metadata"][0]["attributeType"]
 
-# Test to see if a list of types can be returned from the database in alphabetical order
+# Test to see if a type can be returned from the database
 
 
 def test_get_type(client):
