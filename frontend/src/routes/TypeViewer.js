@@ -1,7 +1,8 @@
 import {
+	Button,
 	VStack,
 	Table, Thead, Tbody, Tr, Th, Td, TableContainer, TableCaption,
-	Text
+	Text,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 
@@ -10,7 +11,7 @@ const TypeViewer = () => {
 	const [types, setTypes] = useState([
 		/** Dummy Data */
 		{
-			type: 'framework',
+			typeName: 'framework',
 			metadata: [
 				{
 					attributeName: 'programming Language(s)',
@@ -72,7 +73,7 @@ const TypeViewer = () => {
 			]
 		},
 		{
-			type: 'library',
+			typeName: 'library',
 			metadata: [
 				{
 					attributeName: 'platform',
@@ -109,13 +110,14 @@ const TypeViewer = () => {
 						<Tr>
 							<Th color='white'>Type</Th>
 							<Th color='white'>Attributes</Th>
+							<Th color='white'>View</Th>
 						</Tr>
 					</Thead>
 					<Tbody>
 						{types.map((types) => {
 							return (
-								<Tr key={types.type}>
-									<Td>{types.type}</Td>
+								<Tr key={types.typeName}>
+									<Td>{types.typeName}</Td>
 									<Td>
 										{types.metadata.map((metadata) => {
 											return (
@@ -124,6 +126,9 @@ const TypeViewer = () => {
 												</VStack>
 											);
 										})}
+									</Td>
+									<Td>
+										<Button>View</Button>
 									</Td>
 								</Tr>
 							);
