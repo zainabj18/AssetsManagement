@@ -50,6 +50,22 @@ const FilterBasedSearch = () => {
 						</VStack>
 					</AccordionPanel>
 				</AccordionItem>
+				<AccordionItem>
+					<h2>
+						<AccordionButton>
+							Access Levels
+							<AccordionIcon />
+						</AccordionButton>
+					</h2>
+					<AccordionPanel pb={4}>
+						<VStack align = {'left'}>
+							<Checkbox colorScheme='green' defaultChecked>Public</Checkbox>
+							<Checkbox colorScheme='green' defaultChecked>Internal</Checkbox>
+							<Checkbox colorScheme='green' defaultChecked>Restricted</Checkbox>
+							<Checkbox colorScheme='green' defaultChecked>Confidential</Checkbox>
+						</VStack>
+					</AccordionPanel>
+				</AccordionItem>
 			</Accordion>
 		</Box>
 	);
