@@ -93,11 +93,57 @@ def test_get_allAttributes(client):
                 "attributeType": "text",
             }
         ]}
-    client.post("/api/v1/type/adder/new", json=test_attributes["attributes"][0])
-    client.post("/api/v1/type/adder/new", json=test_attributes["attributes"][1])
-    client.post("/api/v1/type/adder/new", json=test_attributes["attributes"][2])
+    client.post("/api/v1/type/adder/new",
+                json=test_attributes["attributes"][0])
+    client.post("/api/v1/type/adder/new",
+                json=test_attributes["attributes"][1])
+    client.post("/api/v1/type/adder/new",
+                json=test_attributes["attributes"][2])
     res = client.post("/api/v1/type/allAttributes")
     assert res.status_code == 200
     attributes = res.json
-    print(attributes)
     assert attributes == test_attributes
+
+
+# Test to see if a list of all types can be returned from the database
+def test_get_allTypes(client):
+    test_types = {
+        "types": [
+            {
+                "typeId": 1,
+                "typeName": "framework",
+                "metadata": [
+                 {
+                     "attributeName": "programming Language(s)",
+                     "attributeType": "text",
+                 }
+                ]
+            },
+            {
+                "typeId": 2,
+                "typeName": "libary",
+                "metadata": [
+                    {
+                        "attributeName": "author",
+                        "attributeType": "text",
+                    },
+                    {
+                        "attributeName": "age",
+                        "attributeType": "number",
+                    }
+                ]
+            }
+        ]
+    }
+    client.post("/api/v1/type/adder/new",
+                json=test_types["types"][0]["metadata"][0])
+    client.post("/api/v1/type/new", json=test_types["types"][0])
+    client.post("/api/v1/type/adder/new",
+                json=test_types["types"][1]["metadata"][0])
+    client.post("/api/v1/type/adder/new",
+                json=test_types["types"][1]["metadata"][1])
+    client.post("/api/v1/type/new", json=test_types["types"][1])
+    res = client.post("/api/v1/type/allTypes")
+    assert res.status_code == 200
+    types = res.json
+    assert types == test_types
