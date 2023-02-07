@@ -1,32 +1,45 @@
 import {
-	Container,
-	Stat,
-	StatLabel,
-	StatNumber,
-	StatGroup,
-	Divider,
-	VStack,
-	Heading,
-	Tag,
-	TagLabel,
-	TagCloseButton,
-	Wrap,
-	WrapItem,
-	Input,
+	Box,
 	Button,
+	Center,
+	Container,
+	Divider,
 	FormControl,
 	FormLabel,
+	Heading,
+	Input,
 	Select,
+	Stat,
+	StatGroup,
+	StatLabel,
+	StatNumber,
+	Tab,
+	TabList,
+	TabPanel,
+	TabPanels,
+	Tabs,
+	Tag,
+	TagCloseButton,
+	TagLabel,
+	VStack,
+	Wrap,
+	WrapItem,
 } from '@chakra-ui/react';
-import { Fragment } from 'react';
-import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Fragment, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import FormField from './FormField';
-import axios from 'axios';
-import { fetchAsset } from '../api';
 const AssetViewer = ({ canEdit, isNew }) => {
 	const { id } = useParams();
-	const [assetSate, setAssetState] = useState(undefined);
+	const [assetSate, setAssetState] = useState({
+		name: 'name',
+		link: 'link',
+		description: 'description',
+		tags: [],
+		metadata: [],
+		created_at: new Date().toUTCString(),
+		last_modified_at: new Date().toUTCString(),
+	});
 	const [isDisabled, setIsDisabled] = useState(!canEdit);
 	const [tag, setTag] = useState('');
 	const [openEdit, setOpenEdit] = useState(isNew);
@@ -131,8 +144,19 @@ const AssetViewer = ({ canEdit, isNew }) => {
 
 	useEffect(() => {
 		if (id) {
-			fetchAsset(id).then((data)=>{
-				setAssetState(data);}).catch((err) => {console.log(err);});
+			const fetchData = async () => {
+				const res = await axios.get('/api/v1/asset/get/' + id);
+				console.log(res.data);
+				return res;
+			};
+			fetchData()
+				.then((res) => {
+					setAssetState(res.data);
+				})
+				.catch((err) => {
+					console.log(err);
+				});
+
 			setOpenEdit(false);
 		} else {
 			setAssetState({
@@ -149,134 +173,176 @@ const AssetViewer = ({ canEdit, isNew }) => {
 	}, [id]);
 
 	return assetSate ? (
-		<Container>
-			{assetSate && <VStack>
-				<Heading size={'2xl'}>Asset Attributes</Heading>
-				<FormField
-					fieldName="name"
-					fieldType="text"
-					fieldDefaultValue={assetSate.name}
-					isDisabled={isDisabled}
-					startWithEditView={openEdit}
-					onSubmitHandler={handleChange}
-				/>
-				<FormField
-					fieldName="link"
-					fieldType="url"
-					fieldDefaultValue={assetSate.link}
-					isDisabled={isDisabled}
-					startWithEditView={openEdit}
-					onSubmitHandler={handleChange}
-				/>
-				<FormControl bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
-					<FormLabel>Type</FormLabel>
-					<Select
-						isDisabled={isDisabled || !isNew}
-						onChange={(e) => {
-							handleTypeChange(e, e.target.value);
-						}}
-					>
-						{Object.keys(type).map((value, key) => {
-							return (
-								<option key={key} value={value}>
-									{value}
-								</option>
-							);
-						})}
-					</Select>
-				</FormControl>
-				<FormControl  bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
-					<FormLabel>Project</FormLabel>
-					<Select
-						isDisabled={isDisabled}
-						onChange={(e) => {
-							handleChange('project', e.target.value);
-						}}
-					>
-						{projects.map((value, key) => {
-							return (
-								<option key={key} value={value}>
-									{value}
-								</option>
-							);
-						})}
-					</Select>
-				</FormControl>
-				<FormControl  bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
-					<FormLabel>Access Level</FormLabel>
-					<Select
-						isDisabled={isDisabled}
-						onChange={(e) => {
-							handleChange('access_level', e.target.value);
-						}}
-					>
-						{access_levels.map((value, key) => {
-							return (
-								<option key={key} value={value}>
-									{value}
-								</option>
-							);
-						})}
-					</Select>
-				</FormControl>
-				<FormField
-					fieldName="description"
-					fieldType="text"
-					fieldDefaultValue={assetSate.description}
-					isDisabled={isDisabled}
-					startWithEditView={openEdit}
-					onSubmitHandler={handleChange}
-				/>
-				<FormControl  bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
-					<FormLabel>Tags</FormLabel>
-					<Wrap spacing={4}>
-						{assetSate.tags.map((value, key) => (
-							<WrapItem key={key}>
-								<Tag size={'md'} key={key}>
-									<TagLabel>{value}</TagLabel>
-									<TagCloseButton onClick={(e) => onTagClick(e, value)} />
-								</Tag>
-							</WrapItem>
-						))}
-						<Input
-							placeholder="Enter Tag"
-							value={tag}
-							onChange={handleTagChange}
-						/>
-						<Button onClick={onNewTag}>Add Tag</Button>
-					</Wrap>
-				</FormControl>
-				<Divider />
-				<Heading size={'md'}>Type Attributes:</Heading>
+		<Center height={'100vh'}>
+			<Box bg={'white'} color={'black'} p={10} borderRadius={10} w={'1000px'} mx={'auto'} mb={'100px'}>
+				<Heading mb={'25px'}>View Asset</Heading>
+				<Tabs>
+					<TabList>
+						<Tab>Attributes</Tab>
+						<Tab>Types</Tab>
+						<Tab>Projects</Tab>
+						<Tab>Access Level</Tab>
+						<Tab>Tags</Tab>
+					</TabList>
 
-				{assetSate.metadata.map((value, key) => {
-					return (
-						<Fragment key={key}>
+					<TabPanels minH={300}>
+						<TabPanel>
 							<FormField
-								fieldName={value.attribute_name}
-								fieldType={value.attribute_type}
-								fieldDefaultValue={value.attribute_value}
+								fieldName="name"
+								fieldType="text"
+								fieldDefaultValue={assetSate.name}
 								isDisabled={isDisabled}
 								startWithEditView={openEdit}
-								onSubmitHandler={handleMetadataChange}
+								onSubmitHandler={handleChange}
 							/>
-						</Fragment>
-					);
-				})}
-			</VStack>}
-			{!isNew && (<StatGroup>
-				<Stat>
-					<StatLabel>Created At</StatLabel>
-					<StatNumber>{assetSate.created_at}</StatNumber>
-				</Stat>
-				<Stat>
-					<StatLabel>Last Modified</StatLabel>
-					<StatNumber>{assetSate.last_modified_at}</StatNumber>
-				</Stat>
-			</StatGroup>)}
-			
-			<Button onClick={createNewAsset}>Sumbit</Button>
-		</Container>
+							<FormField
+								fieldName="link"
+								fieldType="url"
+								fieldDefaultValue={assetSate.link}
+								isDisabled={isDisabled}
+								startWithEditView={openEdit}
+								onSubmitHandler={handleChange}
+							/>
+							<Heading size={'md'}>Type Attributes:</Heading>
+							{assetSate.metadata.map((value, key) => {
+								return (
+									<Fragment key={key}>
+										<FormField
+											fieldName={value.attribute_name}
+											fieldType={value.attribute_type}
+											fieldDefaultValue={value.attribute_value}
+											isDisabled={isDisabled}
+											startWithEditView={openEdit}
+											onSubmitHandler={handleMetadataChange}
+										/>
+									</Fragment>
+								);
+							})}
+						</TabPanel>
+						<TabPanel>
+							<FormControl
+								bg="white"
+								color="black"
+								borderRadius="5"
+								border="3"
+								borderColor="gray.200"
+								padding={6}
+							>
+								<FormLabel>Type</FormLabel>
+								<Select
+									isDisabled={isDisabled || !isNew}
+									onChange={(e) => {
+										handleTypeChange(e, e.target.value);
+									}}
+								>
+									{Object.keys(type).map((value, key) => {
+										return (
+											<option key={key} value={value}>
+												{value}
+											</option>
+										);
+									})}
+								</Select>
+							</FormControl>
+						</TabPanel>
+						<TabPanel>
+							<FormControl
+								bg="white"
+								color="black"
+								borderRadius="5"
+								border="3"
+								borderColor="gray.200"
+								padding={6}
+							>
+								<FormLabel>Project</FormLabel>
+								<Select
+									isDisabled={isDisabled}
+									onChange={(e) => {
+										handleChange('project', e.target.value);
+									}}
+								>
+									{projects.map((value, key) => {
+										return (
+											<option key={key} value={value}>
+												{value}
+											</option>
+										);
+									})}
+								</Select>
+							</FormControl>
+						</TabPanel>
+						<TabPanel>
+							<FormControl
+								bg="white"
+								color="black"
+								borderRadius="5"
+								border="3"
+								borderColor="gray.200"
+								padding={6}
+							>
+								<FormLabel>Access Level</FormLabel>
+								<Select
+									isDisabled={isDisabled}
+									onChange={(e) => {
+										handleChange('access_level', e.target.value);
+									}}
+								>
+									{access_levels.map((value, key) => {
+										return (
+											<option key={key} value={value}>
+												{value}
+											</option>
+										);
+									})}
+								</Select>
+							</FormControl>
+						</TabPanel>
+						<TabPanel>
+							<FormControl
+								bg="white"
+								color="black"
+								borderRadius="5"
+								border="3"
+								borderColor="gray.200"
+								padding={6}
+							>
+								<FormLabel>Tags</FormLabel>
+								<Wrap spacing={4}>
+									{assetSate.tags.map((value, key) => (
+										<WrapItem key={key}>
+											<Tag size={'md'} key={key}>
+												<TagLabel>{value}</TagLabel>
+												<TagCloseButton onClick={(e) => onTagClick(e, value)} />
+											</Tag>
+										</WrapItem>
+									))}
+									<Input
+										placeholder="Enter Tag"
+										value={tag}
+										onChange={handleTagChange}
+									/>
+									<Button onClick={onNewTag}>Add Tag</Button>
+								</Wrap>
+							</FormControl>
+						</TabPanel>
+					</TabPanels>
+				</Tabs>
+				{!isNew && (
+					<StatGroup m={'40px auto'}>
+						<Stat>
+							<StatLabel>Created At</StatLabel>
+							<StatNumber>{assetSate.created_at}</StatNumber>
+						</Stat>
+						<Stat>
+							<StatLabel>Last Modified</StatLabel>
+							<StatNumber>{assetSate.last_modified_at}</StatNumber>
+						</Stat>
+					</StatGroup>
+				)}
+
+				<Button onClick={createNewAsset}>Sumbit</Button>
+			</Box>
+		</Center>
 	) : null;
 };
 
