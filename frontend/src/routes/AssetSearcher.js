@@ -2,7 +2,7 @@ import { VStack } from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
 import {Accordion,AccordionItem,AccordionButton,AccordionPanel,AccordionIcon} from '@chakra-ui/react';
 import { Checkbox } from '@chakra-ui/react';
-import './App.css';
+//import './App.css';
 
 const FilterBasedSearch = () => {
 	return (
@@ -68,8 +68,21 @@ const FilterBasedSearch = () => {
 					</AccordionPanel>
 				</AccordionItem>
 			</Accordion>
+			<div className="App">
+				<form>
+					<div>
+						<input
+							name='Attribute name'
+							placeholder='Attribute name'
+						/>
+						<input
+							name='Attribute value'
+							placeholder='Attribute value'
+						/>
+					</div>
+				</form>
+    		</div>
 		</Box>
 	);
-  
 };
 export default FilterBasedSearch;
