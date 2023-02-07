@@ -14,8 +14,8 @@ const User = () => {
 
 
 	return (
-		<Box p={50}>
-			<Flex>
+		<Box p={50} ml={180} mt={20}>
+			<Flex ml={280}>
 				<Box mr={280}>
 					First Name
 				</Box>
@@ -26,22 +26,22 @@ const User = () => {
 					Username
 				</Box>
 			</Flex>
-			<HStack spacing={5}>
+			<HStack spacing={6}>
 				<FormControl isRequired>
 					<Box color ='black'>
-						<Input  bg = 'white' placeholder='Name' right={65} width={200} type='text'/>
+						<Input  bg = 'white' placeholder='Name' left={215} width={200} type='text'/>
 						<FormLabel color = 'white'> required </FormLabel>
 					</Box>
 				</FormControl>
 				<FormControl isRequired>
 					<Box color ='black'>
-						<Input  bg = 'white' placeholder='Surname' left={5} width={200} type='text'/>
+						<Input  bg = 'white' placeholder='Surname' left={25} width={200} type='text'/>
 						<FormLabel color = 'white'> required </FormLabel>
 					</Box>
 				</FormControl>
 				<FormControl isRequired>
 					<Box color ='black'>
-						<InputGroup left={85} width={200 } type='text'>
+						<InputGroup right={180} width={200} type='text'>
 							<InputLeftAddon children='#' />
 							<Input bg='white'/>
 						</InputGroup>
@@ -49,7 +49,7 @@ const User = () => {
 					</Box>
 				</FormControl>
 			</HStack>
-			<Flex mt={8}>
+			<Flex mt={8} ml={280}>
 				<Box mr={280}>
 					Access Level
 				</Box>
@@ -57,7 +57,7 @@ const User = () => {
 					Role
 				</Box>
 			</Flex>
-			<HStack>
+			<HStack ml={280}>
 				<Box>
 					<Select placeholder='Select Access Level' color='black' bg='white' right={61} width={200}>
 						<option value='option1'>Option 1</option>
@@ -73,7 +73,7 @@ const User = () => {
 					</Select>
 				</Box>
 			</HStack>
-			<Stack direction='row' spacing={4} align='center' mt={14}>
+			<Stack direction='row' spacing={4} align='center' mt={14} ml={280}>
 				<Button colorScheme='blue' variant='solid' size='lg'>
 					Save
 				</Button>
