@@ -27,6 +27,7 @@ import SearchSelect from './SearchSelect';
 import ProjectSelect from './ProjectSelect';
 import ListFormField from './ListFormField';
 import SelectFormField from './SelectFormField';
+import NumFormField from './NumFormField';
 const AssetViewer = ({ canEdit, isNew }) => {
 	const { id } = useParams();
 	const [assetSate, setAssetState] = useState(undefined);
@@ -82,6 +83,15 @@ const AssetViewer = ({ canEdit, isNew }) => {
 				attribute_name: 'version',
 				attribute_type: 'text',
 				attribute_value: 'v1',
+			},
+			{
+				attribute_name: 'stars',
+				attribute_type: 'num_lmt',
+				attribute_value: 4,
+				attribute_validation:{
+					'min':1,
+					'max':5
+				}
 			},
 		],
 	};
@@ -270,15 +280,19 @@ const AssetViewer = ({ canEdit, isNew }) => {
 				<Heading size={'md'}>Type Attributes:</Heading>
 
 				{assetSate.metadata.map((value, key) => {
-					if (value.attribute_type==='options'){
-						console.log('I am here');
+					switch(value.attribute_type) {
+					case 'num_lmt':
+						return (
+							<Fragment key={key}> 
+								<NumFormField fieldName={value.attribute_name} fieldDefaultValue={value.attribute_value} validation={value.attribute_validation} />
+							</Fragment>);
+					case 'options':
 						return (
 							<Fragment key={key}> 
 								<SelectFormField fieldName={value.attribute_name} fieldDefaultValue={value.attribute_value} validation={value.attribute_validation} />
 							</Fragment>);
-					}
-					return (
-						<Fragment key={key}>
+					default:
+						return (<Fragment key={key}>
 							<FormField
 								fieldName={value.attribute_name}
 								fieldType={value.attribute_type}
@@ -287,8 +301,8 @@ const AssetViewer = ({ canEdit, isNew }) => {
 								startWithEditView={openEdit}
 								onSubmitHandler={handleMetadataChange}
 							/>
-						</Fragment>
-					);
+						</Fragment>);
+					  }
 				})}
 			</VStack>}
 			{!isNew && (<StatGroup>
