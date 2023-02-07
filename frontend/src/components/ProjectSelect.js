@@ -25,11 +25,11 @@ import {
 
 
 function ProjectSelect({setSelectedProjects,projects}) {
-	const { isOpen, onClose,onOpen } = useDisclosure();
+	const { isOpen, onClose,onOpen, } = useDisclosure();
 	const [selected,setSelected] = useState([]); 
-	const data = React.useMemo(
+	const data = useMemo(
 		() => 
-			[...projects,{'id': 2, 'name': 'mike', 'description': 'mike','isSelected':true}],
+			[...projects],
 		[projects]);
 
 	const columns = useMemo(
@@ -48,7 +48,7 @@ function ProjectSelect({setSelectedProjects,projects}) {
 			}
 		};},[]
 	);
-	const addProjects=()=>{
+	const save=()=>{
 		let selectedProjects=selected.map(
 			(rowID)=>{return data[rowID];});
 		setSelectedProjects(selectedProjects);
@@ -72,6 +72,24 @@ function ProjectSelect({setSelectedProjects,projects}) {
 			return <Box>{value}</Box>;
 		}
 	};
+
+	useEffect(() => {
+		let preSelected=[];
+		let projects=[];
+		for (let i = 0; i < data.length; i++) {
+			let obj=data[i];
+			if (obj.hasOwnProperty('isSelected')&obj.isSelected){
+				preSelected.push(i);
+				projects.push(obj);
+			}
+		}
+		setSelected(preSelected);
+		setSelectedProjects(projects);
+	}, []);
+	
+
+
+	
 	return (<>
 		<Button onClick={onOpen}>Select Projects</Button>
 		<Modal isOpen={isOpen} onClose={onClose} size={'full'}>
@@ -108,7 +126,7 @@ function ProjectSelect({setSelectedProjects,projects}) {
 
 				<ModalFooter>
 					<HStack>
-						<Button onClick={addProjects}>Save</Button>
+						<Button onClick={save}>Save</Button>
 					</HStack>	
 				</ModalFooter>
 			</ModalContent>
