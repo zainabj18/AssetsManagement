@@ -30,13 +30,13 @@ const User = () => {
 				<FormControl isRequired>
 					<Box color ='black'>
 						<Input  bg = 'white' placeholder='Name' left={215} width={200} type='text'/>
-						<FormLabel color = 'white'> required </FormLabel>
+						<FormLabel color = 'white' ml={280}> required </FormLabel>
 					</Box>
 				</FormControl>
 				<FormControl isRequired>
 					<Box color ='black'>
 						<Input  bg = 'white' placeholder='Surname' left={25} width={200} type='text'/>
-						<FormLabel color = 'white'> required </FormLabel>
+						<FormLabel color = 'white' ml={100}> required </FormLabel>
 					</Box>
 				</FormControl>
 				<FormControl isRequired>
@@ -45,7 +45,7 @@ const User = () => {
 							<InputLeftAddon children='#' />
 							<Input bg='white'/>
 						</InputGroup>
-						<FormLabel color = 'white' right={50}> required </FormLabel>
+						<FormLabel color = 'white'> required </FormLabel>
 					</Box>
 				</FormControl>
 			</HStack>
