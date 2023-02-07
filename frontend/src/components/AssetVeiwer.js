@@ -22,7 +22,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import FormField from './FormField';
 import axios from 'axios';
-import { createTag, fetchAsset, fetchAssetClassifications, fetchTags } from '../api';
+import { createTag, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags } from '../api';
 import SearchSelect from './SearchSelect';
 import ProjectSelect from './ProjectSelect';
 import ListFormField from './ListFormField';
@@ -36,6 +36,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 	const [openEdit, setOpenEdit] = useState(isNew);
 	const [classifications,setClassifications] = useState([]);
 	const [projects,setProjects] = useState([]);
+	const [projectList,setProjectList]=useState([]);
 	const type = {
 		Framework: [
 			
@@ -180,6 +181,13 @@ const AssetViewer = ({ canEdit, isNew }) => {
 				setAssetState(data);}).catch((err) => {console.log(err);});
 			setOpenEdit(false);
 		} else {
+
+			fetchProjects().then(
+				(res)=>{
+					console.log(res.data);
+					setProjectList(res.data);
+				}
+			);
 			setAssetState({
 				name: '',
 				link: '',
@@ -243,7 +251,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 								</Tag>
 							</WrapItem>
 						))}
-						<ProjectSelect setSelectedProjects={setProjects} />
+						<ProjectSelect setSelectedProjects={setProjects}  projects={projectList}/>
 					</Wrap>
 				</FormControl>
 				<FormControl  >

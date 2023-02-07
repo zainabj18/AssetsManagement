@@ -22,30 +22,13 @@ import {
 } from '@chakra-ui/react';
 import IndeterminateCheckbox from './IndeterminateCheckbox';
 import GlobalFilter from './GlobalFilter';
- 
 
-function ProjectSelect({setSelectedProjects}) {
+function ProjectSelect({setSelectedProjects,projects}) {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const data = React.useMemo(
-		() => [
-			{
-				id:1,
-				name: 'General',
-				desc: 'Basic project'
-			},
-			{
-				id:2,
-				name: 'LAPD',
-				desc: 'Basic project'
-			},
-			{
-				id:3,
-				name: 'Test',
-				desc: 'Test project'
-			},
-		],
-		[]
-	);
+		() => 
+			[...projects],
+		[projects]);
  
 	const columns = React.useMemo(
 		() => [
@@ -59,7 +42,7 @@ function ProjectSelect({setSelectedProjects}) {
 			},
 			{
 				Header: 'Project Decription',
-				accessor: 'desc',
+				accessor: 'description',
 			}
 		],
 		[]
@@ -88,6 +71,7 @@ function ProjectSelect({setSelectedProjects}) {
 		{
 			columns,
 			data,
+			initialState:{selectedRowIds: {0:true}}
 		},
 		useRowSelect,
 		useGlobalFilter,
@@ -104,7 +88,8 @@ function ProjectSelect({setSelectedProjects}) {
 				},
 				...columns,
 			]);
-		}
+		},
+		
 	);
     
  
@@ -116,7 +101,7 @@ function ProjectSelect({setSelectedProjects}) {
 				<ModalHeader>Project Select</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody>
-					<TableContainer>
+					{projects && <TableContainer>
 			 			<GlobalFilter
 							globalFilter={state.globalFilter}
 							setGlobalFilter={setGlobalFilter}
@@ -162,7 +147,7 @@ function ProjectSelect({setSelectedProjects}) {
 								))}
 							</code>
 						</pre>
-					</TableContainer>
+					</TableContainer>}
 				</ModalBody>
 
 				<ModalFooter>

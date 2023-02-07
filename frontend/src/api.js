@@ -26,3 +26,7 @@ export const fetchTags= async ()=> {
 export const createTag= async (tag)=> {
 	return await axios.post('/tag/',{'name':tag}).then(res=>res.data);
 };
+
+export const fetchProjects= async ()=> {
+	return await axios.get('/project/').then(res=>res.data);
+};
