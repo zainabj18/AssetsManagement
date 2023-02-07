@@ -42,7 +42,7 @@ def add_attribute():
 
 
 @bp.route("/<id>", methods=["POST"])
-def get_all_types(id):
+def get_type(id):
     database = get_db()
     query = """SELECT type_name, attribute_name, attribute_data_type FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t on at.type_id = t.type_id WHERE t.type_id = (%(id)s);"""
     with database.connection() as conn:
