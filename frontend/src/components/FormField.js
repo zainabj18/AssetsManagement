@@ -18,7 +18,7 @@ const FormField = ({
 }) => {
 
 	return (
-		<FormControl bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
+		<FormControl >
 			<FormLabel textTransform='capitalize'>{fieldName}</FormLabel>
 			{fieldType === 'checkbox' ? (
 				<Checkbox

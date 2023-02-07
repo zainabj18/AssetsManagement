@@ -14,7 +14,7 @@ import {
 	MenuItemOption
 } from '@chakra-ui/react';
 import { useState,useEffect } from 'react';
-const SelectFormField = ({fieldName,fieldDefaultValue,validation}) => {
+const SelectFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler}) => {
 
 	const [values, setValues] = useState([]);
 	const [options, setOptions] = useState([]);
@@ -25,6 +25,7 @@ const SelectFormField = ({fieldName,fieldDefaultValue,validation}) => {
 			newValues=[newValues];	
 		}
 		setValues(newValues);
+		onChangeHandler(fieldDefaultValue,newValues);
 	};
 
 	useEffect(() => {
@@ -43,7 +44,7 @@ const SelectFormField = ({fieldName,fieldDefaultValue,validation}) => {
 	
 
 	return (
-		<FormControl bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
+		<FormControl >
 			<FormLabel textTransform='capitalize'>{fieldName}</FormLabel>
 			<Wrap spacing={4}>
 				{values && values.map((value, key) => (

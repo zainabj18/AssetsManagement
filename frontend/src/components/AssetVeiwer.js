@@ -183,7 +183,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 			setAssetState({
 				name: '',
 				link: '',
-				type: 'Framework',
+				type: '',
 				description: '',
 				tags: [],
 				projects: [],
@@ -196,8 +196,9 @@ const AssetViewer = ({ canEdit, isNew }) => {
 
 	return assetSate ? (
 		<Container>
-			{assetSate && <VStack>
+			{assetSate && <VStack maxW='100%'>
 				<Heading size={'2xl'}>Asset Attributes</Heading>
+		
 				<FormField
 					fieldName="name"
 					fieldType="text"
@@ -214,9 +215,10 @@ const AssetViewer = ({ canEdit, isNew }) => {
 					startWithEditView={openEdit}
 					onSubmitHandler={handleChange}
 				/>
-				<FormControl bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
+				<FormControl>
 					<FormLabel>Type</FormLabel>
 					<Select
+						placeholder='Select a type'
 						isDisabled={isDisabled || !isNew}
 						onChange={(e) => {
 							handleTypeChange(e, e.target.value);
@@ -231,7 +233,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 						})}
 					</Select>
 				</FormControl>
-				<FormControl  bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
+				<FormControl>
 					<FormLabel>Project</FormLabel>
 					<Wrap spacing={4}>
 						{projects.map((value, key) => (
@@ -244,7 +246,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 						<ProjectSelect setSelectedProjects={setProjects} />
 					</Wrap>
 				</FormControl>
-				<FormControl  bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
+				<FormControl  >
 					<FormLabel>Access Level</FormLabel>
 					<Select
 						isDisabled={isDisabled}
@@ -269,7 +271,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 					startWithEditView={openEdit}
 					onSubmitHandler={handleChange}
 				/>
-				<FormControl bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
+				<FormControl >
 					<FormLabel>Tags</FormLabel>
 					<Wrap spacing={4}>
 						{assetSate.tags.map((value, key) => (
@@ -284,8 +286,10 @@ const AssetViewer = ({ canEdit, isNew }) => {
 						{tag && <Button onClick={onNewTag} isDisabled={isDisabled}>Add Tag</Button>}
 					</Wrap>
 				</FormControl>
+
 				<Divider />
 				<Heading size={'md'}>Type Attributes:</Heading>
+		
 
 				{assetSate.metadata.map((value, key) => {
 					switch(value.attribute_type) {
@@ -293,17 +297,17 @@ const AssetViewer = ({ canEdit, isNew }) => {
 						console.log('I am here');
 						return (
 							<Fragment key={key}> 
-								<ListFormField fieldName={value.attribute_name} fieldDefaultValue={value.attribute_value} validation={value.attribute_validation} />
+								<ListFormField fieldName={value.attribute_name} fieldDefaultValue={value.attribute_value} validation={value.attribute_validation} onChangeHandler={handleMetadataChange}/>
 							</Fragment>);
 					case 'num_lmt':
 						return (
 							<Fragment key={key}> 
-								<NumFormField fieldName={value.attribute_name} fieldDefaultValue={value.attribute_value} validation={value.attribute_validation} />
+								<NumFormField fieldName={value.attribute_name} fieldDefaultValue={value.attribute_value} validation={value.attribute_validation}  onChangeHandler={handleMetadataChange}/>
 							</Fragment>);
 					case 'options':
 						return (
 							<Fragment key={key}> 
-								<SelectFormField fieldName={value.attribute_name} fieldDefaultValue={value.attribute_value} validation={value.attribute_validation} />
+								<SelectFormField fieldName={value.attribute_name} fieldDefaultValue={value.attribute_value} validation={value.attribute_validation} onChangeHandler={handleMetadataChange}/>
 							</Fragment>);
 					default:
 						return (<Fragment key={key}>
