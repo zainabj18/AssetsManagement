@@ -2,6 +2,7 @@ import { VStack } from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
 import {Accordion,AccordionItem,AccordionButton,AccordionPanel,AccordionIcon} from '@chakra-ui/react';
 import { Checkbox } from '@chakra-ui/react';
+import './App.css';
 
 const FilterBasedSearch = () => {
 	return (
