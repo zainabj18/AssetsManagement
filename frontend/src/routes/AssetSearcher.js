@@ -8,6 +8,9 @@ const FilterBasedSearch = () => {
 	const [inputFields, setInputFields] = useState([
 		{ name: '', value: ''}
 	]);
+
+	const handleFormChange = (index, event) => {}
+
 	return (
 		<Box p={30}>
 			<VStack> <p>This is the Filter Based Search Page !!</p></VStack>
@@ -80,11 +83,13 @@ const FilterBasedSearch = () => {
 									name='name'
 									placeholder='Attribute name'
 									value={input.name}
+									onChange={event => handleFormChange(index, event)}
 								/>
 								<input
 									name='value'
 									placeholder='Attribute value'
 									value={input.value}
+									onChange={event => handleFormChange(index, event)}
 								/>
 							</div>
 						);
