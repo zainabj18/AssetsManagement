@@ -6,7 +6,7 @@ import { useState } from 'react';
 
 const FilterBasedSearch = () => {
 	const [inputFields, setInputFields] = useState([
-		{name: '', age: ''}
+		{ name: '', value: ''}
 	]);
 	return (
 		<Box p={30}>
@@ -77,11 +77,11 @@ const FilterBasedSearch = () => {
 						return (
 							<div key={index}>
 								<input
-									name='Attribute name'
+									name='name'
 									placeholder='Attribute name'
 								/>
 								<input
-									name='Attribute value'
+									name='value'
 									placeholder='Attribute value'
 								/>
 							</div>
