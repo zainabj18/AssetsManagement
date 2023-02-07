@@ -136,6 +136,7 @@ const TypeViewer = () => {
 					</Tbody>
 				</Table>
 			</TableContainer>
+			<Button>Create New</Button>
 		</VStack>
 	);
 };
