@@ -45,7 +45,7 @@ const SelectFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler
 
 	return (
 		<FormControl >
-			<FormLabel textTransform='capitalize'>{fieldName}</FormLabel>
+			<FormLabel >{fieldName}</FormLabel>
 			<Wrap spacing={4}>
 				{values && values.map((value, key) => (
 					<WrapItem key={key}>

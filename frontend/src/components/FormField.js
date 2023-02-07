@@ -19,7 +19,7 @@ const FormField = ({
 
 	return (
 		<FormControl >
-			<FormLabel textTransform='capitalize'>{fieldName}</FormLabel>
+			<FormLabel>{fieldName}</FormLabel>
 			{fieldType === 'checkbox' ? (
 				<Checkbox
 					isDisabled={isDisabled}

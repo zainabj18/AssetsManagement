@@ -11,7 +11,7 @@ import {
 const NumFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler}) => {
 	return (
 		<FormControl >
-			<FormLabel textTransform='capitalize'>{fieldName}</FormLabel>
+			<FormLabel>{fieldName}</FormLabel>
 			<NumberInput 
 				defaultValue={fieldDefaultValue} 
 				min={1} 

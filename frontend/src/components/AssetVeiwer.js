@@ -195,7 +195,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 				description: '',
 				tags: [],
 				projects: [],
-				access_level: 'PUBLIC',
+				classification: '',
 				metadata: [],
 			});
 		}
@@ -255,11 +255,12 @@ const AssetViewer = ({ canEdit, isNew }) => {
 					</Wrap>
 				</FormControl>
 				<FormControl  >
-					<FormLabel>Access Level</FormLabel>
+					<FormLabel>classification</FormLabel>
 					<Select
+						placeholder='Select classification'
 						isDisabled={isDisabled}
 						onChange={(e) => {
-							handleChange('access_level', e.target.value);
+							handleChange('classification', e.target.value);
 						}}
 					>
 						{classifications.map((value, key) => {
