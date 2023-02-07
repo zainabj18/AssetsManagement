@@ -93,6 +93,14 @@ const AssetViewer = ({ canEdit, isNew }) => {
 					'max':5
 				}
 			},
+			{
+				attribute_name: 'authors_emails',
+				attribute_type: 'list',
+				attribute_value: ['mike@hotmail.com','carlos@hotmail.com','john@gmail.com'],
+				attribute_validation:{
+					'type':'email'
+				}
+			},
 		],
 	};
 	const handleChange = (attribute_name, attribute_value) => {
@@ -281,6 +289,12 @@ const AssetViewer = ({ canEdit, isNew }) => {
 
 				{assetSate.metadata.map((value, key) => {
 					switch(value.attribute_type) {
+					case 'list':
+						console.log('I am here');
+						return (
+							<Fragment key={key}> 
+								<ListFormField fieldName={value.attribute_name} fieldDefaultValue={value.attribute_value} validation={value.attribute_validation} />
+							</Fragment>);
 					case 'num_lmt':
 						return (
 							<Fragment key={key}> 
