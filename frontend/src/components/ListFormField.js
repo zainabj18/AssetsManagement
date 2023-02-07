@@ -5,6 +5,7 @@ import {
 	WrapItem,
 	Tag,
 	TagLabel,
+	TagCloseButton,
 	Button,
 	Input
 } from '@chakra-ui/react';
@@ -16,23 +17,27 @@ const ListFormField = ({fieldName,fieldDefaultValue,validation}) => {
 	const addHandler=()=>{
 		setValues([...values, value]);
 		setValue(null);
-		
+	};
+
+	const deleteHandler=(e,value)=>{
+		let newValues = values.filter((val) => val !== value);
+		setValues(newValues);
 	};
 
 	useEffect(() => {
-		console.log(fieldDefaultValue);
 		setValues(fieldDefaultValue);
 	}, []);
 	
 
 	return (
-		<FormControl  bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
+		<FormControl  bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6} >
 			<FormLabel>{fieldName}</FormLabel>
 			<Wrap spacing={4}>
 				{values.map((value, key) => (
 					<WrapItem key={key}>
 						<Tag size={'md'} key={key}>
 							<TagLabel>{value}</TagLabel>
+							<TagCloseButton onClick={(e) => deleteHandler(e,value)} />
 						</Tag>
 					</WrapItem>
 				))}
