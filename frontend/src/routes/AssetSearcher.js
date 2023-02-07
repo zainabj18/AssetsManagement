@@ -79,10 +79,12 @@ const FilterBasedSearch = () => {
 								<input
 									name='name'
 									placeholder='Attribute name'
+									value={input.name}
 								/>
 								<input
 									name='value'
 									placeholder='Attribute value'
+									value={input.value}
 								/>
 							</div>
 						);
