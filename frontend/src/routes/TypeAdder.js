@@ -12,111 +12,169 @@ import {
 	useDisclosure
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
+import AttributeMaker from '../components/AttributeMaker';
+import AttributeManager from '../components/AttributeManager';
 
 const TypeAdder = () => {
 
-	/** Class that represents an attribute */
-	class Attr {
-		constructor(attrName, attrType) {
-			this.attrName = attrName;
-			this.attrType = attrType;
-		}
-		toString() {
-			return this.attrName;
-		}
-	}
+	const {
+		isOpen: isOpen_attributeCreator,
+		onOpen: onOpen_attributeCreator,
+		onClose: onClose_attributeCreator
+	} = useDisclosure();
 
-	/** The selected attributes */
-	const [selectedAttributes, setSelectedAttributes] = useState([
-		new Attr('programming language', 'text')
+	const [types] = useState([
+		'text', 'number', 'checkbox', 'datetime-local', 'num_lmt', 'options', 'list'
 	]);
-
-	/** All attributes */
-	const [attributes, setAttributes] = useState([
-		new Attr('programming language', 'text'),
-		new Attr('country of origin', 'text')
+	
+	const [selectedAttributes, set_selectedAttributes] = useState([
+		/** Dummy Data */
+		{
+			attributeName: 'public',
+			attributeType: 'checkbox',
+		},
+		{
+			attributeName: 'license',
+			attributeType: 'options',
+			validation: {
+				values: ['MIT', 'GNU'],
+				isMulti: true
+			}
+		},
+		{
+			attributeName: 'programming Language(s)',
+			attributeType: 'text',
+		}
+		/** End of Dummy Data */
 	]);
+	const [allAttributes, set_allAttributes] = useState([
+		/** Dummy Data */
+		{
+			attributeName: 'programming Language(s)',
+			attributeType: 'text',
+		},
+		{
+			attributeName: 'public',
+			attributeType: 'checkbox',
+		},
+		{
+			attributeName: 'no. of issues',
+			attributeType: 'number',
+		},
+		{
+			attributeName: 'built on',
+			attributeType: 'datetime-local',
+		},
+		{
+			attributeName: 'version',
+			attributeType: 'text',
+		},
+		{
+			attributeName: 'stars',
+			attributeType: 'num_lmt',
+			validation: {
+				min: 1,
+				max: 5
+			}
+		},
+		{
+			attributeName: 'license',
+			attributeType: 'options',
+			validation: {
+				values: ['MIT', 'GNU'],
+				isMulti: true
+			}
+		},
+		{
+			attributeName: 'authors',
+			attributeType: 'list',
+			validation: {
+				type: 'text'
+			}
+		},
+		{
+			attributeName: 'authors_emails',
+			attributeType: 'list',
+			validation: {
+				type: 'email'
+			}
+		},
+		{
+			attributeName: 'authors_emails_domain',
+			attributeType: 'list',
+			validation: {
+				type: 'url'
+			}
+		},
+		{
+			attributeName: 'platform',
+			attributeType: 'text',
+		},
+		{
+			attributeName: 'private',
+			attributeType: 'checkbox',
+		},
+		{
+			attributeName: 'last modified',
+			attributeType: 'datetime-local',
+		},
+		{
+			attributeName: 'description',
+			attributeType: 'text',
+		},
+		{
+			attributeName: 'fileSize(kb)',
+			attributeType: 'number',
+		}
+		/** End of Dummy Data */
+	]);
+	const [creationData, set_creationData] = useState(new AttributeMaker());
+	const [new_attribute_errorMessage, set_new_attribute_errorMessage] = useState(AttributeMaker.get_message_noError());
+	const [display_num_lmt, set_display_num_lmt] = useState(false);
 
-	/** Decides if the attribute needs to be added or removed from selected */
+	const selectAttribute = (attribute) => {
+		let list = [...selectedAttributes];
+		list.push(attribute);
+		set_selectedAttributes(AttributeManager.sortAttributes(list));
+	};
+
+	const deselectAttribute = (attribute) => {
+		let selectedData = [...selectedAttributes];
+		let index = selectedData.indexOf(attribute);
+		selectedData.splice(index, 1);
+		set_selectedAttributes(selectedData);
+	};
+
 	const ajustSelectedAttributes = (checked, index) => {
 		if (checked) {
-			addAttribute(index);
+			selectAttribute([...allAttributes][index]);
 		}
 		if (!checked) {
-			let attrData = [...attributes];
-			removeAttr(attrData[index]);
+			deselectAttribute([...allAttributes][index]);
 		}
 	};
 
-	/** Adds an attribute to the selected attributes */
-	const addAttribute = (attrindex) => {
-		let data = [...attributes];
-		let list = [...selectedAttributes];
-		list.push(data[attrindex]);
-		setSelectedAttributes(list.sort());
+	const updateSelectedTypes = (data = creationData) => {
+		set_display_num_lmt(data.type === 'num_lmt');
 	};
 
-	/** Removes an attribute from the selected attributes */
-	const removeAttr = (attr) => {
-		let selectedData = [...selectedAttributes];
-		let index = selectedData.indexOf(attr);
-		selectedData.splice(index, 1);
-		setSelectedAttributes(selectedData);
+	const open_AttributeCreator = () => {
+		let new_data = new AttributeMaker();
+		new_data.type = types[0];
+		updateSelectedTypes(new_data); 
+		set_new_attribute_errorMessage(AttributeMaker.get_message_noError());
+		set_creationData(new_data);
+		onOpen_attributeCreator();
 	};
 
-	/** Checks to see if the given name is also in the given list */
-	const isAttrNameIn = (attrName, list) => {
-		let i;
-		for (i = 0; i < list.length; i++) {
-			// eslint-disable-next-line
-			if (list[i].attrName == attrName) {
-				return true;
-			}
-		}
-		return false;
-	};
-
-	/** States for the Modal */
-	const { isOpen, onOpen, onClose } = useDisclosure();
-
-	/** Type options
-	 References https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input*/
-	const [types] = useState([
-		'text', 'number', 'checkbox', 'email', 'date', 'time', 'week', 'month'
-	]);
-
-	/** States and methods for the new attribute form*/
-	const [new_attrForm] = useState([
-		new Map([['name', ''], ['type', '']])
-	]);
-	const update_new_attrForm = (key, data) => {
-		[...new_attrForm][0].set(key, data);
-	};
-	const [new_attrName_errorMessage, set_new_attrName_errorMessage] = useState('');
-
-	/** Creates a new attribute if it passes the requirements
-	 * otherwise, it sets error messages */
-	const createAttribute = () => {
-		let name = [...new_attrForm][0].get('name');
-		let type = [...new_attrForm][0].get('type');
-		let duplicate = isAttrNameIn(name, [...attributes]);
-		let emptyName = name === '';
-
-		if (emptyName) {
-			set_new_attrName_errorMessage('Name is required');
-		}
-		else if (duplicate) {
-			set_new_attrName_errorMessage('Name already in use');
-		}
-		else {
-			set_new_attrName_errorMessage('');
-		}
-
-		let allGood = !emptyName && !duplicate;
-		if (allGood) {
-			setAttributes([...attributes, (new Attr(name, type))]);
-			onClose();
-		}
+	const tryCreate_attribute = () => {
+		let errorMessage = creationData.checkForErrors([...allAttributes]);
+		set_new_attribute_errorMessage(errorMessage);
+		if (JSON.stringify(errorMessage) === JSON.stringify(AttributeMaker.get_message_noError())) {
+			let new_attribute = creationData.formAttribute();
+			set_allAttributes([...allAttributes].concat(new_attribute));
+			onClose_attributeCreator();
+		};
 	};
 
 	return (
@@ -127,23 +185,25 @@ const TypeAdder = () => {
 				<Input type='text' placeholder='Name' />
 			</FormControl>
 			<HStack minW='80%'>
-				{/** The list of all attributes */}
+				{/** The list of all allAttributes */}
 				<FormControl width='30%'>
-					<FormLabel>Select attributes</FormLabel>
-					{attributes.map((attr, index) => {
+					<FormLabel>Select allAttributes</FormLabel>
+					{allAttributes.map((attribute, index) => {
 						return (
-							<VStack key={attr.attrName} align="left">
+							<VStack key={attribute.attributeName} align="left">
 								<Checkbox
-									isChecked={isAttrNameIn(attr.attrName, [...selectedAttributes])}
-									value={attr.attrName}
+									isChecked={AttributeManager.isAttributeNameIn(
+										attribute.attributeName, [...selectedAttributes]
+									)}
+									value={attribute.attributeName}
 									onChange={(e) => ajustSelectedAttributes(e.target.checked, index)}
-								> {attr.attrName}
+								> {attribute.attributeName}
 								</Checkbox>
 							</VStack>
 						);
 					})}
 				</FormControl>
-				{/** The List of selected attributes */}
+				{/** The List of selected allAttributes */}
 				<TableContainer width='70%'>
 					<Table varient='simple'>
 						<TableCaption placement='top' color='white'>Selected Attributes</TableCaption>
@@ -154,11 +214,11 @@ const TypeAdder = () => {
 							</Tr>
 						</Thead>
 						<Tbody>
-							{selectedAttributes.map((attr) => {
+							{selectedAttributes.map((attribute) => {
 								return (
-									<Tr key={attr.attrName}>
-										<Td>{attr.attrName}</Td>
-										<Td>{attr.attrType}</Td>
+									<Tr key={attribute.attributeName}>
+										<Td>{attribute.attributeName}</Td>
+										<Td>{attribute.attributeType}</Td>
 									</Tr>
 								);
 							})}
@@ -166,31 +226,41 @@ const TypeAdder = () => {
 					</Table>
 				</TableContainer>
 			</HStack>
-			<Button onClick={onOpen}>Add</Button>
+			<Button onClick={open_AttributeCreator}>Add</Button>
 			<Button>Save</Button>
 
-			<Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={() => { set_new_attrName_errorMessage(''); onClose(); }}>
+			<Modal
+				closeOnOverlayClick={false}
+				isOpen={isOpen_attributeCreator}
+				onClose={onClose_attributeCreator}
+			>
 				<ModalOverlay />
 				<ModalContent color='black'>
 					<ModalHeader>Create New Attribute</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>
-						<FormControl isRequired isInvalid={new_attrName_errorMessage !== ''}>
+						<FormControl isRequired isInvalid={new_attribute_errorMessage.attributeName !== ''}>
 							<FormLabel>Attribute Name</FormLabel>
 							<Input type='text'
 								variant='outline'
-								name='new_attrName'
+								name='new_attributeName'
 								placeholder='Name'
-								onChange={(e) => update_new_attrForm('name', e.target.value)}
+								onChange={(e) => {
+									creationData.name = e.target.value;
+									set_creationData(creationData);
+								}}
 							></Input>
-							<FormErrorMessage>{new_attrName_errorMessage}</FormErrorMessage>
+							<FormErrorMessage>{new_attribute_errorMessage.attributeName}</FormErrorMessage>
 						</FormControl>
 						<FormControl isRequired>
 							<FormLabel>Data Type</FormLabel>
 							<Select
 								name='new_attrType'
-								onLoad={update_new_attrForm('type', types[0])}
-								onChange={(e) => update_new_attrForm('type', e.target.value)}
+								onChange={(e) => {
+									creationData.type = e.target.value;
+									set_creationData(creationData);
+									updateSelectedTypes();
+								}}
 							>
 								{types.map((types) => {
 									return (
@@ -199,10 +269,37 @@ const TypeAdder = () => {
 								})}
 							</Select>
 						</FormControl>
+						{/** Extra form for the num_lmt data type*/}
+						{display_num_lmt &&
+							<FormControl isRequired>
+								<FormLabel>Number Range</FormLabel>
+								<HStack>
+									<input
+										placeholder='Min'
+										type='number'
+										variant='outline'
+										onChange={(e) => {
+											creationData.min = e.target.value;
+											set_creationData(creationData);
+										}}
+									></input>
+									<input
+										placeholder='Max'
+										type='number'
+										variant='outline'
+										onChange={(e) => {
+											creationData.max = e.target.value;
+											set_creationData(creationData);
+										}}
+									></input>
+								</HStack>
+							</FormControl>
+						}
 					</ModalBody>
 					<ModalFooter>
-						<Button onClick={createAttribute}>Save</Button>
-						<Button onClick={() => { set_new_attrName_errorMessage(''); onClose(); }}>Cancel</Button>
+						<Button onClick={tryCreate_attribute}>Save</Button>
+						<Button
+							onClick={onClose_attributeCreator}>Cancel</Button>
 					</ModalFooter>
 				</ModalContent>
 			</Modal>

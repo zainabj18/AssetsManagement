@@ -16,6 +16,9 @@ def index():
         "url": settings.APPLICATION_ROOT_URL,
     }
 
+@bp.errorhandler(401)
+def unathorised(e):
+    return e.description,401
 
 bp.register_blueprint(auth_bp)
 bp.register_blueprint(asset_bp)

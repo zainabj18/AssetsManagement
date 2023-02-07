@@ -1,11 +1,18 @@
 import { FormControl, FormLabel, HStack, Input} from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
-import { React } from 'react';
+import { React, useEffect } from 'react';
 import { Flex, InputGroup, InputLeftAddon } from '@chakra-ui/react';
 import { Select } from '@chakra-ui/react';
 import { Stack, Button} from '@chakra-ui/react';
-
+import useAuth from '../hooks/useAuth';
 const User = () => {
+	const { user } = useAuth();
+
+	useEffect(() => {
+		console.log(user);
+	});
+
+
 	return (
 		<Box p={50}>
 			<Flex>
