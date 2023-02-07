@@ -57,7 +57,7 @@ def test_add_type_to_db(client, db_conn):
 # Test to see if a list of types can be returned from the database in alphabetical order
 
 
-def test_get_type(client, db_conn):
+def test_get_type(client):
     test_type = {
         "typeName": "library",
         "metadata": [
