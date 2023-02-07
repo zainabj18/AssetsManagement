@@ -73,3 +73,31 @@ def test_get_type(client):
     assert res.status_code == 200
     type = res.json
     assert type == test_type
+
+# Test to see if a list of all attributes can be returned from the database
+
+
+def test_get_allAttributes(client):
+    test_attributes = {
+        "attributes": [
+            {
+                "attributeName": "issues",
+                "attributeType": "text",
+            },
+            {
+                "attributeName": "public",
+                "attributeType": "checkbox",
+            },
+            {
+                "attributeName": "author",
+                "attributeType": "text",
+            }
+        ]}
+    client.post("/api/v1/type/adder/new", json=test_attributes["attributes"][0])
+    client.post("/api/v1/type/adder/new", json=test_attributes["attributes"][1])
+    client.post("/api/v1/type/adder/new", json=test_attributes["attributes"][2])
+    res = client.post("/api/v1/type/allAttributes")
+    assert res.status_code == 200
+    attributes = res.json
+    print(attributes)
+    assert attributes == test_attributes

@@ -57,3 +57,19 @@ def get_type(id):
                 }
             ]
         }), 200
+    
+    
+@bp.route("/allAttributes", methods=["POST"])
+def get_allAttributes():
+    database = get_db()
+    query = """SELECT attribute_name, attribute_data_type FROM attributes;"""
+    with database.connection() as conn:
+        res = conn.execute(query)
+        allAttributes = res.fetchall()
+        allAttributes_listed = []
+        for attribute in allAttributes:
+            allAttributes_listed.append({
+                "attributeName": attribute[0],
+                "attributeType": attribute[1]
+            })
+        return json.dumps({"attributes": allAttributes_listed})
