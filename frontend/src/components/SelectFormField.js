@@ -24,13 +24,10 @@ const SelectFormField = ({fieldName,fieldDefaultValue,validation}) => {
 		if (type==='radio'){
 			newValues=[newValues];	
 		}
-		console.log(newValues);
 		setValues(newValues);
 	};
 
 	useEffect(() => {
-		console.log(validation.isMulti);
-		console.log(validation.values);
 	  if (!validation.isMulti){
 			setType('radio');
 			console.log('I am multi');
@@ -59,7 +56,7 @@ const SelectFormField = ({fieldName,fieldDefaultValue,validation}) => {
 			</Wrap>
 			<Menu closeOnSelect={false}>
 				<MenuButton as={Button} colorScheme='blue'>
-					MenuItem
+					Select {fieldName}
 				</MenuButton>
 				{type && <MenuList>	
 					<MenuOptionGroup type={type} onChange={handleChange} defaultValue={fieldDefaultValue}>

@@ -12,12 +12,10 @@ import {
 	TagCloseButton,
 	Wrap,
 	WrapItem,
-	Input,
 	Button,
 	FormControl,
 	FormLabel,
 	Select,
-	Box,
 } from '@chakra-ui/react';
 import { Fragment } from 'react';
 import { useEffect, useState } from 'react';
@@ -39,18 +37,14 @@ const AssetViewer = ({ canEdit, isNew }) => {
 	const [projects,setProjects] = useState([]);
 	const type = {
 		Framework: [
-			{
-				attribute_name: 'Programming language(s)',
-				attribute_type: 'text',
-				attribute_value: 'React,JS,CSS',
-			},
+			
 			{
 				attribute_name: 'no. of issues',
 				attribute_type: 'number',
 				attribute_value: 2,
 			},
 			{
-				attribute_name: 'built On',
+				attribute_name: 'built on',
 				attribute_type: 'datetime-local',
 				attribute_value: '2021-12-10T13:45',
 			},
@@ -59,10 +53,28 @@ const AssetViewer = ({ canEdit, isNew }) => {
 				attribute_type: 'text',
 				attribute_value: 'v1',
 			},
+			{
+				attribute_name: 'programming language(s)',
+				attribute_type: 'options',
+				attribute_value: ['React'],
+				attribute_validation:{
+					'values':['React','HTML','CSS','Python','Java'],
+					'isMulti':true
+				}
+			},
+			{
+				attribute_name: 'license',
+				attribute_type: 'options',
+				attribute_value: 'MIT',
+				attribute_validation:{
+					'values':['MIT','GNU'],
+					'isMulti':false
+				}
+			},
 		],
 		Document: [
 			{
-				attribute_name: 'draf',
+				attribute_name: 'draft',
 				attribute_type: 'checkbox',
 				attribute_value: false,
 			},
@@ -168,14 +180,6 @@ const AssetViewer = ({ canEdit, isNew }) => {
 		<Container>
 			{assetSate && <VStack>
 				<Heading size={'2xl'}>Asset Attributes</Heading>
-				<SelectFormField fieldName={'license'} fieldDefaultValue={['MIT','GNU']} validation={{
-					values:['MIT','GNU'],
-					isMulti:true
-				}} />
-				<SelectFormField fieldName={'license'} fieldDefaultValue={'MIT'} validation={{
-					values:['MIT','GNU'],
-					isMulti:false
-				}} />
 				<FormField
 					fieldName="name"
 					fieldType="text"
@@ -266,6 +270,13 @@ const AssetViewer = ({ canEdit, isNew }) => {
 				<Heading size={'md'}>Type Attributes:</Heading>
 
 				{assetSate.metadata.map((value, key) => {
+					if (value.attribute_type==='options'){
+						console.log('I am here');
+						return (
+							<Fragment key={key}> 
+								<SelectFormField fieldName={value.attribute_name} fieldDefaultValue={value.attribute_value} validation={value.attribute_validation} />
+							</Fragment>);
+					}
 					return (
 						<Fragment key={key}>
 							<FormField
