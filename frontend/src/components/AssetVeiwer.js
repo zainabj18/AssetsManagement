@@ -27,6 +27,8 @@ import axios from 'axios';
 import { createTag, fetchAsset, fetchAssetClassifications, fetchTags } from '../api';
 import SearchSelect from './SearchSelect';
 import ProjectSelect from './ProjectSelect';
+import ListFormField from './ListFormField';
+import SelectFormField from './SelectFormField';
 const AssetViewer = ({ canEdit, isNew }) => {
 	const { id } = useParams();
 	const [assetSate, setAssetState] = useState(undefined);
@@ -131,7 +133,13 @@ const AssetViewer = ({ canEdit, isNew }) => {
 
 	const createNewAsset = (e) => {
 		e.preventDefault();
-		axios.post('/api/v1/asset/new', assetSate);
+		//axios.post('/api/v1/asset/new', assetSate);
+		let project_ids=projects.map(p=>p.id);
+		setAssetState((prevAssetState) => ({
+			...prevAssetState,
+			projects: project_ids,
+		}));
+		console.log(assetSate);
 	};
 
 	useEffect(() => {
@@ -148,17 +156,26 @@ const AssetViewer = ({ canEdit, isNew }) => {
 				type: 'Framework',
 				description: '',
 				tags: [],
-				project: '',
+				projects: [],
 				access_level: 'PUBLIC',
 				metadata: [],
 			});
 		}
 	}, [id]);
+	
 
 	return assetSate ? (
 		<Container>
 			{assetSate && <VStack>
 				<Heading size={'2xl'}>Asset Attributes</Heading>
+				<SelectFormField fieldName={'license'} fieldDefaultValue={['MIT','GNU']} validation={{
+					values:['MIT','GNU'],
+					isMulti:true
+				}} />
+				<SelectFormField fieldName={'license'} fieldDefaultValue={'MIT'} validation={{
+					values:['MIT','GNU'],
+					isMulti:false
+				}} />
 				<FormField
 					fieldName="name"
 					fieldType="text"
@@ -204,7 +221,6 @@ const AssetViewer = ({ canEdit, isNew }) => {
 						))}
 						<ProjectSelect setSelectedProjects={setProjects} />
 					</Wrap>
-					
 				</FormControl>
 				<FormControl  bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
 					<FormLabel>Access Level</FormLabel>
@@ -243,7 +259,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 							</WrapItem>
 						))}
 						<SearchSelect dataFunc={fetchTags} selectedValue={tag} setSelectedValue={setTag} createFunc={createTag}/>
-						<Button onClick={onNewTag} isDisabled={isDisabled}>Add Tag</Button>
+						{tag && <Button onClick={onNewTag} isDisabled={isDisabled}>Add Tag</Button>}
 					</Wrap>
 				</FormControl>
 				<Divider />

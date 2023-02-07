@@ -13,20 +13,46 @@ import {
 	MenuOptionGroup,
 	MenuItemOption
 } from '@chakra-ui/react';
-import { useState } from 'react';
-const SelectFormField = ({}) => {
+import { useState,useEffect } from 'react';
+const SelectFormField = ({fieldName,fieldDefaultValue,validation}) => {
 
 	const [values, setValues] = useState([]);
+	const [options, setOptions] = useState([]);
+	const [type, setType] = useState(null);
+
+	const handleChange=(newValues)=>{
+		if (type==='radio'){
+			newValues=[newValues];	
+		}
+		console.log(newValues);
+		setValues(newValues);
+	};
+
+	useEffect(() => {
+		console.log(validation.isMulti);
+		console.log(validation.values);
+	  if (!validation.isMulti){
+			setType('radio');
+			console.log('I am multi');
+			setValues([fieldDefaultValue]);
+			
+	  }else{
+			setType('checkbox');
+			setValues(fieldDefaultValue);
+			
+	  }
+	  setOptions(validation.values);
+	}, []);
+	
 
 	return (
 		<FormControl bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
-			<FormLabel>Project</FormLabel>
-			<Select placeholder='Select option' />
+			<FormLabel textTransform='capitalize'>{fieldName}</FormLabel>
 			<Wrap spacing={4}>
-				{values.map((value, key) => (
+				{values && values.map((value, key) => (
 					<WrapItem key={key}>
 						<Tag size={'md'} key={key}>
-							<TagLabel>{value.name}</TagLabel>
+							<TagLabel>{value}</TagLabel>
 						</Tag>
 					</WrapItem>
 				))}
@@ -35,12 +61,13 @@ const SelectFormField = ({}) => {
 				<MenuButton as={Button} colorScheme='blue'>
 					MenuItem
 				</MenuButton>
-				<MenuList>
-					<MenuOptionGroup type='checkbox' onChange={(e)=>{console.log(e);}}>
-						<MenuItemOption value='1'>1</MenuItemOption>
-						<MenuItemOption value='2'>2</MenuItemOption>
+				{type && <MenuList>	
+					<MenuOptionGroup type={type} onChange={handleChange} defaultValue={fieldDefaultValue}>
+						{options.map((value, key) => (
+							<MenuItemOption key={key} value={value}>{value}</MenuItemOption>
+						))}
 					</MenuOptionGroup>
-				</MenuList>
+				</MenuList>}
 			</Menu>
 		</FormControl>
 	);
