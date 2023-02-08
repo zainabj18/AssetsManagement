@@ -35,17 +35,19 @@ const AdminManager = () => {
 	const [inputField, setInputField] = useState([{username: '' }]);
 
 	const handleFormChange = (index, event) => {
-        let data = [...textInput];
-        data[index][event.target.name] = event.target.value;
-        setTextInput(data);
-    };
+		let data = [...inputField];
+		data[index][event.target.name] = event.target.value;
+		setInputField(data);
+	};
 
 	return (
 		<VStack minW="100vw">
 			<Text>AdminManager</Text>
-			<Stack spacing={3} color={'black'}>
-				<Input bg='white' placeholder='search' size='lg' type='text' width={800} top={25}/>
-			</Stack>
+			{inputField.map((search, index) => {return (
+				<Stack spacing={3} color={'black'}>
+					<Input bg='white' placeholder='search' size='lg' type='text' width={800} top={25} defaultValue={search.username} onChange={event => handleFormChange(index, event)} name="username"/>
+				</Stack>
+			);})}
 			<Stack pt={35}>
 				<TableContainer color='white'>
 					<Table variant='simple' size={'lg'}>
