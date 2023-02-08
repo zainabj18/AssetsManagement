@@ -78,24 +78,23 @@ def test_get_type(client):
 
 
 def test_get_allAttributes(client):
-    test_attributes = {
-        "attributes": [
-            {
-                "attributeName": "issues",
-                "attributeType": "text",
-            },
-            {
-                "attributeName": "public",
-                "attributeType": "checkbox",
-            },
-            {
-                "attributeName": "author",
-                "attributeType": "text",
-            }
-        ]}
-    client.post("/api/v1/type/adder/new", json=test_attributes["attributes"][0])
-    client.post("/api/v1/type/adder/new", json=test_attributes["attributes"][1])
-    client.post("/api/v1/type/adder/new", json=test_attributes["attributes"][2])
+    test_attributes = [
+        {
+            "attributeName": "issues",
+            "attributeType": "text",
+        },
+        {
+            "attributeName": "public",
+            "attributeType": "checkbox",
+        },
+        {
+            "attributeName": "author",
+            "attributeType": "text",
+        }
+    ]
+    client.post("/api/v1/type/adder/new", json=test_attributes[0])
+    client.post("/api/v1/type/adder/new", json=test_attributes[1])
+    client.post("/api/v1/type/adder/new", json=test_attributes[2])
     res = client.get("/api/v1/type/allAttributes")
     assert res.status_code == 200
     attributes = res.json

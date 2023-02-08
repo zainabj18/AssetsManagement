@@ -14,3 +14,7 @@ export const logoutUser = async ()=> {
 export const fetchAsset= async (id)=> {
 	return await axios.get(`/asset/get/${id}`).then(res=>res.data);
 };
+
+export const fetchAllAttributes = async () => {
+	return await axios.get('/type/allAttributes').then(res=>res.data);
+};

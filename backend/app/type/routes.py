@@ -72,4 +72,4 @@ def get_allAttributes():
                 "attributeName": attribute[0],
                 "attributeType": attribute[1]
             })
-        return json.dumps({"attributes": allAttributes_listed})
+        return json.dumps(allAttributes_listed)
