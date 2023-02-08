@@ -40,6 +40,7 @@ CREATE TABLE attributes
 	attribute_id SERIAL,
 	attribute_name VARCHAR NOT NULL UNIQUE,
 	attribute_data_type VARCHAR NOT NULL,
+	validation_data JSON,
 	PRIMARY KEY (attribute_id)
 );
 
@@ -47,7 +48,6 @@ CREATE TABLE attributes
  (
  	type_id SERIAL,
  	type_name VARCHAR NOT NULL UNIQUE,
-	validation_json JSON,
  	PRIMARY KEY (type_id)
  );
 

@@ -33,15 +33,16 @@ def types():
 @bp.route("/adder/new", methods=["POST"])
 def add_attribute():
     new_attribute = Attribute_Model(**request.json)
-    db_attribute = new_attribute.dict()
+    db_attribute = new_attribute.dict(exclude={"validation_data"})
+    db_attribute["validation_data"] = json.dumps(new_attribute.validation_data)
     database = get_db()
-    query = """INSERT INTO attributes (attribute_name, attribute_data_type) VALUES (%(attribute_name)s, %(attribute_type)s);"""
+    query = """INSERT INTO attributes (attribute_name, attribute_data_type, validation_data) VALUES (%(attribute_name)s, %(attribute_type)s, %(validation_data)s);"""
     with database.connection() as conn:
         conn.execute(query, db_attribute)
     return {"msg": ""}, 200
 
 
-@bp.route("/<id>", methods=["POST"])
+@bp.route("/<id>", methods=["GET"])
 def get_type(id):
     database = get_db()
     query = """SELECT type_name, attribute_name, attribute_data_type FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t on at.type_id = t.type_id WHERE t.type_id = (%(id)s);"""
@@ -69,7 +70,8 @@ def extract_attributes(attributes):
     return allAttributes_listed
 
 
-@bp.route("/allAttributes", methods=["POST"])
+    
+@bp.route("/allAttributes", methods=["GET"])
 def get_allAttributes():
     database = get_db()
     query = """SELECT attribute_name, attribute_data_type FROM attributes;"""
@@ -77,7 +79,8 @@ def get_allAttributes():
         res = conn.execute(query)
         allAttributes = res.fetchall()
         allAttributes_listed = extract_attributes(allAttributes)
-        return json.dumps({"attributes": allAttributes_listed})
+        return json.dumps(allAttributes_listed)
+
 
 
 @bp.route("/allTypes", methods=["GET"])

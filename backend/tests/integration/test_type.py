@@ -7,7 +7,7 @@ def test_typeAdder_route(client):
     res = client.get("/api/v1/type/adder")
     assert res.status_code == 200
 
-# Test to see if an asset can be added to the database
+# Test to see if an attribute can be added to the database
 
 
 def test_add_attribute_to_db(client, db_conn):
@@ -27,6 +27,30 @@ def test_add_attribute_to_db(client, db_conn):
         attribute = cur.fetchone()
         assert attribute["attribute_name"] == test_attribute["attributeName"]
         assert attribute["attribute_data_type"] == test_attribute["attributeType"]
+
+# Test to see if an attribute can be added to the database with validation
+def test_add_attribute_to_db_with_json(client, db_conn):
+    test_attribute = {
+        "attributeName": "public",
+        "attributeType": "checkbox",
+        "validation": {
+            "min": 4,
+            "max": 10
+        }
+    }
+    res = client.post("/api/v1/type/adder/new", json=test_attribute)
+    assert res.status_code == 200
+
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT * FROM attributes WHERE attribute_name=%(name)s AND attribute_data_type=%(type)s;""",
+            {"name": test_attribute["attributeName"],
+                "type": test_attribute["attributeType"]}
+        )
+        attribute = cur.fetchone()
+        assert attribute["attribute_name"] == test_attribute["attributeName"]
+        assert attribute["attribute_data_type"] == test_attribute["attributeType"]
+        assert attribute["validation_data"] == test_attribute["validation"]
 
 # Test to see if a type can be added to the database
 
@@ -69,7 +93,7 @@ def test_get_type(client):
     }
     client.post("/api/v1/type/adder/new", json=test_type["metadata"][0])
     client.post("/api/v1/type/new", json=test_type)
-    res = client.post("/api/v1/type/1")
+    res = client.get("/api/v1/type/1")
     assert res.status_code == 200
     type = res.json
     assert type == test_type
@@ -78,28 +102,24 @@ def test_get_type(client):
 
 
 def test_get_allAttributes(client):
-    test_attributes = {
-        "attributes": [
-            {
-                "attributeName": "issues",
-                "attributeType": "text",
-            },
-            {
-                "attributeName": "public",
-                "attributeType": "checkbox",
-            },
-            {
-                "attributeName": "author",
-                "attributeType": "text",
-            }
-        ]}
-    client.post("/api/v1/type/adder/new",
-                json=test_attributes["attributes"][0])
-    client.post("/api/v1/type/adder/new",
-                json=test_attributes["attributes"][1])
-    client.post("/api/v1/type/adder/new",
-                json=test_attributes["attributes"][2])
-    res = client.post("/api/v1/type/allAttributes")
+    test_attributes = [
+        {
+            "attributeName": "issues",
+            "attributeType": "text",
+        },
+        {
+            "attributeName": "public",
+            "attributeType": "checkbox",
+        },
+        {
+            "attributeName": "author",
+            "attributeType": "text",
+        }
+    ]
+    client.post("/api/v1/type/adder/new", json=test_attributes[0])
+    client.post("/api/v1/type/adder/new", json=test_attributes[1])
+    client.post("/api/v1/type/adder/new", json=test_attributes[2])
+    res = client.get("/api/v1/type/allAttributes")
     assert res.status_code == 200
     attributes = res.json
     assert attributes == test_attributes

@@ -18,3 +18,15 @@ export const fetchAsset = async (id) => {
 export const fetchAllTypes = async () => {
 	return await axios.get('/type/allTypes').then(res => res.data);
 };
+
+export const fetchAllAttributes = async () => {
+	return await axios.get('/type/allAttributes').then(res => res.data);
+};
+
+export const createAttribute = async (newAttribute) => {
+	return await axios.post('/type/adder/new', newAttribute).then(res => res.data);
+};
+
+export const createType = async (newType) => {
+	return await axios.post('/type/new', newType).then(res => res.data);
+};

@@ -9,13 +9,25 @@ import {
 	Select,
 	Table, Thead, Tbody, Tr, Th, Td, TableContainer, TableCaption,
 	Text,
+	useBoolean,
 	useDisclosure
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AttributeMaker from '../components/AttributeMaker';
 import AttributeManager from '../components/AttributeManager';
+import { fetchAllAttributes, createAttribute, createType } from '../api';
 
 const TypeAdder = () => {
+
+	const [trigger, setTrigger] = useBoolean();
+
+	useEffect(() => {
+		async function load_allAttributes() {
+			let data = await fetchAllAttributes(res => res.data);
+			set_allAttributes(data);
+		}
+		load_allAttributes();
+	}, [trigger]);
 
 	const {
 		isOpen: isOpen_attributeCreator,
@@ -26,108 +38,10 @@ const TypeAdder = () => {
 	const [types] = useState([
 		'text', 'number', 'checkbox', 'datetime-local', 'num_lmt', 'options', 'list'
 	]);
-	
-	const [selectedAttributes, set_selectedAttributes] = useState([
-		/** Dummy Data */
-		{
-			attributeName: 'public',
-			attributeType: 'checkbox',
-		},
-		{
-			attributeName: 'license',
-			attributeType: 'options',
-			validation: {
-				values: ['MIT', 'GNU'],
-				isMulti: true
-			}
-		},
-		{
-			attributeName: 'programming Language(s)',
-			attributeType: 'text',
-		}
-		/** End of Dummy Data */
-	]);
-	const [allAttributes, set_allAttributes] = useState([
-		/** Dummy Data */
-		{
-			attributeName: 'programming Language(s)',
-			attributeType: 'text',
-		},
-		{
-			attributeName: 'public',
-			attributeType: 'checkbox',
-		},
-		{
-			attributeName: 'no. of issues',
-			attributeType: 'number',
-		},
-		{
-			attributeName: 'built on',
-			attributeType: 'datetime-local',
-		},
-		{
-			attributeName: 'version',
-			attributeType: 'text',
-		},
-		{
-			attributeName: 'stars',
-			attributeType: 'num_lmt',
-			validation: {
-				min: 1,
-				max: 5
-			}
-		},
-		{
-			attributeName: 'license',
-			attributeType: 'options',
-			validation: {
-				values: ['MIT', 'GNU'],
-				isMulti: true
-			}
-		},
-		{
-			attributeName: 'authors',
-			attributeType: 'list',
-			validation: {
-				type: 'text'
-			}
-		},
-		{
-			attributeName: 'authors_emails',
-			attributeType: 'list',
-			validation: {
-				type: 'email'
-			}
-		},
-		{
-			attributeName: 'authors_emails_domain',
-			attributeType: 'list',
-			validation: {
-				type: 'url'
-			}
-		},
-		{
-			attributeName: 'platform',
-			attributeType: 'text',
-		},
-		{
-			attributeName: 'private',
-			attributeType: 'checkbox',
-		},
-		{
-			attributeName: 'last modified',
-			attributeType: 'datetime-local',
-		},
-		{
-			attributeName: 'description',
-			attributeType: 'text',
-		},
-		{
-			attributeName: 'fileSize(kb)',
-			attributeType: 'number',
-		}
-		/** End of Dummy Data */
-	]);
+
+	const [typeName, set_typeName] = useState('');
+	const [selectedAttributes, set_selectedAttributes] = useState([]);
+	const [allAttributes, set_allAttributes] = useState([]);
 	const [creationData, set_creationData] = useState(new AttributeMaker());
 	const [new_attribute_errorMessage, set_new_attribute_errorMessage] = useState(AttributeMaker.get_message_noError());
 	const [display_num_lmt, set_display_num_lmt] = useState(false);
@@ -161,7 +75,7 @@ const TypeAdder = () => {
 	const open_AttributeCreator = () => {
 		let new_data = new AttributeMaker();
 		new_data.type = types[0];
-		updateSelectedTypes(new_data); 
+		updateSelectedTypes(new_data);
 		set_new_attribute_errorMessage(AttributeMaker.get_message_noError());
 		set_creationData(new_data);
 		onOpen_attributeCreator();
@@ -171,10 +85,18 @@ const TypeAdder = () => {
 		let errorMessage = creationData.checkForErrors([...allAttributes]);
 		set_new_attribute_errorMessage(errorMessage);
 		if (JSON.stringify(errorMessage) === JSON.stringify(AttributeMaker.get_message_noError())) {
-			let new_attribute = creationData.formAttribute();
-			set_allAttributes([...allAttributes].concat(new_attribute));
+			createAttribute(creationData.formAttribute()).then(_ => {
+				setTrigger.toggle();
+			});
 			onClose_attributeCreator();
 		};
+	};
+
+	const saveType = () => {
+		createType({
+			typeName: typeName,
+			metadata: selectedAttributes
+		});
 	};
 
 	return (
@@ -182,12 +104,15 @@ const TypeAdder = () => {
 			<Text>TypeAdder</Text>
 			<FormControl isRequired>
 				<FormLabel>Name</FormLabel>
-				<Input type='text' placeholder='Name' />
+				<Input type='text'
+					placeholder='Name'
+					onChange={(e) => set_typeName(e.target.value)}
+				/>
 			</FormControl>
 			<HStack minW='80%'>
 				{/** The list of all allAttributes */}
 				<FormControl width='30%'>
-					<FormLabel>Select allAttributes</FormLabel>
+					<FormLabel>Select all Attributes</FormLabel>
 					{allAttributes.map((attribute, index) => {
 						return (
 							<VStack key={attribute.attributeName} align="left">
@@ -227,7 +152,7 @@ const TypeAdder = () => {
 				</TableContainer>
 			</HStack>
 			<Button onClick={open_AttributeCreator}>Add</Button>
-			<Button>Save</Button>
+			<Button onClick={saveType}>Save</Button>
 
 			<Modal
 				closeOnOverlayClick={false}
