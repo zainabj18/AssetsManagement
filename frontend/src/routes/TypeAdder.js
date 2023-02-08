@@ -13,6 +13,7 @@ import {
 	useDisclosure
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
+import { Link as RouteLink } from 'react-router-dom';
 import AttributeMaker from '../components/AttributeMaker';
 import AttributeManager from '../components/AttributeManager';
 import { fetchAllAttributes, createAttribute, createType } from '../api';
@@ -152,7 +153,9 @@ const TypeAdder = () => {
 				</TableContainer>
 			</HStack>
 			<Button onClick={open_AttributeCreator}>Add</Button>
-			<Button onClick={saveType}>Save</Button>
+			<RouteLink to='/type'>
+				<Button onClick={saveType}>Save</Button>
+			</RouteLink>
 
 			<Modal
 				closeOnOverlayClick={false}
