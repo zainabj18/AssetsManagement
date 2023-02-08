@@ -110,6 +110,7 @@ const FilterBasedSearch = () => {
 				</form>
     		</div>
 			<Button onClick={addFields}>Add More</Button>
+			<Button>Submit</Button>
 		</Box>
 	);
 };
