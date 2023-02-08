@@ -23,6 +23,7 @@ class UserRole(Enum):
             return self.permission_level < other.permission_level
         return NotImplemented
 
+
 @total_ordering
 class DataAccess(Enum):
     PUBLIC = "PUBLIC", 1

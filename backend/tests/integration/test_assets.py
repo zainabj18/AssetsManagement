@@ -1,7 +1,7 @@
 import pytest
 from psycopg.rows import dict_row
 
-from app.db import DataAccess,UserRole
+from app.db import DataAccess, UserRole
 from app.schemas import Attribute
 
 
@@ -348,12 +348,12 @@ def test_get_asset_added_to_db(client):
     assert asset["access_level"] == "PUBLIC"
     assert asset["metadata"] == [Attribute(**x) for x in data["metadata"]]
 
-def test_get_access_levels(valid_client):
-    res = valid_client.get(
-        "/api/v1/asset/classifications"
-    )
-    assert res.status_code == 200
-    assert res.json["data"]==['PUBLIC', 'INTERNAL', 'RESTRICTED', 'CONFIDENTIAL']
 
-#TODO:Test asset name is unique
-#TODO:Test DB error
+def test_get_access_levels(valid_client):
+    res = valid_client.get("/api/v1/asset/classifications")
+    assert res.status_code == 200
+    assert res.json["data"] == ["PUBLIC", "INTERNAL", "RESTRICTED", "CONFIDENTIAL"]
+
+
+# TODO:Test asset name is unique
+# TODO:Test DB error

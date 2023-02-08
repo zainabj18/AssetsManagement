@@ -45,4 +45,9 @@ def test_data_access_ordering():
         DataAccess.CONFIDENTIAL.name == DataAccess.CONFIDENTIAL.value == "CONFIDENTIAL"
     )
 
-    assert DataAccess.PUBLIC <= DataAccess.INTERNAL <= DataAccess.RESTRICTED <= DataAccess.CONFIDENTIAL
+    assert (
+        DataAccess.PUBLIC
+        <= DataAccess.INTERNAL
+        <= DataAccess.RESTRICTED
+        <= DataAccess.CONFIDENTIAL
+    )

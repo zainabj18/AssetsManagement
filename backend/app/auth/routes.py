@@ -7,7 +7,7 @@ from psycopg.rows import class_row
 from pydantic.error_wrappers import ValidationError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app.core.utils import protected,decode_token
+from app.core.utils import decode_token, protected
 from app.db import UserRole, get_db
 from app.schemas import UserCreate, UserInDB
 
@@ -43,6 +43,7 @@ def get_user(db, username):
             user_in_db = cur.fetchone()
             return user_in_db
 
+
 def get_user_by_id(db, user_id):
     with db.connection() as conn:
         with conn.cursor() as cur:
@@ -51,6 +52,7 @@ def get_user_by_id(db, user_id):
                 {"user_id": user_id},
             )
             return cur.fetchone()
+
 
 @bp.route("/register", methods=["POST"])
 def register():
@@ -93,15 +95,15 @@ def register():
 
 @bp.route("/login", methods=["POST"])
 def login():
-    request_dict=dict(request.json)
-    username = request_dict.get("username",None)
-    pwd = request_dict.get("password",None)
-    if not username or not pwd or username=='' or username=='':
+    request_dict = dict(request.json)
+    username = request_dict.get("username", None)
+    pwd = request_dict.get("password", None)
+    if not username or not pwd or username == "" or username == "":
         return {
             "msg": "username and password required",
             "error": "Invalid credentials",
         }, 400
-  
+
     db = get_db()
     try:
         if not (user_in_db := get_user(db, username)):
@@ -124,13 +126,24 @@ def login():
         current_app.config["SECRET_KEY"],
         algorithm=current_app.config["JWT_ALGO"],
     )
-    resp=jsonify({"msg": "logged in","data": {
-            "userID": int(user_in_db.account_id),
-            "userRole": user_in_db.account_type.value,
-            "username": username,
-            "userPrivileges": user_in_db.account_privileges.value
-        }})
-    resp.set_cookie('access-token', value=token,secure=True,httponly=True,expires=datetime.utcnow() + timedelta(minutes=30))
+    resp = jsonify(
+        {
+            "msg": "logged in",
+            "data": {
+                "userID": int(user_in_db.account_id),
+                "userRole": user_in_db.account_type.value,
+                "username": username,
+                "userPrivileges": user_in_db.account_privileges.value,
+            },
+        }
+    )
+    resp.set_cookie(
+        "access-token",
+        value=token,
+        secure=True,
+        httponly=True,
+        expires=datetime.utcnow() + timedelta(minutes=30),
+    )
     return resp
 
 
@@ -160,24 +173,30 @@ def is_viewer(user_id, access_level):
 
 @bp.route("/identify", methods=["GET"])
 def identify():
-    data=decode_token(request)
+    data = decode_token(request)
     db = get_db()
     try:
-        if (username := get_user_by_id(db,data["account_id"])):
-            username=username[0]
+        if username := get_user_by_id(db, data["account_id"]):
+            username = username[0]
     except Error as e:
         return {"msg": str(e), "error": "Database Connection Error"}, 500
-    
-    resp=jsonify({"msg": "found you","data": {
-            "userID":data["account_id"],
-            "userRole": data["account_type"],
-            "username": username,
-            "userPrivileges": data["account_privileges"]
-        }})
+
+    resp = jsonify(
+        {
+            "msg": "found you",
+            "data": {
+                "userID": data["account_id"],
+                "userRole": data["account_type"],
+                "username": username,
+                "userPrivileges": data["account_privileges"],
+            },
+        }
+    )
     return resp
+
 
 @bp.route("/logout", methods=["DELETE"])
 def logout():
-    resp=jsonify({"msg": "logged out","data": {}})
-    resp.set_cookie('access-token', '', expires=0)
+    resp = jsonify({"msg": "logged out", "data": {}})
+    resp.set_cookie("access-token", "", expires=0)
     return resp

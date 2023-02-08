@@ -5,6 +5,9 @@ DROP TABLE IF EXISTS assets CASCADE;
 DROP TABLE IF EXISTS tags CASCADE;
 DROP TABLE IF EXISTS projects CASCADE;
 DROP TABLE IF EXISTS types CASCADE;
+DROP TABLE IF EXISTS attributes CASCADE;
+DROP TABLE IF EXISTS types CASCADE;
+DROP TABLE IF EXISTS attributes_in_types CASCADE;
 CREATE TYPE account_role AS ENUM ('VIEWER', 'USER', 'ADMIN');
 CREATE TYPE data_classification AS ENUM ('PUBLIC', 'INTERNAL','RESTRICTED','CONFIDENTIAL');
 CREATE TABLE accounts
@@ -48,12 +51,39 @@ CREATE TABLE projects
 	PRIMARY KEY (id)
 );
 
-CREATE TABLE types
+CREATE TABLE attributes
 (
-	id SERIAL,
-	name VARCHAR NOT NULL,
-	PRIMARY KEY (id)
+	attribute_id SERIAL,
+	attribute_name VARCHAR NOT NULL UNIQUE,
+	attribute_data_type VARCHAR NOT NULL,
+	validation_data JSON,
+	PRIMARY KEY (attribute_id)
 );
+
+ CREATE TABLE types
+ (
+ 	type_id SERIAL,
+ 	type_name VARCHAR NOT NULL UNIQUE,
+ 	PRIMARY KEY (type_id)
+ );
+
+ CREATE TABLE attributes_in_types
+ (
+ 	attribute_id INTEGER,
+ 	type_id INTEGER,
+ 	PRIMARY KEY (attribute_id, type_id),
+ 	FOREIGN KEY (attribute_id) REFERENCES attributes(attribute_id),
+ 	FOREIGN KEY (type_id) REFERENCES types(type_id)
+ );
+ 
+-- CREATE TABLE projects
+-- (
+-- 	project_id SERIAL,
+-- 	project_name VARCHAR NOT NULL,
+-- 	project_description VARCHAR,
+	
+-- 	PRIMARY KEY (project_id)
+-- );
 
 -- CREATE TABLE assets
 -- (

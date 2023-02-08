@@ -56,9 +56,10 @@ def valid_client(flask_app):
         current_app.config["SECRET_KEY"],
         algorithm=current_app.config["JWT_ALGO"],
     )
-    client=flask_app.test_client()
-    client.set_cookie("localhost","access-token",token)
+    client = flask_app.test_client()
+    client.set_cookie("localhost", "access-token", token)
     yield client
+
 
 @pytest.fixture()
 def expected_res(request):

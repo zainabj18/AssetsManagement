@@ -6,13 +6,22 @@ from pydantic import BaseModel, Field, ValidationError, validator
 from app.db import DataAccess
 
 
-class Attribute(BaseModel):
+class Attribute_Model(BaseModel):
     attribute_name: str = Field(..., alias="attributeName")
     attribute_type: str = Field(..., alias="attributeType")
+    validation_data: Any = Field(None, alias="validation")
+
+
+class Attribute(Attribute_Model):
     attribute_value: Any = Field(..., alias="attributeValue")
 
     class Config:
         allow_population_by_field_name = True
+
+
+class Type(BaseModel):
+    type_name: str = Field(..., alias="typeName")
+    metadata: List[Attribute_Model]
 
 
 class AssetBase(BaseModel):

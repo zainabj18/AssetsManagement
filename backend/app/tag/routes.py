@@ -1,33 +1,38 @@
 from flask import Blueprint, jsonify, request
-from app.db import get_db
-from pydantic import ValidationError
-from app.schemas import TagBase
 from psycopg import Error
-from psycopg.rows import dict_row
 from psycopg.errors import UniqueViolation
+from psycopg.rows import dict_row
+from pydantic import ValidationError
+
+from app.db import get_db
+from app.schemas import TagBase
 
 bp = Blueprint("tag", __name__, url_prefix="/tag")
 
-def create_tag(db,tag_dict):
+
+def create_tag(db, tag_dict):
     with db.connection() as conn:
-         with conn.cursor() as cur:
+        with conn.cursor() as cur:
             cur.execute(
-            """
+                """
         INSERT INTO tags (name)
 VALUES (%(name)s) RETURNING id;""",
-            tag_dict,
-        )
+                tag_dict,
+            )
             return cur.fetchone()[0]
+
+
 def list_tags(db):
-      with db.connection() as conn:
+    with db.connection() as conn:
         with conn.cursor(row_factory=dict_row) as cur:
             cur.execute("""SELECT * FROM tags;""")
             return cur.fetchall()
 
+
 @bp.route("/", methods=["POST"])
 def create():
     try:
-       tag=TagBase(**request.json)
+        tag = TagBase(**request.json)
     except ValidationError as e:
         return (
             jsonify(
@@ -41,20 +46,21 @@ def create():
         )
     db = get_db()
     try:
-        id=create_tag(db,tag.dict())
+        id = create_tag(db, tag.dict())
     except UniqueViolation as e:
         return {"msg": f"Tag {tag.name} already exists", "error": "Database Error"}, 500
     except Error as e:
         return {"msg": str(e), "error": "Database Error"}, 500
-    tag.id=id
-    return jsonify({"msg": "Tag Created","data":tag.dict()})
+    tag.id = id
+    return jsonify({"msg": "Tag Created", "data": tag.dict()})
+
 
 @bp.route("/", methods=["GET"])
 def list():
-   
+
     try:
         db = get_db()
-        tags=list_tags(db)
+        tags = list_tags(db)
     except Error as e:
         return {"msg": str(e), "error": "Database Error"}, 500
-    return jsonify({"msg": "tags","data":tags})
+    return jsonify({"msg": "tags", "data": tags})

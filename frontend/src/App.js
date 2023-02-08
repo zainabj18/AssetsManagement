@@ -7,6 +7,7 @@ import NoMatch from './routes/NoMatch';
 import FilterBasedSearch from './routes/FilterBasedSearch';
 import User from './routes/User';
 import TypeAdder from './routes/TypeAdder';
+import TypeViewer from './routes/TypeViewer';
 import { AuthProvider } from './hooks/useAuth';
 import AssetsOverview from './routes/assets/AssetsOverview';
 import AssetsLayout from './routes/assets/AssetsLayout';
@@ -27,6 +28,7 @@ function App() {
 					</Route>
 					<Route path="filter" element={<FilterBasedSearch />} />
 					<Route path="user" element={<User />} />
+					<Route path="type" element={<TypeViewer />} />
 					<Route path="type/adder" element={<TypeAdder />} />
 				</Route>
 				<Route path="*" element={<NoMatch />} />
