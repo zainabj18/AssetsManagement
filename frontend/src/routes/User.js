@@ -20,6 +20,12 @@ const User = () => {
 		setTextInput(data);
 	};
 
+	const deleteUser = (index) => {
+		let data = [...textInput];
+		data.splice(index, 1);
+		setTextInput(data);
+	};
+
 	return (
 		<Box p={50} ml={180} mt={20}>
 			<Flex ml={280}>
