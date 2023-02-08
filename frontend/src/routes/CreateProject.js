@@ -23,6 +23,9 @@ const CreateProject = () => {
 	const addProject = () => {
 		setProjects([...projects, { name: '', description: '' }]);
 	};
+	const submitProject = () => {
+		console.log(projects);
+	};
 
 	const deleteProject = (index) => {
 		let data = [...projects];
@@ -65,6 +68,7 @@ const CreateProject = () => {
 				);
 			})}
 			<Button onClick={addProject}>Add Project</Button>
+			<Button onClick={submitProject}> Submit</Button>
 		</VStack>
 	);
 };
