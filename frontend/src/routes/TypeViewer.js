@@ -4,101 +4,20 @@ import {
 	Table, Thead, Tbody, Tr, Th, Td, TableContainer, TableCaption,
 	Text,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { fetchAllTypes } from '../api';
 
 const TypeViewer = () => {
 
-	const [types, setTypes] = useState([
-		/** Dummy Data */
-		{
-			typeName: 'framework',
-			metadata: [
-				{
-					attributeName: 'programming Language(s)',
-					attributeType: 'text',
-				},
-				{
-					attributeName: 'public',
-					attributeType: 'checkbox',
-				},
-				{
-					attributeName: 'no. of issues',
-					attributeType: 'number',
-				},
-				{
-					attributeName: 'built on',
-					attributeType: 'datetime-local',
-				},
-				{
-					attributeName: 'version',
-					attributeType: 'text',
-				},
-				{
-					attributeName: 'stars',
-					attributeType: 'num_lmt',
-					validation: {
-						min: 1,
-						max: 5
-					}
-				},
-				{
-					attributeName: 'license',
-					attributeType: 'options',
-					validation: {
-						values: ['MIT', 'GNU'],
-						isMulti: true
-					}
-				},
-				{
-					attributeName: 'authors',
-					attributeType: 'list',
-					validation: {
-						type: 'text'
-					}
-				},
-				{
-					attributeName: 'authors_emails',
-					attributeType: 'list',
-					validation: {
-						type: 'email'
-					}
-				},
-				{
-					attributeName: 'authors_emails_domain',
-					attributeType: 'list',
-					validation: {
-						type: 'url'
-					}
-				}
-			]
-		},
-		{
-			typeName: 'library',
-			metadata: [
-				{
-					attributeName: 'platform',
-					attributeType: 'text',
-				},
-				{
-					attributeName: 'private',
-					attributeType: 'checkbox',
-				},
-				{
-					attributeName: 'last modified',
-					attributeType: 'datetime-local',
-				},
-				{
-					attributeName: 'description',
-					attributeType: 'text',
-				},
-				{
-					attributeName: 'fileSize(kb)',
-					attributeType: 'number',
-				}
-			]
+	useEffect(() => {
+		async function load_allTypes() {
+			let data = await fetchAllTypes(res => res.data);
+			set_types(data);
 		}
-		/** End of Dummy Data */
-	]);
+		load_allTypes();
+	}, []);
+
+	const [types, set_types] = useState([]);
 
 	return (
 		<VStack>

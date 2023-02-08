@@ -97,4 +97,4 @@ def get_allTypes():
                 "typeName": type[1],
                 "metadata": attributes
             })
-        return json.dumps({"types": allTypes_listed}), 200
+        return json.dumps(allTypes_listed), 200
