@@ -26,6 +26,12 @@ const FilterBasedSearch = () => {
 		console.log(inputFields);
 	};
 
+	const removeFields = (index) => {
+		let data = [...inputFields];
+		data.splice(index, 1);
+		setInputFields(data);
+	};
+
 	return (
 		<Box p={30}>
 			<VStack> <p>This is the Filter Based Search Page !!</p></VStack>
@@ -109,7 +115,7 @@ const FilterBasedSearch = () => {
 									color = 'white'
 									fontsize = '20'
 								/>
-								<Button>Remove</Button>
+								<Button onClick={() => removeFields(index)}>Remove</Button>
 							</HStack>	
 						);
 					})}
