@@ -10,6 +10,7 @@ import TypeAdder from './routes/TypeAdder';
 import { AuthProvider } from './hooks/useAuth';
 import AssetsOverview from './routes/assets/AssetsOverview';
 import AssetsLayout from './routes/assets/AssetsLayout';
+import AdminManager from './routes/AdminManager';
 
 
 
@@ -28,6 +29,7 @@ function App() {
 				<Route path="filter" element={<FilterBasedSearch />} />
 				<Route path="user" element={<User />} />
 				<Route path="type/adder" element={<TypeAdder />} />
+				<Route path="admin_manager" element={<AdminManager />} />
 			</Route>
 			<Route path="*" element={<NoMatch />} />
 		</Routes>
