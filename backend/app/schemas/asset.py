@@ -8,6 +8,7 @@ from app.db import DataAccess
 class Attribute_Model(BaseModel):
     attribute_name: str = Field(..., alias="attributeName")
     attribute_type: str = Field(..., alias="attributeType")
+    validation_data: Any = Field(None, alias="validation")
 
 class Attribute(Attribute_Model):
     attribute_value: Any = Field(..., alias="attributeValue")

@@ -9,6 +9,7 @@ import {
 	Select,
 	Table, Thead, Tbody, Tr, Th, Td, TableContainer, TableCaption,
 	Text,
+	useBoolean,
 	useDisclosure
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
@@ -16,16 +17,19 @@ import AttributeMaker from '../components/AttributeMaker';
 import AttributeManager from '../components/AttributeManager';
 
 import { fetchAllAttributes } from '../api';
+import { createAttribute } from '../api';
 
 const TypeAdder = () => {
 
+	const [trigger, setTrigger] = useBoolean();
+
 	useEffect(() => {
-		async function load_allAssets() {
+		async function load_allAttributes() {
 			let data = await fetchAllAttributes(res => res.data);
 			set_allAttributes(data);
 		}
-		load_allAssets();
-	}, []);
+		load_allAttributes();
+	}, [trigger]);
 
 	const {
 		isOpen: isOpen_attributeCreator,
@@ -57,9 +61,7 @@ const TypeAdder = () => {
 		}
 		/** End of Dummy Data */
 	]);
-	const [allAttributes, set_allAttributes] = useState(
-		[]
-	);
+	const [allAttributes, set_allAttributes] = useState([]);
 	const [creationData, set_creationData] = useState(new AttributeMaker());
 	const [new_attribute_errorMessage, set_new_attribute_errorMessage] = useState(AttributeMaker.get_message_noError());
 	const [display_num_lmt, set_display_num_lmt] = useState(false);
@@ -103,8 +105,8 @@ const TypeAdder = () => {
 		let errorMessage = creationData.checkForErrors([...allAttributes]);
 		set_new_attribute_errorMessage(errorMessage);
 		if (JSON.stringify(errorMessage) === JSON.stringify(AttributeMaker.get_message_noError())) {
-			let new_attribute = creationData.formAttribute();
-			set_allAttributes([...allAttributes].concat(new_attribute));
+			createAttribute(creationData.formAttribute());
+			setTrigger.toggle();
 			onClose_attributeCreator();
 		};
 	};
