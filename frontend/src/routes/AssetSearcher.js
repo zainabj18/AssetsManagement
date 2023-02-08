@@ -1,7 +1,7 @@
 import { VStack } from '@chakra-ui/react';
 import { HStack } from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
-import {Accordion,AccordionItem,AccordionButton,AccordionPanel,AccordionIcon, Input} from '@chakra-ui/react';
+import {Accordion,AccordionItem,AccordionButton,AccordionPanel,AccordionIcon, Input,Button} from '@chakra-ui/react';
 import { Checkbox } from '@chakra-ui/react';
 import { useState } from 'react';
 
@@ -15,6 +15,7 @@ const FilterBasedSearch = () => {
 		data[index][event.target.name] = event.target.value;
 		setInputFields(data);
 	};
+
 	return (
 		<Box p={30}>
 			<VStack> <p>This is the Filter Based Search Page !!</p></VStack>
@@ -88,20 +89,22 @@ const FilterBasedSearch = () => {
 									placeholder='Attribute name'
 									value={input.name}
 									onChange={event => handleFormChange(index, event)}
-									color = 'black'
+									color = 'white'
 								/>
 								<Input
 									name='values'
 									placeholder='Attribute value'
 									value={input.values}
 									onChange={event => handleFormChange(index, event)}
-									color = 'black'
+									color = 'white'
+									fontsize = '20'
 								/>
-							</HStack>
+							</HStack>	
 						);
 					})}
 				</form>
     		</div>
+			<Button>Add More</Button>
 		</Box>
 	);
 };
