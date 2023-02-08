@@ -38,7 +38,7 @@ const AdminManager = () => {
 								<Th color={'white'}>First Name</Th>
 								<Th color={'white'}>Last Name</Th>
 								<Th color={'white'}>Username</Th>
-								<Th color={'white'}>Edit Details</Th>
+								<Th color={'white'}></Th>
 							</Tr>
 						</Thead>
 						<Tbody>
@@ -52,13 +52,15 @@ const AdminManager = () => {
 											<h2>
 												<AccordionButton>
 													<Box as="span" flex='1' textAlign='left'>
-													Details
+													Edit Details
 													</Box>
 													<AccordionIcon />
 												</AccordionButton>
 											</h2>
 											<AccordionPanel pb={4}>
-											View Account Details
+												<Button bg='transparent' color='white'>View Account Details</Button>
+												<Button bg='transparent' color='white'>Change Password</Button>
+												<Button bg='transparent' color='white'>View Related Projects</Button>
 											</AccordionPanel>
 										</AccordionItem>
 									</Accordion>
@@ -74,13 +76,15 @@ const AdminManager = () => {
 											<h2>
 												<AccordionButton>
 													<Box as="span" flex='1' textAlign='left'>
-													Details
+													Edit Details
 													</Box>
 													<AccordionIcon />
 												</AccordionButton>
 											</h2>
 											<AccordionPanel pb={4}>
-											View Account Details
+												<Button bg='transparent' color='white'>View Account Details</Button>
+												<Button bg='transparent' color='white'>Change Password</Button>
+												<Button bg='transparent' color='white'>View Related Projects</Button>
 											</AccordionPanel>
 										</AccordionItem>
 									</Accordion>
@@ -96,13 +100,15 @@ const AdminManager = () => {
 											<h2>
 												<AccordionButton>
 													<Box as="span" flex='1' textAlign='left'>
-													Details
+													Edit Details
 													</Box>
 													<AccordionIcon />
 												</AccordionButton>
 											</h2>
 											<AccordionPanel pb={4}>
-											View Account Details
+												<Button bg='transparent' color='white'>View Account Details</Button>
+												<Button bg='transparent' color='white'>Change Password</Button>
+												<Button bg='transparent' color='white'>View Related Projects</Button>
 											</AccordionPanel>
 										</AccordionItem>
 									</Accordion>
@@ -118,13 +124,15 @@ const AdminManager = () => {
 											<h2>
 												<AccordionButton>
 													<Box as="span" flex='1' textAlign='left'>
-													Details
+													Edit Details
 													</Box>
 													<AccordionIcon />
 												</AccordionButton>
 											</h2>
 											<AccordionPanel pb={4}>
-											View Account Details
+												<Button bg='transparent' color='white'>View Account Details</Button>
+												<Button bg='transparent' color='white'>Change Password</Button>
+												<Button bg='transparent' color='white'>View Related Projects</Button>
 											</AccordionPanel>
 										</AccordionItem>
 									</Accordion>
