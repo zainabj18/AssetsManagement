@@ -14,3 +14,7 @@ export const logoutUser = async ()=> {
 export const fetchAsset= async (id)=> {
 	return await axios.get(`/asset/get/${id}`).then(res=>res.data);
 };
+export const createProject = async (project)=> {
+	console.log(project);
+	return await axios.post('/projects/new', project).then(res=>res.data);
+};

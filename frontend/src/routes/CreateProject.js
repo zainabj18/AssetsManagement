@@ -10,7 +10,7 @@ import {
 import React, { useState } from 'react';
 import { DeleteIcon } from '@chakra-ui/icons';
 import { IconButton } from '@chakra-ui/react';
-
+import {createProject} from '../api.js';
 const CreateProject = () => {
 	const [projects, setProjects] = useState([{ name: '', description: '' }]);
 
@@ -25,6 +25,8 @@ const CreateProject = () => {
 	};
 	const submitProject = () => {
 		console.log(projects);
+		projects.forEach((val, i) => createProject(val));
+		
 	};
 
 	const deleteProject = (index) => {

@@ -35,11 +35,10 @@ CREATE TABLE assets
 
 CREATE TABLE projects
 (
-	project_id SERIAL,
-	project_name VARCHAR NOT NULL,
-	project_description VARCHAR,
-	
-	PRIMARY KEY (project_id)
+	id SERIAL,
+	name VARCHAR NOT NULL,
+	description VARCHAR,
+	PRIMARY KEY (id)
 );
 
 -- CREATE TABLE assets
