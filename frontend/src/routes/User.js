@@ -95,7 +95,7 @@ const User = () => {
 			</HStack>
 			{textInput.map((index) => {return (
 				<Stack direction='row' spacing={4} align='center' mt={14} ml={280} key={index}>
-					<Button colorScheme='blue' variant='solid' size='lg'>
+					<Button colorScheme='blue' variant='solid' size='lg' onClick={saveObject}>
 						Save
 					</Button>
 					<Button colorScheme='red' variant='solid' size='lg' left={70} onClick={event => deleteObject(index)}>
