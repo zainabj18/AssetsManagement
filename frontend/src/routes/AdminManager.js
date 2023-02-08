@@ -34,6 +34,12 @@ const AdminManager = () => {
 
 	const [inputField, setInputField] = useState([{username: '' }]);
 
+	const handleFormChange = (index, event) => {
+        let data = [...textInput];
+        data[index][event.target.name] = event.target.value;
+        setTextInput(data);
+    };
+
 	return (
 		<VStack minW="100vw">
 			<Text>AdminManager</Text>
