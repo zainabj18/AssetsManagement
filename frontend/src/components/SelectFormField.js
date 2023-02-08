@@ -32,12 +32,14 @@ const SelectFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler
 	  if (!validation.isMulti){
 			setType('radio');
 			console.log('I am multi');
-			setValues([fieldDefaultValue]);
-			
+			if (fieldDefaultValue){
+				setValues([fieldDefaultValue]);
+			}
 	  }else{
 			setType('checkbox');
-			setValues(fieldDefaultValue);
-			
+			if (fieldDefaultValue){
+				setValues(fieldDefaultValue);
+			}	
 	  }
 	  setOptions(validation.values);
 	}, []);

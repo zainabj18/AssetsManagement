@@ -12,13 +12,13 @@ import {
 } from '@chakra-ui/react';
 import { useState,useEffect} from 'react';
 import FormField from './FormField';
-const ListFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler}) => {
+const ListFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler,setErrorCount}) => {
 	const [trigger, setTrigger] = useBoolean();
 	const [values, setValues] = useState([]);
 
 	const addHandler=(newVal)=>{
 		console.log('I am adding new value');
-		if (!values.some(val => val===newVal)){
+		if (values && !values.some(val => val===newVal)){
 			let newValues = [...values, newVal];
 			onChangeHandler(fieldName,newValues);
 			setValues(newValues);
@@ -46,9 +46,10 @@ const ListFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler})
 				startWithEditView={true}
 				onSubmitHandler={(_,val)=>{addHandler(val);}}
 				clearOnSumbit={true}
+				setErrorCount={setErrorCount}
 			>
 				<Wrap spacing={4}>
-					{values.map((value, key) => (
+					{values&&values.map((value, key) => (
 						<WrapItem key={key}>
 							<Tag size={'md'} key={key}>
 								<TagLabel>{value}</TagLabel>

@@ -18,6 +18,9 @@ export default class AttributeMaker {
 		this.type = '';
 		this.min = '';
 		this.max = '';
+		this.list_type = '';
+		this.choices = '';
+		this.isMulti=false;
 	}
 
 	/** Checks for any errors in the user's input
@@ -58,6 +61,24 @@ export default class AttributeMaker {
 				validation: {
 					min: this.min,
 					max: this.max
+				}
+			};
+			return { ...base, ...validation };
+		}
+
+		if (this.type === 'list') {
+			validation = {
+				validation: {
+					type: this.list_type
+				}
+			};
+			return { ...base, ...validation };
+		}
+		if (this.type === 'options') {
+			validation = {
+				validation: {
+					values: this.choices.split(','),
+					isMulti:this.isMulti
 				}
 			};
 			return { ...base, ...validation };

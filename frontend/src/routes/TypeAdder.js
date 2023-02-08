@@ -46,6 +46,8 @@ const TypeAdder = () => {
 	const [creationData, set_creationData] = useState(new AttributeMaker());
 	const [new_attribute_errorMessage, set_new_attribute_errorMessage] = useState(AttributeMaker.get_message_noError());
 	const [display_num_lmt, set_display_num_lmt] = useState(false);
+	const [display_list, set_display_list] = useState(false);
+	const [display_options, set_display_options] = useState(false);
 
 	const selectAttribute = (attribute) => {
 		let list = [...selectedAttributes];
@@ -71,6 +73,9 @@ const TypeAdder = () => {
 
 	const updateSelectedTypes = (data = creationData) => {
 		set_display_num_lmt(data.type === 'num_lmt');
+		set_display_list(data.type === 'list');
+		set_display_options(data.type === 'options');
+		
 	};
 
 	const open_AttributeCreator = () => {
@@ -223,6 +228,36 @@ const TypeAdder = () => {
 								</HStack>
 							</FormControl>
 						}
+						{display_list && <FormControl isRequired>
+							<FormLabel>List Type</FormLabel>
+							<Select onChange={(e) => {
+								creationData.list_type = e.target.value;
+								set_creationData(creationData);
+							}}>
+								<option>text</option>
+								<option>email</option>
+								<option>url</option>
+							</Select>
+						</FormControl>}
+						{display_options && <FormControl isRequired>
+							<FormLabel>Choices</FormLabel>
+							<HStack>
+								<input
+									placeholder='options'
+									type='text'
+									variant='outline'
+									onChange={(e) => {
+										creationData.choices = e.target.value;
+										set_creationData(creationData);
+									}}
+								></input>
+								<Text>Multiselect</Text>
+								<Checkbox onChange={(e) => {
+									creationData.isMulti = e.target.checked;
+									set_creationData(creationData);
+								}}/>
+							</HStack>
+						</FormControl>}
 					</ModalBody>
 					<ModalFooter>
 						<Button onClick={tryCreate_attribute}>Save</Button>
