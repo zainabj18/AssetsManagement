@@ -14,6 +14,12 @@ const User = () => {
 
 	const [textInput, setTextInput] = useState([{name: '', surname: '', username: '' }]);
 
+	const handleFormChange = (index, event) => {
+		let data = [...textInput];
+		data[index][event.target.name] = event.target.value;
+		setTextInput(data);
+	};
+
 	return (
 		<Box p={50} ml={180} mt={20}>
 			<Flex ml={280}>
@@ -27,29 +33,31 @@ const User = () => {
 					Username
 				</Box>
 			</Flex>
-			<HStack spacing={6}>
-				<FormControl isRequired>
-					<Box color ='black'>
-						<Input  bg = 'white' placeholder='Name' left={215} width={200} type='text'/>
-						<FormLabel color = 'white' ml={280}> required </FormLabel>
-					</Box>
-				</FormControl>
-				<FormControl isRequired>
-					<Box color ='black'>
-						<Input  bg = 'white' placeholder='Surname' left={25} width={200} type='text'/>
-						<FormLabel color = 'white' ml={100}> required </FormLabel>
-					</Box>
-				</FormControl>
-				<FormControl isRequired>
-					<Box color ='black'>
-						<InputGroup right={180} width={200} type='text' >
-							<InputLeftAddon children='#' />
-							<Input bg='white'/>
-						</InputGroup>
-						<FormLabel color = 'white'> required </FormLabel>
-					</Box>
-				</FormControl>
-			</HStack>
+			{textInput.map((attr, index) => {return (
+				<HStack spacing={6} key={index}>
+					<FormControl isRequired>
+						<Box color ='black'>
+							<Input  bg = 'white' placeholder='Name' left={215} width={200} type='text' onChange={event => handleFormChange(index, event)} name="name"/>
+							<FormLabel color = 'white' ml={280}> required </FormLabel>
+						</Box>
+					</FormControl>
+					<FormControl isRequired>
+						<Box color ='black'>
+							<Input  bg = 'white' placeholder='Surname' left={25} width={200} type='text' onChange={event => handleFormChange(index, event)} name="surname"/>
+							<FormLabel color = 'white' ml={100}> required </FormLabel>
+						</Box>
+					</FormControl>
+					<FormControl isRequired>
+						<Box color ='black'>
+							<InputGroup right={180} width={200} type='text' >
+								<InputLeftAddon children='#' />
+								<Input bg='white' onChange={event => handleFormChange(index, event)} name="username"/>
+							</InputGroup>
+							<FormLabel color = 'white'> required </FormLabel>
+						</Box>
+					</FormControl>
+				</HStack>
+			);})}
 			<Flex mt={8} ml={280}>
 				<Box mr={280}>
 					Access Level
