@@ -1,6 +1,4 @@
 import React,{useEffect, useMemo,useState} from 'react';
-import { useTable,useRowSelect,useGlobalFilter } from 'react-table';
-
 import {
 	Table,
 	Thead,

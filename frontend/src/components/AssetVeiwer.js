@@ -20,7 +20,7 @@ import {
 } from '@chakra-ui/react';
 import { Fragment } from 'react';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import FormField from './FormField';
 import axios from 'axios';
 import { createTag, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags } from '../api';
@@ -29,12 +29,14 @@ import ProjectSelect from './ProjectSelect';
 import ListFormField from './ListFormField';
 import SelectFormField from './SelectFormField';
 import NumFormField from './NumFormField';
-const AssetViewer = ({ canEdit, isNew }) => {
+import useAuth from '../hooks/useAuth';
+const AssetViewer = () => {
 	const { id } = useParams();
+	const {user} = useAuth();
+	let navigate = useNavigate();
 	const [assetSate, setAssetState] = useState(undefined);
-	const [isDisabled, setIsDisabled] = useState(!canEdit);
+	const [isDisabled, setIsDisabled] = useState(false);
 	const [tag, setTag] = useState('');
-	const [openEdit, setOpenEdit] = useState(isNew);
 	const [classifications,setClassifications] = useState([]);
 	const [projects,setProjects] = useState([]);
 	const [projectList,setProjectList]=useState([]);
@@ -174,7 +176,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 			...prevAssetState,
 			projects: project_ids,
 		}));
-		console.log(assetSate);
+		// naviagte back to assets
 	};
 
 	useEffect(() => {
@@ -183,12 +185,15 @@ const AssetViewer = ({ canEdit, isNew }) => {
 		if (id) {
 			fetchAsset(id).then((data)=>{
 				setAssetState(data);}).catch((err) => {console.log(err);});
-			setOpenEdit(false);
+			if (user.userRole==='VIEWER'){
+				setIsDisabled(true);
+			}
 		} else {
-
+			if (user.userRole==='VIEWER'){
+				navigate('/');
+			}
 			fetchProjects().then(
 				(res)=>{
-					console.log(res.data);
 					setProjectList(res.data);
 				}
 			);
@@ -216,7 +221,6 @@ const AssetViewer = ({ canEdit, isNew }) => {
 					fieldType="text"
 					fieldDefaultValue={assetSate.name}
 					isDisabled={isDisabled}
-					startWithEditView={openEdit}
 					onSubmitHandler={handleChange}
 				/>
 				<FormField
@@ -224,14 +228,13 @@ const AssetViewer = ({ canEdit, isNew }) => {
 					fieldType="url"
 					fieldDefaultValue={assetSate.link}
 					isDisabled={isDisabled}
-					startWithEditView={openEdit}
 					onSubmitHandler={handleChange}
 				/>
 				<FormControl isRequired>
 					<FormLabel>Type</FormLabel>
 					<Select
 						isRequired
-						isDisabled={isDisabled || !isNew}
+						isDisabled={isDisabled ||id}
 						onChange={(e) => {
 							handleTypeChange(e, e.target.value);
 						}}
@@ -251,7 +254,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 					</Select>
 				</FormControl>
 				<FormControl>
-					<FormLabel>Project</FormLabel>
+					<FormLabel>Projects</FormLabel>
 					<Wrap spacing={4}>
 						{projects.map((value, key) => (
 							<WrapItem key={key}>
@@ -260,7 +263,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 								</Tag>
 							</WrapItem>
 						))}
-						<ProjectSelect setSelectedProjects={setProjects}  projects={projectList}/>
+						{!isDisabled && <ProjectSelect setSelectedProjects={setProjects}  projects={projectList} />}
 					</Wrap>
 				</FormControl>
 				<FormControl  >
@@ -289,7 +292,6 @@ const AssetViewer = ({ canEdit, isNew }) => {
 					fieldType="text"
 					fieldDefaultValue={assetSate.description}
 					isDisabled={isDisabled}
-					startWithEditView={openEdit}
 					onSubmitHandler={handleChange}
 				/>
 				<FormControl >
@@ -337,7 +339,6 @@ const AssetViewer = ({ canEdit, isNew }) => {
 								fieldType={value.attribute_type}
 								fieldDefaultValue={value.attribute_value}
 								isDisabled={isDisabled}
-								startWithEditView={openEdit}
 								onSubmitHandler={handleMetadataChange}
 								trigger={trigger}
 							/>
@@ -345,7 +346,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 					  }
 				})}
 			</VStack>}
-			{!isNew && (<StatGroup>
+			{id && (<StatGroup>
 				<Stat>
 					<StatLabel>Created At</StatLabel>
 					<StatNumber>{assetSate.created_at}</StatNumber>
@@ -356,7 +357,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 				</Stat>
 			</StatGroup>)}
 			
-			<Button onClick={createNewAsset} isDisabled={isDisabled} >Sumbit</Button>
+			{!isDisabled && <Button onClick={createNewAsset}>Sumbit</Button>}
 		</Container>
 	) : null;
 };
