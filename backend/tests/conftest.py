@@ -6,7 +6,7 @@ from flask import current_app
 
 from app import create_app
 from app.db import get_db, init_db
-
+from .factories import AttributeFactory,TagFactory,AssetFactory,ModelFactory,ProjectFactory
 
 @pytest.fixture
 def flask_app():
@@ -64,3 +64,8 @@ def valid_client(flask_app):
 @pytest.fixture()
 def expected_res(request):
     return request.param
+
+@pytest.fixture()
+def new_asset():
+    asset = AssetFactory.build()
+    return asset
