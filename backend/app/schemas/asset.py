@@ -32,10 +32,11 @@ class TypeBase(BaseModel):
 class Project(BaseModel):
     id: Optional[int]
     name: str
+    description: str
 class AssetBase(BaseModel):
     name: str
     link: str
-    type: str
+    type: int
     description: str
     projects: List[int]
     tags: List[int]

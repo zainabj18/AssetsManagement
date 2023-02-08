@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic_factories import ModelFactory, PostGenerated,Use
 from random import choice
-from app.schemas import Attribute,AssetBase,TagBase,Project
+from app.schemas import Attribute,AssetBase,TagBase,Project,TypeBase
 
 def add_validation_json(name: str, values: dict, *args, **kwds):
     if values["attribute_type"]=='num_lmt':
@@ -37,3 +37,5 @@ class ProjectFactory(ModelFactory):
     __model__ = Project
 class TagFactory(ModelFactory):
     __model__ = TagBase
+class TypeFactory(ModelFactory):
+    __model__ = TypeBase
