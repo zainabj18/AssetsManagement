@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row
 from pydantic import ValidationError
-from app.db import get_db,DataAccess
+from app.db import get_db,DataAccess,UserRole
 from app.schemas import AssetBase,AssetBaseInDB
-
+from app.core.utils import protected
 bp = Blueprint("asset", __name__, url_prefix="/asset")
 import json
 
@@ -49,8 +49,14 @@ VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(access_level)s,%(metadata)s
     return jsonify({"msg": "Added asset"}), 200
 
 @bp.route("/classifications", methods=["GET"])
-def get_classifications():
-    return {"data":[a.value for a in DataAccess]}
+@protected(role=UserRole.USER)
+def get_classifications(user_id, access_level):
+    viwable_classifications=[]
+    for c in DataAccess:
+         if c<=access_level:
+            viwable_classifications.append(c.value)
+
+    return {"data":viwable_classifications}
 
 @bp.route("/<id>", methods=["GET"])
 def view(id):

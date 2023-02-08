@@ -45,5 +45,21 @@ def valid_token(request):
 
 
 @pytest.fixture()
+def valid_client(flask_app):
+    token = jwt.encode(
+        {
+            "account_id": None,
+            "account_type": "ADMIN",
+            "account_privileges": "CONFIDENTIAL",
+            "exp": datetime.utcnow() + timedelta(minutes=30),
+        },
+        current_app.config["SECRET_KEY"],
+        algorithm=current_app.config["JWT_ALGO"],
+    )
+    client=flask_app.test_client()
+    client.set_cookie("localhost","access-token",token)
+    yield client
+
+@pytest.fixture()
 def expected_res(request):
     return request.param

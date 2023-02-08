@@ -3,7 +3,7 @@ from functools import wraps
 import jwt
 from flask import current_app, request,abort
 
-from app.db import UserRole
+from app.db import UserRole,DataAccess
 def decode_token(request):
     token = request.cookies.get('access-token')
     if not token:
@@ -33,7 +33,7 @@ def protected(role=UserRole.VIEWER):
                     "msg": "Your account is forbidden to access this please speak to your admin",
                     "error": "Invalid Token",
                 }, 403
-            return func(data["account_id"], data["account_privileges"])
+            return func(data["account_id"],DataAccess(data["account_privileges"]))
 
         return wrapper
 

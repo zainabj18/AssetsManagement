@@ -138,7 +138,7 @@ def login():
 @protected(role=UserRole.ADMIN)
 def is_admin(user_id, access_level):
     return {
-        "msg": f"{user_id} You have admin privileges and data access level of {access_level}"
+        "msg": f"{user_id} You have admin privileges and data access level of {access_level.value}"
     }, 200
 
 
@@ -146,7 +146,7 @@ def is_admin(user_id, access_level):
 @protected(role=UserRole.USER)
 def is_user(user_id, access_level):
     return {
-        "msg": f"{user_id} You have user privileges and data access level of {access_level}"
+        "msg": f"{user_id} You have user privileges and data access level of {access_level.value}"
     }, 200
 
 
@@ -154,7 +154,7 @@ def is_user(user_id, access_level):
 @protected(role=UserRole.VIEWER)
 def is_viewer(user_id, access_level):
     return {
-        "msg": f"{user_id} You have viewer privileges and data access level of {access_level}"
+        "msg": f"{user_id} You have viewer privileges and data access level of {access_level.value}"
     }, 200
 
 
