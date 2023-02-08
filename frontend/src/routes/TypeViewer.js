@@ -49,7 +49,7 @@ const TypeViewer = () => {
 									<Td>
 										{types.metadata.map((metadata) => {
 											return (
-												<VStack key={metadata.attributeType}>
+												<VStack key={metadata.attributeName}>
 													<Text>{metadata.attributeType}</Text>
 												</VStack>
 											);
