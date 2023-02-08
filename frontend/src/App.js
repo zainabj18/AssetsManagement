@@ -7,10 +7,10 @@ import NoMatch from './routes/NoMatch';
 import AssetSearcher from './routes/AssetSearcher';
 import User from './routes/User';
 import TypeAdder from './routes/TypeAdder';
-import KeywordSearch from './routes/KeywordSearch';
 import { AuthProvider } from './hooks/useAuth';
 import AssetsOverview from './routes/assets/AssetsOverview';
 import AssetsLayout from './routes/assets/AssetsLayout';
+import AssetList from './components/AssetList';
 
 
 //TODO:Wrap in error boundary
@@ -19,7 +19,7 @@ function App() {
 	return (
 
 		<Routes>
-			<Route path="KeywordSearch" element={<KeywordSearch />} />
+			<Route path="KeywordSearch" element={<AssetList />} />
 			<Route path="search" element={<AssetSearcher />} />
 			<Route path="/login" element={<Login />} />
 			<Route path="/" element={<Layout />}>

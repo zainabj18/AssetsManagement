@@ -1,20 +1,9 @@
 import { VStack } from '@chakra-ui/react';
-import { HStack } from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
-import {Accordion,AccordionItem,AccordionButton,AccordionPanel,AccordionIcon,Input} from '@chakra-ui/react';
+import {Accordion,AccordionItem,AccordionButton,AccordionPanel,AccordionIcon} from '@chakra-ui/react';
 import { Checkbox } from '@chakra-ui/react';
-import { useState } from 'react';
 
 const FilterBasedSearch = () => {
-	const [inputFields, setInputFields] = useState([
-		{ name: '', values: ''}
-	]);
-
-	const handleFormChange = (index, event) => {
-		let data = [...inputFields];
-		data[index][event.target.name] = event.target.value;
-		setInputFields(data);
-	};
 	return (
 		<Box p={30}>
 			<VStack> <p>This is the Filter Based Search Page !!</p></VStack>
@@ -61,48 +50,9 @@ const FilterBasedSearch = () => {
 						</VStack>
 					</AccordionPanel>
 				</AccordionItem>
-				<AccordionItem>
-					<h2>
-						<AccordionButton>
-							Access Levels
-							<AccordionIcon />
-						</AccordionButton>
-					</h2>
-					<AccordionPanel pb={4}>
-						<VStack align = {'left'}>
-							<Checkbox colorScheme='green' defaultChecked>Public</Checkbox>
-							<Checkbox colorScheme='green' defaultChecked>Internal</Checkbox>
-							<Checkbox colorScheme='green' defaultChecked>Restricted</Checkbox>
-							<Checkbox colorScheme='green' defaultChecked>Confidential</Checkbox>
-						</VStack>
-					</AccordionPanel>
-				</AccordionItem>
 			</Accordion>
-			<div className="App">
-				<form>
-					{inputFields.map((input, index) => {
-						return (
-							<HStack key={index}>
-								<Input
-									name='name'
-									placeholder='Attribute name'
-									value={input.name}
-									onChange={event => handleFormChange(index, event)}
-									color = 'black'
-								/>
-								<Input
-									name='values'
-									placeholder='Attribute value'
-									value={input.values}
-									onChange={event => handleFormChange(index, event)}
-									color = 'black'
-								/>
-							</HStack>
-						);
-					})}
-				</form>
-    		</div>
 		</Box>
 	);
+  
 };
 export default FilterBasedSearch;

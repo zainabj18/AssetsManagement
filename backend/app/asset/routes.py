@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from psycopg.rows import class_row
+from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
 from app.db import get_db,DataAccess
 from app.schemas import AssetBase,AssetBaseInDB
@@ -62,6 +62,15 @@ def view(id):
     return asset.json(), 200
 
 
-@bp.route("/hello", methods=["GET"])
+@bp.route("/summary", methods=["GET"])
 def list():
-    return {"data":[]}
+    db = get_db()
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+            cur.execute("""SELECT * FROM assets;""")
+            assets = cur.fetchall()
+            res=jsonify({"data":[]})
+            res.json["data"]=[x.json() for x in assets]
+            res.json["data"]=[1]
+            print (res.json)
+    return res
