@@ -21,6 +21,11 @@ const FilterBasedSearch = () => {
 		setInputFields([...inputFields, newfield]);
 	};
 
+	const submit = (e) => {
+		e.preventDefault();
+		console.log(inputFields);
+	};
+
 	return (
 		<Box p={30}>
 			<VStack> <p>This is the Filter Based Search Page !!</p></VStack>
@@ -85,7 +90,7 @@ const FilterBasedSearch = () => {
 				</AccordionItem>
 			</Accordion>
 			<div className="App">
-				<form>
+				<form onSubmit={submit}>
 					{inputFields.map((input, index) => {
 						return (
 							<HStack key={index}>
@@ -107,10 +112,10 @@ const FilterBasedSearch = () => {
 							</HStack>	
 						);
 					})}
+					<Button onClick={addFields}>Add More</Button>
+					<Button onClick={submit}>Submit</Button>
 				</form>
     		</div>
-			<Button onClick={addFields}>Add More</Button>
-			<Button>Submit</Button>
 		</Box>
 	);
 };
