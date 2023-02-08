@@ -7,20 +7,22 @@ import {
 	TagLabel,
 	TagCloseButton,
 	Button,
-	Input
+	Input,
+	useBoolean
 } from '@chakra-ui/react';
 import { useState,useEffect} from 'react';
+import FormField from './FormField';
 const ListFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler}) => {
-	const [value, setValue] = useState('');
+	const [trigger, setTrigger] = useBoolean();
 	const [values, setValues] = useState([]);
 
-	const addHandler=()=>{
-		if (!values.some(val => val===value)){
-			let newValues = [...values, value];
+	const addHandler=(newVal)=>{
+		console.log('I am adding new value');
+		if (!values.some(val => val===newVal)){
+			let newValues = [...values, newVal];
 			onChangeHandler(fieldName,newValues);
 			setValues(newValues);
 		}
-		setValue('');
 	};
 
 	const deleteHandler=(e,value)=>{
@@ -35,21 +37,29 @@ const ListFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler})
 	
 
 	return (
-		<FormControl   >
-			<FormLabel>{fieldName}</FormLabel>
-			<Wrap spacing={4}>
-				{values.map((value, key) => (
-					<WrapItem key={key}>
-						<Tag size={'md'} key={key}>
-							<TagLabel>{value}</TagLabel>
-							<TagCloseButton onClick={(e) => deleteHandler(e,value)} />
-						</Tag>
-					</WrapItem>
-				))}
-			</Wrap>
-			<Input type={validation.type} value={value} onChange={e=>{setValue(e.target.value);}}/>
-			{value && <Button onClick={addHandler}>Add</Button>}
-		</FormControl>
+		<>
+			<FormField
+				fieldName={fieldName}
+				fieldType={validation.type}
+				fieldDefaultValue={''}
+				isDisabled={false}
+				startWithEditView={true}
+				onSubmitHandler={(_,val)=>{addHandler(val);}}
+				clearOnSumbit={true}
+			>
+				<Wrap spacing={4}>
+					{values.map((value, key) => (
+						<WrapItem key={key}>
+							<Tag size={'md'} key={key}>
+								<TagLabel>{value}</TagLabel>
+								<TagCloseButton onClick={(e) => deleteHandler(e,value)} />
+							</Tag>
+						</WrapItem>
+					))}
+				</Wrap>
+			</FormField>
+			
+		</>
 	);
 };
 

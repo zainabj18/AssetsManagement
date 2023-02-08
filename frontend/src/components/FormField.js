@@ -11,25 +11,46 @@ import {
 	AlertIcon,
 	AlertTitle
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import EditableControls from './EditableControls';
 const FormField = ({
+	children,
 	fieldName,
 	fieldType,
 	fieldDefaultValue,
 	isDisabled,
 	startWithEditView,
 	onSubmitHandler,
+	clearOnSumbit
 }) => {
 	const [error, setError] = useState('');
+	const [value,setValue]=useState('');
 	const validate=(e)=>{
-
+		setValue(e.target.value);
 		setError(e.target.validationMessage);
 	};
+
+	const handleSumbit=(e)=>{
+		if (error===''){
+			onSubmitHandler(fieldName, e);
+			if(clearOnSumbit){
+				setValue('');
+			}
+		}
+	};
+	useEffect(() => {
+		if(!clearOnSumbit){
+			setValue(fieldDefaultValue);
+		}
+	}, []);
+	
+
+
 
 	return (
 		<FormControl isRequired>
 			<FormLabel>{fieldName}</FormLabel>
+			{children}
 			{fieldType === 'checkbox' ? (
 				<Checkbox
 					isDisabled={isDisabled}
@@ -44,12 +65,14 @@ const FormField = ({
 					defaultValue={fieldDefaultValue}
 					startWithEditView={startWithEditView}
 					isDisabled={isDisabled}	
+					submitOnBlur={false}
 					onSubmit={(e) => {
-						onSubmitHandler(fieldName, e);
+						handleSumbit(e);
 					}}
+					value={value}
 				>
 					<EditablePreview />
-					<Input type={fieldType} as={EditableInput} onChange={e=>{validate(e);}} required/>
+					<Input type={fieldType} as={EditableInput} onChange={e=>{validate(e);}} required />
 					<EditableControls error={error}/>
 				</Editable>
 			)}

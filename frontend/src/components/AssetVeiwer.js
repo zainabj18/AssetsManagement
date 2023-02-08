@@ -95,7 +95,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 				}
 			},
 			{
-				attribute_name: 'authors_emails',
+				attribute_name: 'Authors Emails',
 				attribute_type: 'list',
 				attribute_value: ['mike@hotmail.com','carlos@hotmail.com','john@gmail.com'],
 				attribute_validation:{
@@ -155,10 +155,11 @@ const AssetViewer = ({ canEdit, isNew }) => {
 
 	const handleTypeChange = (e, attribute_value) => {
 		e.preventDefault();
+		let newMetadata=type[attribute_value];
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
 			type: attribute_value,
-			metadata: type[attribute_value],
+			metadata:newMetadata,
 		}));
 	};
 
