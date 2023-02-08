@@ -4,7 +4,10 @@ from typing import Any, List, Optional
 from pydantic import BaseModel, Field, ValidationError, validator
 
 from app.db import DataAccess
-from .tag import TagBase
+
+class TagBase(BaseModel):
+    id: Optional[int]
+    name: str
 
 class Attribute_Model(BaseModel):
     attribute_name: str = Field(..., alias="attributeName")
@@ -23,7 +26,12 @@ class Type(BaseModel):
     type_name: str = Field(..., alias="typeName")
     metadata: List[Attribute_Model]
 
-
+class TypeBase(BaseModel):
+    type_id: Optional[int]
+    type_name: str
+class Project(BaseModel):
+    id: Optional[int]
+    name: str
 class AssetBase(BaseModel):
     name: str
     link: str
@@ -34,18 +42,16 @@ class AssetBase(BaseModel):
     classification: DataAccess
     metadata: List[Attribute]
 
-    class Config:
-        json_encoders = {
-            DataAccess: "lambda v: v.value",
-        }
 
     @validator("metadata", each_item=True, pre=True)
     def check_metadata(cls, v):
+        if isinstance(v, Attribute):
+            return v
         try:
             Attribute(**v)
+            return v
         except ValidationError as e:
             raise e
-        return v
 
 
 class AssetBaseInDB(AssetBase):
