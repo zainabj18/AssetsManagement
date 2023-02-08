@@ -20,7 +20,7 @@ const User = () => {
 		setTextInput(data);
 	};
 
-	const deleteUser = (index) => {
+	const deleteObject = (index) => {
 		let data = [...textInput];
 		data.splice(index, 1);
 		setTextInput(data);
@@ -88,14 +88,16 @@ const User = () => {
 					</Select>
 				</Box>
 			</HStack>
-			<Stack direction='row' spacing={4} align='center' mt={14} ml={280}>
-				<Button colorScheme='blue' variant='solid' size='lg'>
-					Save
-				</Button>
-				<Button colorScheme='red' variant='solid' size='lg' left={70}>
-					Delete
-				</Button>
-			</Stack>
+			{textInput.map((index) => {return (
+				<Stack direction='row' spacing={4} align='center' mt={14} ml={280} key={index}>
+					<Button colorScheme='blue' variant='solid' size='lg'>
+						Save
+					</Button>
+					<Button colorScheme='red' variant='solid' size='lg' left={70} onClick={event => deleteObject(index)}>
+						Delete
+					</Button>
+				</Stack>
+			);})}
 		</Box>
 	);
 };
