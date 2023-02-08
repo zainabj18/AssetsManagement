@@ -1,16 +1,20 @@
 import { VStack } from '@chakra-ui/react';
+import { HStack } from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
-import {Accordion,AccordionItem,AccordionButton,AccordionPanel,AccordionIcon} from '@chakra-ui/react';
+import {Accordion,AccordionItem,AccordionButton,AccordionPanel,AccordionIcon,Input} from '@chakra-ui/react';
 import { Checkbox } from '@chakra-ui/react';
 import { useState } from 'react';
 
 const FilterBasedSearch = () => {
 	const [inputFields, setInputFields] = useState([
-		{ name: '', value: ''}
+		{ name: '', values: ''}
 	]);
 
-	const handleFormChange = (index, event) => {}
-
+	const handleFormChange = (index, event) => {
+		let data = [...inputFields];
+		data[index][event.target.name] = event.target.value;
+		setInputFields(data);
+	};
 	return (
 		<Box p={30}>
 			<VStack> <p>This is the Filter Based Search Page !!</p></VStack>
@@ -78,20 +82,22 @@ const FilterBasedSearch = () => {
 				<form>
 					{inputFields.map((input, index) => {
 						return (
-							<div key={index}>
-								<input
+							<HStack key={index}>
+								<Input
 									name='name'
 									placeholder='Attribute name'
 									value={input.name}
 									onChange={event => handleFormChange(index, event)}
+									color = 'black'
 								/>
-								<input
-									name='value'
+								<Input
+									name='values'
 									placeholder='Attribute value'
-									value={input.value}
+									value={input.values}
 									onChange={event => handleFormChange(index, event)}
+									color = 'black'
 								/>
-							</div>
+							</HStack>
 						);
 					})}
 				</form>
