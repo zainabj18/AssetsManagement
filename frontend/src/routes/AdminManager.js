@@ -14,6 +14,14 @@ import {
 	TableCaption,
 	TableContainer,
 } from '@chakra-ui/react';
+import {
+	Accordion,
+	AccordionItem,
+	AccordionButton,
+	AccordionPanel,
+	AccordionIcon,
+	Box
+} from '@chakra-ui/react';
 
 const AdminManager = () => {
 	return (
@@ -30,6 +38,7 @@ const AdminManager = () => {
 								<Th color={'white'}>First Name</Th>
 								<Th color={'white'}>Last Name</Th>
 								<Th color={'white'}>Username</Th>
+								<Th color={'white'}>Edit Details</Th>
 							</Tr>
 						</Thead>
 						<Tbody>
@@ -37,21 +46,89 @@ const AdminManager = () => {
 								<Td>John</Td>
 								<Td>Plat</Td>
 								<Td>@John</Td>
+								<Td>
+									<Accordion allowToggle>
+										<AccordionItem>
+											<h2>
+												<AccordionButton>
+													<Box as="span" flex='1' textAlign='left'>
+													Details
+													</Box>
+													<AccordionIcon />
+												</AccordionButton>
+											</h2>
+											<AccordionPanel pb={4}>
+											View Account Details
+											</AccordionPanel>
+										</AccordionItem>
+									</Accordion>
+								</Td>
 							</Tr>
 							<Tr>
 								<Td>Ben</Td>
 								<Td>Hatch</Td>
 								<Td>@Ben</Td>
+								<Td>
+									<Accordion allowToggle>
+										<AccordionItem>
+											<h2>
+												<AccordionButton>
+													<Box as="span" flex='1' textAlign='left'>
+													Details
+													</Box>
+													<AccordionIcon />
+												</AccordionButton>
+											</h2>
+											<AccordionPanel pb={4}>
+											View Account Details
+											</AccordionPanel>
+										</AccordionItem>
+									</Accordion>
+								</Td>
 							</Tr>
 							<Tr>
 								<Td>Ben</Td>
 								<Td>Smith</Td>
 								<Td>@Ben.Smith</Td>
+								<Td>
+									<Accordion allowToggle>
+										<AccordionItem>
+											<h2>
+												<AccordionButton>
+													<Box as="span" flex='1' textAlign='left'>
+													Details
+													</Box>
+													<AccordionIcon />
+												</AccordionButton>
+											</h2>
+											<AccordionPanel pb={4}>
+											View Account Details
+											</AccordionPanel>
+										</AccordionItem>
+									</Accordion>
+								</Td>
 							</Tr>
 							<Tr>
 								<Td>Kate</Td>
 								<Td>Barlow</Td>
 								<Td>@Kate</Td>
+								<Td>
+									<Accordion allowToggle>
+										<AccordionItem>
+											<h2>
+												<AccordionButton>
+													<Box as="span" flex='1' textAlign='left'>
+													Details
+													</Box>
+													<AccordionIcon />
+												</AccordionButton>
+											</h2>
+											<AccordionPanel pb={4}>
+											View Account Details
+											</AccordionPanel>
+										</AccordionItem>
+									</Accordion>
+								</Td>
 							</Tr>
 						</Tbody>
 					</Table>
