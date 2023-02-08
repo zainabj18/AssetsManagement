@@ -29,7 +29,7 @@ const TypeViewer = () => {
 						<Tr>
 							<Th color='white'>Type</Th>
 							<Th color='white'>Attributes</Th>
-							<Th color='white'>View</Th>
+							<Th color='white'>Attribute Data Type</Th>
 						</Tr>
 					</Thead>
 					<Tbody>
@@ -47,7 +47,13 @@ const TypeViewer = () => {
 										})}
 									</Td>
 									<Td>
-										<Button>View</Button>
+										{types.metadata.map((metadata) => {
+											return (
+												<VStack key={metadata.attributeType}>
+													<Text>{metadata.attributeType}</Text>
+												</VStack>
+											);
+										})}
 									</Td>
 								</Tr>
 							);
