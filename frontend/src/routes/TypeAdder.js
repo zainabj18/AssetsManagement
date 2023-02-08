@@ -41,26 +41,7 @@ const TypeAdder = () => {
 		'text', 'number', 'checkbox', 'datetime-local', 'num_lmt', 'options', 'list'
 	]);
 
-	const [selectedAttributes, set_selectedAttributes] = useState([
-		/** Dummy Data */
-		{
-			attributeName: 'public',
-			attributeType: 'checkbox',
-		},
-		{
-			attributeName: 'license',
-			attributeType: 'options',
-			validation: {
-				values: ['MIT', 'GNU'],
-				isMulti: true
-			}
-		},
-		{
-			attributeName: 'programming Language(s)',
-			attributeType: 'text',
-		}
-		/** End of Dummy Data */
-	]);
+	const [selectedAttributes, set_selectedAttributes] = useState([]);
 	const [allAttributes, set_allAttributes] = useState([]);
 	const [creationData, set_creationData] = useState(new AttributeMaker());
 	const [new_attribute_errorMessage, set_new_attribute_errorMessage] = useState(AttributeMaker.get_message_noError());
@@ -105,8 +86,9 @@ const TypeAdder = () => {
 		let errorMessage = creationData.checkForErrors([...allAttributes]);
 		set_new_attribute_errorMessage(errorMessage);
 		if (JSON.stringify(errorMessage) === JSON.stringify(AttributeMaker.get_message_noError())) {
-			createAttribute(creationData.formAttribute());
-			setTrigger.toggle();
+			createAttribute(creationData.formAttribute()).then( _ => {
+				setTrigger.toggle();
+			});
 			onClose_attributeCreator();
 		};
 	};
