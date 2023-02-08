@@ -223,22 +223,27 @@ const AssetViewer = ({ canEdit, isNew }) => {
 					startWithEditView={openEdit}
 					onSubmitHandler={handleChange}
 				/>
-				<FormControl>
+				<FormControl isRequired>
 					<FormLabel>Type</FormLabel>
 					<Select
-						placeholder='Select a type'
+						isRequired
 						isDisabled={isDisabled || !isNew}
 						onChange={(e) => {
 							handleTypeChange(e, e.target.value);
 						}}
 					>
-						{Object.keys(type).map((value, key) => {
-							return (
-								<option key={key} value={value}>
-									{value}
-								</option>
-							);
-						})}
+						<option key={'placeholde'} selected disabled>
+							Select a type
+						</option>
+						{
+							Object.keys(type).map((value, key) => {
+								return (
+								
+									<option key={key} value={value}>
+										{value}
+									</option>
+								);
+							})}
 					</Select>
 				</FormControl>
 				<FormControl>
@@ -257,12 +262,15 @@ const AssetViewer = ({ canEdit, isNew }) => {
 				<FormControl  >
 					<FormLabel>classification</FormLabel>
 					<Select
-						placeholder='Select classification'
+						isRequired
 						isDisabled={isDisabled}
 						onChange={(e) => {
 							handleChange('classification', e.target.value);
 						}}
 					>
+						<option key={'placeholde'} selected disabled>
+							Select a classification
+						</option>
 						{classifications.map((value, key) => {
 							return (
 								<option key={key} value={value}>

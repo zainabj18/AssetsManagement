@@ -15,8 +15,6 @@ const EditableControls = (props) => {
 	} = useEditableControls();
 	const { isDisabled } = useEditableState();
 	useEffect(() => {
-		console.log(props);
-		console.log(props.error,'in editable');
 	}, [props.error]);
 	
 	return isDisabled ? null : isEditing ? (
