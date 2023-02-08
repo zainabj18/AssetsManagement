@@ -37,6 +37,12 @@ export default function KeywordSearch() {
 	return (
 		<div style={{ padding: 20 }}>
 			<AssetList />
+			<Input icon='search'
+				placeholder='Search'
+				//binding the search function to the search bar
+				//whenever something is typed in, it will run the searchItems function
+				onChange={(e) => searchItems(e.target.value)}
+			/>
 		</div>
 	);
 }
