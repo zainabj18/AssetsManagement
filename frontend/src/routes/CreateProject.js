@@ -3,8 +3,12 @@ import {
 	FormControl,
 	FormLabel,
 	Text,
+	Box,
 	VStack,
 	Button,
+	Flex,
+	Spacer,
+	Center,
 } from '@chakra-ui/react';
 //import axios from 'axios';
 import React, { useState } from 'react';
@@ -36,42 +40,51 @@ const CreateProject = () => {
 	};
 
 	return (
-		<VStack minW="100vw">
-			<Text>Create Project</Text>
+		<VStack minW="100vw" spacing={3}>
+			<Text fontSize='3xl'>Create Project</Text>
+  
 			{projects.map((project, index) => {
 				return (
 					<VStack key={index}>
-						<FormControl isRequired>
-							<FormLabel>Project Name</FormLabel>
-							<Input
-								type="text"
-								placeholder="Project Name"
-								defaultValue={project.name}
-								onChange={(event) => handleCreate(index, event)}
-								name="name"
+						<Box bg='white' w='100%' p={7} color='black'>
+							<FormControl isRequired>
+								<FormLabel color={'black'}>Project Name</FormLabel>
+								<Input
+									type="text"
+									placeholder="Project Name"
+									defaultValue={project.name}
+									onChange={(event) => handleCreate(index, event)}
+									name="name"
+								/>
+							</FormControl>
+							<FormControl isRequired>
+								<FormLabel color={'black'}>Description</FormLabel>
+								<Input
+									type="text"
+									placeholder="Description"
+									defaultValue={project.description}
+									onChange={(event) => handleCreate(index, event)}
+									name="description"
+								/>
+							</FormControl>
+							
+							<IconButton
+								left={20}
+								icon={<DeleteIcon />}
+								colorScheme="blue"
+								onClick={() => deleteProject(index)}
 							/>
-						</FormControl>
-						<FormControl isRequired>
-							<FormLabel>Description</FormLabel>
-							<Input
-								type="text"
-								placeholder="Description"
-								defaultValue={project.description}
-								onChange={(event) => handleCreate(index, event)}
-								name="description"
-							/>
-						</FormControl>
-						<IconButton
-							icon={<DeleteIcon />}
-							colorScheme="blue"
-							onClick={() => deleteProject(index)}
-						/>
+						</Box>
 					</VStack>
 				);
 			})}
-			<Button onClick={addProject}>Add Project</Button>
-			<Button onClick={submitProject}> Submit</Button>
+			<Flex minWidth='max-content' alignItems='center' gap='4'>
+				<Button onClick={addProject}>Add Project</Button>
+				<Button onClick={submitProject}> Submit</Button>
+			</Flex>
+			
 		</VStack>
+
 	);
 };
 
