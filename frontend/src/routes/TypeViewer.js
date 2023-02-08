@@ -5,6 +5,7 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
+import { Link as RouteLink } from 'react-router-dom';
 import { fetchAllTypes } from '../api';
 
 const TypeViewer = () => {
@@ -61,7 +62,9 @@ const TypeViewer = () => {
 					</Tbody>
 				</Table>
 			</TableContainer>
-			<Button>Create New</Button>
+			<RouteLink to='adder'>
+				<Button>New</Button>
+			</RouteLink>
 		</VStack>
 	);
 };
