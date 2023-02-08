@@ -41,12 +41,13 @@ def create():
     db_asset = asset.dict(exclude={"metadata"})
     db_asset["metadata"] = [json.dumps(x.dict()) for x in asset.metadata]
     with db.connection() as conn:
-        conn.execute(
-            """
-        INSERT INTO assets (name,link,type, description, access_level,metadata,project,tags)
-VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(access_level)s,%(metadata)s,%(project)s,%(tags)s);""",
-            db_asset,
-        )
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+            INSERT INTO assets (name,link,type,description, access_level)
+    VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(access_level)s)  RETURNING id;""",
+                db_asset,
+            )
 
     return jsonify({"msg": "Added asset"}), 200
 

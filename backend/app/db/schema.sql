@@ -22,21 +22,7 @@ CREATE TABLE accounts
 	PRIMARY KEY (account_id)
 );
 
-CREATE TABLE assets
-(
-	asset_id SERIAL,
-	name VARCHAR NOT NULL UNIQUE,
-	link VARCHAR NOT NULL,
-    type VARCHAR NOT NULL,
-    description VARCHAR NOT NULL,
-    tags VARCHAR ARRAY,
-	access_level data_classification NOT NULL DEFAULT 'PUBLIC',
-    metadata JSON ARRAY,
-	created_at timestamp NOT NULL DEFAULT now(),
-	last_modified_at timestamp NOT NULL DEFAULT now(),
-	project VARCHAR NOT NULL,
-	PRIMARY KEY (asset_id)
-);
+
 CREATE TABLE tags
 (
 	id SERIAL,
@@ -76,6 +62,20 @@ CREATE TABLE attributes
  	FOREIGN KEY (type_id) REFERENCES types(type_id)
  );
  
+ CREATE TABLE assets
+(
+	asset_id SERIAL,
+	name VARCHAR NOT NULL UNIQUE,
+	link VARCHAR NOT NULL,
+    type SERIAL,
+    description VARCHAR NOT NULL,
+	access_level data_classification NOT NULL DEFAULT 'PUBLIC',
+	created_at timestamp NOT NULL DEFAULT now(),
+	last_modified_at timestamp NOT NULL DEFAULT now(),
+	FOREIGN KEY (type) REFERENCES types(type_id),
+	PRIMARY KEY (asset_id)
+);
+
 -- CREATE TABLE projects
 -- (
 -- 	project_id SERIAL,

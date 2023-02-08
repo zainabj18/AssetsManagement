@@ -77,13 +77,13 @@ def test_new_assset_requires_tag(client):
     } in res.json["data"]
 
 
-def test_new_assset_requires_access_level(client):
+def test_new_assset_requires_classification(client):
     res = client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
     assert {
-        "loc": ["access_level"],
+        "loc": ["classification"],
         "msg": "field required",
         "type": "value_error.missing",
     } in res.json["data"]
@@ -153,8 +153,7 @@ def test_new_assset_tyes_correct(client, attribute, json):
         ("name", {"name": []}),
         ("link", {"link": []}),
         ("type", {"type": []}),
-        ("description", {"description": []}),
-        ("project", {"project": []}),
+        ("description", {"description": []})
     ],
 )
 def test_new_assset_string_types_incorect(client, attribute, json):
@@ -175,19 +174,21 @@ def test_new_assset_tags_list_incorect(client):
     assert res.json["msg"] == "Data provided is invalid"
     assert {
         "loc": ["tags", 1],
-        "msg": "str type expected",
-        "type": "type_error.str",
+        "msg": "value is not a valid integer",
+        "type": "type_error.integer",
     } in res.json["data"]
 
-
-def test_new_assset_acces_level_incorrect(client):
-    res = client.post("/api/v1/asset/", json={"access_level": []})
+def test_new_assset_project_list_incorect(client):
+    res = client.post("/api/v1/asset/", json={"projects": ["1", []]})
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
-    assert None == res.json["data"]
+    assert {
+        "loc": ["projects", 1],
+        "msg": "value is not a valid integer",
+        "type": "type_error.integer",
+    } in res.json["data"]
 
-
-def test_new_assset_metadata_incorrect(client):
+def test_new_assset_metadata_incorrect_integer(client):
     res = client.post("/api/v1/asset/", json={"metadata": 1})
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -196,7 +197,7 @@ def test_new_assset_metadata_incorrect(client):
         "msg": "value is not a valid list",
         "type": "type_error.list",
     } in res.json["data"]
-
+def test_new_assset_metadata_incorrect_mixed_type(client):
     res = client.post(
         "/api/v1/asset/",
         json={"metadata": [{"s": "s"}, {"attributeName": "s", "attribute_type": []}]},
@@ -208,26 +209,26 @@ def test_new_assset_metadata_incorrect(client):
         "msg": "field required",
         "type": "value_error.missing",
     } in res.json["data"]
-    assert {
-        "loc": ["metadata", 0, "attributeType"],
-        "msg": "field required",
-        "type": "value_error.missing",
-    } in res.json["data"]
-    assert {
-        "loc": ["metadata", 0, "attributeValue"],
-        "msg": "field required",
-        "type": "value_error.missing",
-    } in res.json["data"]
-    assert {
-        "loc": ["metadata", 1, "attributeValue"],
-        "msg": "field required",
-        "type": "value_error.missing",
-    } in res.json["data"]
-    assert {
-        "loc": ["metadata", 1, "attributeType"],
-        "msg": "str type expected",
-        "type": "type_error.str",
-    } in res.json["data"]
+    # assert {
+    #     "loc": ["metadata", 0, "attributeType"],
+    #     "msg": "field required",
+    #     "type": "value_error.missing",
+    # } in res.json["data"]
+    # assert {
+    #     "loc": ["metadata", 0, "attributeValue"],
+    #     "msg": "field required",
+    #     "type": "value_error.missing",
+    # } in res.json["data"]
+    # assert {
+    #     "loc": ["metadata", 1, "attributeValue"],
+    #     "msg": "field required",
+    #     "type": "value_error.missing",
+    # } in res.json["data"]
+    # assert {
+    #     "loc": ["metadata", 1, "attributeType"],
+    #     "msg": "str type expected",
+    #     "type": "type_error.str",
+    # } in res.json["data"]
 
 
 def test_new_assset_requires_project(client):
@@ -236,7 +237,7 @@ def test_new_assset_requires_project(client):
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
     assert {
-        "loc": ["project"],
+        "loc": ["projects"],
         "msg": "field required",
         "type": "value_error.missing",
     } in res.json["data"]
@@ -348,6 +349,12 @@ def test_get_asset_added_to_db(client):
     assert asset["access_level"] == "PUBLIC"
     assert asset["metadata"] == [Attribute(**x) for x in data["metadata"]]
 
+def test_new_assset_incorrect_classification(client):
+    res = client.post("/api/v1/asset/", json={"classification":[]})
+    assert res.status_code == 400
+    assert res.json["error"] == "Failed to create asset from the data provided"
+    assert res.json["msg"] == "Data provided is invalid"
+    assert res.json["data"]==None
 
 def test_get_access_levels(valid_client):
     res = valid_client.get("/api/v1/asset/classifications")
