@@ -29,7 +29,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import FormField from './FormField';
 import axios from 'axios';
-import { createTag, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags } from '../api';
+import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType } from '../api';
 import SearchSelect from './SearchSelect';
 import ProjectSelect from './ProjectSelect';
 import ListFormField from './ListFormField';
@@ -49,6 +49,7 @@ const AssetViewer = () => {
 	const [errors,setErrors]=useState([]);
 	const [errorCount,setErrorCount]=useState(0);
 	const [trigger,setTrigger]=useBoolean();
+	const [types,setTypes]=useState([]);
 	const type = {
 		Framework: [
 			
@@ -167,6 +168,10 @@ const AssetViewer = () => {
 
 	const handleTypeChange = (e, attribute_value) => {
 		e.preventDefault();
+		fetchType(attribute_value).then(res=>
+			console.log(res.data)
+
+		);
 		let newMetadata=type[attribute_value];
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
@@ -200,6 +205,9 @@ const AssetViewer = () => {
 	useEffect(() => {
 		fetchAssetClassifications().then((data)=>{
 			setClassifications(data.data);}).catch((err) => {console.log(err);});
+
+		fetchTypesList().then((data)=>{
+			setTypes(data.data);}).catch((err) => {console.log(err);});
 		if (id) {
 			fetchAsset(id).then((data)=>{
 				setAssetState(data);}).catch((err) => {console.log(err);});
@@ -266,15 +274,15 @@ const AssetViewer = () => {
 							handleTypeChange(e, e.target.value);
 						}}
 					>
-						<option key={'placeholde'} selected disabled>
+						<option key={'placeholder'} selected disabled>
 							Select a type
 						</option>
 						{
-							Object.keys(type).map((value, key) => {
+							types.map((value, key) => {
 								return (
 								
-									<option key={key} value={value}>
-										{value}
+									<option key={key} value={value.type_id}>
+										{value.type_name}
 									</option>
 								);
 							})}
@@ -302,7 +310,7 @@ const AssetViewer = () => {
 							handleChange('classification', e.target.value);
 						}}
 					>
-						<option key={'placeholde'} selected disabled>
+						<option key={'placeholder'} selected disabled>
 							Select a classification
 						</option>
 						{classifications.map((value, key) => {
@@ -348,24 +356,24 @@ const AssetViewer = () => {
 						console.log('I am here');
 						return (
 							<Fragment key={key}> 
-								<ListFormField fieldName={value.attribute_name} fieldDefaultValue={value.attribute_value} validation={value.attribute_validation} onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount}/>
+								<ListFormField fieldName={value.attributeName} fieldDefaultValue={''} validation={value.validation} onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount}/>
 							</Fragment>);
 					case 'num_lmt':
 						return (
 							<Fragment key={key}> 
-								<NumFormField fieldName={value.attribute_name} fieldDefaultValue={value.attribute_value} validation={value.attribute_validation}  onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount}/>
+								<NumFormField fieldName={value.attributeName} fieldDefaultValue={''} validation={value.validation}  onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount}/>
 							</Fragment>);
 					case 'options':
 						return (
 							<Fragment key={key}> 
-								<SelectFormField fieldName={value.attribute_name} fieldDefaultValue={value.attribute_value} validation={value.attribute_validation} onChangeHandler={handleMetadataChange}/>
+								<SelectFormField fieldName={value.attributeName} fieldDefaultValue={''} validation={value.validation} onChangeHandler={handleMetadataChange}/>
 							</Fragment>);
 					default:
 						return (<Fragment key={key}>
 							<FormField
-								fieldName={value.attribute_name}
-								fieldType={value.attribute_type}
-								fieldDefaultValue={value.attribute_value}
+								fieldName={value.attributeName}
+								fieldType={value.attributeType}
+								fieldDefaultValue={''}
 								isDisabled={isDisabled}
 								onSubmitHandler={handleMetadataChange}
 								trigger={trigger}

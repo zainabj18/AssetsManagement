@@ -96,13 +96,34 @@ def test_add_type_to_db(client, db_conn):
 # Test to see if a type can be returned from the database
 def test_get_type(client):
     test_type = {
+        "typeId": 1,
         "typeName": "library",
         "metadata": [
             {
                 "attributeName": "age",
-                "attributeType": "number",
+                "attributeType": "number"
             }
         ],
+    }
+    client.post("/api/v1/type/adder/new", json=test_type["metadata"][0])
+    client.post("/api/v1/type/new", json=test_type)
+    res = client.get("/api/v1/type/1")
+    assert res.status_code == 200
+    type = res.json
+    assert type == test_type
+
+# Test to see if a type can be returned from the database
+def test_get_type_with_json(client):
+    test_type = {
+        "typeId": 1,
+        "typeName": "library",
+        "metadata": [
+                {
+                    "attributeName": "age",
+                    "attributeType": "number",
+                    "validation": {"min": 4, "max": 10},
+                }
+         ],
     }
     client.post("/api/v1/type/adder/new", json=test_type["metadata"][0])
     client.post("/api/v1/type/new", json=test_type)

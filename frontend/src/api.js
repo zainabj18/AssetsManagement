@@ -45,3 +45,11 @@ export const createAttribute = async (newAttribute) => {
 export const createType = async (newType) => {
 	return await axios.post('/type/new', newType).then(res => res.data);
 };
+
+export const fetchTypesList = async () => {
+	return await axios.get('/type/names').then(res => res.data);
+};
+
+export const fetchType = async (id) => {
+	return await axios.get(`/type/${id}`).then(res => res.data);
+};

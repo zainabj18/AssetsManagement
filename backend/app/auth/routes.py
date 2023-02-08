@@ -121,7 +121,7 @@ def login():
             "account_id": int(user_in_db.account_id),
             "account_type": user_in_db.account_type.value,
             "account_privileges": user_in_db.account_privileges.value,
-            "exp": datetime.utcnow() + timedelta(minutes=30),
+            "exp": datetime.utcnow() + timedelta(minutes=160),
         },
         current_app.config["SECRET_KEY"],
         algorithm=current_app.config["JWT_ALGO"],
