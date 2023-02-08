@@ -37,13 +37,13 @@ const User = () => {
 				<HStack spacing={6} key={index}>
 					<FormControl isRequired>
 						<Box color ='black'>
-							<Input  bg = 'white' placeholder='Name' left={215} width={200} type='text' onChange={event => handleFormChange(index, event)} name="name"/>
+							<Input  bg = 'white' placeholder='Name' left={215} width={200} type='text' defaultValue={attr.name} onChange={event => handleFormChange(index, event)} name="name"/>
 							<FormLabel color = 'white' ml={280}> required </FormLabel>
 						</Box>
 					</FormControl>
 					<FormControl isRequired>
 						<Box color ='black'>
-							<Input  bg = 'white' placeholder='Surname' left={25} width={200} type='text' onChange={event => handleFormChange(index, event)} name="surname"/>
+							<Input  bg = 'white' placeholder='Surname' left={25} width={200} type='text' defaultValue={attr.surname} onChange={event => handleFormChange(index, event)} name="surname"/>
 							<FormLabel color = 'white' ml={100}> required </FormLabel>
 						</Box>
 					</FormControl>
@@ -51,7 +51,7 @@ const User = () => {
 						<Box color ='black'>
 							<InputGroup right={180} width={200} type='text' >
 								<InputLeftAddon children='#' />
-								<Input bg='white' onChange={event => handleFormChange(index, event)} name="username"/>
+								<Input bg='white' defaultValue={attr.username} onChange={event => handleFormChange(index, event)} name="username"/>
 							</InputGroup>
 							<FormLabel color = 'white'> required </FormLabel>
 						</Box>
