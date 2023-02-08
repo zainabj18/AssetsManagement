@@ -6,7 +6,12 @@ import {
 	EditableInput,
 	Input,
 	Checkbox,
+	Alert,
+	AlertDescription,
+	AlertIcon,
+	AlertTitle
 } from '@chakra-ui/react';
+import { useState } from 'react';
 import EditableControls from './EditableControls';
 const FormField = ({
 	fieldName,
@@ -16,9 +21,14 @@ const FormField = ({
 	startWithEditView,
 	onSubmitHandler,
 }) => {
+	const [error, setError] = useState('');
+	const validate=(e)=>{
+
+		setError(e.target.validationMessage);
+	};
 
 	return (
-		<FormControl >
+		<FormControl isRequired>
 			<FormLabel>{fieldName}</FormLabel>
 			{fieldType === 'checkbox' ? (
 				<Checkbox
@@ -33,16 +43,21 @@ const FormField = ({
 					textAlign="center"
 					defaultValue={fieldDefaultValue}
 					startWithEditView={startWithEditView}
-					isDisabled={isDisabled}
+					isDisabled={isDisabled}	
 					onSubmit={(e) => {
 						onSubmitHandler(fieldName, e);
 					}}
 				>
 					<EditablePreview />
-					<Input type={fieldType} as={EditableInput} />
-					<EditableControls />
+					<Input type={fieldType} as={EditableInput} onChange={e=>{validate(e);}} required/>
+					<EditableControls error={error}/>
 				</Editable>
 			)}
+			{error!=='' && (<Alert status='error'>
+  							<AlertIcon />
+				<AlertTitle>Validation Error</AlertTitle>
+				<AlertDescription>{error}</AlertDescription>
+			</Alert>)}
 		</FormControl>
 	);
 };
