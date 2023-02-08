@@ -20,23 +20,22 @@ import {
 	Button,
 	HStack,
 	Box,
-	Checkbox
+	Checkbox,
+	Input
 } from '@chakra-ui/react';
 
 
 function ProjectSelect({setSelectedProjects,projects}) {
 	const { isOpen, onClose,onOpen, } = useDisclosure();
 	const [selected,setSelected] = useState([]); 
+	const [query,setQuery]= useState(''); 
 	const data = useMemo(
 		() => 
-			[...projects],
+			projects.map((value,index)=>{return {...value,rowID:index};}),
 		[projects]);
-
+	//	
 	const columns = useMemo(
 		() => {return {
-			'isSelected':{
-				header: 'Selection'
-			},
 			'id':{
 				header: 'Project ID'
 			},
@@ -48,6 +47,13 @@ function ProjectSelect({setSelectedProjects,projects}) {
 			}
 		};},[]
 	);
+
+	const filteredRows = useMemo(() => {
+		console.log(data);
+		if (!query) return data;
+		return data.filter((obj)=>Object.values(obj).toString().includes(query));
+	  }, [query, data]);
+	
 	const save=()=>{
 		let selectedProjects=selected.map(
 			(rowID)=>{return data[rowID];});
@@ -65,9 +71,9 @@ function ProjectSelect({setSelectedProjects,projects}) {
 			setSelected(newSelected);
 		}	
 	};
-	const renderCell=(key,value)=>{
+	const renderCell=(key,rowID,value)=>{
 		if (columns[key].hasOwnProperty('Cell')){
-			return columns[key].Cell(value);
+			return columns[key].Cell(rowID,value);
 		}else{
 			return <Box>{value}</Box>;
 		}
@@ -88,7 +94,6 @@ function ProjectSelect({setSelectedProjects,projects}) {
 	}, []);
 	
 
-
 	
 	return (<>
 		<Button onClick={onOpen}>Select Projects</Button>
@@ -99,23 +104,23 @@ function ProjectSelect({setSelectedProjects,projects}) {
 				<ModalCloseButton />
 				<ModalBody >
 					{projects && <TableContainer>
-						<Table variant='simple'>
+						<Input onChange={(e)=>{setQuery(e.target.value);}}/>
+						<Table variant='stripped'>
 		  <Thead>
 								<Tr key={'header'}>
+									<Th>Select</Th>
 		  {Object.keys(columns).map(key => (
 										<Th key={key}>{columns[key].header}</Th>)
 		  )}
 		  </Tr>
 		  </Thead>
 		  <Tbody>
-		  {data.map((row,index)=> (
-
+		  {filteredRows.map((row,index)=> (
 									<Tr key={index}>
-										<Td><Checkbox defaultChecked={selected.includes(index)} onChange={(e) => handleCheck(index,e.target.checked)}/></Td>
-										{Object.keys(row).map((key)=>{
+										<Td><Checkbox defaultChecked={selected.includes(row.rowID)} isChecked={selected.includes(row.rowID)} onChange={(e) => handleCheck(row.rowID,e.target.checked)} /></Td>
+										{Object.keys(columns).map((key)=>{
 
-						
-	 return <Td key={index+key}>{renderCell(key,row[key])}</Td>;
+	 return <Td key={index+key}>{renderCell(key,row.rowID,row[key])}</Td>;
 										})}</Tr>)
 								)}
 		 
