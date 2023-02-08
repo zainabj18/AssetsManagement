@@ -40,6 +40,11 @@ const AdminManager = () => {
 		setInputField(data);
 	};
 
+	const newuser = (e) => {
+		e.preventDefault();
+		console.log(inputField);
+	};
+
 	return (
 		<VStack minW="100vw">
 			<Text>AdminManager</Text>
@@ -161,7 +166,7 @@ const AdminManager = () => {
 				</TableContainer>
 			</Stack>
 			<Stack>
-				<Button right={370} colorScheme='blue' size={'lg'}>New</Button>
+				<Button right={370} colorScheme='blue' size={'lg'} onClick={newuser}>New</Button>
 			</Stack>	
 		</VStack>
     
