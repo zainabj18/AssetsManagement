@@ -22,8 +22,18 @@ import {
 	AccordionIcon,
 	Box
 } from '@chakra-ui/react';
+import useAuth from '../hooks/useAuth';
 
 const AdminManager = () => {
+
+	const { adminmanager } = useAuth();
+
+	useEffect(() => {
+		console.log(adminmanager);
+	});
+
+	const [inputField, setInputField] = useState([{username: '' }]);
+
 	return (
 		<VStack minW="100vw">
 			<Text>AdminManager</Text>
