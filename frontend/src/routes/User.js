@@ -51,7 +51,7 @@ const User = () => {
 						<Box color ='black'>
 							<InputGroup right={180} width={200} type='text' >
 								<InputLeftAddon children='#' />
-								<Input bg='white' defaultValue={attr.username} onChange={event => handleFormChange(index, event)} name="username"/>
+								<Input bg='white' placeholder='Username' defaultValue={attr.username} onChange={event => handleFormChange(index, event)} name="username"/>
 							</InputGroup>
 							<FormLabel color = 'white'> required </FormLabel>
 						</Box>
