@@ -39,7 +39,7 @@ def create():
     db_project = project.dict()
     with db.connection() as conn:
         conn.execute(
-            """INSERT INTO project (project_id, name, description)VALUES (%(project_id)s,%(name)s,%(description)s);""", db_project,
+            """INSERT INTO project (project_id, project_name, project_description)VALUES (%(project_id)s,%(project_name)s,%(project_description)s);""", db_project,
         )
 
     return jsonify({"msg": "The user have created a new project"}), 200
