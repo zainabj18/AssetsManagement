@@ -20,6 +20,7 @@ function App() {
 
 		<Routes>
 			<Route path="KeywordSearch" element={<KeywordSearch />} />
+			<Route path="search" element={<AssetSearcher />} />
 			<Route path="/login" element={<Login />} />
 			<Route path="/" element={<Layout />}>
 				<Route path="assets/" element={<AssetsLayout />}>
