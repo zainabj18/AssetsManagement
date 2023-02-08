@@ -15,25 +15,25 @@ import AssetsLayout from './routes/assets/AssetsLayout';
 
 //TODO:Wrap in error boundary
 function App() {
-	
+
 	return (
-		<AuthProvider>
-			<Routes>
-				<Route path="/login" element={<Login />} />
-				<Route path="/" element={<Layout />}>
-					<Route path="assets/" element={<AssetsLayout />}>
-						<Route index element={<AssetsOverview />} />
-						<Route path="new" element={<CreateAsset />} />
-						<Route path="view/:id" element={<AssetViewer canEdit={true} isNew={false}/>} /> 				
-                        <Route path="KeywordSearch" element={<KeywordSearch />} />
-					</Route>
-					<Route path="filter" element={<FilterBasedSearch />} />
-					<Route path="user" element={<User />} />
-					<Route path="type/adder" element={<TypeAdder />} />
+
+		<Routes>
+			<Route path="KeywordSearch" element={<KeywordSearch />} />
+			<Route path="/login" element={<Login />} />
+			<Route path="/" element={<Layout />}>
+				<Route path="assets/" element={<AssetsLayout />}>
+					<Route index element={<AssetsOverview />} />
+					<Route path="new" element={<CreateAsset />} />
+					<Route path="view/:id" element={<AssetViewer canEdit={true} isNew={false} />} />
+					
 				</Route>
-				<Route path="*" element={<NoMatch />} />
-			</Routes>
-		</AuthProvider>
+				<Route path="user" element={<User />} />
+				<Route path="type/adder" element={<TypeAdder />} />
+			</Route>
+			<Route path="*" element={<NoMatch />} />
+		</Routes>
+
 	);
 }
 

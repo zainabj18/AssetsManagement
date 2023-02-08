@@ -62,3 +62,6 @@ def view(id):
     return asset.json(), 200
 
 
+@bp.route("/hello", methods=["GET"])
+def list():
+    return {"data":[]}
