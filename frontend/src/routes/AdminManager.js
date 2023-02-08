@@ -35,6 +35,7 @@ const AdminManager = () => {
 	const [inputField, setInputField] = useState([{username: '' }]);
 	const [accountdetails] = useState([{accdetails: ''}]);
 	const [pass] = useState([{pass: ''}]);
+	const [relatedprojects] =useState([{relatedproj: ''}]);
 
 	const handleFormChange = (index, event) => {
 		let data = [...inputField];
@@ -55,6 +56,11 @@ const AdminManager = () => {
 	const pass_func = (e) => {
 		e.preventDefault();
 		console.log(pass);
+	};
+
+	const handleRelatedProjects = (e) => {
+		e.preventDefault();
+		console.log(relatedprojects);
 	};
 
 	return (
@@ -95,7 +101,7 @@ const AdminManager = () => {
 											<AccordionPanel pb={4}>
 												<Button bg='transparent' color='white' onClick={accountDetails}>View Account Details</Button>
 												<Button bg='transparent' color='white' onClick={pass_func}>Change Password</Button>
-												<Button bg='transparent' color='white'>View Related Projects</Button>
+												<Button bg='transparent' color='white' onClick={handleRelatedProjects}>View Related Projects</Button>
 											</AccordionPanel>
 										</AccordionItem>
 									</Accordion>
@@ -119,7 +125,7 @@ const AdminManager = () => {
 											<AccordionPanel pb={4}>
 												<Button bg='transparent' color='white' onClick={accountDetails}>View Account Details</Button>
 												<Button bg='transparent' color='white' onClick={pass_func}>Change Password</Button>
-												<Button bg='transparent' color='white'>View Related Projects</Button>
+												<Button bg='transparent' color='white' onClick={handleRelatedProjects}>View Related Projects</Button>
 											</AccordionPanel>
 										</AccordionItem>
 									</Accordion>
@@ -143,7 +149,7 @@ const AdminManager = () => {
 											<AccordionPanel pb={4}>
 												<Button bg='transparent' color='white' onClick={accountDetails}>View Account Details</Button>
 												<Button bg='transparent' color='white' onClick={pass_func}>Change Password</Button>
-												<Button bg='transparent' color='white'>View Related Projects</Button>
+												<Button bg='transparent' color='white' onClick={handleRelatedProjects}>View Related Projects</Button>
 											</AccordionPanel>
 										</AccordionItem>
 									</Accordion>
@@ -167,7 +173,7 @@ const AdminManager = () => {
 											<AccordionPanel pb={4}>
 												<Button bg='transparent' color='white' onClick={accountDetails}>View Account Details</Button>
 												<Button bg='transparent' color='white' onClick={pass_func}>Change Password</Button>
-												<Button bg='transparent' color='white'>View Related Projects</Button>
+												<Button bg='transparent' color='white' onClick={handleRelatedProjects}>View Related Projects</Button>
 											</AccordionPanel>
 										</AccordionItem>
 									</Accordion>
