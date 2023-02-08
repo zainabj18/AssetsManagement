@@ -41,7 +41,7 @@ def add_attribute():
     return {"msg": ""}, 200
 
 
-@bp.route("/<id>", methods=["POST"])
+@bp.route("/<id>", methods=["GET"])
 def get_type(id):
     database = get_db()
     query = """SELECT type_name, attribute_name, attribute_data_type FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t on at.type_id = t.type_id WHERE t.type_id = (%(id)s);"""
@@ -59,7 +59,7 @@ def get_type(id):
         }), 200
     
     
-@bp.route("/allAttributes", methods=["POST"])
+@bp.route("/allAttributes", methods=["GET"])
 def get_allAttributes():
     database = get_db()
     query = """SELECT attribute_name, attribute_data_type FROM attributes;"""
