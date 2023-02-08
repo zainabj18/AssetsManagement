@@ -16,6 +16,11 @@ const FilterBasedSearch = () => {
 		setInputFields(data);
 	};
 
+	const addFields = () => {
+		let newfield = { name: '', values: '' };
+		setInputFields([...inputFields, newfield]);
+	};
+
 	return (
 		<Box p={30}>
 			<VStack> <p>This is the Filter Based Search Page !!</p></VStack>
@@ -104,7 +109,7 @@ const FilterBasedSearch = () => {
 					})}
 				</form>
     		</div>
-			<Button>Add More</Button>
+			<Button onClick={addFields}>Add More</Button>
 		</Box>
 	);
 };
