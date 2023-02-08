@@ -1,38 +1,39 @@
 from functools import wraps
 
 import jwt
-from flask import current_app, request
+from flask import current_app, request,abort
 
 from app.db import UserRole
+def decode_token(request):
+    token = request.cookies.get('access-token')
+    if not token:
+        abort(401,{
+            "msg": "Please provide a valid token in the header",
+            "error": "Missing Token",
+        })
+    try:
+        data = jwt.decode(
+            token,
+            current_app.config["SECRET_KEY"],
+            algorithms=[current_app.config["JWT_ALGO"]],
+        )
+        return data
+    except jwt.ExpiredSignatureError as e:
+        abort(401,{"msg": str(e), "error": "Invalid Token"})
+
 
 
 def protected(role=UserRole.VIEWER):
     def decorated_route(func):
         @wraps(func)
-        def wrapper(*args, **kwargs):
-            token = None
-            if "x-access-token" in request.headers:
-                token = request.headers["x-access-token"]
-            else:
-                return {
-                    "msg": "Please provide a valid token in the header",
-                    "error": "Missing Token",
-                }, 401
-            try:
-                data = jwt.decode(
-                    token,
-                    current_app.config["SECRET_KEY"],
-                    algorithms=[current_app.config["JWT_ALGO"]],
-                )
-            except jwt.ExpiredSignatureError as e:
-                return {"msg": str(e), "error": "Invalid Token"}, 401
+        def wrapper():
+            data=decode_token(request)
             if UserRole(data["account_type"]) < role:
                 return {
-                    "msg": "Your account is unauthorised to acces this please speak to your admin",
+                    "msg": "Your account is forbidden to access this please speak to your admin",
                     "error": "Invalid Token",
-                }, 401
-
-            return func(data["account_id"], data["account_privileges"], *args, **kwargs)
+                }, 403
+            return func(data["account_id"], data["account_privileges"])
 
         return wrapper
 
