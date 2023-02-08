@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { Heading, VStack,Text, HStack } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import { Input, Stack } from '@chakra-ui/react';
+import { Button, ButtonGroup } from '@chakra-ui/react';
 import {
 	Table,
 	Thead,
@@ -19,9 +20,9 @@ const AdminManager = () => {
 		<VStack minW="100vw">
 			<Text>AdminManager</Text>
 			<Stack spacing={3} color={'black'}>
-				<Input bg='white' placeholder='search' size='lg' type='text' width={800} top={70}/>
+				<Input bg='white' placeholder='search' size='lg' type='text' width={800} top={25}/>
 			</Stack>
-			<Stack pt={125}>
+			<Stack pt={35}>
 				<TableContainer color='white'>
 					<Table variant='simple' size={'lg'}>
 						<Thead>
@@ -55,8 +56,12 @@ const AdminManager = () => {
 						</Tbody>
 					</Table>
 				</TableContainer>
+			</Stack>
+			<Stack>
+				<Button right={370} colorScheme='blue' size={'lg'}>New</Button>
 			</Stack>	
 		</VStack>
+    
 	);
 };
 
