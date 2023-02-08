@@ -21,7 +21,9 @@ import {
 	HStack,
 	Box,
 	Checkbox,
-	Input
+	Input,
+	VStack,
+	Fade
 } from '@chakra-ui/react';
 
 
@@ -29,30 +31,50 @@ function ProjectSelect({setSelectedProjects,projects}) {
 	const { isOpen, onClose,onOpen, } = useDisclosure();
 	const [selected,setSelected] = useState([]); 
 	const [query,setQuery]= useState(''); 
+	const [filters,setFilter]= useState({}); 
 	const data = useMemo(
 		() => 
 			projects.map((value,index)=>{return {...value,rowID:index};}),
 		[projects]);
-	//	
+
 	const columns = useMemo(
 		() => {return {
 			'id':{
-				header: 'Project ID'
+				header: 'Project ID',
+				Filter:p=>{return <Input type='number' onChange={(e)=>{setFilter((prev)=>({
+					...prev,
+					'id':e.target.value
+				}));}} />;}
 			},
 			'name':{
 				header: 'Project Name',
+				Filter:p=>{return <Input onChange={(e)=>{setFilter((prev)=>({
+					...prev,
+					'name':e.target.value
+				}));}} />;}
 			},
 			'description':{
-				header: 'Project Decription'
+				header: 'Project Decription',
+				Filter:p=>{return <Input onChange={(e)=>{setFilter((prev)=>({
+					...prev,
+					'description':e.target.value
+				}));}} />;}
 			}
 		};},[]
 	);
 
 	const filteredRows = useMemo(() => {
-		console.log(data);
-		if (!query) return data;
-		return data.filter((obj)=>Object.values(obj).toString().includes(query));
-	  }, [query, data]);
+		if (!query && !filters) return data;
+		let preFiltered=data.filter((obj)=>{
+			for (const key of Object.keys(filters)) {
+
+				if (!obj[key].toString().includes(filters[key])){
+					return false;
+				}
+			}
+			return true;});
+		return preFiltered.filter((obj)=>Object.values(obj).toString().includes(query));
+	  }, [filters,query, data]);
 	
 	const save=()=>{
 		let selectedProjects=selected.map(
@@ -77,6 +99,13 @@ function ProjectSelect({setSelectedProjects,projects}) {
 		}else{
 			return <Box>{value}</Box>;
 		}
+	};
+	const renderHeader=(key)=>{
+		return (<VStack>
+			<Th>{columns[key].header}</Th>
+			{columns[key].hasOwnProperty('Filter')&& columns[key].Filter()}
+		</VStack>);
+		
 	};
 
 	useEffect(() => {
@@ -110,7 +139,9 @@ function ProjectSelect({setSelectedProjects,projects}) {
 								<Tr key={'header'}>
 									<Th>Select</Th>
 		  {Object.keys(columns).map(key => (
-										<Th key={key}>{columns[key].header}</Th>)
+										<Th key={key}>
+											{renderHeader(key)}	
+										</Th>)
 		  )}
 		  </Tr>
 		  </Thead>
