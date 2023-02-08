@@ -109,6 +109,7 @@ const FilterBasedSearch = () => {
 									color = 'white'
 									fontsize = '20'
 								/>
+								<Button>Remove</Button>
 							</HStack>	
 						);
 					})}
