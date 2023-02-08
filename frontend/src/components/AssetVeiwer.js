@@ -17,6 +17,12 @@ import {
 	FormLabel,
 	Select,
 	useBoolean,
+	Alert,
+	AlertIcon,
+	AlertTitle,
+	AlertDescription,
+	UnorderedList,
+	ListItem,
 } from '@chakra-ui/react';
 import { Fragment } from 'react';
 import { useEffect, useState } from 'react';
@@ -40,6 +46,8 @@ const AssetViewer = () => {
 	const [classifications,setClassifications] = useState([]);
 	const [projects,setProjects] = useState([]);
 	const [projectList,setProjectList]=useState([]);
+	const [errors,setErrors]=useState([]);
+	const [errorCount,setErrorCount]=useState(0);
 	const [trigger,setTrigger]=useBoolean();
 	const type = {
 		Framework: [
@@ -176,6 +184,16 @@ const AssetViewer = () => {
 			...prevAssetState,
 			projects: project_ids,
 		}));
+		console.log(Object.entries(assetSate));
+		console.log(assetSate.name.length);
+		setErrors([]);
+		for (const [key, value] of Object.entries(assetSate)) {
+			if(value.length===0){
+				setErrors((prev)=>[...prev,key+' is required']);
+			}
+		}
+		console.log(errorCount);
+		
 		// naviagte back to assets
 	};
 
@@ -215,6 +233,13 @@ const AssetViewer = () => {
 		<Container>
 			{assetSate && <VStack maxW='100%'>
 				<Heading size={'2xl'}>Asset Attributes</Heading>
+				{errors && <Alert status='error' flexDirection='column' alignItems='right'>
+					<AlertIcon alignSelf='center'/>
+					<AlertTitle>Invalid Form</AlertTitle>
+					<AlertDescription ><UnorderedList>
+						{errors.map((value, key)=><ListItem key={key}>{value}</ListItem>)}
+					</UnorderedList></AlertDescription>
+				</Alert>}
 		
 				<FormField
 					fieldName="name"
@@ -222,6 +247,7 @@ const AssetViewer = () => {
 					fieldDefaultValue={assetSate.name}
 					isDisabled={isDisabled}
 					onSubmitHandler={handleChange}
+					setErrorCount={setErrorCount}
 				/>
 				<FormField
 					fieldName="link"
@@ -229,6 +255,7 @@ const AssetViewer = () => {
 					fieldDefaultValue={assetSate.link}
 					isDisabled={isDisabled}
 					onSubmitHandler={handleChange}
+					setErrorCount={setErrorCount}
 				/>
 				<FormControl isRequired>
 					<FormLabel>Type</FormLabel>
@@ -293,6 +320,7 @@ const AssetViewer = () => {
 					fieldDefaultValue={assetSate.description}
 					isDisabled={isDisabled}
 					onSubmitHandler={handleChange}
+					setErrorCount={setErrorCount}
 				/>
 				<FormControl >
 					<FormLabel>Tags</FormLabel>
@@ -320,12 +348,12 @@ const AssetViewer = () => {
 						console.log('I am here');
 						return (
 							<Fragment key={key}> 
-								<ListFormField fieldName={value.attribute_name} fieldDefaultValue={value.attribute_value} validation={value.attribute_validation} onChangeHandler={handleMetadataChange}/>
+								<ListFormField fieldName={value.attribute_name} fieldDefaultValue={value.attribute_value} validation={value.attribute_validation} onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount}/>
 							</Fragment>);
 					case 'num_lmt':
 						return (
 							<Fragment key={key}> 
-								<NumFormField fieldName={value.attribute_name} fieldDefaultValue={value.attribute_value} validation={value.attribute_validation}  onChangeHandler={handleMetadataChange}/>
+								<NumFormField fieldName={value.attribute_name} fieldDefaultValue={value.attribute_value} validation={value.attribute_validation}  onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount}/>
 							</Fragment>);
 					case 'options':
 						return (
@@ -341,6 +369,7 @@ const AssetViewer = () => {
 								isDisabled={isDisabled}
 								onSubmitHandler={handleMetadataChange}
 								trigger={trigger}
+								setErrorCount={setErrorCount}
 							/>
 						</Fragment>);
 					  }

@@ -22,13 +22,21 @@ const FormField = ({
 	startWithEditView,
 	onSubmitHandler,
 	clearOnSumbit,
-	trigger
+	trigger,
+	setErrorCount
 }) => {
 	const [error, setError] = useState('');
 	const [value,setValue]=useState('');
 	const validate=(e)=>{
+		let err=e.target.validationMessage;
 		setValue(e.target.value);
-		setError(e.target.validationMessage);
+		if(err.length===0 && error.length>0){
+			setErrorCount((prev)=>prev-1);
+		}
+		if(err.length>0 && error.length===0){
+			setErrorCount((prev)=>prev+1);
+		}
+		setError(err);
 	};
 
 	const handleSumbit=(e)=>{
@@ -77,7 +85,7 @@ const FormField = ({
 					<EditableControls error={error}/>
 				</Editable>
 			)}
-			{error!=='' && (<Alert status='error'>
+			{error!=='' && (<Alert status='warning'>
   							<AlertIcon />
 				<AlertTitle>Validation Error</AlertTitle>
 				<AlertDescription>{error}</AlertDescription>
