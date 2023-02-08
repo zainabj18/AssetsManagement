@@ -2,6 +2,7 @@ DROP TYPE IF EXISTS account_role CASCADE;
 DROP TYPE IF EXISTS data_classification CASCADE;
 DROP TABLE IF EXISTS accounts CASCADE;
 DROP TABLE IF EXISTS assets CASCADE;
+DROP TABLE IF EXISTS projects CASCADE;
 CREATE TYPE account_role AS ENUM ('VIEWER', 'USER', 'ADMIN');
 CREATE TYPE data_classification AS ENUM ('PUBLIC', 'INTERNAL','RESTRICTED','CONFIDENTIAL');
 CREATE TABLE accounts
@@ -31,14 +32,15 @@ CREATE TABLE assets
 	project VARCHAR NOT NULL,
 	PRIMARY KEY (asset_id)
 );
--- CREATE TABLE projects
--- (
--- 	project_id SERIAL,
--- 	project_name VARCHAR NOT NULL,
--- 	project_description VARCHAR,
+
+CREATE TABLE projects
+(
+	project_id SERIAL,
+	project_name VARCHAR NOT NULL,
+	project_description VARCHAR,
 	
--- 	PRIMARY KEY (project_id)
--- );
+	PRIMARY KEY (project_id)
+);
 
 -- CREATE TABLE assets
 -- (
