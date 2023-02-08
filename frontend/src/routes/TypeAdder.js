@@ -15,9 +15,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import AttributeMaker from '../components/AttributeMaker';
 import AttributeManager from '../components/AttributeManager';
-
-import { fetchAllAttributes } from '../api';
-import { createAttribute } from '../api';
+import { fetchAllAttributes, createAttribute, createType } from '../api';
 
 const TypeAdder = () => {
 
@@ -41,6 +39,7 @@ const TypeAdder = () => {
 		'text', 'number', 'checkbox', 'datetime-local', 'num_lmt', 'options', 'list'
 	]);
 
+	const [typeName, set_typeName] = useState('');
 	const [selectedAttributes, set_selectedAttributes] = useState([]);
 	const [allAttributes, set_allAttributes] = useState([]);
 	const [creationData, set_creationData] = useState(new AttributeMaker());
@@ -86,11 +85,18 @@ const TypeAdder = () => {
 		let errorMessage = creationData.checkForErrors([...allAttributes]);
 		set_new_attribute_errorMessage(errorMessage);
 		if (JSON.stringify(errorMessage) === JSON.stringify(AttributeMaker.get_message_noError())) {
-			createAttribute(creationData.formAttribute()).then( _ => {
+			createAttribute(creationData.formAttribute()).then(_ => {
 				setTrigger.toggle();
 			});
 			onClose_attributeCreator();
 		};
+	};
+
+	const saveType = () => {
+		createType({
+			typeName: typeName,
+			metadata: selectedAttributes
+		});
 	};
 
 	return (
@@ -98,7 +104,10 @@ const TypeAdder = () => {
 			<Text>TypeAdder</Text>
 			<FormControl isRequired>
 				<FormLabel>Name</FormLabel>
-				<Input type='text' placeholder='Name' />
+				<Input type='text'
+					placeholder='Name'
+					onChange={(e) => set_typeName(e.target.value)}
+				/>
 			</FormControl>
 			<HStack minW='80%'>
 				{/** The list of all allAttributes */}
@@ -143,7 +152,7 @@ const TypeAdder = () => {
 				</TableContainer>
 			</HStack>
 			<Button onClick={open_AttributeCreator}>Add</Button>
-			<Button>Save</Button>
+			<Button onClick={saveType}>Save</Button>
 
 			<Modal
 				closeOnOverlayClick={false}
