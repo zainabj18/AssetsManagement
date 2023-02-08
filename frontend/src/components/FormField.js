@@ -21,7 +21,8 @@ const FormField = ({
 	isDisabled,
 	startWithEditView,
 	onSubmitHandler,
-	clearOnSumbit
+	clearOnSumbit,
+	trigger
 }) => {
 	const [error, setError] = useState('');
 	const [value,setValue]=useState('');
@@ -42,7 +43,7 @@ const FormField = ({
 		if(!clearOnSumbit){
 			setValue(fieldDefaultValue);
 		}
-	}, []);
+	}, [trigger,clearOnSumbit]);
 	
 
 

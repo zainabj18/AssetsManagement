@@ -16,6 +16,7 @@ import {
 	FormControl,
 	FormLabel,
 	Select,
+	useBoolean,
 } from '@chakra-ui/react';
 import { Fragment } from 'react';
 import { useEffect, useState } from 'react';
@@ -37,6 +38,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 	const [classifications,setClassifications] = useState([]);
 	const [projects,setProjects] = useState([]);
 	const [projectList,setProjectList]=useState([]);
+	const [trigger,setTrigger]=useBoolean();
 	const type = {
 		Framework: [
 			
@@ -161,6 +163,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 			type: attribute_value,
 			metadata:newMetadata,
 		}));
+		setTrigger.toggle();
 	};
 
 	const createNewAsset = (e) => {
@@ -336,6 +339,7 @@ const AssetViewer = ({ canEdit, isNew }) => {
 								isDisabled={isDisabled}
 								startWithEditView={openEdit}
 								onSubmitHandler={handleMetadataChange}
+								trigger={trigger}
 							/>
 						</Fragment>);
 					  }
