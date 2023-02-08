@@ -168,17 +168,17 @@ const AssetViewer = () => {
 
 	const handleTypeChange = (e, attribute_value) => {
 		e.preventDefault();
-		fetchType(attribute_value).then(res=>
-			console.log(res.data)
+		fetchType(attribute_value).then(res=>{
+			setAssetState((prevAssetState) => ({
+				...prevAssetState,
+				type: attribute_value,
+				metadata:res.metadata,
+			}));
+			setTrigger.toggle();
+			console.log(res);
 
-		);
-		let newMetadata=type[attribute_value];
-		setAssetState((prevAssetState) => ({
-			...prevAssetState,
-			type: attribute_value,
-			metadata:newMetadata,
-		}));
-		setTrigger.toggle();
+		});
+	
 	};
 
 	const createNewAsset = (e) => {
@@ -350,8 +350,8 @@ const AssetViewer = () => {
 				<Heading size={'md'}>Type Attributes:</Heading>
 		
 
-				{assetSate.metadata.map((value, key) => {
-					switch(value.attribute_type) {
+				{assetSate.metadata && assetSate.metadata.map((value, key) => {
+					switch(value.attributeType) {
 					case 'list':
 						console.log('I am here');
 						return (
@@ -361,7 +361,7 @@ const AssetViewer = () => {
 					case 'num_lmt':
 						return (
 							<Fragment key={key}> 
-								<NumFormField fieldName={value.attributeName} fieldDefaultValue={''} validation={value.validation}  onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount}/>
+								<NumFormField fieldName={value.attributeName} fieldDefaultValue={0} validation={value.validation}  onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount}/>
 							</Fragment>);
 					case 'options':
 						return (
