@@ -1,6 +1,6 @@
 import { FormControl, FormLabel, HStack, Input} from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
-import { React, useEffect } from 'react';
+import { React, useEffect, useState } from 'react';
 import { Flex, InputGroup, InputLeftAddon } from '@chakra-ui/react';
 import { Select } from '@chakra-ui/react';
 import { Stack, Button} from '@chakra-ui/react';
@@ -12,6 +12,7 @@ const User = () => {
 		console.log(user);
 	});
 
+	const [textInput, setTextInput] = useState([{name: '', surname: '', username: '' }]);
 
 	return (
 		<Box p={50} ml={180} mt={20}>
@@ -41,7 +42,7 @@ const User = () => {
 				</FormControl>
 				<FormControl isRequired>
 					<Box color ='black'>
-						<InputGroup right={180} width={200} type='text'>
+						<InputGroup right={180} width={200} type='text' >
 							<InputLeftAddon children='#' />
 							<Input bg='white'/>
 						</InputGroup>
