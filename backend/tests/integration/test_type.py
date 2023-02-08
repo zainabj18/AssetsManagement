@@ -143,7 +143,7 @@ def test_get_allTypes(client):
     client.post("/api/v1/type/adder/new",
                 json=test_types["types"][1]["metadata"][1])
     client.post("/api/v1/type/new", json=test_types["types"][1])
-    res = client.post("/api/v1/type/allTypes")
+    res = client.get("/api/v1/type/allTypes")
     assert res.status_code == 200
     types = res.json
     assert types == test_types

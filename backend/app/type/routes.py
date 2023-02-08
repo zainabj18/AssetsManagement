@@ -80,7 +80,7 @@ def get_allAttributes():
         return json.dumps({"attributes": allAttributes_listed})
 
 
-@bp.route("/allTypes", methods=["POST"])
+@bp.route("/allTypes", methods=["GET"])
 def get_allTypes():
     database = get_db()
     query_a = """SELECT type_id, type_name FROM types;"""
