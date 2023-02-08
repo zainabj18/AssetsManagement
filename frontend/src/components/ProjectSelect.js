@@ -108,6 +108,15 @@ function ProjectSelect({setSelectedProjects,projects}) {
 		
 	};
 
+	const onIntermediateCheckboxChange=(val)=>{
+		
+		if (val){
+			setSelected([...Array(data.length).keys()]);
+		}else{
+			setSelected([]);
+		}
+	};
+
 	useEffect(() => {
 		let preSelected=[];
 		let projects=[];
@@ -137,7 +146,11 @@ function ProjectSelect({setSelectedProjects,projects}) {
 						<Table variant='stripped'>
 		  <Thead>
 								<Tr key={'header'}>
-									<Th>Select</Th>
+									<Th><Checkbox isChecked={data.length===selected.length}
+										isIndeterminate={selected.length>0 && selected.length<data.length}
+										onChange={(e)=>{onIntermediateCheckboxChange(e.target.checked);}}
+									
+									/></Th>
 		  {Object.keys(columns).map(key => (
 										<Th key={key}>
 											{renderHeader(key)}	
