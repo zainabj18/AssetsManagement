@@ -26,6 +26,11 @@ const User = () => {
 		setTextInput(data);
 	};
 
+	const saveObject = (e) => {
+		e.preventDefault();
+		console.log(textInput);
+	};
+
 	return (
 		<Box p={50} ml={180} mt={20}>
 			<Flex ml={280}>
