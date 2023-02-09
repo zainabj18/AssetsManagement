@@ -73,7 +73,6 @@ def get_type(id):
 
 def extract_attributes(attributes):
     allAttributes_listed = []
-    print(attributes)
     for attribute in attributes:
         
         if attribute[2] == None:

@@ -311,5 +311,10 @@ def test_new_asset_get(client,new_asset):
     asset_id=res.json["data"]
     res = client.get(f"/api/v1/asset/{asset_id}", json=data)
     assert res.status_code == 200
+    saved_asset=res.json["data"]
+    assert saved_asset["name"]==new_asset.name
+    assert saved_asset["description"]==str(new_asset.description)
+    assert saved_asset["classification"]==str(new_asset.classification.value)
+    assert saved_asset["link"]==str(new_asset.link)
 # TODO:Test asset name is unique
 # TODO:Test DB error

@@ -22,7 +22,6 @@ class Attribute(Attribute_Model):
     @root_validator
     def check_metadata(cls, values):
         t=values.get('attribute_type')
-        print(t)
         v=values.get('attribute_value')
         if (t=='list' or t=='options') and isinstance(v,str) and v.startswith("{") and v.startswith("{"):
             values['attribute_value']=v[1:-1].split(',')
