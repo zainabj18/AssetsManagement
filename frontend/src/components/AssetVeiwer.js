@@ -29,7 +29,7 @@ import { useEffect, useState } from 'react';
 import { redirect, useNavigate, useParams } from 'react-router-dom';
 import FormField from './FormField';
 import axios from 'axios';
-import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset } from '../api';
+import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset, updateAsset } from '../api';
 import SearchSelect from './SearchSelect';
 import ProjectSelect from './ProjectSelect';
 import ListFormField from './ListFormField';
@@ -144,19 +144,28 @@ const AssetViewer = () => {
 			let project_ids=projects.map(p=>p.id);
 			let tag_ids=assetSate.tags.map(t=>t.id);
 			let assetObj={
+				asset_id:id,
 				...assetSate,
 				projects: project_ids,
 				tags:tag_ids
 			};
 			console.log(assetObj);
-			createAsset(assetObj).then(
+			if (id){
+				updateAsset(id,assetObj).then(
+					res=>fetchAsset(id).then((res)=>{
+						setAssetState(res.data);}).catch(err=>{
+						navigate('/');}
+					)).catch(err=>console.log(err));
+
+			}else{
+				createAsset(assetObj).then(
 				
-				res=>navigate(`../view/${res.data}`)).catch(err=>console.log(err));
+					res=>navigate(`../view/${res.data}`)).catch(err=>console.log(err));
+			}
+			
 		}else{
 			setErrors(errs);
 		}
-
-		
 		// naviagte back to assets
 	};
 
@@ -268,7 +277,7 @@ const AssetViewer = () => {
 								</Tag>
 							</WrapItem>
 						))}
-						{!isDisabled && <ProjectSelect setSelectedProjects={setProjects}  projects={projectList} />}
+						{!isDisabled||id && <ProjectSelect setSelectedProjects={setProjects}  projects={projectList} />}
 					</Wrap>
 				</FormControl>
 				<FormControl  >
@@ -307,12 +316,13 @@ const AssetViewer = () => {
 							<WrapItem key={key}>
 								<Tag size={'md'} key={key}>
 									<TagLabel>{value.name}</TagLabel>
-									<TagCloseButton onClick={(e) => onTagClick(e, value)} />
+									{(tag && !id) && <TagCloseButton onClick={(e) => onTagClick(e, value)} />}
 								</Tag>
 							</WrapItem>
 						))}
-						<SearchSelect dataFunc={fetchTags} selectedValue={tag} setSelectedValue={setTag} createFunc={createTag}/>
-						{tag && <Button onClick={onNewTag} isDisabled={isDisabled}>Add Tag</Button>}
+						{(tag && !id) && (<>
+							<SearchSelect dataFunc={fetchTags} selectedValue={tag} setSelectedValue={setTag} createFunc={createTag}/>
+							<Button onClick={onNewTag} isDisabled={isDisabled}>Add Tag</Button></>)}
 					</Wrap>
 				</FormControl>
 
@@ -364,7 +374,7 @@ const AssetViewer = () => {
 				</Stat>
 			</StatGroup>)}
 			
-			{(!isDisabled && !id )&& <Button onClick={createNewAsset}>Sumbit</Button>}
+			{!isDisabled  && <Button onClick={createNewAsset}>Sumbit</Button>}
 			{id && <Button onClick={handleDelete}>Delete</Button>}
 		</Container>
 	) : null;

@@ -143,10 +143,33 @@ def summary():
             assets = cur.fetchall()
         with db_conn.cursor(row_factory=dict_row) as cur:
             for a in assets:
-                cur.execute("""SELECT type_name FROM types WHERE type_id=%(id)s;""", {"id": a.asset_id})
+                cur.execute("""SELECT type_name FROM types WHERE type_id=%(id)s;""", {"id": a.type})
                 type=cur.fetchone()["type_name"]
                 aj=json.loads(a.json(by_alias=True))
                 aj["type"]=type
                 assets_json.append(aj)
             res=jsonify({"data":assets_json})
     return res
+
+@bp.route("/<id>", methods=["PATCH"])
+def update(id):
+    asset = dict(**request.json)
+    print(asset)
+    db = get_db()
+
+    with db.connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+            UPDATE assets 
+            SET name=%(name)s,link=%(link)s,description=%(description)s,last_modified_at=now() WHERE asset_id=%(asset_id)s ;""",
+                asset,
+            )
+            for attribute in asset["metadata"]:
+                cur.execute(
+                    """
+                UPDATE attributes_values 
+                SET value=%(attributeValue)s WHERE asset_id=%(asset_id)s AND attribute_id=%(attributeID)s;""",
+                    {"asset_id":id,**attribute},
+                )
+    return {},200

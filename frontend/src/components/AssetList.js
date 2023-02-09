@@ -12,7 +12,6 @@ import {
 	Link
 } from '@chakra-ui/react';
 import { Link as NavLink } from 'react-router-dom';
-import IndeterminateCheckbox from './IndeterminateCheckbox';
 import GlobalFilter from './GlobalFilter';
 
 

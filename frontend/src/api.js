@@ -66,6 +66,10 @@ export const deleteAsset = async (id) => {
 	return await axios.delete(`/asset/${id}`).then(res => res.data);
 };
 
-export const fetchAssetSummary = async (id) => {
+export const fetchAssetSummary = async () => {
 	return await axios.get('/asset/summary').then(res => res.data);
+};
+
+export const updateAsset = async (id,asset) => {
+	return await axios.patch(`/asset/${id}`,asset).then(res => res.data);
 };
