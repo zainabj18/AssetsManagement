@@ -100,8 +100,10 @@ def test_get_type(client):
         "typeName": "library",
         "metadata": [
             {
+                'attributeID': 1,
                 "attributeName": "age",
-                "attributeType": "number"
+                "attributeType": "number",
+                "validation": None,
             }
         ],
     }
@@ -119,6 +121,7 @@ def test_get_type_with_json(client):
         "typeName": "library",
         "metadata": [
                 {
+                    'attributeID': 1,
                     "attributeName": "age",
                     "attributeType": "number",
                     "validation": {"min": 4, "max": 10},
@@ -137,16 +140,22 @@ def test_get_type_with_json(client):
 def test_get_allAttributes(client):
     test_attributes = [
         {
+            'attributeID': 1,
             "attributeName": "issues",
             "attributeType": "text",
+            "validation": None
         },
         {
+            'attributeID': 2,
             "attributeName": "public",
             "attributeType": "checkbox",
+            "validation": None
         },
         {
+            'attributeID': 3,
             "attributeName": "author",
             "attributeType": "text",
+            "validation": None
         },
     ]
     client.post("/api/v1/type/adder/new", json=test_attributes[0])
@@ -166,8 +175,10 @@ def test_get_allTypes(client):
             "typeName": "framework",
             "metadata": [
                 {
+                    'attributeID': 1,
                     "attributeName": "programming Language(s)",
                     "attributeType": "text",
+                    "validation": None
                 }
             ],
         },
@@ -176,12 +187,16 @@ def test_get_allTypes(client):
             "typeName": "libary",
             "metadata": [
                 {
+                    'attributeID': 2,
                     "attributeName": "author",
                     "attributeType": "text",
+                    "validation": None
                 },
                 {
+                    'attributeID': 3,
                     "attributeName": "age",
                     "attributeType": "number",
+                    "validation": None
                 },
             ],
         },

@@ -123,8 +123,10 @@ INNER JOIN projects on projects.id=assets_in_projects.project_id WHERE asset_id=
 INNER JOIN tags on tags.id=assets_in_tags.tag_id WHERE asset_id=%(id)s;""", {"id": id})
             tags=(list(cur.fetchall()))
             print(tags)
+            print(asset)
             cur.execute("""SELECT type_name FROM types WHERE type_id=%(id)s;""", {"id": asset.type})
             type=cur.fetchone()["type_name"]
+
         asset=AssetOut(**asset.dict(),metadata=metadata,projects=projects,tags=tags)
         asset.type=type
         print(asset)
