@@ -134,27 +134,31 @@ def delete(id):
 
     return {}, 200
 @bp.route("/summary", methods=["GET"])
-def summary():
+@protected(role=UserRole.VIEWER)
+def summary(user_id, access_level):
+    print(user_id)
     db = get_db()
     assets_json=[]
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
             cur.execute("""SELECT * FROM assets WHERE soft_delete=0;""")
             assets = cur.fetchall()
+
         with db_conn.cursor(row_factory=dict_row) as cur:
             for a in assets:
-                cur.execute("""SELECT type_name FROM types WHERE type_id=%(id)s;""", {"id": a.type})
-                type=cur.fetchone()["type_name"]
-                aj=json.loads(a.json(by_alias=True))
-                aj["type"]=type
-                assets_json.append(aj)
+                print(access_level)
+                if a.classification <= access_level:
+                    cur.execute("""SELECT type_name FROM types WHERE type_id=%(id)s;""", {"id": a.type})
+                    type=cur.fetchone()["type_name"]
+                    aj=json.loads(a.json(by_alias=True))
+                    aj["type"]=type
+                    assets_json.append(aj)
             res=jsonify({"data":assets_json})
     return res
 
 @bp.route("/<id>", methods=["PATCH"])
 def update(id):
     asset = dict(**request.json)
-    print(asset)
     db = get_db()
 
     with db.connection() as conn:
