@@ -3,3 +3,8 @@ Submit form and enter in all fields
 Check not validation erorrs appear
 Check asset in db
 Try to submit without all the fileds being entered an error should appear
+Test that projects can be preselected by reloading an asset should show that project is selected
+Reload assset check that attributes are corrrect
+    -check that type is disabled
+    -check that name is disabled
+    -check created and and last mod dates shows

@@ -15,6 +15,7 @@ import AssetList from './components/AssetList';
 import CreateProject from './routes/CreateProject';
 import { Button } from '@chakra-ui/react';
 import AdminManager from './routes/AdminManager';
+import RelatedAssetViewer from './components/RelatedAssetViewer';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -27,6 +28,7 @@ function App() {
 						<Route index element={<AssetsOverview />} />
 						<Route path="new" element={<CreateAsset />} />
 						<Route path="view/:id" element={<AssetViewer canEdit={true} isNew={false}/>} />
+						<Route path="related" element={<RelatedAssetViewer canEdit={true} isNew={false}/>} />
 					</Route>
 					<Route path="projects/" element={<SubLayout name="Proejcts"/>}>
 						<Route index element={<NavLink to="./new">Create New Project</NavLink>} />

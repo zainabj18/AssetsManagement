@@ -73,7 +73,7 @@ def valid_client(flask_app):
 def expected_res(request):
     return request.param
 
-
+#creates a new asset object with supported db structure
 @pytest.fixture()
 def new_asset(db_conn):
     asset = AssetFactory.build()

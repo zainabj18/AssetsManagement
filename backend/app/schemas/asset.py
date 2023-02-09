@@ -18,11 +18,12 @@ class Attribute_Model(BaseModel):
 
 class Attribute(Attribute_Model):
     attribute_value: Any = Field(None, alias="attributeValue")
-
+    # cast string to correct type based on attribute type
     @root_validator
     def check_metadata(cls, values):
         t = values.get("attribute_type")
         v = values.get("attribute_value")
+        #check if string is actually and array and convert
         if (
             (t == "list" or t == "options")
             and isinstance(v, str)
@@ -30,6 +31,7 @@ class Attribute(Attribute_Model):
             and v.startswith("{")
         ):
             values["attribute_value"] = v[1:-1].split(",")
+        #convert if a number
         if (t == "num_lmt" or t == "number") and isinstance(v, str) and v.isnumeric():
             values["attribute_value"] = int(v)
 
