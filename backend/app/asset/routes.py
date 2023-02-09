@@ -100,13 +100,17 @@ def list_asset_project(id):
                 #SELECT * FROM projects WHERE id not in (1);
     return {"data": selected_projects+projects}, 200
 
+
 @bp.route("/<id>", methods=["GET"])
-def view(id):
+@protected(role=UserRole.VIEWER)
+def view(id,user_id, access_level):
     db = get_db()
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
             cur.execute("""SELECT * FROM assets WHERE asset_id=%(id)s AND soft_delete=0;""", {"id": id})
             asset = cur.fetchone()
+            if asset.classification > access_level:
+                return {"data":[]}, 401
         with db_conn.cursor(row_factory=class_row(AttributeInDB)) as cur:
             cur.execute("""SELECT attributes.attribute_id,attribute_name, attribute_data_type as attribute_type, validation_data,value as attribute_value FROM attributes_values 
 INNER JOIN attributes on attributes.attribute_id=attributes_values.attribute_id WHERE asset_id=%(id)s;""", {"id": id})
@@ -136,7 +140,6 @@ def delete(id):
 @bp.route("/summary", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def summary(user_id, access_level):
-    print(user_id)
     db = get_db()
     assets_json=[]
     with db.connection() as db_conn:
@@ -146,7 +149,6 @@ def summary(user_id, access_level):
 
         with db_conn.cursor(row_factory=dict_row) as cur:
             for a in assets:
-                print(access_level)
                 if a.classification <= access_level:
                     cur.execute("""SELECT type_name FROM types WHERE type_id=%(id)s;""", {"id": a.type})
                     type=cur.fetchone()["type_name"]

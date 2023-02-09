@@ -32,14 +32,14 @@ def decode_token(request):
 def protected(role=UserRole.VIEWER):
     def decorated_route(func):
         @wraps(func)
-        def wrapper():
+        def wrapper(*args, **kwargs):
             data = decode_token(request)
             if UserRole(data["account_type"]) < role:
                 return {
                     "msg": "Your account is forbidden to access this please speak to your admin",
                     "error": "Invalid Token",
                 }, 403
-            return func(data["account_id"], DataAccess(data["account_privileges"]))
+            return func(user_id=data["account_id"],access_level=DataAccess(data["account_privileges"]),**kwargs)
 
         return wrapper
 

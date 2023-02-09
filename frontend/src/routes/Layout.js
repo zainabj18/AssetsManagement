@@ -5,12 +5,12 @@ import { useEffect } from 'react';
 import Header from '../components/Header';
 
 const Layout = () => {
-	const {loggedIn} = useAuth();
+	const {loggedIn,user} = useAuth();
 	useEffect(() => {
-		if (!loggedIn){
+		if (!loggedIn ||!user){
 			redirect('/login');
 		}
-	},[loggedIn]);
+	},[loggedIn,user]);
 	return (
 		<VStack minW="100vw" minH={'100vh'}>
 			<Heading>Code Groover Assets Metadata Repository</Heading>

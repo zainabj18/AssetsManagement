@@ -217,7 +217,7 @@ const AssetViewer = () => {
 				metadata: [],
 			});
 		}
-	}, [id]);
+	}, [id,user]);
 	
 
 	return assetSate ? (
