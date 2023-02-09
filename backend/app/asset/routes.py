@@ -12,7 +12,6 @@ import json
 
 @bp.route("/", methods=["POST"])
 def create():
-    print(request.json)
     try:
         try:
             asset = Asset(**request.json)
@@ -39,7 +38,6 @@ def create():
             400,
         )
     db = get_db()
-    print(asset)
     db_asset = asset.dict(exclude={"metadata"})
 
     with db.connection() as conn:
@@ -51,7 +49,6 @@ def create():
                 db_asset,
             )
             asset_id=cur.fetchone()[0]
-            print(asset_id)
             for tag in asset.tags:
                 cur.execute(
                     """
@@ -110,7 +107,6 @@ def view(id):
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
             cur.execute("""SELECT * FROM assets WHERE asset_id=%(id)s AND soft_delete=0;""", {"id": id})
             asset = cur.fetchone()
-            print(asset)
         with db_conn.cursor(row_factory=class_row(AttributeInDB)) as cur:
             cur.execute("""SELECT attributes.attribute_id,attribute_name, attribute_data_type as attribute_type, validation_data,value as attribute_value FROM attributes_values 
 INNER JOIN attributes on attributes.attribute_id=attributes_values.attribute_id WHERE asset_id=%(id)s;""", {"id": id})
@@ -118,18 +114,15 @@ INNER JOIN attributes on attributes.attribute_id=attributes_values.attribute_id 
         with db_conn.cursor(row_factory=dict_row) as cur:
             cur.execute("""SELECT projects.* FROM assets_in_projects
 INNER JOIN projects on projects.id=assets_in_projects.project_id WHERE asset_id=%(id)s;""", {"id": id})
-            projects=(list(cur.fetchall()))
+            projects=(cur.fetchall())
             cur.execute("""SELECT tags.id,name FROM assets_in_tags 
 INNER JOIN tags on tags.id=assets_in_tags.tag_id WHERE asset_id=%(id)s;""", {"id": id})
             tags=(list(cur.fetchall()))
-            print(tags)
-            print(asset)
             cur.execute("""SELECT type_name FROM types WHERE type_id=%(id)s;""", {"id": asset.type})
             type=cur.fetchone()["type_name"]
 
         asset=AssetOut(**asset.dict(),metadata=metadata,projects=projects,tags=tags)
         asset.type=type
-        print(asset)
     return {"data": json.loads(asset.json(by_alias=True))}, 200
 
 @bp.route("/<id>", methods=["DELETE"])
@@ -140,3 +133,14 @@ def delete(id):
             cur.execute("""UPDATE assets SET soft_delete = %(del)s WHERE asset_id=%(id)s;""", {"id": id,"del":1})
 
     return {}, 200
+@bp.route("/summary", methods=["GET"])
+def summary():
+    db = get_db()
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+            cur.execute("""SELECT * FROM assets;""")
+            assets = cur.fetchall()
+            res=jsonify({"data":[]})
+            res.json["data"]=[x.json() for x in assets]
+            res.json["data"]=[1]
+    return res
