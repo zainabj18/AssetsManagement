@@ -57,3 +57,7 @@ export const fetchType = async (id) => {
 export const createAsset = async (asset) => {
 	return await axios.post('/asset/', asset).then(res => res.data);
 };
+
+export const fetchAssetProjects= async (id)=> {
+	return await axios.get(`/asset/projects/${id}`).then(res=>res.data);
+};

@@ -29,7 +29,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import FormField from './FormField';
 import axios from 'axios';
-import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset } from '../api';
+import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects } from '../api';
 import SearchSelect from './SearchSelect';
 import ProjectSelect from './ProjectSelect';
 import ListFormField from './ListFormField';
@@ -156,19 +156,29 @@ const AssetViewer = () => {
 	};
 
 	useEffect(() => {
+		if (user===undefined){
+			navigate('/');
+		}
 		fetchAssetClassifications().then((data)=>{
 			setClassifications(data.data);}).catch((err) => {console.log(err);});
 
 		fetchTypesList().then((data)=>{
 			setTypes(data.data);}).catch((err) => {console.log(err);});
 		if (id) {
-			fetchAsset(id).then((data)=>{
-				setAssetState(data);}).catch((err) => {console.log(err);});
+			fetchAsset(id).then((res)=>{
+				console.log(res.data);
+				setAssetState(res.data);}).catch((err) => {console.log(err);});
 			if (user.userRole==='VIEWER'){
 				setIsDisabled(true);
 			}
+			fetchAssetProjects(id).then(
+				(res)=>{
+					console.log(res.data);
+					setProjectList(res.data);
+				}
+			);
 		} else {
-			if (user.userRole==='VIEWER'){
+			if (!user||user.userRole==='VIEWER'){
 				navigate('/');
 			}
 			fetchProjects().then(
@@ -228,7 +238,7 @@ const AssetViewer = () => {
 						}}
 					>
 						<option key={'placeholder'} selected disabled>
-							Select a type
+							{id?assetSate.type:'Select a type'}
 						</option>
 						{
 							types.map((value, key) => {
@@ -258,13 +268,13 @@ const AssetViewer = () => {
 					<FormLabel>classification</FormLabel>
 					<Select
 						isRequired
-						isDisabled={isDisabled}
+						isDisabled={isDisabled||id}
 						onChange={(e) => {
 							handleChange('classification', e.target.value);
 						}}
 					>
 						<option key={'placeholder'} selected disabled>
-							Select a classification
+							{id?assetSate.classification:'Select a classification'}
 						</option>
 						{classifications.map((value, key) => {
 							return (

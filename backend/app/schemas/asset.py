@@ -24,7 +24,7 @@ class Attribute(Attribute_Model):
         t=values.get('attribute_type')
         print(t)
         v=values.get('attribute_value')
-        if (t=='list' or (t=='options' and values.get("validation_data").isMulti)) and isinstance(v,str) and v.startswith("{") and v.startswith("{"):
+        if (t=='list' or t=='options') and isinstance(v,str) and v.startswith("{") and v.startswith("{"):
             values['attribute_value']=v[1:-1].split(',')
         if ((t=='num_lmt' or t=='number') and isinstance(v,str) and v.isnumeric()):
             values['attribute_value']=int(v)
@@ -64,8 +64,8 @@ class AssetBase(BaseModel):
 
 
 class AssetBaseInDB(AssetBase):
-    created_at: Optional[datetime]
-    last_modified_at: Optional[datetime]
+    created_at:datetime
+    last_modified_at: datetime
 
 class Asset(AssetBase):
     projects: List[int]
@@ -81,3 +81,8 @@ class Asset(AssetBase):
             return v
         except ValidationError as e:
             raise e
+class AssetOut(AssetBaseInDB):
+    type:str
+    projects: List[Any]
+    tags: List[Any]
+    metadata: List[AttributeInDB]
