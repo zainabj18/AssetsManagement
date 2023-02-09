@@ -73,3 +73,7 @@ export const fetchAssetSummary = async () => {
 export const updateAsset = async (id,asset) => {
 	return await axios.patch(`/asset/${id}`,asset).then(res => res.data);
 };
+export const createProject = async (project)=> {
+	console.log(project);
+	return await axios.post('/projects/new', project).then(res=>res.data);
+};
