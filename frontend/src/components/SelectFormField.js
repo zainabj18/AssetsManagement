@@ -51,20 +51,20 @@ const SelectFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler
 			<Wrap spacing={4}>
 				{values && values.map((value, key) => (
 					<WrapItem key={key}>
-						<Tag size={'md'} key={key}>
+						<Tag  key={key}>
 							<TagLabel>{value}</TagLabel>
 						</Tag>
 					</WrapItem>
 				))}
 			</Wrap>
 			<Menu closeOnSelect={false}>
-				<MenuButton as={Button} colorScheme='blue'>
+				<MenuButton as={Button} colorScheme='blue' color={'white'}>
 					Select {fieldName}
 				</MenuButton>
 				{type && <MenuList>	
-					<MenuOptionGroup type={type} onChange={handleChange} defaultValue={fieldDefaultValue}>
+					<MenuOptionGroup type={type} onChange={handleChange} defaultValue={fieldDefaultValue} >
 						{options.map((value, key) => (
-							<MenuItemOption key={key} value={value}>{value}</MenuItemOption>
+							<MenuItemOption key={key} value={value} color={'white'}>{value}</MenuItemOption>
 						))}
 					</MenuOptionGroup>
 				</MenuList>}

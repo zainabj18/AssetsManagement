@@ -51,7 +51,7 @@ const ListFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler,s
 				<Wrap spacing={4}>
 					{values&&values.map((value, key) => (
 						<WrapItem key={key}>
-							<Tag size={'md'} key={key}>
+							<Tag key={key}>
 								<TagLabel>{value}</TagLabel>
 								<TagCloseButton onClick={(e) => deleteHandler(e,value)} />
 							</Tag>

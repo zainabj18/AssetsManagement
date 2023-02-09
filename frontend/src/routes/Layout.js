@@ -12,7 +12,7 @@ const Layout = () => {
 		}
 	},[loggedIn]);
 	return (
-		<VStack minW="100vw" bg="blue.600" minH={'100vh'}>
+		<VStack minW="100vw" minH={'100vh'}>
 			<Heading>Code Groover Assets Metadata Repository</Heading>
 			<Header />
 			<Container maxW={'full'}>

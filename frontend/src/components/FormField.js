@@ -9,7 +9,8 @@ import {
 	Alert,
 	AlertDescription,
 	AlertIcon,
-	AlertTitle
+	AlertTitle,
+	Box
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import EditableControls from './EditableControls';
@@ -75,14 +76,25 @@ const FormField = ({
 					startWithEditView={startWithEditView}
 					isDisabled={isDisabled}	
 					submitOnBlur={false}
+					alignItems='left' 
+					alignContent='left'
 					onSubmit={(e) => {
 						handleSumbit(e);
 					}}
 					value={value}
 				>
-					<EditablePreview />
+		
+					<EditablePreview background={value.length?'blue.100':undefined} px={6} minW={'100%'} alignItems='left'
+						alignContent='left' textAlign='left' />
+				
+					
 					<Input type={fieldType} as={EditableInput} onChange={e=>{validate(e);}} required />
 					<EditableControls error={error}/>
+	
+					
+	
+					
+		
 				</Editable>
 			)}
 			{error!=='' && (<Alert status='warning'>

@@ -101,7 +101,7 @@ const SearchSelect = ({dataFunc,selectedValue,setSelectedValue,createFunc}) => {
 					</PopoverTrigger>
 				</HStack>
 				
-				<PopoverContent>
+				<PopoverContent color={'white'}>
 					<PopoverBody overflowY={'scroll'} maxHeight={'xs'} onScroll={handleScroll}>
 						{selectedValue && <Box fontWeight='bold' color='teal.600' background='grey'
                     	key={selectedValue.id}
