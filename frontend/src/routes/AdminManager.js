@@ -23,6 +23,7 @@ import {
 	Box
 } from '@chakra-ui/react';
 import useAuth from '../hooks/useAuth';
+import { Link } from '@chakra-ui/react';
 
 const AdminManager = () => {
 
@@ -184,7 +185,9 @@ const AdminManager = () => {
 				</TableContainer>
 			</Stack>
 			<Stack>
-				<Button right={370} colorScheme='blue' size={'lg'} onClick={newuser}>New</Button>
+				<Link to="/user">
+					<Button right={370} colorScheme='blue' size={'lg'} onClick={newuser}>New</Button>
+				</Link>
 			</Stack>	
 		</VStack>
     
