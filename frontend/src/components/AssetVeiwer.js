@@ -364,7 +364,7 @@ const AssetViewer = () => {
 				</Stat>
 			</StatGroup>)}
 			
-			{!isDisabled && <Button onClick={createNewAsset}>Sumbit</Button>}
+			{(!isDisabled && !id )&& <Button onClick={createNewAsset}>Sumbit</Button>}
 			{id && <Button onClick={handleDelete}>Delete</Button>}
 		</Container>
 	) : null;

@@ -1,6 +1,4 @@
 import React,{useEffect, useMemo,useState} from 'react';
-import { useTable,useRowSelect,useGlobalFilter } from 'react-table';
-
 import {
 	Table,
 	Thead,
@@ -25,12 +23,7 @@ import {
 	VStack,
 	Fade
 } from '@chakra-ui/react';
-<<<<<<< HEAD
-=======
-import IndeterminateCheckbox from './IndeterminateCheckbox';
-import GlobalFilter from './GlobalFilter';
- 
->>>>>>> 9c001cf (Implemented global filter for project select)
+
 
 
 function ProjectSelect({setSelectedProjects,projects}) {
@@ -69,7 +62,6 @@ function ProjectSelect({setSelectedProjects,projects}) {
 		};},[]
 	);
 
-<<<<<<< HEAD
 	const filteredRows = useMemo(() => {
 		if (!query && !filters) return data;
 		let preFiltered=data.filter((obj)=>{
@@ -114,84 +106,6 @@ function ProjectSelect({setSelectedProjects,projects}) {
 		</VStack>);
 		
 	};
-=======
-	const {
-		getTableProps,
-		getTableBodyProps,
-		headerGroups,
-		rows,
-		state,
-		prepareRow,
-		selectedFlatRows,
-		setGlobalFilter,
-	} = useTable(
-		{
-			columns,
-			data,
-		},
-		useRowSelect,
-		useGlobalFilter,
-		hooks => {
-			hooks.visibleColumns.push(columns => [
-				{
-					id: 'selection',
-					Header: ({getToggleAllRowsSelectedProps}) => (
-						<IndeterminateCheckbox {...getToggleAllRowsSelectedProps()}/>
-					),
-					Cell: ({row}) => (
-						<IndeterminateCheckbox {...row.getToggleRowSelectedProps()}/>
-					),
-				},
-				...columns,
-			]);
-		}
-	);
-    
- 
-	return (
-		<TableContainer>
-			 <GlobalFilter
-				globalFilter={state.globalFilter}
-				setGlobalFilter={setGlobalFilter}
-			/>
-			<Table {...getTableProps()} variant='striped'>
-				<Thead>
-					{headerGroups.map(headerGroup => (
-						<Tr {...headerGroup.getHeaderGroupProps()}>
-							{headerGroup.headers.map(column => (
-								<Th
-									{...column.getHeaderProps()}
-								>
-									{column.render('Header')}
-								</Th>
-							))}
-						</Tr>
-					))}
-				</Thead>
-				<Tbody {...getTableBodyProps()}>
-					{rows.map(row => {
-						prepareRow(row);
-						return (
-							<Tr {...row.getRowProps()}>
-								{row.cells.map(cell => {
-									return (
-										<Td
-											{...cell.getCellProps()}
-										>
-											{cell.render('Cell')}
-										</Td>
-									);
-								})}
-							</Tr>
-						);
-					})}
-				</Tbody>
-			</Table>
-			<pre>
-				<code>
-					{console.log(selectedFlatRows.map(
-						d=>d.original.id
->>>>>>> 9c001cf (Implemented global filter for project select)
 
 	const onIntermediateCheckboxChange=(val)=>{
 		

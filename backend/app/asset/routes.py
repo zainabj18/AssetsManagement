@@ -136,11 +136,17 @@ def delete(id):
 @bp.route("/summary", methods=["GET"])
 def summary():
     db = get_db()
+    assets_json=[]
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
-            cur.execute("""SELECT * FROM assets;""")
+            cur.execute("""SELECT * FROM assets WHERE soft_delete=0;""")
             assets = cur.fetchall()
-            res=jsonify({"data":[]})
-            res.json["data"]=[x.json() for x in assets]
-            res.json["data"]=[1]
+        with db_conn.cursor(row_factory=dict_row) as cur:
+            for a in assets:
+                cur.execute("""SELECT type_name FROM types WHERE type_id=%(id)s;""", {"id": a.asset_id})
+                type=cur.fetchone()["type_name"]
+                aj=json.loads(a.json(by_alias=True))
+                aj["type"]=type
+                assets_json.append(aj)
+            res=jsonify({"data":assets_json})
     return res

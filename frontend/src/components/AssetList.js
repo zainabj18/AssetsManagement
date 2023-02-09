@@ -8,42 +8,26 @@ import {
 	Tr,
 	Th,
 	Td,
-	TableContainer
+	TableContainer,
+	Link
 } from '@chakra-ui/react';
+import { Link as NavLink } from 'react-router-dom';
 import IndeterminateCheckbox from './IndeterminateCheckbox';
 import GlobalFilter from './GlobalFilter';
 
 
-function AssetList() {
+function AssetList({assets}) {
 	const data = React.useMemo(
-		() => [
-			{
-				id: 1,
-				name: 'Programming Language',
-				type: 'text',
-				level: 'Public'
-			},
-			{
-				id: 2,
-				name: 'Number of Issues',
-				type: 'Number',
-				level: 'Restricted'
-			},
-			{
-				id: 3,
-				name: 'Authors',
-				type: 'List',
-				level: 'Confidential'
-			},
-		],
-		[]
+		() => assets,
+		[assets]
 	);
 
 	const columns = React.useMemo(
 		() => [
 			{
 				Header: 'Asset ID',
-				accessor: 'id',
+				accessor: 'asset_id',
+				Cell:row=><Link to={`view/${row.value}`} as={NavLink}>{row.value}</Link>
 			},
 			{
 				Header: 'Asset Name',
@@ -54,8 +38,8 @@ function AssetList() {
 				accessor: 'type',
 			},
 			{
-				Header: 'Asset Access Level',
-				accessor: 'level',
+				Header: 'Asset Classification',
+				accessor: 'classification',
 			}
 		],
 		[]
@@ -76,21 +60,7 @@ function AssetList() {
 			data,
 		},
 		useRowSelect,
-		useGlobalFilter,
-		hooks => {
-			hooks.visibleColumns.push(columns => [
-				{
-					id: 'selection',
-					Header: ({ getToggleAllRowsSelectedProps }) => (
-						<IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-					),
-					Cell: ({ row }) => (
-						<IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-					),
-				},
-				...columns,
-			]);
-		}
+		useGlobalFilter
 	);
 
 

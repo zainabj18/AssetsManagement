@@ -23,7 +23,7 @@ function App() {
 				<Route path="/login" element={<Login />} />
 				<Route path="/" element={<Layout />}>
 					<Route path="assets/" element={<AssetsLayout />}>
-						<Route index element={<AssetSearcher />} />
+						<Route index element={<AssetsOverview />} />
 						<Route path="new" element={<CreateAsset />} />
 						<Route path="view/:id" element={<AssetViewer canEdit={true} isNew={false}/>} />
 					</Route>
