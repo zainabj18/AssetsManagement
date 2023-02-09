@@ -1,37 +1,49 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, NavLink } from 'react-router-dom';
 import AssetViewer from './components/AssetVeiwer';
 import CreateAsset from './routes/assets/CreateAsset';
 import Layout from './routes/Layout';
 import Login from './routes/Login';
 import NoMatch from './routes/NoMatch';
-import FilterBasedSearch from './routes/FilterBasedSearch';
+import AssetSearcher from './routes/AssetSearcher';
 import User from './routes/User';
 import TypeAdder from './routes/TypeAdder';
+import TypeViewer from './routes/TypeViewer';
 import { AuthProvider } from './hooks/useAuth';
 import AssetsOverview from './routes/assets/AssetsOverview';
-import AssetsLayout from './routes/assets/AssetsLayout';
+import SubLayout from './routes/assets/SubLayout';
+import AssetList from './components/AssetList';
+import CreateProject from './routes/CreateProject';
+import { Button } from '@chakra-ui/react';
+import AdminManager from './routes/AdminManager';
 import RelatedAssetViewer from './components/RelatedAssetViewer';
-
-
-
+//TODO:Wrap in error boundary
 function App() {
-	
-	return (
 
-		<Routes>
-			<Route path="/login" element={<Login />} />
-			<Route path="/" element={<Layout />}>
-				<Route path="assets/" element={<AssetsLayout />}>
-					<Route index element={<AssetsOverview />} />
-					<Route path="new" element={<CreateAsset />} />
-					<Route path="view/related/:id" element={<RelatedAssetViewer canEdit={true} isNew={false}/>} />
+	return (
+		<AuthProvider>
+			<Routes>
+				<Route path="/login" element={<Login />} />
+				<Route path="/" element={<Layout />}>
+					<Route path="assets/" element={<SubLayout name="Assets"/>}>
+						<Route index element={<AssetsOverview />} />
+						<Route path="new" element={<CreateAsset />} />
+						<Route path="view/:id" element={<AssetViewer canEdit={true} isNew={false}/>} />
+						<Route path="related/:id" element={<RelatedAssetViewer canEdit={true} isNew={false}/>} />
+					</Route>
+					<Route path="projects/" element={<SubLayout name="Proejcts"/>}>
+						<Route index element={<NavLink to="./new">Create New Project</NavLink>} />
+						<Route path="new" element={<CreateProject />} />
+					</Route>
+					<Route path="type/" element={<SubLayout name="Types"/>}>
+						<Route index element={<TypeViewer />} />
+						<Route path="adder" element={<TypeAdder />} />
+					</Route>
+					<Route path="accounts" element={<AdminManager />} />
+					<Route path="user" element={<User />} />
 				</Route>
-				<Route path="filter" element={<FilterBasedSearch />} />
-				<Route path="user" element={<User />} />
-				<Route path="type/adder" element={<TypeAdder />} />
-			</Route>
-			<Route path="*" element={<NoMatch />} />
-		</Routes>
+				<Route path="*" element={<NoMatch />} />
+			</Routes>
+		</AuthProvider>
 
 	);
 }

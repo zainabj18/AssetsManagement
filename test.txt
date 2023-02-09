@@ -1,0 +1,5 @@
+Test Asset created_at
+Submit form and enter in all fields
+Check not validation erorrs appear
+Check asset in db
+Try to submit without all the fileds being entered an error should appear

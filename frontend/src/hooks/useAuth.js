@@ -31,7 +31,7 @@ export const AuthProvider = ({children}) => {
 			setUser(res.data);
 			setLoggedIn(true);
 			setAuthError(null);
-			navigate('/');
+			navigate('/assets/');
 		}).catch(err=>{
 			setAuthError(err.response.data);
 		});

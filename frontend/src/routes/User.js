@@ -1,87 +1,55 @@
-import { FormControl, FormLabel, HStack, Input} from '@chakra-ui/react';
-import { Box } from '@chakra-ui/react';
-import { React, useEffect } from 'react';
-import { Flex, InputGroup, InputLeftAddon } from '@chakra-ui/react';
-import { Select } from '@chakra-ui/react';
-import { Stack, Button} from '@chakra-ui/react';
-import useAuth from '../hooks/useAuth';
+import { Box, Button, Center, FormControl, FormLabel, HStack, Heading, Input, Select, Stack } from '@chakra-ui/react';
+import { React } from 'react';
+
 const User = () => {
-	const { user } = useAuth();
-
-	useEffect(() => {
-		console.log(user);
-	});
-
-
 	return (
-		<Box p={50}>
-			<Flex>
-				<Box mr={280}>
-					First Name
-				</Box>
-				<Box mr={210}>
-					Last Name
-				</Box>
-				<Box mr={83}>
-					Username
-				</Box>
-			</Flex>
-			<HStack spacing={5}>
-				<FormControl isRequired>
-					<Box color ='black'>
-						<Input  bg = 'white' placeholder='Name' right={65} width={200} type='text'/>
-						<FormLabel color = 'white'> required </FormLabel>
-					</Box>
-				</FormControl>
-				<FormControl isRequired>
-					<Box color ='black'>
-						<Input  bg = 'white' placeholder='Surname' left={5} width={200} type='text'/>
-						<FormLabel color = 'white'> required </FormLabel>
-					</Box>
-				</FormControl>
-				<FormControl isRequired>
-					<Box color ='black'>
-						<InputGroup left={85} width={200 } type='text'>
-							<InputLeftAddon children='#' />
-							<Input bg='white'/>
-						</InputGroup>
-						<FormLabel color = 'white' right={50}> required </FormLabel>
-					</Box>
-				</FormControl>
-			</HStack>
-			<Flex mt={8}>
-				<Box mr={280}>
-					Access Level
-				</Box>
-				<Box mr={210}>
-					Role
-				</Box>
-			</Flex>
-			<HStack>
-				<Box>
-					<Select placeholder='Select Access Level' color='black' bg='white' right={61} width={200}>
-						<option value='option1'>Option 1</option>
-						<option value='option2'>Option 2</option>
-						<option value='option3'>Option 3</option>
-					</Select>
-				</Box>
-				<Box>
-					<Select placeholder='Select Role' color='black' bg='white' left={79} width={200}>
-						<option value='option1'>Option 1</option>
-						<option value='option2'>Option 2</option>
-						<option value='option3'>Option 3</option>
-					</Select>
-				</Box>
-			</HStack>
-			<Stack direction='row' spacing={4} align='center' mt={14}>
-				<Button colorScheme='blue' variant='solid' size='lg'>
-					Save
-				</Button>
-				<Button colorScheme='red' variant='solid' size='lg' left={70}>
-					Delete
-				</Button>
-			</Stack>
-		</Box>
+		<Center height={'100vh'}>
+			<Box bg={'white'} color={'black'} p={10} borderRadius={10} w={'1000px'} mx={'auto'} mb={'100px'}>
+				<Heading mb={'25px'}>Your Profile</Heading>
+				<HStack spacing={'25px'}>
+					<FormControl>
+						<FormLabel>First Name</FormLabel>
+						<Input type='text' placeholder="Name" />
+					</FormControl>
+					<FormControl>
+						<FormLabel>Last Name</FormLabel>
+						<Input type='text' placeholder="Surname" />
+					</FormControl>
+					<FormControl>
+						<FormLabel>Username</FormLabel>
+						<Input type='text' placeholder="Username" />
+					</FormControl>
+				</HStack>
+
+				<HStack spacing={'25px'} mt={'25px'}>
+					<FormControl>
+						<FormLabel>Access Level</FormLabel>
+						<Select placeholder='Select Access Level' color='black' bg='white'>
+							<option value='option1'>Option 1</option>
+							<option value='option2'>Option 2</option>
+							<option value='option3'>Option 3</option>
+						</Select>
+					</FormControl>
+					<FormControl>
+						<FormLabel>Role</FormLabel>
+						<Select placeholder='Select Role' color='black' bg='white'>
+							<option value='option1'>Option 1</option>
+							<option value='option2'>Option 2</option>
+							<option value='option3'>Option 3</option>
+						</Select>
+					</FormControl>
+				</HStack>
+
+				<Stack direction='row' align='center' mt={8}>
+					<Button colorScheme='blue' variant='solid' size='md'>
+              Save
+					</Button>
+					<Button colorScheme='red' variant='solid' size='md'>
+              Delete
+					</Button>
+				</Stack>
+			</Box>
+		</Center>
 	);
 };
 
