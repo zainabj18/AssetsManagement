@@ -44,12 +44,20 @@ def create():
         with conn.cursor() as cur:
             cur.execute(
                 """
-            INSERT INTO assets (name,link,type,description, access_level)
-    VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(access_level)s)  RETURNING id;""",
+            INSERT INTO assets (name,link,type,description, classification)
+    VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(classification)s)  RETURNING asset_id;""",
                 db_asset,
             )
+            asset_id=cur.fetchone()[0]
+            for tag in asset.tags:
+                cur.execute(
+                    """
+                INSERT INTO assets_in_tags (asset_id,tag_id)
+        VALUES (%(asset_id)s,%(tag_id)s);""",
+                    {"asset_id":asset_id,"tag_id":tag},
+                )
 
-    return jsonify({"msg": "Added asset"}), 200
+    return jsonify({"msg": "Added asset","data":asset_id}), 200
 
 
 @bp.route("/classifications", methods=["GET"])

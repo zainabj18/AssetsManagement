@@ -8,6 +8,8 @@ DROP TABLE IF EXISTS types CASCADE;
 DROP TABLE IF EXISTS attributes CASCADE;
 DROP TABLE IF EXISTS types CASCADE;
 DROP TABLE IF EXISTS attributes_in_types CASCADE;
+DROP TABLE IF EXISTS assets_in_tags CASCADE;
+
 CREATE TYPE account_role AS ENUM ('VIEWER', 'USER', 'ADMIN');
 CREATE TYPE data_classification AS ENUM ('PUBLIC', 'INTERNAL','RESTRICTED','CONFIDENTIAL');
 CREATE TABLE accounts
@@ -69,11 +71,20 @@ CREATE TABLE attributes
 	link VARCHAR NOT NULL,
     type SERIAL,
     description VARCHAR NOT NULL,
-	access_level data_classification NOT NULL DEFAULT 'PUBLIC',
+	classification data_classification NOT NULL DEFAULT 'PUBLIC',
 	created_at timestamp NOT NULL DEFAULT now(),
 	last_modified_at timestamp NOT NULL DEFAULT now(),
 	FOREIGN KEY (type) REFERENCES types(type_id),
 	PRIMARY KEY (asset_id)
+);
+
+ CREATE TABLE assets_in_tags
+(
+	asset_id SERIAL,
+	tag_id SERIAL,
+	FOREIGN KEY (tag_id) REFERENCES tags(id),
+	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
+	PRIMARY KEY (asset_id,tag_id)
 );
 
 -- CREATE TABLE projects

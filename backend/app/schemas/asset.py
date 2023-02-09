@@ -43,6 +43,10 @@ class AssetBase(BaseModel):
     classification: DataAccess
     metadata: List[Attribute]
 
+    class Config:
+        json_encoders = {
+            DataAccess: lambda a: str(a.value),
+        }
 
     @validator("metadata", each_item=True, pre=True)
     def check_metadata(cls, v):

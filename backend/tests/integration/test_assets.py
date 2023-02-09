@@ -1,6 +1,6 @@
 import pytest
 from psycopg.rows import dict_row
-
+import json
 from app.db import DataAccess, UserRole
 from app.schemas import Attribute
 
@@ -362,5 +362,14 @@ def test_get_access_levels(valid_client):
     assert res.json["data"] == ["PUBLIC", "INTERNAL", "RESTRICTED", "CONFIDENTIAL"]
 
 
+def test_new_asset_tags(client,new_asset,db_conn):
+    data = json.loads(new_asset.json())
+    res = client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 200
+    assert res.json["msg"]=="Added asset"
+    assert res.json["data"]
+    with db_conn.cursor() as cur:
+        cur.execute("""SELECT tag_id FROM assets_in_tags WHERE asset_id=%(id)s;""", {"id": res.json["data"]})
+        assert set(cur.fetchall()[0])==set(new_asset.tags)
 # TODO:Test asset name is unique
 # TODO:Test DB error

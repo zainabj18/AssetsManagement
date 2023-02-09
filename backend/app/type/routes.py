@@ -65,7 +65,6 @@ def get_type(id):
     with database.connection() as conn:
         res = conn.execute(query_a)
         type = res.fetchone()
-        allTypes_listed = []
         query_b = """SELECT attribute_name, attribute_data_type, validation_data FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t on at.type_id = t.type_id WHERE t.type_id = %(type_id)s;"""
         res = conn.execute(query_b, {"type_id":id})
         attributes = extract_attributes(res.fetchall())
