@@ -12,6 +12,7 @@ import json
 
 @bp.route("/", methods=["POST"])
 def create():
+    print(request.json)
     try:
         try:
             asset = AssetBase(**request.json)
@@ -38,8 +39,9 @@ def create():
             400,
         )
     db = get_db()
+    print(asset)
     db_asset = asset.dict(exclude={"metadata"})
-    db_asset["metadata"] = [json.dumps(x.dict()) for x in asset.metadata]
+
     with db.connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
@@ -49,6 +51,7 @@ def create():
                 db_asset,
             )
             asset_id=cur.fetchone()[0]
+            print(asset_id)
             for tag in asset.tags:
                 cur.execute(
                     """

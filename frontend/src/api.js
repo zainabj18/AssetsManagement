@@ -53,3 +53,7 @@ export const fetchTypesList = async () => {
 export const fetchType = async (id) => {
 	return await axios.get(`/type/${id}`).then(res => res.data);
 };
+
+export const createAsset = async (asset) => {
+	return await axios.post('/asset/', asset).then(res => res.data);
+};

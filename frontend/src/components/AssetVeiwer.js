@@ -29,7 +29,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import FormField from './FormField';
 import axios from 'axios';
-import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType } from '../api';
+import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset } from '../api';
 import SearchSelect from './SearchSelect';
 import ProjectSelect from './ProjectSelect';
 import ListFormField from './ListFormField';
@@ -50,73 +50,7 @@ const AssetViewer = () => {
 	const [errorCount,setErrorCount]=useState(0);
 	const [trigger,setTrigger]=useBoolean();
 	const [types,setTypes]=useState([]);
-	const type = {
-		Framework: [
-			
-			{
-				attribute_name: 'no. of issues',
-				attribute_type: 'number',
-				attribute_value: 2,
-			},
-			{
-				attribute_name: 'built on',
-				attribute_type: 'datetime-local',
-				attribute_value: '2021-12-10T13:45',
-			},
-			{
-				attribute_name: 'version',
-				attribute_type: 'text',
-				attribute_value: 'v1',
-			},
-			{
-				attribute_name: 'programming language(s)',
-				attribute_type: 'options',
-				attribute_value: ['React'],
-				attribute_validation:{
-					'values':['React','HTML','CSS','Python','Java'],
-					'isMulti':true
-				}
-			},
-			{
-				attribute_name: 'license',
-				attribute_type: 'options',
-				attribute_value: 'MIT',
-				attribute_validation:{
-					'values':['MIT','GNU'],
-					'isMulti':false
-				}
-			},
-		],
-		Document: [
-			{
-				attribute_name: 'draft',
-				attribute_type: 'checkbox',
-				attribute_value: false,
-			},
-			{
-				attribute_name: 'version',
-				attribute_type: 'text',
-				attribute_value: 'v1',
-			},
-			{
-				attribute_name: 'stars',
-				attribute_type: 'num_lmt',
-				attribute_value: 4,
-				attribute_validation:{
-					'min':1,
-					'max':5
-				}
-			},
-			{
-				attribute_name: 'Authors Emails',
-				attribute_type: 'list',
-				attribute_value: ['mike@hotmail.com','carlos@hotmail.com','john@gmail.com'],
-				attribute_validation:{
-					'type':'email'
-				}
-			},
-		],
-	};
+	
 	const handleChange = (attribute_name, attribute_value) => {
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
@@ -124,10 +58,11 @@ const AssetViewer = () => {
 		}));
 	};
 
-	const handleMetadataChange = (attribute_name, attribute_value) => {
+	const handleMetadataChange = (attributeName, attribute_value) => {
+		console.log(attribute_value);
 		let metadata = assetSate.metadata;
 		let newMetadata = metadata.map((attribute) => {
-			if (attribute.attribute_name === attribute_name) {
+			if (attribute.attributeName === attributeName) {
 				return {
 					...attribute,
 					attribute_value: attribute_value,
@@ -185,20 +120,36 @@ const AssetViewer = () => {
 	const createNewAsset = (e) => {
 		e.preventDefault();
 		//axios.post('/api/v1/asset/new', assetSate);
-		let project_ids=projects.map(p=>p.id);
-		setAssetState((prevAssetState) => ({
-			...prevAssetState,
-			projects: project_ids,
-		}));
+		
 		console.log(Object.entries(assetSate));
 		console.log(assetSate.name.length);
 		setErrors([]);
+		let errs=[];
 		for (const [key, value] of Object.entries(assetSate)) {
-			if(value.length===0){
-				setErrors((prev)=>[...prev,key+' is required']);
+			if(value.length===0 && key!=='projects'){
+				errs.push(key+' is required');
 			}
+			
 		}
-		console.log(errorCount);
+		if (projects.length===0){
+			errs.push('project(s) is required');
+		}
+		if (errs.length===0){
+			console.log('Sending data');
+			
+			let project_ids=projects.map(p=>p.id);
+			let tag_ids=assetSate.tags.map(t=>t.id);
+			let assetObj={
+				...assetSate,
+				projects: project_ids,
+				tags:tag_ids
+			};
+			console.log(assetObj);
+			createAsset(assetObj).then(res=>console.log(res)).catch(err=>console.log(err));
+		}else{
+			setErrors(errs);
+		}
+
 		
 		// naviagte back to assets
 	};
@@ -242,7 +193,7 @@ const AssetViewer = () => {
 		<Container>
 			{assetSate && <VStack maxW='100%'>
 				<Heading size={'2xl'}>Asset Attributes</Heading>
-				{errors && <Alert status='error' flexDirection='column' alignItems='right'>
+				{errors.length && <Alert status='error' flexDirection='column' alignItems='right'>
 					<AlertIcon alignSelf='center'/>
 					<AlertTitle>Invalid Form</AlertTitle>
 					<AlertDescription ><UnorderedList>

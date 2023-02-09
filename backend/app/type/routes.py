@@ -65,7 +65,7 @@ def get_type(id):
     with database.connection() as conn:
         res = conn.execute(query_a)
         type = res.fetchone()
-        query_b = """SELECT attribute_name, attribute_data_type, validation_data FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t on at.type_id = t.type_id WHERE t.type_id = %(type_id)s;"""
+        query_b = """SELECT at.attribute_id,attribute_name, attribute_data_type, validation_data FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t on at.type_id = t.type_id WHERE t.type_id = %(type_id)s;"""
         res = conn.execute(query_b, {"type_id":id})
         attributes = extract_attributes(res.fetchall())
         return {"typeId": type[0], "typeName": type[1], "metadata": attributes}, 200
@@ -77,10 +77,10 @@ def extract_attributes(attributes):
     for attribute in attributes:
         
         if attribute[2] == None:
-            allAttributes_listed.append({"attributeName": attribute[0], "attributeType": attribute[1]})
+            allAttributes_listed.append({"attributeID": attribute[0],"attributeName": attribute[1], "attributeType": attribute[3]})
         else:
             allAttributes_listed.append(
-                {"attributeName": attribute[0], "attributeType": attribute[1], "validation": attribute[2]}
+                {"attributeID": attribute[0],"attributeName": attribute[1], "attributeType": attribute[2], "validation": attribute[3]}
         )
     return allAttributes_listed
 
@@ -88,7 +88,7 @@ def extract_attributes(attributes):
 @bp.route("/allAttributes", methods=["GET"])
 def get_allAttributes():
     database = get_db()
-    query = """SELECT attribute_name, attribute_data_type, validation_data FROM attributes;"""
+    query = """SELECT attribute_id,attribute_name, attribute_data_type, validation_data FROM attributes;"""
     with database.connection() as conn:
         res = conn.execute(query)
         allAttributes = res.fetchall()
@@ -105,7 +105,7 @@ def get_allTypes():
         allTypes = res.fetchall()
         allTypes_listed = []
         for type in allTypes:
-            query_b = """SELECT attribute_name, attribute_data_type, validation_data FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t on at.type_id = t.type_id WHERE t.type_id = %(type_id)s;"""
+            query_b = """SELECT at.attribute_id,attribute_name, attribute_data_type, validation_data FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t on at.type_id = t.type_id WHERE t.type_id = %(type_id)s;"""
             res = conn.execute(query_b, {"type_id": type[0]})
             attributes = extract_attributes(res.fetchall())
             allTypes_listed.append(
