@@ -30,20 +30,19 @@ function Login() {
 		<Container>
 			<VStack>
 				<FormControl>
-					<FormLabel htmlFor="username">Username</FormLabel>
+					<FormLabel>Username</FormLabel>
 					<Input
 						type="text"
-						id="username"
+						placeholder="Enter username"
 						value={username}
 						onChange={(e) => setUsername(e.target.value)}
 					/>
 				</FormControl>
 				<FormControl>
-					<FormLabel htmlor="password">Password</FormLabel>
+					<FormLabel>Password</FormLabel>
 					<InputGroup>
 						<Input
 							type={show ? 'text' : 'password'}
-							id="password"
 							placeholder="Enter password"
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}

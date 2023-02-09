@@ -4,7 +4,7 @@ import { MdLogout } from 'react-icons/md';
 import useAuth from '../hooks/useAuth';
 const UserMenuButton = () => {
 	const {user,logout} = useAuth();
-	return ( <Menu>
+	return (user &&( <Menu>
 		<MenuButton as={Button} colorScheme='pink' leftIcon={<FaUserCircle size={18} />}>
 			{user.username}
 		</MenuButton>
@@ -23,7 +23,7 @@ const UserMenuButton = () => {
 			<MenuItem onClick={logout} icon={<MdLogout />}>Logout</MenuItem>
 		</MenuList>
 
-	</Menu>);
+	</Menu>));
 };
  
 export default UserMenuButton;
