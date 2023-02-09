@@ -63,6 +63,13 @@ def create():
         VALUES (%(asset_id)s,%(project_id)s);""",
                     {"asset_id":asset_id,"project_id":project},
                 )
+            for attribute in asset.metadata:
+                cur.execute(
+                    """
+                INSERT INTO attributes_values (asset_id,attribute_id,value)
+        VALUES (%(asset_id)s,%(attribute_id)s,%(value)s);""",
+                    {"asset_id":asset_id,"attribute_id":attribute.attribute_id,"value":attribute.attribute_value},
+                )
 
     return jsonify({"msg": "Added asset","data":asset_id}), 200
 

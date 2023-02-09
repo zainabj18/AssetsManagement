@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic_factories import ModelFactory, PostGenerated,Use
 from random import choice
-from app.schemas import Attribute,AssetBase,TagBase,Project,TypeBase
+from app.schemas import AttributeInDB,AssetBase,TagBase,Project,TypeBase
 
 def add_validation_json(name: str, values: dict, *args, **kwds):
     if values["attribute_type"]=='num_lmt':
@@ -22,7 +22,7 @@ def add_value(name: str, values: dict, *args, **kwds):
     return (values['attribute_type']+"-"+values['attribute_name'])
 
 class AttributeFactory(ModelFactory):
-    __model__ = Attribute
+    __model__ = AttributeInDB
     
     attribute_type = Use(choice, ['text', 'number', 'checkbox', 'datetime-local', 'num_lmt', 'options', 'list'])
     validation_data = PostGenerated(add_validation_json)

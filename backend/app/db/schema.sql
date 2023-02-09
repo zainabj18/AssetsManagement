@@ -10,7 +10,7 @@ DROP TABLE IF EXISTS types CASCADE;
 DROP TABLE IF EXISTS attributes_in_types CASCADE;
 DROP TABLE IF EXISTS assets_in_tags CASCADE;
 DROP TABLE IF EXISTS assets_in_projects CASCADE;
-
+DROP TABLE IF EXISTS attributes_values CASCADE;
 
 CREATE TYPE account_role AS ENUM ('VIEWER', 'USER', 'ADMIN');
 CREATE TYPE data_classification AS ENUM ('PUBLIC', 'INTERNAL','RESTRICTED','CONFIDENTIAL');
@@ -91,12 +91,22 @@ CREATE TABLE attributes
 
  CREATE TABLE assets_in_projects
 (
-	asset_id SERIAL,
-	project_id SERIAL,
+	asset_id INTEGER,
+	project_id INTEGER,
 	FOREIGN KEY (project_id) REFERENCES projects(id),
 	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
 	PRIMARY KEY (asset_id,project_id)
 );
+
+CREATE TABLE attributes_values
+ (
+ 	attribute_id INTEGER,
+ 	asset_id INTEGER,
+	value VARCHAR,
+ 	PRIMARY KEY (attribute_id, asset_id),
+	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
+ 	FOREIGN KEY (attribute_id) REFERENCES attributes(attribute_id)
+ );
 
 -- CREATE TABLE projects
 -- (

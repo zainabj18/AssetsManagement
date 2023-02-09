@@ -18,6 +18,8 @@ class Attribute_Model(BaseModel):
 class Attribute(Attribute_Model):
     attribute_value: Any = Field(None, alias="attributeValue")
 
+class AttributeInDB(Attribute):
+    attribute_id: Any = Field(None, alias="attributeID")
     class Config:
         allow_population_by_field_name = True
 
@@ -41,7 +43,7 @@ class AssetBase(BaseModel):
     projects: List[int]
     tags: List[int]
     classification: DataAccess
-    metadata: List[Attribute]
+    metadata: List[AttributeInDB]
 
     class Config:
         json_encoders = {
@@ -50,10 +52,10 @@ class AssetBase(BaseModel):
 
     @validator("metadata", each_item=True, pre=True)
     def check_metadata(cls, v):
-        if isinstance(v, Attribute):
+        if isinstance(v, AttributeInDB):
             return v
         try:
-            Attribute(**v)
+            AttributeInDB(**v)
             return v
         except ValidationError as e:
             raise e

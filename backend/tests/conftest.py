@@ -88,6 +88,7 @@ VALUES (%(attribute_name)s,%(attribute_type)s,%(validation_data)s) RETURNING att
                 db_attribute,
             )
             id = cur.fetchone()[0]
+            attribute.attribute_id=id
             attribute_ids.append(id)
         for id in attribute_ids:
             cur.execute(

@@ -396,5 +396,18 @@ def test_new_asset_in_db(client,new_asset,db_conn):
         assert asset["type"] == new_asset.type
         assert asset["description"] == new_asset.description
         assert asset["classification"] == new_asset.classification
+
+def test_new_asset_values(client,new_asset,db_conn):
+    data = json.loads(new_asset.json())
+    res = client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 200
+    assert res.json["msg"]=="Added asset"
+    assert res.json["data"]
+    with db_conn.cursor() as cur:
+        cur.execute("""SELECT attribute_id as attribute_value FROM attributes_values WHERE asset_id=%(id)s;""", {"id": res.json["data"]})
+        values=[x[0]for x in cur.fetchall()]
+        for atr in new_asset.metadata:
+            assert atr.attribute_id in values
+        
 # TODO:Test asset name is unique
 # TODO:Test DB error
