@@ -26,10 +26,10 @@ import {
 } from '@chakra-ui/react';
 import { Fragment } from 'react';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { redirect, useNavigate, useParams } from 'react-router-dom';
 import FormField from './FormField';
 import axios from 'axios';
-import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects } from '../api';
+import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset } from '../api';
 import SearchSelect from './SearchSelect';
 import ProjectSelect from './ProjectSelect';
 import ListFormField from './ListFormField';
@@ -116,6 +116,11 @@ const AssetViewer = () => {
 		});
 	
 	};
+	const handleDelete = (e) => {
+		deleteAsset(id);
+		navigate('/');
+	};
+
 
 	const createNewAsset = (e) => {
 		e.preventDefault();
@@ -167,7 +172,9 @@ const AssetViewer = () => {
 		if (id) {
 			fetchAsset(id).then((res)=>{
 				console.log(res.data);
-				setAssetState(res.data);}).catch((err) => {console.log(err);});
+				setAssetState(res.data);}).catch(err=>{
+				navigate('/');}
+			);
 			if (user.userRole==='VIEWER'){
 				setIsDisabled(true);
 			}
@@ -358,6 +365,7 @@ const AssetViewer = () => {
 			</StatGroup>)}
 			
 			{!isDisabled && <Button onClick={createNewAsset}>Sumbit</Button>}
+			{id && <Button onClick={handleDelete}>Delete</Button>}
 		</Container>
 	) : null;
 };

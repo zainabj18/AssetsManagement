@@ -76,6 +76,7 @@ CREATE TABLE attributes
 	classification data_classification NOT NULL DEFAULT 'PUBLIC',
 	created_at timestamp NOT NULL DEFAULT now(),
 	last_modified_at timestamp NOT NULL DEFAULT now(),
+	soft_delete INTEGER,
 	FOREIGN KEY (type) REFERENCES types(type_id),
 	PRIMARY KEY (asset_id)
 );

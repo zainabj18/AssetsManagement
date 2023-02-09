@@ -108,7 +108,7 @@ def view(id):
     db = get_db()
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
-            cur.execute("""SELECT * FROM assets WHERE asset_id=%(id)s;""", {"id": id})
+            cur.execute("""SELECT * FROM assets WHERE asset_id=%(id)s AND soft_delete=0;""", {"id": id})
             asset = cur.fetchone()
             print(asset)
         with db_conn.cursor(row_factory=class_row(AttributeInDB)) as cur:
@@ -130,3 +130,11 @@ INNER JOIN tags on tags.id=assets_in_tags.tag_id WHERE asset_id=%(id)s;""", {"id
         print(asset)
     return {"data": json.loads(asset.json(by_alias=True))}, 200
 
+@bp.route("/<id>", methods=["DELETE"])
+def delete(id):
+    db = get_db()
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+            cur.execute("""UPDATE assets SET soft_delete = %(del)s WHERE asset_id=%(id)s;""", {"id": id,"del":1})
+
+    return {}, 200
