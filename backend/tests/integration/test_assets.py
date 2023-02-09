@@ -371,5 +371,15 @@ def test_new_asset_tags(client,new_asset,db_conn):
     with db_conn.cursor() as cur:
         cur.execute("""SELECT tag_id FROM assets_in_tags WHERE asset_id=%(id)s;""", {"id": res.json["data"]})
         assert set(cur.fetchall()[0])==set(new_asset.tags)
+
+def test_new_asset_projects(client,new_asset,db_conn):
+    data = json.loads(new_asset.json())
+    res = client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 200
+    assert res.json["msg"]=="Added asset"
+    assert res.json["data"]
+    with db_conn.cursor() as cur:
+        cur.execute("""SELECT project_id FROM assets_in_projects WHERE asset_id=%(id)s;""", {"id": res.json["data"]})
+        assert set(cur.fetchall()[0])==set(new_asset.projects)
 # TODO:Test asset name is unique
 # TODO:Test DB error

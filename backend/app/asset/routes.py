@@ -56,6 +56,13 @@ def create():
         VALUES (%(asset_id)s,%(tag_id)s);""",
                     {"asset_id":asset_id,"tag_id":tag},
                 )
+            for project in asset.projects:
+                cur.execute(
+                    """
+                INSERT INTO assets_in_projects (asset_id,project_id)
+        VALUES (%(asset_id)s,%(project_id)s);""",
+                    {"asset_id":asset_id,"project_id":project},
+                )
 
     return jsonify({"msg": "Added asset","data":asset_id}), 200
 
