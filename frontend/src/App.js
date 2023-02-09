@@ -10,28 +10,29 @@ import TypeAdder from './routes/TypeAdder';
 import { AuthProvider } from './hooks/useAuth';
 import AssetsOverview from './routes/assets/AssetsOverview';
 import AssetsLayout from './routes/assets/AssetsLayout';
+import RelatedAssetViewer from './components/RelatedAssetViewer';
 
 
 
 function App() {
 	
 	return (
-		<AuthProvider>
-			<Routes>
-				<Route path="/login" element={<Login />} />
-				<Route path="/" element={<Layout />}>
-					<Route path="assets/" element={<AssetsLayout />}>
-						<Route index element={<AssetsOverview />} />
-						<Route path="new" element={<CreateAsset />} />
-						<Route path="view/:id" element={<AssetViewer canEdit={true} isNew={false}/>} />
-					</Route>
-					<Route path="filter" element={<FilterBasedSearch />} />
-					<Route path="user" element={<User />} />
-					<Route path="type/adder" element={<TypeAdder />} />
+
+		<Routes>
+			<Route path="/login" element={<Login />} />
+			<Route path="/" element={<Layout />}>
+				<Route path="assets/" element={<AssetsLayout />}>
+					<Route index element={<AssetsOverview />} />
+					<Route path="new" element={<CreateAsset />} />
+					<Route path="view/related/:id" element={<RelatedAssetViewer canEdit={true} isNew={false}/>} />
 				</Route>
-				<Route path="*" element={<NoMatch />} />
-			</Routes>
-		</AuthProvider>
+				<Route path="filter" element={<FilterBasedSearch />} />
+				<Route path="user" element={<User />} />
+				<Route path="type/adder" element={<TypeAdder />} />
+			</Route>
+			<Route path="*" element={<NoMatch />} />
+		</Routes>
+
 	);
 }
 
