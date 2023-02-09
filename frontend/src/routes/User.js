@@ -13,6 +13,8 @@ const User = () => {
 	});
 
 	const [textInput, setTextInput] = useState([{name: '', surname: '', username: '' }]);
+	const [deleteobject, setDeleteObject] = useState([{delete: ''}]);
+	const [saveobject] = useState([{save: ''}]);
 
 	const handleFormChange = (index, event) => {
 		let data = [...textInput];
@@ -21,14 +23,14 @@ const User = () => {
 	};
 
 	const deleteObject = (index) => {
-		let data = [...textInput];
+		let data = [...deleteobject];
 		data.splice(index, 1);
-		setTextInput(data);
+		setDeleteObject(data);
 	};
 
 	const saveObject = (e) => {
 		e.preventDefault();
-		console.log(textInput);
+		console.log(saveobject);
 	};
 
 	return (
