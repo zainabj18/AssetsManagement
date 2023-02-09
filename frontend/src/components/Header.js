@@ -1,5 +1,4 @@
-import { Box, Button, HStack, Link } from '@chakra-ui/react';
-import { NavLink } from 'react-router-dom';
+import { Box, HStack,Text } from '@chakra-ui/react';
 import CustomNavLink from './CustomNavLink';
 import UserMenuButton from './UserMenuButton';
 
@@ -7,13 +6,16 @@ const Header = () => {
 	return ( 
 		<Box>
 			<HStack>
-				<CustomNavLink to="filter">
-				filter
+				<CustomNavLink to="type/">
+				Types
 				</CustomNavLink>
-				<CustomNavLink to="assets">
-				assets
+				<CustomNavLink to="assets/">
+				Assets
 				</CustomNavLink>
-				<Link>Hello</Link>
+				<CustomNavLink to="projects/">
+				Projects
+				</CustomNavLink>
+				<Text>Hello</Text>
 				<UserMenuButton />
 			</HStack>
 			

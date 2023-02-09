@@ -69,7 +69,8 @@ class BaseTestConfig(Base):
     DEBUG = True
 
 
-config = dict(DEV=DevelopmentConfig, PROD=ProductionConfig, TEST=BaseTestConfig)
+config = dict(DEV=DevelopmentConfig,
+              PROD=ProductionConfig, TEST=BaseTestConfig)
 settings: Union[DevelopmentConfig, ProductionConfig, BaseTestConfig] = config[
     os.environ.get("ENV_STATE", "dev").upper()
 ]()

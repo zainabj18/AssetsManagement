@@ -1,0 +1,66 @@
+from flask import Blueprint, jsonify, request
+from psycopg import Error
+from psycopg.errors import UniqueViolation
+from psycopg.rows import dict_row
+from pydantic import ValidationError
+
+from app.db import get_db
+from app.schemas import TagBase
+
+bp = Blueprint("tag", __name__, url_prefix="/tag")
+
+
+def create_tag(db, tag_dict):
+    with db.connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+        INSERT INTO tags (name)
+VALUES (%(name)s) RETURNING id;""",
+                tag_dict,
+            )
+            return cur.fetchone()[0]
+
+
+def list_tags(db):
+    with db.connection() as conn:
+        with conn.cursor(row_factory=dict_row) as cur:
+            cur.execute("""SELECT * FROM tags;""")
+            return cur.fetchall()
+
+
+@bp.route("/", methods=["POST"])
+def create():
+    try:
+        tag = TagBase(**request.json)
+    except ValidationError as e:
+        return (
+            jsonify(
+                {
+                    "msg": "Data provided is invalid",
+                    "data": e.errors(),
+                    "error": "Failed to create tag from the data provided",
+                }
+            ),
+            400,
+        )
+    db = get_db()
+    try:
+        id = create_tag(db, tag.dict())
+    except UniqueViolation as e:
+        return {"msg": f"Tag {tag.name} already exists", "error": "Database Error"}, 500
+    except Error as e:
+        return {"msg": str(e), "error": "Database Error"}, 500
+    tag.id = id
+    return jsonify({"msg": "Tag Created", "data": tag.dict()})
+
+
+@bp.route("/", methods=["GET"])
+def list():
+
+    try:
+        db = get_db()
+        tags = list_tags(db)
+    except Error as e:
+        return {"msg": str(e), "error": "Database Error"}, 500
+    return jsonify({"msg": "tags", "data": tags})

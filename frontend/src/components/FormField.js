@@ -6,24 +6,61 @@ import {
 	EditableInput,
 	Input,
 	Checkbox,
+	Alert,
+	AlertDescription,
+	AlertIcon,
+	AlertTitle,
+	Box
 } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
 import EditableControls from './EditableControls';
 const FormField = ({
+	children,
 	fieldName,
 	fieldType,
 	fieldDefaultValue,
 	isDisabled,
 	startWithEditView,
 	onSubmitHandler,
+	clearOnSumbit,
+	trigger,
+	setErrorCount
 }) => {
-
-	const toTitle = (label) => {
-		return label.charAt(0).toUpperCase()+label.substr(1).toLowerCase();
+	const [error, setError] = useState('');
+	const [value,setValue]=useState('');
+	const validate=(e)=>{
+		let err=e.target.validationMessage;
+		setValue(e.target.value);
+		if(err.length===0 && error.length>0){
+			setErrorCount((prev)=>prev-1);
+		}
+		if(err.length>0 && error.length===0){
+			setErrorCount((prev)=>prev+1);
+		}
+		setError(err);
 	};
 
+	const handleSumbit=(e)=>{
+		if (error===''){
+			onSubmitHandler(fieldName, e);
+			if(clearOnSumbit){
+				setValue('');
+			}
+		}
+	};
+	useEffect(() => {
+		if(!clearOnSumbit){
+			setValue(fieldDefaultValue);
+		}
+	}, [trigger,clearOnSumbit]);
+	
+
+
+
 	return (
-		<FormControl bg="white" color="black" borderRadius="5" border="3" borderColor='gray.200' padding={6}>
-			<FormLabel>{toTitle(fieldName)}</FormLabel>
+		<FormControl isRequired>
+			<FormLabel>{fieldName}</FormLabel>
+			{children}
 			{fieldType === 'checkbox' ? (
 				<Checkbox
 					isDisabled={isDisabled}
@@ -31,24 +68,40 @@ const FormField = ({
 					onChange={(e) => {
 						onSubmitHandler(fieldName, e.target.checked);
 					}}
-				>
-          Checkbox
-				</Checkbox>
+				/>
 			) : (
 				<Editable
 					textAlign="center"
 					defaultValue={fieldDefaultValue}
 					startWithEditView={startWithEditView}
-					isDisabled={isDisabled}
+					isDisabled={isDisabled}	
+					submitOnBlur={false}
+					alignItems='left' 
+					alignContent='left'
 					onSubmit={(e) => {
-						onSubmitHandler(fieldName, e);
+						handleSumbit(e);
 					}}
+					value={value}
 				>
-					<EditablePreview />
-					<Input type={fieldType} as={EditableInput} />
-					<EditableControls />
+		
+					<EditablePreview background={value.length?'blue.100':undefined} px={6} minW={'100%'} alignItems='left'
+						alignContent='left' textAlign='left' />
+				
+					
+					<Input type={fieldType} as={EditableInput} onChange={e=>{validate(e);}} required />
+					<EditableControls error={error}/>
+	
+					
+	
+					
+		
 				</Editable>
 			)}
+			{error!=='' && (<Alert status='warning'>
+  							<AlertIcon />
+				<AlertTitle>Validation Error</AlertTitle>
+				<AlertDescription>{error}</AlertDescription>
+			</Alert>)}
 		</FormControl>
 	);
 };

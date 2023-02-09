@@ -1,10 +1,20 @@
 import { Menu,MenuButton,MenuList,Button,MenuItem,MenuGroup,MenuDivider, Badge, HStack} from '@chakra-ui/react';
+import { useEffect } from 'react';
 import { FaUserCircle } from 'react-icons/fa';
 import { MdLogout } from 'react-icons/md';
+import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 const UserMenuButton = () => {
 	const {user,logout} = useAuth();
-	return ( <Menu>
+	let naviagte=useNavigate();
+	useEffect(() => {
+	  if(!user){
+			naviagte('/login');
+	  }
+
+	}, [user]);
+	
+	return (user &&( <Menu>
 		<MenuButton as={Button} colorScheme='pink' leftIcon={<FaUserCircle size={18} />}>
 			{user.username}
 		</MenuButton>
@@ -23,7 +33,7 @@ const UserMenuButton = () => {
 			<MenuItem onClick={logout} icon={<MdLogout />}>Logout</MenuItem>
 		</MenuList>
 
-	</Menu>);
+	</Menu>));
 };
  
 export default UserMenuButton;
