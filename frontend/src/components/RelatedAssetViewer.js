@@ -218,6 +218,13 @@ const RelatedAssetViewer = ({ canEdit, isNew }) => {
 									</Fragment>
 								);
 							})}
+							<Heading size={'sm'}>Linked Assets</Heading>
+							<ul>
+								<ol>Asset1</ol>
+								<ol>Asset2</ol>
+								<ol>Asset3</ol>
+								<ol>Asset4</ol>
+							</ul>
 						</TabPanel>
 						<TabPanel>
 							<FormControl
@@ -244,6 +251,13 @@ const RelatedAssetViewer = ({ canEdit, isNew }) => {
 									})}
 								</Select>
 							</FormControl>
+							<Heading size={'sm'}>Assets with same Type</Heading>
+							<ul>
+								<ol>Asset1</ol>
+								<ol>Asset2</ol>
+								<ol>Asset3</ol>
+								<ol>Asset4</ol>
+							</ul>
 						</TabPanel>
 						<TabPanel>
 							<FormControl
@@ -270,6 +284,13 @@ const RelatedAssetViewer = ({ canEdit, isNew }) => {
 									})}
 								</Select>
 							</FormControl>
+							<Heading size={'sm'}>Assets in Project(s)</Heading>
+							<ul>
+								<ol>Asset1</ol>
+								<ol>Asset2</ol>
+								<ol>Asset3</ol>
+								<ol>Asset4</ol>
+							</ul>
 						</TabPanel>
 						<TabPanel>
 							<FormControl
@@ -296,6 +317,13 @@ const RelatedAssetViewer = ({ canEdit, isNew }) => {
 									})}
 								</Select>
 							</FormControl>
+							<Heading size={'sm'}>Assets with same Asset Level</Heading>
+							<ul>
+								<ol>Asset1</ol>
+								<ol>Asset2</ol>
+								<ol>Asset3</ol>
+								<ol>Asset4</ol>
+							</ul>
 						</TabPanel>
 						<TabPanel>
 							<FormControl
@@ -324,6 +352,13 @@ const RelatedAssetViewer = ({ canEdit, isNew }) => {
 									<Button onClick={onNewTag}>Add Tag</Button>
 								</Wrap>
 							</FormControl>
+							<Heading size={'sm'}>Assets with same Tag(s)</Heading>
+							<ul>
+								<ol>Asset1</ol>
+								<ol>Asset2</ol>
+								<ol>Asset3</ol>
+								<ol>Asset4</ol>
+							</ul>
 						</TabPanel>
 					</TabPanels>
 				</Tabs>
