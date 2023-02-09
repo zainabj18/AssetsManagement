@@ -1,10 +1,10 @@
-from flask import Blueprint, jsonify
+from app.db import get_db
+from app.schemas import Project
+from flask import Blueprint, jsonify, request
 from psycopg import Error
 from psycopg.rows import dict_row
-from app.schemas import Project
-from app.db import get_db
-from flask import Blueprint, jsonify, request
 from pydantic import ValidationError
+
 bp = Blueprint("project", __name__, url_prefix="/project")
 
 
@@ -23,6 +23,7 @@ def list():
     except Error as e:
         return {"msg": str(e), "error": "Database Error"}, 500
     return jsonify({"msg": "projects", "data": projects})
+
 
 @bp.route("/new", methods=["POST"])
 def create():
@@ -56,7 +57,8 @@ def create():
     db_project = project.dict()
     with db.connection() as conn:
         conn.execute(
-            """INSERT INTO projects (name,description)VALUES (%(name)s,%(description)s);""", db_project,
+            """INSERT INTO projects (name,description)VALUES (%(name)s,%(description)s);""",
+            db_project,
         )
 
     return jsonify({"msg": "The user have created a new project"}), 200

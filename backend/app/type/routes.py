@@ -1,10 +1,9 @@
 import json
 
-from flask import Blueprint, request
-from psycopg.rows import dict_row
-
 from app.db import get_db
 from app.schemas import Attribute_Model, Type
+from flask import Blueprint, request
+from psycopg.rows import dict_row
 
 
 def get_types(db):
@@ -66,7 +65,7 @@ def get_type(id):
         res = conn.execute(query_a)
         type = res.fetchone()
         query_b = """SELECT at.attribute_id,attribute_name, attribute_data_type, validation_data FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t on at.type_id = t.type_id WHERE t.type_id = %(type_id)s;"""
-        res = conn.execute(query_b, {"type_id":id})
+        res = conn.execute(query_b, {"type_id": id})
         attributes = extract_attributes(res.fetchall())
         return {"typeId": type[0], "typeName": type[1], "metadata": attributes}, 200
 
@@ -74,13 +73,24 @@ def get_type(id):
 def extract_attributes(attributes):
     allAttributes_listed = []
     for attribute in attributes:
-        
+
         if attribute[2] == None:
-            allAttributes_listed.append({"attributeID": attribute[0],"attributeName": attribute[1], "attributeType": attribute[3]})
+            allAttributes_listed.append(
+                {
+                    "attributeID": attribute[0],
+                    "attributeName": attribute[1],
+                    "attributeType": attribute[3],
+                }
+            )
         else:
             allAttributes_listed.append(
-                {"attributeID": attribute[0],"attributeName": attribute[1], "attributeType": attribute[2], "validation": attribute[3]}
-        )
+                {
+                    "attributeID": attribute[0],
+                    "attributeName": attribute[1],
+                    "attributeType": attribute[2],
+                    "validation": attribute[3],
+                }
+            )
     return allAttributes_listed
 
 

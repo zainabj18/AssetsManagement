@@ -1,13 +1,14 @@
 from datetime import datetime
 from typing import Any, List, Optional
 
-from pydantic import BaseModel, Field, ValidationError, validator,root_validator
-
 from app.db import DataAccess
+from pydantic import BaseModel, Field, ValidationError, root_validator, validator
+
 
 class TagBase(BaseModel):
     id: Optional[int]
     name: str
+
 
 class Attribute_Model(BaseModel):
     attribute_name: str = Field(..., alias="attributeName")
@@ -18,21 +19,26 @@ class Attribute_Model(BaseModel):
 class Attribute(Attribute_Model):
     attribute_value: Any = Field(None, alias="attributeValue")
 
-
     @root_validator
     def check_metadata(cls, values):
-        t=values.get('attribute_type')
-        v=values.get('attribute_value')
-        if (t=='list' or t=='options') and isinstance(v,str) and v.startswith("{") and v.startswith("{"):
-            values['attribute_value']=v[1:-1].split(',')
-        if ((t=='num_lmt' or t=='number') and isinstance(v,str) and v.isnumeric()):
-            values['attribute_value']=int(v)
+        t = values.get("attribute_type")
+        v = values.get("attribute_value")
+        if (
+            (t == "list" or t == "options")
+            and isinstance(v, str)
+            and v.startswith("{")
+            and v.startswith("{")
+        ):
+            values["attribute_value"] = v[1:-1].split(",")
+        if (t == "num_lmt" or t == "number") and isinstance(v, str) and v.isnumeric():
+            values["attribute_value"] = int(v)
 
         return values
 
 
 class AttributeInDB(Attribute):
     attribute_id: Any = Field(None, alias="attributeID")
+
     class Config:
         allow_population_by_field_name = True
 
@@ -41,31 +47,36 @@ class Type(BaseModel):
     type_name: str = Field(..., alias="typeName")
     metadata: List[Attribute_Model]
 
+
 class TypeBase(BaseModel):
     type_id: Optional[int]
     type_name: str
+
+
 class Project(BaseModel):
     id: Optional[int]
     name: str
     description: str
+
+
 class AssetBase(BaseModel):
     name: str
     link: str
     type: int
     description: str
     classification: DataAccess
-    
+
     class Config:
         json_encoders = {
             DataAccess: lambda a: str(a.value),
         }
 
 
-
 class AssetBaseInDB(AssetBase):
-    asset_id:Optional[int]
-    created_at:datetime
+    asset_id: Optional[int]
+    created_at: datetime
     last_modified_at: datetime
+
 
 class Asset(AssetBase):
     projects: List[int]
@@ -81,8 +92,10 @@ class Asset(AssetBase):
             return v
         except ValidationError as e:
             raise e
+
+
 class AssetOut(AssetBaseInDB):
-    type:str
+    type: str
     projects: List[Any]
     tags: List[Any]
     metadata: List[AttributeInDB]

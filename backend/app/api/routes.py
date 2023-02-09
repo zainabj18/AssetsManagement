@@ -1,11 +1,10 @@
-from flask import Blueprint
-
 from app.asset.routes import bp as asset_bp
 from app.auth.routes import bp as auth_bp
 from app.core.config import settings
 from app.project.routes import bp as project_bp
 from app.tag.routes import bp as tag_bp
 from app.type.routes import bp as type_bp
+from flask import Blueprint
 
 bp = Blueprint("api", __name__, url_prefix=settings.APPLICATION_ROOT_URL)
 

@@ -7,8 +7,10 @@ import {
 import { useEffect, useState } from 'react';
 import { Link as RouteLink } from 'react-router-dom';
 import { fetchAllTypes } from '../api';
+import useAuth from '../hooks/useAuth';
 
 const TypeViewer = () => {
+	const {user} = useAuth();
 
 	useEffect(() => {
 		async function load_allTypes() {
@@ -62,9 +64,9 @@ const TypeViewer = () => {
 					</Tbody>
 				</Table>
 			</TableContainer>
-			<RouteLink to='adder'>
+			{(user && user.userRole==='ADMIN') && <RouteLink to='adder'>
 				<Button>New</Button>
-			</RouteLink>
+			</RouteLink>}
 		</VStack>
 	);
 };

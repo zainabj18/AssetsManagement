@@ -25,7 +25,8 @@ const SelectFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler
 			newValues=[newValues];	
 		}
 		setValues(newValues);
-		onChangeHandler(fieldDefaultValue,newValues);
+		console.log('I am changing');
+		onChangeHandler(fieldName,newValues);
 	};
 
 	useEffect(() => {

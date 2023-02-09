@@ -1,8 +1,7 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field, SecretStr, validator
-
 from app.db import DataAccess, UserRole
+from pydantic import BaseModel, Field, SecretStr, validator
 
 SPECIAL_CHARECTERS = list("$#@!*&")
 PASSWORD_MIN_LENGTH = 10

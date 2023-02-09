@@ -13,16 +13,22 @@ import {
 	useDisclosure
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { Link as RouteLink } from 'react-router-dom';
+import { Link as RouteLink, useNavigate } from 'react-router-dom';
 import AttributeMaker from '../components/AttributeMaker';
 import AttributeManager from '../components/AttributeManager';
 import { fetchAllAttributes, createAttribute, createType } from '../api';
+import useAuth from '../hooks/useAuth';
 
 const TypeAdder = () => {
 
 	const [trigger, setTrigger] = useBoolean();
+	const {user} = useAuth();
+	let navigate=useNavigate();
 
 	useEffect(() => {
+		if (user && user.userRole!=='ADMIN'){
+			navigate('../');
+		}
 		async function load_allAttributes() {
 			let data = await fetchAllAttributes(res => res.data);
 			set_allAttributes(data);

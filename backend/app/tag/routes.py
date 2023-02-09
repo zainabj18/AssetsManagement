@@ -1,11 +1,10 @@
+from app.db import get_db
+from app.schemas import TagBase
 from flask import Blueprint, jsonify, request
 from psycopg import Error
 from psycopg.errors import UniqueViolation
 from psycopg.rows import dict_row
 from pydantic import ValidationError
-
-from app.db import get_db
-from app.schemas import TagBase
 
 bp = Blueprint("tag", __name__, url_prefix="/tag")
 

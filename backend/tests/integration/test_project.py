@@ -1,6 +1,7 @@
 from unittest import mock
-from psycopg.rows import dict_row
+
 from psycopg import Error
+from psycopg.rows import dict_row
 
 
 def test_project_list(client, db_conn):
@@ -38,7 +39,8 @@ def test_projects_list_db_error(client):
             "msg": "Fake error executing query",
         }
 
-def test_project_route(client,db_conn):
+
+def test_project_route(client, db_conn):
     test_project = {
         "name": "Project1",
         "description": "New Project",
@@ -49,8 +51,7 @@ def test_project_route(client,db_conn):
     with db_conn.cursor(row_factory=dict_row) as cur:
         cur.execute(
             """SELECT * FROM projects WHERE name=%(name)s AND description=%(description)s;""",
-            {"name": test_project["name"],
-            "description": test_project["description"]}
+            {"name": test_project["name"], "description": test_project["description"]},
         )
         attribute = cur.fetchone()
         assert attribute["name"] == test_project["name"]

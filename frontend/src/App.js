@@ -14,6 +14,7 @@ import SubLayout from './routes/assets/SubLayout';
 import AssetList from './components/AssetList';
 import CreateProject from './routes/CreateProject';
 import { Button } from '@chakra-ui/react';
+import AdminManager from './routes/AdminManager';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -35,6 +36,7 @@ function App() {
 						<Route index element={<TypeViewer />} />
 						<Route path="adder" element={<TypeAdder />} />
 					</Route>
+					<Route path="accounts" element={<AdminManager />} />
 					<Route path="user" element={<User />} />
 				</Route>
 				<Route path="*" element={<NoMatch />} />

@@ -64,17 +64,20 @@ const AssetViewer = () => {
 
 	const handleMetadataChange = (attributeName, attribute_value) => {
 		console.log(attribute_value);
+		console.log('I am name');
+		console.log(attributeName);
 		let metadata = assetSate.metadata;
 		let newMetadata = metadata.map((attribute) => {
 			if (attribute.attributeName === attributeName) {
 				return {
 					...attribute,
-					attribute_value: attribute_value,
+					attributeValue: attribute_value,
 				};
 			} else {
 				return attribute;
 			}
 		});
+		console.log(newMetadata);
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
 			metadata: newMetadata,
