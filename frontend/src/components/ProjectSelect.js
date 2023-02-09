@@ -21,7 +21,6 @@ import {
 	Checkbox,
 	Input,
 	VStack,
-	Fade
 } from '@chakra-ui/react';
 
 

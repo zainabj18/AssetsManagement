@@ -2,11 +2,11 @@ import { Heading, VStack } from '@chakra-ui/react';
 import {Outlet} from 'react-router-dom';
 
 
-const AssetsLayout= () => {
+const SubLayout= ({name}) => {
 	return (<VStack>
-		<Heading>Assets</Heading>
+		<Heading>{name}</Heading>
 		<Outlet />
 	</VStack>);
 };
  
-export default AssetsLayout;
+export default SubLayout;

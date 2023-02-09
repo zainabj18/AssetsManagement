@@ -303,13 +303,13 @@ def test_new_asset_values(client,new_asset,db_conn):
             assert atr.attribute_id in values
 
 
-def test_new_asset_get(client,new_asset):
+def test_new_asset_get(valid_client,new_asset):
     data = json.loads(new_asset.json())
-    res = client.post("/api/v1/asset/", json=data)
+    res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 200
     assert res.json["msg"]=="Added asset"
     asset_id=res.json["data"]
-    res = client.get(f"/api/v1/asset/{asset_id}", json=data)
+    res = valid_client.get(f"/api/v1/asset/{asset_id}", json=data)
     assert res.status_code == 200
     saved_asset=res.json["data"]
     assert saved_asset["name"]==new_asset.name

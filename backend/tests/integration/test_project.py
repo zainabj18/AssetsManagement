@@ -43,7 +43,7 @@ def test_project_route(client,db_conn):
         "name": "Project1",
         "description": "New Project",
     }
-    res = client.post("/api/v1/projects/new", json=test_project)
+    res = client.post("/api/v1/project/new", json=test_project)
     assert res.status_code == 200
 
     with db_conn.cursor(row_factory=dict_row) as cur:

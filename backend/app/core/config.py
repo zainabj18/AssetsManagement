@@ -10,7 +10,7 @@ class DatabaseSettings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
-    POSTGRES_PORT: Optional[str] = "5433"
+    POSTGRES_PORT: Optional[str] = "5432"
     POSTGRES_DATABASE_URI: Optional[PostgresDsn] = None
 
     @validator("POSTGRES_DATABASE_URI")

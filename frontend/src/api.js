@@ -75,5 +75,5 @@ export const updateAsset = async (id,asset) => {
 };
 export const createProject = async (project)=> {
 	console.log(project);
-	return await axios.post('/projects/new', project).then(res=>res.data);
+	return await axios.post('/project/new', project).then(res=>res.data);
 };
