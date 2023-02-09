@@ -1,0 +1,40 @@
+import React, { useState } from "react";
+import { Box, List, ListItem, Checkbox, Text } from "@chakra-ui/core";
+
+const ToDoList = () => {
+  const [todos, setTodos] = useState([
+    { text: "Learn React", isCompleted: false },
+    { text: "Learn Chakra UI", isCompleted: false },
+    { text: "Build a to-do list application", isCompleted: false }
+  ]);
+
+  const handleTodoClick = index => {
+    const newTodos = [...todos];
+    newTodos[index].isCompleted = !newTodos[index].isCompleted;
+    setTodos(newTodos);
+  };
+
+  return (
+    <Box>
+      <List>
+        {todos.map((todo, index) => (
+          <ListItem key={index}>
+            <Checkbox
+              isChecked={todo.isCompleted}
+              onChange={() => handleTodoClick(index)}
+            />
+            <Text
+              ml={2}
+              textDecoration={todo.isCompleted ? "line-through" : "none"}
+            >
+              {todo.text}
+            </Text>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  );
+};
+
+export default ToDoList;
+to-do list application 
