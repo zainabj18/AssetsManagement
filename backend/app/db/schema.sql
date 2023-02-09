@@ -71,7 +71,7 @@ CREATE TABLE attributes
 	asset_id SERIAL,
 	name VARCHAR NOT NULL UNIQUE,
 	link VARCHAR NOT NULL,
-    type SERIAL,
+    type INTEGER,
     description VARCHAR NOT NULL,
 	classification data_classification NOT NULL DEFAULT 'PUBLIC',
 	created_at timestamp NOT NULL DEFAULT now(),

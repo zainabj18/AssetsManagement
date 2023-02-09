@@ -298,7 +298,7 @@ def test_asset_added_to_db(client, db_conn):
         assert asset["metadata"] == [Attribute(**x) for x in data["metadata"]]
 
 
-def test_get_asset_added_to_db(client):
+def test_get_asset_added_to_dbc(client):
     data = {
         "name": "My Framework",
         "link": "https://github.com/",
@@ -381,5 +381,20 @@ def test_new_asset_projects(client,new_asset,db_conn):
     with db_conn.cursor() as cur:
         cur.execute("""SELECT project_id FROM assets_in_projects WHERE asset_id=%(id)s;""", {"id": res.json["data"]})
         assert set(cur.fetchall()[0])==set(new_asset.projects)
+
+def test_new_asset_in_db(client,new_asset,db_conn):
+    data = json.loads(new_asset.json())
+    res = client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 200
+    assert res.json["msg"]=="Added asset"
+    assert res.json["data"]
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute("""SELECT * FROM assets WHERE asset_id=%(id)s;""", {"id": res.json["data"]})
+        asset=cur.fetchone()
+        assert asset["name"] == new_asset.name
+        assert asset["link"] == new_asset.link
+        assert asset["type"] == new_asset.type
+        assert asset["description"] == new_asset.description
+        assert asset["classification"] == new_asset.classification
 # TODO:Test asset name is unique
 # TODO:Test DB error
