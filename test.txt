@@ -1,0 +1,4 @@
+Test Asset created_at
+Submit form and enter in all fields
+Check not validation erorrs appear
+Check asset in db

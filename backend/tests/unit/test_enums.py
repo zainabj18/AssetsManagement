@@ -15,6 +15,8 @@ def test_user_role_ordering():
     assert UserRole.ADMIN.name == UserRole.ADMIN.value == "ADMIN"
     assert UserRole.VIEWER.name == UserRole.VIEWER.value == "VIEWER"
 
+    assert UserRole.VIEWER <= UserRole.USER <= UserRole.ADMIN
+
 
 def test_data_access_ordering():
     assert DataAccess.PUBLIC < DataAccess.INTERNAL
@@ -41,4 +43,11 @@ def test_data_access_ordering():
     assert DataAccess.CONFIDENTIAL == DataAccess.CONFIDENTIAL
     assert (
         DataAccess.CONFIDENTIAL.name == DataAccess.CONFIDENTIAL.value == "CONFIDENTIAL"
+    )
+
+    assert (
+        DataAccess.PUBLIC
+        <= DataAccess.INTERNAL
+        <= DataAccess.RESTRICTED
+        <= DataAccess.CONFIDENTIAL
     )

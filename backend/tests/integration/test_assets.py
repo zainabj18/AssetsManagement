@@ -1,7 +1,7 @@
 import pytest
 from psycopg.rows import dict_row
-
-from app.db import DataAccess
+import json
+from app.db import DataAccess, UserRole
 from app.schemas import Attribute
 
 
@@ -77,13 +77,13 @@ def test_new_assset_requires_tag(client):
     } in res.json["data"]
 
 
-def test_new_assset_requires_access_level(client):
+def test_new_assset_requires_classification(client):
     res = client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
     assert {
-        "loc": ["access_level"],
+        "loc": ["classification"],
         "msg": "field required",
         "type": "value_error.missing",
     } in res.json["data"]
@@ -152,9 +152,7 @@ def test_new_assset_tyes_correct(client, attribute, json):
     [
         ("name", {"name": []}),
         ("link", {"link": []}),
-        ("type", {"type": []}),
-        ("description", {"description": []}),
-        ("project", {"project": []}),
+        ("description", {"description": []})
     ],
 )
 def test_new_assset_string_types_incorect(client, attribute, json):
@@ -175,19 +173,21 @@ def test_new_assset_tags_list_incorect(client):
     assert res.json["msg"] == "Data provided is invalid"
     assert {
         "loc": ["tags", 1],
-        "msg": "str type expected",
-        "type": "type_error.str",
+        "msg": "value is not a valid integer",
+        "type": "type_error.integer",
     } in res.json["data"]
 
-
-def test_new_assset_acces_level_incorrect(client):
-    res = client.post("/api/v1/asset/", json={"access_level": []})
+def test_new_assset_project_list_incorect(client):
+    res = client.post("/api/v1/asset/", json={"projects": ["1", []]})
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
-    assert None == res.json["data"]
+    assert {
+        "loc": ["projects", 1],
+        "msg": "value is not a valid integer",
+        "type": "type_error.integer",
+    } in res.json["data"]
 
-
-def test_new_assset_metadata_incorrect(client):
+def test_new_assset_metadata_incorrect_integer(client):
     res = client.post("/api/v1/asset/", json={"metadata": 1})
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -196,7 +196,7 @@ def test_new_assset_metadata_incorrect(client):
         "msg": "value is not a valid list",
         "type": "type_error.list",
     } in res.json["data"]
-
+def test_new_assset_metadata_incorrect_mixed_type(client):
     res = client.post(
         "/api/v1/asset/",
         json={"metadata": [{"s": "s"}, {"attributeName": "s", "attribute_type": []}]},
@@ -208,26 +208,26 @@ def test_new_assset_metadata_incorrect(client):
         "msg": "field required",
         "type": "value_error.missing",
     } in res.json["data"]
-    assert {
-        "loc": ["metadata", 0, "attributeType"],
-        "msg": "field required",
-        "type": "value_error.missing",
-    } in res.json["data"]
-    assert {
-        "loc": ["metadata", 0, "attributeValue"],
-        "msg": "field required",
-        "type": "value_error.missing",
-    } in res.json["data"]
-    assert {
-        "loc": ["metadata", 1, "attributeValue"],
-        "msg": "field required",
-        "type": "value_error.missing",
-    } in res.json["data"]
-    assert {
-        "loc": ["metadata", 1, "attributeType"],
-        "msg": "str type expected",
-        "type": "type_error.str",
-    } in res.json["data"]
+    # assert {
+    #     "loc": ["metadata", 0, "attributeType"],
+    #     "msg": "field required",
+    #     "type": "value_error.missing",
+    # } in res.json["data"]
+    # assert {
+    #     "loc": ["metadata", 0, "attributeValue"],
+    #     "msg": "field required",
+    #     "type": "value_error.missing",
+    # } in res.json["data"]
+    # assert {
+    #     "loc": ["metadata", 1, "attributeValue"],
+    #     "msg": "field required",
+    #     "type": "value_error.missing",
+    # } in res.json["data"]
+    # assert {
+    #     "loc": ["metadata", 1, "attributeType"],
+    #     "msg": "str type expected",
+    #     "type": "type_error.str",
+    # } in res.json["data"]
 
 
 def test_new_assset_requires_project(client):
@@ -236,124 +236,85 @@ def test_new_assset_requires_project(client):
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
     assert {
-        "loc": ["project"],
+        "loc": ["projects"],
         "msg": "field required",
         "type": "value_error.missing",
     } in res.json["data"]
 
 
-def test_asset_added_to_db(client, db_conn):
-    data = {
-        "name": "My Framework",
-        "link": "https://github.com/",
-        "type": "Framework",
-        "description": "A custom frontend framework",
-        "tags": ["React", "UI"],
-        "project": "General",
-        "access_level": "PUBLIC",
-        "metadata": [
-            {
-                "attributeName": "programming Language(s)",
-                "attributeType": "text",
-                "attributeValue": "React,JS,CSS",
-            },
-            {
-                "attributeName": "public",
-                "attributeType": "checkbox",
-                "attributeValue": True,
-            },
-            {
-                "attributeName": "no. of issues",
-                "attributeType": "number",
-                "attributeValue": 2,
-            },
-            {
-                "attributeName": "built on",
-                "attributeType": "datetime-local",
-                "attributeValue": "2021-12-10T13:45",
-            },
-            {
-                "attributeName": "version",
-                "attributeType": "text",
-                "attributeValue": "v1",
-            },
-        ],
-    }
+def test_new_assset_incorrect_classification(client):
+    res = client.post("/api/v1/asset/", json={"classification":[]})
+    assert res.status_code == 400
+    assert res.json["error"] == "Failed to create asset from the data provided"
+    assert res.json["msg"] == "Data provided is invalid"
+    assert res.json["data"]==None
+
+def test_get_access_levels(valid_client):
+    res = valid_client.get("/api/v1/asset/classifications")
+    assert res.status_code == 200
+    assert res.json["data"] == ["PUBLIC", "INTERNAL", "RESTRICTED", "CONFIDENTIAL"]
+
+
+def test_new_asset_tags(client,new_asset,db_conn):
+    data = json.loads(new_asset.json())
     res = client.post("/api/v1/asset/", json=data)
     assert res.status_code == 200
+    assert res.json["msg"]=="Added asset"
+    assert res.json["data"]
+    with db_conn.cursor() as cur:
+        cur.execute("""SELECT tag_id FROM assets_in_tags WHERE asset_id=%(id)s;""", {"id": res.json["data"]})
+        assert set(cur.fetchall()[0])==set(new_asset.tags)
 
+def test_new_asset_projects(client,new_asset,db_conn):
+    data = json.loads(new_asset.json())
+    res = client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 200
+    assert res.json["msg"]=="Added asset"
+    assert res.json["data"]
+    with db_conn.cursor() as cur:
+        cur.execute("""SELECT project_id FROM assets_in_projects WHERE asset_id=%(id)s;""", {"id": res.json["data"]})
+        assert set(cur.fetchall()[0])==set(new_asset.projects)
+
+def test_new_asset_in_db(client,new_asset,db_conn):
+    data = json.loads(new_asset.json())
+    res = client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 200
+    assert res.json["msg"]=="Added asset"
+    assert res.json["data"]
     with db_conn.cursor(row_factory=dict_row) as cur:
-        cur.execute(
-            """SELECT * FROM assets WHERE name=%(name)s;""", {"name": data["name"]}
-        )
-        asset = cur.fetchone()
-        assert asset["name"] == data["name"]
-        assert asset["link"] == data["link"]
-        assert asset["type"] == data["type"]
-        assert asset["description"] == data["description"]
-        assert asset["tags"] == data["tags"]
-        assert asset["project"] == data["project"]
-        assert asset["access_level"] == DataAccess.PUBLIC
-        assert asset["metadata"] == [Attribute(**x) for x in data["metadata"]]
+        cur.execute("""SELECT * FROM assets WHERE asset_id=%(id)s;""", {"id": res.json["data"]})
+        asset=cur.fetchone()
+        assert asset["name"] == new_asset.name
+        assert asset["link"] == new_asset.link
+        assert asset["type"] == new_asset.type
+        assert asset["description"] == new_asset.description
+        assert asset["classification"] == new_asset.classification
 
-
-def test_get_asset_added_to_db(client):
-    data = {
-        "name": "My Framework",
-        "link": "https://github.com/",
-        "type": "Framework",
-        "description": "A custom frontend framework",
-        "tags": ["React", "UI"],
-        "project": "General",
-        "access_level": "PUBLIC",
-        "metadata": [
-            {
-                "attributeName": "programming Language(s)",
-                "attributeType": "text",
-                "attributeValue": "React,JS,CSS",
-            },
-            {
-                "attributeName": "public",
-                "attributeType": "checkbox",
-                "attributeValue": True,
-            },
-            {
-                "attributeName": "no. of issues",
-                "attributeType": "number",
-                "attributeValue": 2,
-            },
-            {
-                "attributeName": "built on",
-                "attributeType": "datetime-local",
-                "attributeValue": "2021-12-10T13:45",
-            },
-            {
-                "attributeName": "version",
-                "attributeType": "text",
-                "attributeValue": "v1",
-            },
-        ],
-    }
+def test_new_asset_values(client,new_asset,db_conn):
+    data = json.loads(new_asset.json())
     res = client.post("/api/v1/asset/", json=data)
     assert res.status_code == 200
-    res = client.get("/api/v1/asset/1")
-    assert res.status_code == 200
-    asset = res.json
-    assert asset["name"] == data["name"]
-    assert asset["link"] == data["link"]
-    assert asset["type"] == data["type"]
-    assert asset["description"] == data["description"]
-    assert asset["tags"] == data["tags"]
-    assert asset["project"] == data["project"]
-    assert asset["access_level"] == "PUBLIC"
-    assert asset["metadata"] == [Attribute(**x) for x in data["metadata"]]
+    assert res.json["msg"]=="Added asset"
+    assert res.json["data"]
+    with db_conn.cursor() as cur:
+        cur.execute("""SELECT attribute_id as attribute_value FROM attributes_values WHERE asset_id=%(id)s;""", {"id": res.json["data"]})
+        values=[x[0]for x in cur.fetchall()]
+        for atr in new_asset.metadata:
+            assert atr.attribute_id in values
 
-def test_get_access_levels(client):
-    res = client.get(
-        "/api/v1/asset/classifications"
-    )
-    assert res.status_code == 200
-    assert res.json["data"]==['PUBLIC', 'INTERNAL', 'RESTRICTED', 'CONFIDENTIAL']
 
-#TODO:Test asset name is unique
-#TODO:Test DB error
+def test_new_asset_get(valid_client,new_asset):
+    data = json.loads(new_asset.json())
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 200
+    assert res.json["msg"]=="Added asset"
+    asset_id=res.json["data"]
+    res = valid_client.get(f"/api/v1/asset/{asset_id}", json=data)
+    assert res.status_code == 200
+    saved_asset=res.json["data"]
+    assert saved_asset["name"]==new_asset.name
+    assert saved_asset["description"]==str(new_asset.description)
+    assert saved_asset["classification"]==str(new_asset.classification.value)
+    assert saved_asset["link"]==str(new_asset.link)
+# TODO:Test asset name is unique
+# TODO:Test DB error

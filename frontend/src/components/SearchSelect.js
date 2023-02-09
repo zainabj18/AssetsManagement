@@ -40,22 +40,28 @@ const SearchSelect = ({dataFunc,selectedValue,setSelectedValue,createFunc}) => {
 	};
 
 	const handleQuery=(query)=>{
+		
+
 		setSearchQuery(query);
-		if (query===''){
-			setResults(data);
-			setCanCreate.off();
-		}
-		if (query.length > 0 && data.length > 0 && query!=='') {
-			let filteredResults=data.filter((d) => {
-				return d.name.toLowerCase().includes(query.toLowerCase());
-			});
-			setResults(filteredResults);
-			if (filteredResults.length===0 && query!==''){
-				setCanCreate.on();
+		if (data.length<1 && query.length > 0){
+			setCanCreate.on();
+		}else{
+			if (query.length > 0){
+				let filteredResults=data.filter((d) => {
+					return d.name.toLowerCase().includes(query.toLowerCase());
+				});
+				setResults(filteredResults);
+				console.log('I am fileted results',filteredResults);
+				if (filteredResults.length===0){
+					setCanCreate.on();
+				}else{
+					setCanCreate.off();
+				}
 			}else{
 				setCanCreate.off();
 			}
-		}};
+		}
+	};
 	const getNewData=()=>{
 		dataFunc().then(res=>{
 			setData(res.data);
@@ -66,7 +72,7 @@ const SearchSelect = ({dataFunc,selectedValue,setSelectedValue,createFunc}) => {
 	useEffect(() => {
 		console.log(dataFunc);
 		getNewData();
-		console.log(data.length);
+		
 	}, []);
     
 	return ( 
@@ -95,7 +101,7 @@ const SearchSelect = ({dataFunc,selectedValue,setSelectedValue,createFunc}) => {
 					</PopoverTrigger>
 				</HStack>
 				
-				<PopoverContent>
+				<PopoverContent color={'white'}>
 					<PopoverBody overflowY={'scroll'} maxHeight={'xs'} onScroll={handleScroll}>
 						{selectedValue && <Box fontWeight='bold' color='teal.600' background='grey'
                     	key={selectedValue.id}

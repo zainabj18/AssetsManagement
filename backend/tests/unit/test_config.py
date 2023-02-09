@@ -5,8 +5,7 @@ import pytest
 from pydantic.error_wrappers import ValidationError
 
 from app import create_app
-from app.core.config import (Base, BaseTestConfig, DevelopmentConfig,
-                             ProductionConfig)
+from app.core.config import Base, BaseTestConfig, DevelopmentConfig, ProductionConfig
 
 
 def test_base_config():
