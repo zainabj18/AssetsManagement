@@ -185,9 +185,7 @@ const AdminManager = () => {
 				</TableContainer>
 			</Stack>
 			<Stack>
-				<Link to="/user">
-					<Button right={370} colorScheme='blue' size={'lg'} onClick={newuser}>New</Button>
-				</Link>
+				<Link href='/user'><Button right={370} colorScheme={'blue'} size={'lg'}>New</Button></Link>
 			</Stack>	
 		</VStack>
     
