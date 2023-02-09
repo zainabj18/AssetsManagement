@@ -1,8 +1,7 @@
-from flask import Blueprint, jsonify, request
-from pydantic import ValidationError
-
 from app.db import get_db
 from app.schemas import Project
+from flask import Blueprint, jsonify, request
+from pydantic import ValidationError
 
 bp = Blueprint("projects", __name__, url_prefix="/projects")
 
@@ -39,7 +38,8 @@ def create():
     db_project = project.dict()
     with db.connection() as conn:
         conn.execute(
-            """INSERT INTO projects (name,description)VALUES (%(name)s,%(description)s);""", db_project,
+            """INSERT INTO projects (name,description)VALUES (%(name)s,%(description)s);""",
+            db_project,
         )
 
     return jsonify({"msg": "The user have created a new project"}), 200

@@ -1,10 +1,9 @@
 import os
 
 import click
+from app.db import close_db, get_db
 from flask import current_app
 from werkzeug.security import generate_password_hash
-
-from app.db import close_db, get_db
 
 
 def init_db():

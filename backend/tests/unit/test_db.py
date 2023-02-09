@@ -1,9 +1,8 @@
+from app.db import DataAccess, UserRole, get_db, init_db
 from flask import g
 from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool
 from werkzeug.security import check_password_hash
-
-from app.db import DataAccess, UserRole, get_db, init_db
 
 
 def test_db_connection(flask_app):

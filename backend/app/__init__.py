@@ -1,9 +1,8 @@
-from flask import Flask, Response
-from flask_cors import CORS
-
 from app.api import bp as api_bp
 from app.core.config import settings
 from app.db import close_db, init_db_command
+from flask import Flask, Response
+from flask_cors import CORS
 
 
 class JSONResponse(Response):

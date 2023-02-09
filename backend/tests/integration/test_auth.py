@@ -4,12 +4,11 @@ from unittest import mock
 
 import jwt
 import pytest
+from app.db import DataAccess, UserRole, get_db
 from psycopg import Error
 from psycopg.rows import dict_row
 from werkzeug.http import parse_cookie
 from werkzeug.security import check_password_hash
-
-from app.db import DataAccess, UserRole, get_db
 
 
 def test_register_requires_username(client):

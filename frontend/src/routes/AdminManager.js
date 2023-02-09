@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { Heading, VStack,Text, HStack } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import { Input, Stack } from '@chakra-ui/react';
@@ -27,11 +27,14 @@ import { Link } from '@chakra-ui/react';
 
 const AdminManager = () => {
 
-	const { adminmanager } = useAuth();
+	const {user} = useAuth();
+	let navigate=useNavigate();
 
 	useEffect(() => {
-		console.log(adminmanager);
-	});
+		if (user && user.userRole!=='ADMIN'){
+			navigate('../');
+		}
+	});	
 
 	const [inputField, setInputField] = useState([{username: '' }]);
 	const [accountdetails] = useState([{accdetails: ''}]);

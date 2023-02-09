@@ -1,9 +1,8 @@
 from functools import wraps
 
 import jwt
-from flask import abort, current_app, request
-
 from app.db import DataAccess, UserRole
+from flask import abort, current_app, request
 
 
 def decode_token(request):
@@ -39,7 +38,11 @@ def protected(role=UserRole.VIEWER):
                     "msg": "Your account is forbidden to access this please speak to your admin",
                     "error": "Invalid Token",
                 }, 403
-            return func(user_id=data["account_id"],access_level=DataAccess(data["account_privileges"]),**kwargs)
+            return func(
+                user_id=data["account_id"],
+                access_level=DataAccess(data["account_privileges"]),
+                **kwargs
+            )
 
         return wrapper
 
