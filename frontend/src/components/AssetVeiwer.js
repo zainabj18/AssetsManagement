@@ -120,7 +120,6 @@ const AssetViewer = () => {
 	const createNewAsset = (e) => {
 		e.preventDefault();
 		//axios.post('/api/v1/asset/new', assetSate);
-		
 		console.log(Object.entries(assetSate));
 		console.log(assetSate.name.length);
 		setErrors([]);
@@ -145,7 +144,9 @@ const AssetViewer = () => {
 				tags:tag_ids
 			};
 			console.log(assetObj);
-			createAsset(assetObj).then(res=>console.log(res)).catch(err=>console.log(err));
+			createAsset(assetObj).then(
+				
+				res=>navigate(`../view/${res.data}`)).catch(err=>console.log(err));
 		}else{
 			setErrors(errs);
 		}

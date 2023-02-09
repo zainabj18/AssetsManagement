@@ -12,7 +12,7 @@ export const logoutUser = async () => {
 	return await axios.delete('/auth/logout').then(res => res.data);
 };
 export const fetchAsset = async (id) => {
-	return await axios.get(`/asset/get/${id}`).then(res => res.data);
+	return await axios.get(`/asset/${id}`).then(res => res.data);
 };
 export const fetchAssetClassifications= async ()=> {
 	return await axios.get('/asset/classifications').then(res=>res.data);

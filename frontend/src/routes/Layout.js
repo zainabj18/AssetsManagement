@@ -1,4 +1,4 @@
-import { Outlet,useNavigate} from 'react-router-dom';
+import { Outlet,redirect} from 'react-router-dom';
 import { Container, Heading, VStack,Spinner } from '@chakra-ui/react';
 import useAuth from '../hooks/useAuth';
 import { useEffect } from 'react';
@@ -6,10 +6,9 @@ import Header from '../components/Header';
 
 const Layout = () => {
 	const {loggedIn} = useAuth();
-	let navigate = useNavigate();
 	useEffect(() => {
 		if (!loggedIn){
-			navigate('/login');
+			redirect('/login');
 		}
 	},[loggedIn]);
 	return (

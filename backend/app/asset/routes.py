@@ -1,10 +1,10 @@
 from flask import Blueprint, jsonify, request
-from psycopg.rows import class_row
+from psycopg.rows import class_row,dict_row
 from pydantic import ValidationError
 
 from app.core.utils import protected
 from app.db import DataAccess, UserRole, get_db
-from app.schemas import AssetBase, AssetBaseInDB
+from app.schemas import Asset, AssetBaseInDB,AttributeInDB
 
 bp = Blueprint("asset", __name__, url_prefix="/asset")
 import json
@@ -15,7 +15,7 @@ def create():
     print(request.json)
     try:
         try:
-            asset = AssetBase(**request.json)
+            asset = Asset(**request.json)
         except ValidationError as e:
             return (
                 jsonify(
@@ -95,4 +95,15 @@ def view(id):
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
             cur.execute("""SELECT * FROM assets WHERE asset_id=%(id)s;""", {"id": id})
             asset = cur.fetchone()
-    return asset.json(), 200
+        with db_conn.cursor(row_factory=class_row(AttributeInDB)) as cur:
+            cur.execute("""SELECT attributes.attribute_id,attribute_name, attribute_data_type as attribute_type, validation_data,value as attribute_value FROM attributes_values 
+INNER JOIN attributes on attributes.attribute_id=attributes_values.attribute_id WHERE asset_id=%(id)s;""", {"id": id})
+            metadata=(cur.fetchall())
+        with db_conn.cursor() as cur:
+            cur.execute("""SELECT project_id FROM assets_in_projects WHERE asset_id=%(id)s;""", {"id": id})
+            projects=(list(cur.fetchall()[0]))
+            cur.execute("""SELECT tag_id FROM assets_in_tags WHERE asset_id=%(id)s;""", {"id": id})
+            tags=(list(cur.fetchall()[0]))
+        asset=Asset(**asset.dict(),metadata=metadata,projects=projects,tags=tags)
+       
+    return {"data": json.loads(asset.json(by_alias=True))}, 200

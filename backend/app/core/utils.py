@@ -25,6 +25,8 @@ def decode_token(request):
         return data
     except jwt.ExpiredSignatureError as e:
         abort(401, {"msg": str(e), "error": "Invalid Token"})
+    except jwt.InvalidSignatureError as e:
+        abort(401, {"msg": str(e), "error": "Invalid Token"})
 
 
 def protected(role=UserRole.VIEWER):
