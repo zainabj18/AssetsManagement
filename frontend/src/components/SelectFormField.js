@@ -21,9 +21,11 @@ const SelectFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler
 	const [type, setType] = useState(null);
 
 	const handleChange=(newValues)=>{
-		if (type==='radio'){
-			newValues=[newValues];	
-		}
+		console.log('hello');
+		// if (type==='radio'){
+		// 	console.log('hello');
+		// 	newValues=newValues;	
+		// }
 		setValues(newValues);
 		console.log('I am changing');
 		onChangeHandler(fieldName,newValues);
@@ -32,14 +34,14 @@ const SelectFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler
 	useEffect(() => {
 	  if (!validation.isMulti){
 			setType('radio');
-			console.log('I am multi');
+			console.log('I am raio');
 			if (fieldDefaultValue){
 				setValues([fieldDefaultValue]);
 			}
 	  }else{
 			setType('checkbox');
 			if (fieldDefaultValue){
-				setValues(fieldDefaultValue);
+				setValues([fieldDefaultValue]);
 			}	
 	  }
 	  setOptions(validation.values);
