@@ -16,6 +16,7 @@ psycopg-binary==3.1.8
 psycopg-pool==3.1.5
 psycopg2-binary==2.9.5
 pydantic==1.10.4
+pydantic-factories==1.17.2
 PyJWT==2.6.0
 pytest==7.2.1
 pytest-env==0.8.1
