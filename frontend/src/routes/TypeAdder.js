@@ -174,7 +174,7 @@ const TypeAdder = () => {
 				onClose={onClose_attributeCreator}
 			>
 				<ModalOverlay />
-				<ModalContent colorScheme='blue'>
+				<ModalContent>
 					<ModalHeader>Create New Attribute</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>

@@ -5,6 +5,7 @@ import FormLabel from './components/FormLabel';
 import styles from './styles';
 import { tagTheme } from './components/Tag';
 import Button from './components/Button';
+import { modalTheme } from './components/Modal';
 
 const overrides = {
 	styles,
@@ -12,7 +13,8 @@ const overrides = {
 		Link,
 		FormLabel,
 		Button,
-		Tag:tagTheme
+		Tag:tagTheme,
+		Modal: modalTheme
 	}
 };
 
