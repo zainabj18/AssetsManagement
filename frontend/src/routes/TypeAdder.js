@@ -122,6 +122,7 @@ const TypeAdder = () => {
 				/>
 			</FormControl>
 			<HStack minW='80%'>
+
 				{/** The list of all allAttributes */}
 				<FormControl width='30%'>
 					<FormLabel>Select all Attributes</FormLabel>
@@ -140,6 +141,7 @@ const TypeAdder = () => {
 						);
 					})}
 				</FormControl>
+
 				{/** The List of selected allAttributes */}
 				<TableContainer width='70%'>
 					<Table varient='simple'>
@@ -162,6 +164,7 @@ const TypeAdder = () => {
 						</Tbody>
 					</Table>
 				</TableContainer>
+				
 			</HStack>
 			<Button onClick={open_AttributeCreator}>Add</Button>
 			<RouteLink to='/type'>
@@ -208,6 +211,7 @@ const TypeAdder = () => {
 								})}
 							</Select>
 						</FormControl>
+
 						{/** Extra form for the num_lmt data type*/}
 						{display_num_lmt &&
 							<FormControl isRequired>
@@ -232,8 +236,8 @@ const TypeAdder = () => {
 										}}
 									></input>
 								</HStack>
-							</FormControl>
-						}
+							</FormControl>}
+
 						{/** Extra form for the options data type*/}
 						{display_options && <FormControl isRequired>
 							<FormLabel>Choices</FormLabel>
@@ -253,8 +257,8 @@ const TypeAdder = () => {
 									set_creationData(creationData);
 								}} />
 							</HStack>
-						</FormControl>
-						}
+						</FormControl>}
+
 						{/** Extra form for the list data type*/}
 						{display_list && <FormControl isRequired>
 							<FormLabel>List Type</FormLabel>
@@ -266,13 +270,12 @@ const TypeAdder = () => {
 								<option>email</option>
 								<option>url</option>
 							</Select>
-						</FormControl>
-						}
+						</FormControl>}
+
 					</ModalBody>
 					<ModalFooter>
 						<Button onClick={tryCreate_attribute}>Save</Button>
-						<Button
-							onClick={onClose_attributeCreator}>Cancel</Button>
+						<Button onClick={onClose_attributeCreator}>Cancel</Button>
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
