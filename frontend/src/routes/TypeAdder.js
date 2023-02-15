@@ -22,11 +22,11 @@ import useAuth from '../hooks/useAuth';
 const TypeAdder = () => {
 
 	const [trigger, setTrigger] = useBoolean();
-	const {user} = useAuth();
-	let navigate=useNavigate();
+	const { user } = useAuth();
+	let navigate = useNavigate();
 
 	useEffect(() => {
-		if (user && user.userRole!=='ADMIN'){
+		if (user && user.userRole !== 'ADMIN') {
 			navigate('../');
 		}
 		async function load_allAttributes() {
@@ -81,7 +81,7 @@ const TypeAdder = () => {
 		set_display_num_lmt(data.type === 'num_lmt');
 		set_display_list(data.type === 'list');
 		set_display_options(data.type === 'options');
-		
+
 	};
 
 	const open_AttributeCreator = () => {
@@ -251,9 +251,10 @@ const TypeAdder = () => {
 								<Checkbox onChange={(e) => {
 									creationData.isMulti = e.target.checked;
 									set_creationData(creationData);
-								}}/>
+								}} />
 							</HStack>
-						</FormControl>}
+						</FormControl>
+						}
 						{/** Extra form for the list data type*/}
 						{display_list && <FormControl isRequired>
 							<FormLabel>List Type</FormLabel>
@@ -265,7 +266,8 @@ const TypeAdder = () => {
 								<option>email</option>
 								<option>url</option>
 							</Select>
-						</FormControl>}
+						</FormControl>
+						}
 					</ModalBody>
 					<ModalFooter>
 						<Button onClick={tryCreate_attribute}>Save</Button>
