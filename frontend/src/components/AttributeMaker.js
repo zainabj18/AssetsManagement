@@ -1,4 +1,4 @@
-import AttributeManager from './AttributeManager';
+import TypeAdderManager from './TypeAdderManager';
 
 /** Class to hold and use the input data for creating a new attribute */
 export default class AttributeMaker {
@@ -29,7 +29,7 @@ export default class AttributeMaker {
 	 * An empty string for an error message means that there was no error.
 	 */
 	checkForErrors = (allAttributes) => {
-		let duplicate = AttributeManager.isAttributeNameIn(this.name, allAttributes);
+		let duplicate = TypeAdderManager.isAttributeNameIn(this.name, allAttributes);
 		let emptyName = this.name === '';
 
 		let name_errorMessage;

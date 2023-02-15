@@ -13,15 +13,15 @@ import {
 	useDisclosure
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { Link as RouteLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import AttributeMaker from '../components/AttributeMaker';
-import AttributeManager from '../components/AttributeManager';
-import { fetchAllAttributes, createAttribute, createType } from '../api';
+import TypeAdderManager from '../components/TypeAdderManager';
+import { fetchAllAttributes, createAttribute, createType, fetchTypesList } from '../api';
 import useAuth from '../hooks/useAuth';
 
 const TypeAdder = () => {
 
-	const [trigger, setTrigger] = useBoolean();
+	const [trigger_load_attributes, setTrigger_load_attributes] = useBoolean();
 	const { user } = useAuth();
 	let navigate = useNavigate();
 
@@ -34,7 +34,7 @@ const TypeAdder = () => {
 			set_allAttributes(data);
 		}
 		load_allAttributes();
-	}, [trigger]);
+	}, [trigger_load_attributes]);
 
 	const {
 		isOpen: isOpen_attributeCreator,
@@ -58,7 +58,7 @@ const TypeAdder = () => {
 	const selectAttribute = (attribute) => {
 		let list = [...selectedAttributes];
 		list.push(attribute);
-		set_selectedAttributes(AttributeManager.sortAttributes(list));
+		set_selectedAttributes(TypeAdderManager.sortAttributes(list));
 	};
 
 	const deselectAttribute = (attribute) => {
@@ -98,16 +98,25 @@ const TypeAdder = () => {
 		set_new_attribute_errorMessage(errorMessage);
 		if (JSON.stringify(errorMessage) === JSON.stringify(AttributeMaker.get_message_noError())) {
 			createAttribute(creationData.formAttribute()).then(_ => {
-				setTrigger.toggle();
+				setTrigger_load_attributes.toggle();
 			});
 			onClose_attributeCreator();
 		};
 	};
 
 	const saveType = () => {
-		createType({
-			typeName: typeName,
-			metadata: selectedAttributes
+		fetchTypesList().then(data => {
+			let typeNames = data.data;
+			if (!TypeAdderManager.isTypeNameIn(typeName, typeNames) && typeName != '') {
+				createType({
+					typeName: typeName,
+					metadata: selectedAttributes
+				});
+				navigate('/type');
+			}
+			else {
+				console.log('Failed');
+			};
 		});
 	};
 
@@ -130,7 +139,7 @@ const TypeAdder = () => {
 						return (
 							<VStack key={attribute.attributeName} align="left">
 								<Checkbox
-									isChecked={AttributeManager.isAttributeNameIn(
+									isChecked={TypeAdderManager.isAttributeNameIn(
 										attribute.attributeName, [...selectedAttributes]
 									)}
 									value={attribute.attributeName}
@@ -164,12 +173,10 @@ const TypeAdder = () => {
 						</Tbody>
 					</Table>
 				</TableContainer>
-				
+
 			</HStack>
 			<Button onClick={open_AttributeCreator}>Add</Button>
-			<RouteLink to='/type'>
-				<Button onClick={saveType}>Save</Button>
-			</RouteLink>
+			<Button onClick={saveType}>Save</Button>
 
 			<Modal
 				closeOnOverlayClick={false}
@@ -177,7 +184,7 @@ const TypeAdder = () => {
 				onClose={onClose_attributeCreator}
 			>
 				<ModalOverlay />
-				<ModalContent colorScheme='blue'>
+				<ModalContent>
 					<ModalHeader>Create New Attribute</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>
