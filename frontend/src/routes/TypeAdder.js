@@ -52,8 +52,8 @@ const TypeAdder = () => {
 	const [creationData, set_creationData] = useState(new AttributeMaker());
 	const [new_attribute_errorMessage, set_new_attribute_errorMessage] = useState(AttributeMaker.get_message_noError());
 	const [display_num_lmt, set_display_num_lmt] = useState(false);
-	const [display_list, set_display_list] = useState(false);
 	const [display_options, set_display_options] = useState(false);
+	const [display_list, set_display_list] = useState(false);
 
 	const selectAttribute = (attribute) => {
 		let list = [...selectedAttributes];
@@ -234,17 +234,7 @@ const TypeAdder = () => {
 								</HStack>
 							</FormControl>
 						}
-						{display_list && <FormControl isRequired>
-							<FormLabel>List Type</FormLabel>
-							<Select onChange={(e) => {
-								creationData.list_type = e.target.value;
-								set_creationData(creationData);
-							}}>
-								<option>text</option>
-								<option>email</option>
-								<option>url</option>
-							</Select>
-						</FormControl>}
+						{/** Extra form for the options data type*/}
 						{display_options && <FormControl isRequired>
 							<FormLabel>Choices</FormLabel>
 							<HStack>
@@ -263,6 +253,18 @@ const TypeAdder = () => {
 									set_creationData(creationData);
 								}}/>
 							</HStack>
+						</FormControl>}
+						{/** Extra form for the list data type*/}
+						{display_list && <FormControl isRequired>
+							<FormLabel>List Type</FormLabel>
+							<Select onChange={(e) => {
+								creationData.list_type = e.target.value;
+								set_creationData(creationData);
+							}}>
+								<option>text</option>
+								<option>email</option>
+								<option>url</option>
+							</Select>
 						</FormControl>}
 					</ModalBody>
 					<ModalFooter>
