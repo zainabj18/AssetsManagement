@@ -47,6 +47,7 @@ const TypeAdder = () => {
 	]);
 
 	const [typeName, set_typeName] = useState('');
+	const [new_typeName_errorMessage, set_new_typeName_errorMessage] = useState('');
 	const [selectedAttributes, set_selectedAttributes] = useState([]);
 	const [allAttributes, set_allAttributes] = useState([]);
 	const [creationData, set_creationData] = useState(new AttributeMaker());
@@ -104,31 +105,43 @@ const TypeAdder = () => {
 		};
 	};
 
+	const decide_typeName_errorMessage = (name_already_exists, name_is_empty) => {
+		let errorMessage = '';
+		if (name_is_empty) {
+			errorMessage = 'Please enter a name';
+		}
+		else if (name_already_exists) {
+			errorMessage = 'Type name in use';
+		}
+		set_new_typeName_errorMessage(errorMessage);
+	};
+
 	const saveType = () => {
 		fetchTypesList().then(data => {
 			let typeNames = data.data;
-			if (!TypeAdderManager.isTypeNameIn(typeName, typeNames) && typeName != '') {
+			let name_already_exists = TypeAdderManager.isTypeNameIn(typeName, typeNames);
+			let name_is_empty = typeName === '';
+			decide_typeName_errorMessage(name_already_exists, name_is_empty);
+			if (!name_already_exists && !name_is_empty) {
 				createType({
 					typeName: typeName,
 					metadata: selectedAttributes
 				});
 				navigate('/type');
 			}
-			else {
-				console.log('Failed');
-			};
 		});
 	};
 
 	return (
 		<VStack width="90vw">
 			<Text>TypeAdder</Text>
-			<FormControl isRequired>
+			<FormControl isRequired isInvalid={new_typeName_errorMessage !== ''}>
 				<FormLabel>Name</FormLabel>
 				<Input type='text'
 					placeholder='Name'
 					onChange={(e) => set_typeName(e.target.value)}
 				/>
+				<FormErrorMessage>{new_typeName_errorMessage}</FormErrorMessage>
 			</FormControl>
 			<HStack minW='80%'>
 
