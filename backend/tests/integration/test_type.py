@@ -70,16 +70,21 @@ def test_add_attribute_to_db_with_json(client, db_conn):
 
 # Test to see if a type can be added to the database
 def test_add_type_to_db(client, db_conn):
+    test_metaData = {
+        "attributeName": "programming Language(s)",
+        "attributeType": "text"
+    }
     test_type = {
         "typeName": "framework",
         "metadata": [
             {
-                "attributeName": "programming Language(s)",
-                "attributeType": "text",
+                "attributeID": 1,
+                "attributeName": test_metaData["attributeName"],
+                "attributeType": test_metaData["attributeType"]
             }
         ],
     }
-    client.post("/api/v1/type/adder/new", json=test_type["metadata"][0])
+    client.post("/api/v1/type/adder/new", json=test_metaData)
     res = client.post("/api/v1/type/new", json=test_type)
     assert res.status_code == 200
 

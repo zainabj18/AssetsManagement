@@ -47,7 +47,7 @@ class AttributeInDB(Attribute):
 
 class Type(BaseModel):
     type_name: str = Field(..., alias="typeName")
-    metadata: List[Attribute_Model]
+    metadata: List[AttributeInDB]
 
 
 class TypeBase(BaseModel):
