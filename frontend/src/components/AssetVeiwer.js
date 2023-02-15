@@ -318,6 +318,7 @@ const AssetViewer = () => {
 						isDisabled={isDisabled}
 						onSubmitHandler={handleChange}
 						setErrorCount={setErrorCount}
+						isTextarea={true}
 					/>
 					<FormControl >
 						<FormLabel>Tags</FormLabel>
