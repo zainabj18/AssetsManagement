@@ -1,12 +1,14 @@
-import { Grid, GridItem } from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Input, } from '@chakra-ui/react';
 
 const Tags = () => {
-	return (<Grid w='100%' templateColumns='repeat(5, 1fr)'>
-		<GridItem colSpan={1}
-			w='100%' h='10' bg='red.500' />
-		<GridItem colSpan={4}
-			w='100%' h='10' bg='gray.500' />
-	</Grid>);
+	return (<Flex w='100%' minH='80vh' alignItems={'stretch'} p={2} border>
+		<HStack w='30%' minH='100%' bg='gray.300' p={4} color='black' align={'top'}>
+			<Input type='text' placeholder='Search for tag ...'/>
+			<Button>Create</Button>
+		</HStack>
+		<Box w='70%' minH='100%' bg='white' />
+	</Flex>
+	);
 };
  
 export default Tags;
