@@ -49,6 +49,7 @@ const TypeAdder = () => {
 	const [typeName, set_typeName] = useState('');
 	const [new_typeName_errorMessage, set_new_typeName_errorMessage] = useState('');
 	const [selectedAttributes, set_selectedAttributes] = useState([]);
+	const [selectedAttributes_errorMessage, set_selectedAttributes_errorMessage] = useState('');
 	const [allAttributes, set_allAttributes] = useState([]);
 	const [creationData, set_creationData] = useState(new AttributeMaker());
 	const [new_attribute_errorMessage, set_new_attribute_errorMessage] = useState(AttributeMaker.get_message_noError());
@@ -105,7 +106,7 @@ const TypeAdder = () => {
 		};
 	};
 
-	const decide_typeName_errorMessage = (name_already_exists, name_is_empty) => {
+	const get_typeName_errorMessage = (name_already_exists, name_is_empty) => {
 		let errorMessage = '';
 		if (name_is_empty) {
 			errorMessage = 'Please enter a name';
@@ -113,16 +114,26 @@ const TypeAdder = () => {
 		else if (name_already_exists) {
 			errorMessage = 'Type name in use';
 		}
-		set_new_typeName_errorMessage(errorMessage);
+		return errorMessage;
+	};
+
+	const get_selectedAttrs_errorMessage = (selected_count) => {
+		let errorMessage = '';
+		if (selected_count < 1) {
+			errorMessage = 'At least 1 attribute must be selected';
+		}
+		return errorMessage;
 	};
 
 	const saveType = () => {
 		fetchTypesList().then(data => {
 			let typeNames = data.data;
 			let name_already_exists = TypeAdderManager.isTypeNameIn(typeName, typeNames);
-			let name_is_empty = typeName === '';
-			decide_typeName_errorMessage(name_already_exists, name_is_empty);
-			if (!name_already_exists && !name_is_empty) {
+			let nameError = get_typeName_errorMessage(name_already_exists, typeName === '');
+			let selectedError = get_selectedAttrs_errorMessage(selectedAttributes.length);
+			set_new_typeName_errorMessage(nameError);
+			set_selectedAttributes_errorMessage(selectedError);
+			if (nameError + selectedError === '') {
 				createType({
 					typeName: typeName,
 					metadata: selectedAttributes
@@ -146,8 +157,9 @@ const TypeAdder = () => {
 			<HStack minW='80%'>
 
 				{/** The list of all allAttributes */}
-				<FormControl width='30%'>
-					<FormLabel>Select all Attributes</FormLabel>
+				<FormControl isRequired isInvalid={selectedAttributes_errorMessage !== ''} width='30%'>
+					<FormLabel>Select Attributes</FormLabel>
+					<FormErrorMessage>{selectedAttributes_errorMessage}</FormErrorMessage>
 					{allAttributes.map((attribute, index) => {
 						return (
 							<VStack key={attribute.attributeName} align="left">
