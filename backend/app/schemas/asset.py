@@ -81,6 +81,7 @@ class AssetBaseInDB(AssetBase):
 
 
 class Asset(AssetBase):
+    #TODO change to conlist
     projects: List[int]
     tags: List[int]
     metadata: List[AttributeInDB]

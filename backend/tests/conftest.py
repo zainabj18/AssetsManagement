@@ -76,7 +76,6 @@ def expected_res(request):
 #creates a new asset object with supported db structure
 @pytest.fixture()
 def new_assets(db_conn,request):
-    asset = AssetFactory.build()
     batch_result = AssetFactory.batch(size=request.param["batch_size"])
     for asset in batch_result:
         attribute_ids = []

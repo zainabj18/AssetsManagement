@@ -225,3 +225,22 @@ def update(id):
                     {"asset_id": id, **attribute},
                 )
     return {}, 200
+
+@bp.route("/tags/summary/<id>", methods=["GET"])
+@protected(role=UserRole.VIEWER)
+def tags_summary(id,user_id, access_level):
+    db = get_db()
+    assets_json = []
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+            cur.execute("""SELECT assets.* FROM assets
+INNER JOIN assets_in_tags ON assets.asset_id=assets_in_tags.asset_id WHERE soft_delete=0 AND tag_id=%(tag_id)s;""",{"tag_id":id})
+            assets = cur.fetchall()
+        #gets the type name for each assset
+        with db_conn.cursor(row_factory=dict_row) as cur:
+            for a in assets:
+                if a.classification <= access_level:
+                    aj = json.loads(a.json(by_alias=True))
+                    assets_json.append(aj)
+            res = jsonify({"data": assets_json})
+    return res
