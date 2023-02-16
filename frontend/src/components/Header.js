@@ -17,6 +17,9 @@ const Header = () => {
 				<CustomNavLink to="projects/">
 				Projects
 				</CustomNavLink>
+				<CustomNavLink to="tags/">
+				Tags
+				</CustomNavLink>
 				{(user && user.userRole==='ADMIN') && <CustomNavLink to="accounts/">
 				Accounts
 				</CustomNavLink>}
