@@ -93,3 +93,25 @@ def test_tag_delete(valid_client,db_conn):
             {"id": 1},
         )
         assert cur.fetchall()==[]
+
+def test_tag_delete_db_error(valid_client,db_conn):
+    res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
+    expected = {"id": 1, "name": "Test"}
+    assert res.status_code == 200
+    assert res.json == {"data": expected, "msg": "Tag Created"}
+    with mock.patch(
+        "app.tag.routes.delete_tag", side_effect=Error("Fake error executing query")
+    ) as p:
+        res = valid_client.delete(f"/api/v1/tag/{1}")
+        assert res.status_code == 500
+        p.assert_called()
+        assert res.json == {
+            "error": "Database Error",
+            "msg": "Fake error executing query",
+        }
+        with db_conn.cursor() as cur:
+            cur.execute(
+                """SELECT * FROM tags WHERE id=%(id)s;""",
+                {"id": 1},
+            )
+            assert cur.fetchall()!=[]

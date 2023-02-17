@@ -29,6 +29,15 @@ def list_tags(db):
             return cur.fetchall()
 
 
+def delete_tag(db,id):
+    with db.connection() as db_conn:
+        with db_conn.cursor() as cur:
+            cur.execute(
+                """DELETE FROM tags WHERE id=%(id)s;""",
+                {"id": id},
+            )
+
+
 @bp.route("/", methods=["POST"])
 def create():
     try:
@@ -68,11 +77,9 @@ def list():
 @bp.route("/<id>", methods=["DELETE"])
 @protected(role=UserRole.USER)
 def delete(id,user_id, access_level):
-    db = get_db()
-    with db.connection() as db_conn:
-        with db_conn.cursor() as cur:
-            cur.execute(
-                """DELETE FROM tags WHERE id=%(id)s;""",
-                {"id": id},
-            )
+    try:
+        db = get_db()
+        delete_tag(db,id)
+    except Error as e:
+         return {"msg": str(e), "error": "Database Error"}, 500
     return {}, 200
