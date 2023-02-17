@@ -68,6 +68,7 @@ def valid_client(flask_app,request):
     client = flask_app.test_client()
     client.set_cookie("localhost", "access-token", token)
     yield client
+    client.set_cookie("localhost","access-token", "", expires=0)
 
 
 @pytest.fixture()

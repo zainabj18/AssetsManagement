@@ -5,8 +5,8 @@ from app.db import UserRole,DataAccess
 import pytest
 
 
-def test_tag_create_requires_name(client):
-    res = client.post("/api/v1/tag/", json={})
+def test_tag_create_requires_name(valid_client):
+    res = valid_client.post("/api/v1/tag/", json={})
     assert res.status_code == 400
     assert res.json == {
         "data": [
@@ -17,8 +17,14 @@ def test_tag_create_requires_name(client):
     }
 
 
-def test_tag_create_adds_to_db(client, db_conn):
-    res = client.post("/api/v1/tag/", json={"name": "Test"})
+@pytest.mark.parametrize(
+    "valid_client",
+    [({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC}),
+    ({"account_type": UserRole.USER, "account_privileges": DataAccess.PUBLIC})],
+    indirect=True,
+)
+def test_tag_create_adds_to_db(valid_client, db_conn):
+    res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
     assert res.status_code == 200
     expected = {"id": 1, "name": "Test"}
     assert res.json == {"data": expected, "msg": "Tag Created"}
@@ -30,11 +36,11 @@ def test_tag_create_adds_to_db(client, db_conn):
         assert tag["name"] == expected["name"]
 
 
-def test_tag_create_db_error(client):
+def test_tag_create_db_error(valid_client):
     with mock.patch(
         "app.tag.routes.create_tag", side_effect=Error("Fake error executing query")
     ) as p:
-        res = client.post("/api/v1/tag/", json={"name": "Test"})
+        res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
 
         assert res.status_code == 500
         p.assert_called()
@@ -44,35 +50,70 @@ def test_tag_create_db_error(client):
         }
 
 
-def test_tag_duplicate_name(client):
-    res = client.post("/api/v1/tag/", json={"name": "Test"})
+def test_tag_duplicate_name(valid_client):
+    res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
     assert res.status_code == 200
     expected = {"id": 1, "name": "Test"}
     assert res.json == {"data": expected, "msg": "Tag Created"}
-    res = client.post("/api/v1/tag/", json={"name": "Test"})
+    res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
     assert res.status_code == 500
     assert res.json == {"error": "Database Error", "msg": "Tag Test already exists"}
 
 
-def test_tag_list(client):
+@pytest.mark.parametrize(
+    "valid_client",
+    [({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC}),
+    ({"account_type": UserRole.USER, "account_privileges": DataAccess.PUBLIC}),
+    ({"account_type": UserRole.VIEWER, "account_privileges": DataAccess.PUBLIC})],
+    indirect=True,
+)
+def test_tag_list_from_db(valid_client,db_conn):
     expected_results = []
-    for x in range(100):
-        name = f"Test-{x}"
-        res = client.post("/api/v1/tag/", json={"name": name})
-        assert res.status_code == 200
-        expected_results.append({"id": x + 1, "name": name})
-    res = client.get("/api/v1/tag/")
+
+        
+    with db_conn.cursor() as cur:
+        for x in range(100):
+            name = f"Test-{x}"
+            tag_dict={"id": x + 1, "name": name}
+        
+            cur.execute(
+                    """
+            INSERT INTO tags (name)
+    VALUES (%(name)s) RETURNING id;""",
+                    tag_dict,
+                )
+            expected_results.append(tag_dict)
+            db_conn.commit()
+    res = valid_client.get("/api/v1/tag/")
     assert res.status_code == 200
     assert res.json == {"msg": "tags", "data": expected_results}
 
 
-def test_tag_list_db_error(client):
-    res = client.post("/api/v1/tag/", json={"name": "Tes"})
+@pytest.mark.parametrize(
+    "valid_client",
+    [({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC}),
+    ({"account_type": UserRole.USER, "account_privileges": DataAccess.PUBLIC})],
+    indirect=True,
+)
+def test_tag_list_from_post(valid_client):
+    expected_results = []
+    for x in range(100):
+        name = f"Test-{x}"
+        res = valid_client.post("/api/v1/tag/", json={"name": name})
+        assert res.status_code == 200
+        expected_results.append({"id": x + 1, "name": name})
+    res = valid_client.get("/api/v1/tag/")
+    assert res.status_code == 200
+    assert res.json == {"msg": "tags", "data": expected_results}
+
+
+def test_tag_list_db_error(valid_client):
+    res = valid_client.post("/api/v1/tag/", json={"name": "Tes"})
     assert res.status_code == 200
     with mock.patch(
         "app.tag.routes.list_tags", side_effect=Error("Fake error executing query")
     ) as p:
-        res = client.get("/api/v1/tag/")
+        res = valid_client.get("/api/v1/tag/")
 
         assert res.status_code == 500
         p.assert_called()
@@ -81,6 +122,13 @@ def test_tag_list_db_error(client):
             "msg": "Fake error executing query",
         }
 
+
+@pytest.mark.parametrize(
+    "valid_client",
+    [({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC}),
+    ({"account_type": UserRole.USER, "account_privileges": DataAccess.PUBLIC})],
+    indirect=True,
+)
 def test_tag_delete(valid_client,db_conn):
     res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
     expected = {"id": 1, "name": "Test"}
@@ -117,6 +165,15 @@ def test_tag_delete_db_error(valid_client,db_conn):
             )
             assert cur.fetchall()!=[]
 
+@pytest.mark.parametrize(
+    "valid_client",
+    [{"account_type": UserRole.VIEWER, "account_privileges": DataAccess.PUBLIC}],
+    indirect=True,
+)
+def test_tag_viewer_cannot_create(valid_client):
+    res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
+    assert res.status_code == 403
+    assert res.json=={'error': 'Invalid Token','msg': 'Your account is forbidden to access this please speak to your admin'}
 
 @pytest.mark.parametrize(
     "valid_client",

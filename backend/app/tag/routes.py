@@ -39,7 +39,8 @@ def delete_tag(db,id):
 
 
 @bp.route("/", methods=["POST"])
-def create():
+@protected(role=UserRole.USER)
+def create(user_id, access_level):
     try:
         tag = TagBase(**request.json)
     except ValidationError as e:
@@ -65,8 +66,8 @@ def create():
 
 
 @bp.route("/", methods=["GET"])
-def list():
-
+@protected(role=UserRole.VIEWER)
+def list(user_id, access_level):
     try:
         db = get_db()
         tags = list_tags(db)
