@@ -387,5 +387,5 @@ def test_assets_with_tags(valid_client, new_assets):
     for tag in tags:
         res = valid_client.get(f"/api/v1/asset/tags/summary/{tag}")
         assert res.status_code == 200
-        assert len(res.json["data"]) == len(tags[tag])
-        assert set(asset["asset_id"] for asset in res.json["data"]) == set(tags[tag])
+        assert len(res.json["data"]["assets"]) == len(tags[tag])
+        assert set(asset["asset_id"] for asset in res.json["data"]["assets"]) == set(tags[tag])

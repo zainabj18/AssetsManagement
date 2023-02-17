@@ -78,7 +78,7 @@ def create():
                     },
                 )
 
-    return jsonify({"msg": "Added asset", "data": asset_id}), 200
+    return {"msg": "Added asset", "data": asset_id}, 200
 
 
 @bp.route("/classifications", methods=["GET"])

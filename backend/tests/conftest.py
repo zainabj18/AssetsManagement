@@ -83,6 +83,7 @@ def expected_res(request):
 @pytest.fixture()
 def new_assets(db_conn, request):
     batch_result = AssetFactory.batch(size=request.param["batch_size"])
+    add_to_db=request.param.get("add_to_db",False)
     for asset in batch_result:
         attribute_ids = []
         with db_conn.cursor() as cur:
@@ -119,7 +120,7 @@ def new_assets(db_conn, request):
                 cur.execute(
                     """
         INSERT INTO projects (id,name,description)
-    VALUES (%(id)s,%(name)s,%(description)s) ON CONFLICT (id) DO NOTHING;""",
+    VALUES (%(id)s,%(name)s,%(description)s) ON CONFLICT DO NOTHING;""",
                     p.dict(),
                 )
             for tag in asset.tags:
@@ -127,9 +128,43 @@ def new_assets(db_conn, request):
                 cur.execute(
                     """
         INSERT INTO tags (id,name)
-    VALUES (%(id)s,%(name)s) ON CONFLICT (id) DO NOTHING;""",
+    VALUES (%(id)s,%(name)s) ON CONFLICT DO NOTHING;""",
                     t.dict(),
                 )
-
+            if (add_to_db):
+                cur.execute(
+                    """
+                INSERT INTO assets (name,link,type,description, classification)
+        VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(classification)s)  RETURNING asset_id;""",
+                    asset.dict(),
+                )
+                asset_id = cur.fetchone()[0]
+                for tag in asset.tags:
+                    cur.execute(
+                        """
+                    INSERT INTO assets_in_tags (asset_id,tag_id)
+            VALUES (%(asset_id)s,%(tag_id)s);""",
+                        {"asset_id": asset_id, "tag_id": tag},
+                    )
+                # add asset to projects to db
+                for project in asset.projects:
+                    cur.execute(
+                        """
+                    INSERT INTO assets_in_projects (asset_id,project_id)
+            VALUES (%(asset_id)s,%(project_id)s);""",
+                        {"asset_id": asset_id, "project_id": project},
+                    )
+                # add attribute values to db
+                for attribute in asset.metadata:
+                    cur.execute(
+                        """
+                    INSERT INTO attributes_values (asset_id,attribute_id,value)
+            VALUES (%(asset_id)s,%(attribute_id)s,%(value)s);""",
+                        {
+                            "asset_id": asset_id,
+                            "attribute_id": attribute.attribute_id,
+                            "value": attribute.attribute_value,
+                        },
+                    )
             db_conn.commit()
     return batch_result

@@ -218,3 +218,26 @@ def test_tag_viewer_cannot_delete(valid_client):
         "error": "Invalid Token",
         "msg": "Your account is forbidden to access this please speak to your admin",
     }
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_tag_delete_with_assets(valid_client, new_assets,db_conn):
+    tags = []
+    for asset in new_assets:
+        tags.extend(asset.tags)
+    tags=set(tags)
+    for tag in tags:
+        res = valid_client.delete(f"/api/v1/tag/{tag}")
+        assert res.status_code == 200
+        with db_conn.cursor() as cur:
+            cur.execute(
+                """SELECT * FROM assets_in_tags WHERE tag_id=%(id)s;""",
+                {"id": tag},
+            )
+            assert cur.fetchall()==[]
+
+    
