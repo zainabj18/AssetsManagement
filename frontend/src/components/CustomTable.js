@@ -11,6 +11,10 @@ import {
 	Checkbox,
 	Input,
 	VStack,
+	Alert,
+	AlertIcon,
+	AlertTitle,
+	AlertDescription,
 } from '@chakra-ui/react';
 
 
@@ -121,7 +125,7 @@ function CustomTable({setSelectedRows,rows,cols}) {
 
 	
 	return (<>
-		{rows && <TableContainer maxW={'100%'} p={4}>
+		{rows.length>0 ?( <TableContainer maxW={'100%'} p={4}>
 			<Input onChange={(e)=>{setQuery(e.target.value);}}/>
 			<Table>
 		  <Thead>
@@ -150,7 +154,10 @@ function CustomTable({setSelectedRows,rows,cols}) {
 		 
 		  </Tbody>
 			</Table>
-		</TableContainer>}
+		</TableContainer>):(<Alert status='info'>
+			<AlertIcon />
+   No data to view
+		</Alert>)}
 	</>
 	);
 }
