@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, timedelta
-from app.db import UserRole,DataAccess
+from app.db import UserRole, DataAccess
 import jwt
 import pytest
 from app import create_app
@@ -52,9 +52,12 @@ def valid_token(request):
     return token
 
 
-
-@pytest.fixture(params=[{"account_type": UserRole.ADMIN, "account_privileges": DataAccess.CONFIDENTIAL}])
-def valid_client(flask_app,request):
+@pytest.fixture(
+    params=[
+        {"account_type": UserRole.ADMIN, "account_privileges": DataAccess.CONFIDENTIAL}
+    ]
+)
+def valid_client(flask_app, request):
     token = jwt.encode(
         {
             "account_id": None,
@@ -68,16 +71,17 @@ def valid_client(flask_app,request):
     client = flask_app.test_client()
     client.set_cookie("localhost", "access-token", token)
     yield client
-    client.set_cookie("localhost","access-token", "", expires=0)
+    client.set_cookie("localhost", "access-token", "", expires=0)
 
 
 @pytest.fixture()
 def expected_res(request):
     return request.param
 
-#creates a new asset object with supported db structure
+
+# creates a new asset object with supported db structure
 @pytest.fixture()
-def new_assets(db_conn,request):
+def new_assets(db_conn, request):
     batch_result = AssetFactory.batch(size=request.param["batch_size"])
     for asset in batch_result:
         attribute_ids = []

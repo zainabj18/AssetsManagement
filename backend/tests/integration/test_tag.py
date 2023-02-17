@@ -1,7 +1,7 @@
 from unittest import mock
 from psycopg import Error
 from psycopg.rows import dict_row
-from app.db import UserRole,DataAccess
+from app.db import UserRole, DataAccess
 import pytest
 
 
@@ -17,10 +17,30 @@ def test_tag_create_requires_name(valid_client):
     }
 
 
+def test_tag_create_requires_name_not_to_empty(valid_client):
+
+    res = valid_client.post("/api/v1/tag/", json={"name": ""})
+    assert res.status_code == 400
+    assert res.json == {
+        "data": [
+            {
+                "ctx": {"limit_value": 1},
+                "loc": ["name"],
+                "msg": "ensure this value has at least 1 characters",
+                "type": "value_error.any_str.min_length",
+            }
+        ],
+        "error": "Failed to create tag from the data provided",
+        "msg": "Data provided is invalid",
+    }
+
+
 @pytest.mark.parametrize(
     "valid_client",
-    [({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC}),
-    ({"account_type": UserRole.USER, "account_privileges": DataAccess.PUBLIC})],
+    [
+        ({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC}),
+        ({"account_type": UserRole.USER, "account_privileges": DataAccess.PUBLIC}),
+    ],
     indirect=True,
 )
 def test_tag_create_adds_to_db(valid_client, db_conn):
@@ -62,26 +82,27 @@ def test_tag_duplicate_name(valid_client):
 
 @pytest.mark.parametrize(
     "valid_client",
-    [({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC}),
-    ({"account_type": UserRole.USER, "account_privileges": DataAccess.PUBLIC}),
-    ({"account_type": UserRole.VIEWER, "account_privileges": DataAccess.PUBLIC})],
+    [
+        ({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC}),
+        ({"account_type": UserRole.USER, "account_privileges": DataAccess.PUBLIC}),
+        ({"account_type": UserRole.VIEWER, "account_privileges": DataAccess.PUBLIC}),
+    ],
     indirect=True,
 )
-def test_tag_list_from_db(valid_client,db_conn):
+def test_tag_list_from_db(valid_client, db_conn):
     expected_results = []
 
-        
     with db_conn.cursor() as cur:
         for x in range(100):
             name = f"Test-{x}"
-            tag_dict={"id": x + 1, "name": name}
-        
+            tag_dict = {"id": x + 1, "name": name}
+
             cur.execute(
-                    """
+                """
             INSERT INTO tags (name)
     VALUES (%(name)s) RETURNING id;""",
-                    tag_dict,
-                )
+                tag_dict,
+            )
             expected_results.append(tag_dict)
             db_conn.commit()
     res = valid_client.get("/api/v1/tag/")
@@ -91,8 +112,10 @@ def test_tag_list_from_db(valid_client,db_conn):
 
 @pytest.mark.parametrize(
     "valid_client",
-    [({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC}),
-    ({"account_type": UserRole.USER, "account_privileges": DataAccess.PUBLIC})],
+    [
+        ({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC}),
+        ({"account_type": UserRole.USER, "account_privileges": DataAccess.PUBLIC}),
+    ],
     indirect=True,
 )
 def test_tag_list_from_post(valid_client):
@@ -125,11 +148,13 @@ def test_tag_list_db_error(valid_client):
 
 @pytest.mark.parametrize(
     "valid_client",
-    [({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC}),
-    ({"account_type": UserRole.USER, "account_privileges": DataAccess.PUBLIC})],
+    [
+        ({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC}),
+        ({"account_type": UserRole.USER, "account_privileges": DataAccess.PUBLIC}),
+    ],
     indirect=True,
 )
-def test_tag_delete(valid_client,db_conn):
+def test_tag_delete(valid_client, db_conn):
     res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
     expected = {"id": 1, "name": "Test"}
     assert res.status_code == 200
@@ -141,9 +166,10 @@ def test_tag_delete(valid_client,db_conn):
             """SELECT * FROM tags WHERE id=%(id)s;""",
             {"id": 1},
         )
-        assert cur.fetchall()==[]
+        assert cur.fetchall() == []
 
-def test_tag_delete_db_error(valid_client,db_conn):
+
+def test_tag_delete_db_error(valid_client, db_conn):
     res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
     expected = {"id": 1, "name": "Test"}
     assert res.status_code == 200
@@ -163,7 +189,8 @@ def test_tag_delete_db_error(valid_client,db_conn):
                 """SELECT * FROM tags WHERE id=%(id)s;""",
                 {"id": 1},
             )
-            assert cur.fetchall()!=[]
+            assert cur.fetchall() != []
+
 
 @pytest.mark.parametrize(
     "valid_client",
@@ -173,7 +200,11 @@ def test_tag_delete_db_error(valid_client,db_conn):
 def test_tag_viewer_cannot_create(valid_client):
     res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
     assert res.status_code == 403
-    assert res.json=={'error': 'Invalid Token','msg': 'Your account is forbidden to access this please speak to your admin'}
+    assert res.json == {
+        "error": "Invalid Token",
+        "msg": "Your account is forbidden to access this please speak to your admin",
+    }
+
 
 @pytest.mark.parametrize(
     "valid_client",
@@ -183,4 +214,7 @@ def test_tag_viewer_cannot_create(valid_client):
 def test_tag_viewer_cannot_delete(valid_client):
     res = valid_client.delete(f"/api/v1/tag/{1}")
     assert res.status_code == 403
-    assert res.json=={'error': 'Invalid Token','msg': 'Your account is forbidden to access this please speak to your admin'}
+    assert res.json == {
+        "error": "Invalid Token",
+        "msg": "Your account is forbidden to access this please speak to your admin",
+    }

@@ -1,4 +1,4 @@
-from app.db import get_db,UserRole
+from app.db import get_db, UserRole
 from app.schemas import TagBase
 from app.core.utils import protected
 from flask import Blueprint, jsonify, request
@@ -29,7 +29,7 @@ def list_tags(db):
             return cur.fetchall()
 
 
-def delete_tag(db,id):
+def delete_tag(db, id):
     with db.connection() as db_conn:
         with db_conn.cursor() as cur:
             cur.execute(
@@ -75,12 +75,13 @@ def list(user_id, access_level):
         return {"msg": str(e), "error": "Database Error"}, 500
     return jsonify({"msg": "tags", "data": tags})
 
+
 @bp.route("/<id>", methods=["DELETE"])
 @protected(role=UserRole.USER)
-def delete(id,user_id, access_level):
+def delete(id, user_id, access_level):
     try:
         db = get_db()
-        delete_tag(db,id)
+        delete_tag(db, id)
     except Error as e:
-         return {"msg": str(e), "error": "Database Error"}, 500
+        return {"msg": str(e), "error": "Database Error"}, 500
     return {}, 200

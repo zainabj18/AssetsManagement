@@ -1,5 +1,5 @@
-#builds objects for testing
-from random import choice,sample,randint
+# builds objects for testing
+from random import choice, sample, randint
 from typing import Optional
 
 from app.schemas import Asset, AttributeInDB, Project, TagBase, TypeBase
@@ -39,8 +39,8 @@ class AttributeFactory(ModelFactory):
 
 class AssetFactory(ModelFactory):
     __model__ = Asset
-    tags=lambda : sample(range(1,10),k=randint(1, 5))
-    projects=lambda : sample(range(1,10),k=randint(1, 5))
+    tags = lambda: sample(range(1, 10), k=randint(1, 5))
+    projects = lambda: sample(range(1, 10), k=randint(1, 5))
     metadata = list(AttributeFactory.batch(size=5))
 
 

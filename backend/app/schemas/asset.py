@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field, ValidationError, root_validator, validato
 
 class TagBase(BaseModel):
     id: Optional[int]
-    name: str
+    name: str = Field(..., min_length=1)
 
 
 class Attribute_Model(BaseModel):
@@ -23,7 +23,7 @@ class Attribute(Attribute_Model):
     def check_metadata(cls, values):
         t = values.get("attribute_type")
         v = values.get("attribute_value")
-        #check if string is actually and array and convert
+        # check if string is actually and array and convert
         if (
             (t == "list" or t == "options")
             and isinstance(v, str)
@@ -31,7 +31,7 @@ class Attribute(Attribute_Model):
             and v.startswith("{")
         ):
             values["attribute_value"] = v[1:-1].split(",")
-        #convert if a number
+        # convert if a number
         if (t == "num_lmt" or t == "number") and isinstance(v, str) and v.isnumeric():
             values["attribute_value"] = int(v)
 
@@ -81,7 +81,7 @@ class AssetBaseInDB(AssetBase):
 
 
 class Asset(AssetBase):
-    #TODO change to conlist
+    # TODO change to conlist
     projects: List[int]
     tags: List[int]
     metadata: List[AttributeInDB]
