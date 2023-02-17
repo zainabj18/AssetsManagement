@@ -1,11 +1,12 @@
-import { List,ListItem } from '@chakra-ui/react';
+import { Heading, List,ListItem, VStack } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchAssetsinTag } from '../api';
+import CustomTable from '../components/CustomTable';
 
 const TagViewer = () => {
 	const [assets, setAssets] = useState([]);
-	const [type, setTag] = useState('');
+	const [tag, setTag] = useState('');
 	const { id } = useParams();
 
 	useEffect(() => {
@@ -14,11 +15,10 @@ const TagViewer = () => {
 		console.log(assets);
 	}, [id]);
     
-	return ( <List bg='red'>
-		{assets.map((val,index)=>(
-			<ListItem key={index}>{val.name}</ListItem>
-		))}
-	</List> );
+	return ( <VStack bg={'whiteAlpha.200'} h={'100%'} w={'100%'} >
+		<Heading>{tag}</Heading>
+		<CustomTable rows={assets} setSelectedRows={()=>{}}/>
+	</VStack> );
 };
  
 export default TagViewer;

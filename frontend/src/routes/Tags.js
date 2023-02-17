@@ -7,6 +7,7 @@ import NewTag from '../components/NewTag';
 
 const Tags = () => {
 	const [tags, setTags] = useState([]);
+	//trigger refresh of tags on create
 
 	useEffect(() => {
 		fetchTags().then((res)=>{

@@ -1,0 +1,158 @@
+import React,{useEffect, useMemo,useState} from 'react';
+import {
+	Table,
+	Thead,
+	Tbody,
+	Tr,
+	Th,
+	Td,
+	TableContainer,
+	Box,
+	Checkbox,
+	Input,
+	VStack,
+} from '@chakra-ui/react';
+
+
+
+function CustomTable({setSelectedRows,rows,cols}) {
+	const [selected,setSelected] = useState([]); 
+	const [query,setQuery]= useState(''); 
+	const [filters,setFilter]= useState({}); 
+	const data = useMemo(
+		() => 
+			rows.map((value,index)=>{return {...value,rowID:index};}),
+		[rows]);
+
+	const columns = useMemo(
+		() => {return {
+			'asset_id':{
+				header: 'Asset ID',
+				Filter:p=>{return <Input type='number' onChange={(e)=>{setFilter((prev)=>({
+					...prev,
+					'asset_id':e.target.value
+				}));}} />;}
+			},
+			'name':{
+				header: 'Asset Name',
+				Filter:p=>{return <Input onChange={(e)=>{setFilter((prev)=>({
+					...prev,
+					'name':e.target.value
+				}));}} />;}
+			},
+			'type':{
+				header: 'Asset Type',
+				Filter:p=>{return <Input onChange={(e)=>{setFilter((prev)=>({
+					...prev,
+					'type':e.target.value
+				}));}} />;}
+			},
+			'classification':{
+				header: 'Asset Classification',
+				Filter:p=>{return <Input onChange={(e)=>{setFilter((prev)=>({
+					...prev,
+					'classification':e.target.value
+				}));}} />;}
+			},
+		};},[]
+	);
+
+	const filteredRows = useMemo(() => {
+		if (!query && !filters) return data;
+		let preFiltered=data.filter((obj)=>{
+			for (const key of Object.keys(filters)) {
+
+				if (!obj[key].toString().includes(filters[key])){
+					return false;
+				}
+			}
+			return true;});
+		return preFiltered.filter((obj)=>Object.values(obj).toString().includes(query));
+	  }, [filters,query, data]);
+
+	const handleCheck=(rowID,val)=>{
+		if (val){
+			if (!selected.includes(rowID)){
+				setSelected((prev)=>{return  [...prev,rowID];});
+			}
+		}else {
+			let newSelected=selected.filter((id) => id !==rowID);
+			setSelected(newSelected);
+		}	
+	};
+	const renderCell=(key,rowID,value)=>{
+		if (columns[key].hasOwnProperty('Cell')){
+			return columns[key].Cell(rowID,value);
+		}else{
+			return <Box>{value}</Box>;
+		}
+	};
+	const renderHeader=(key)=>{
+		return (<VStack>
+			<Th>{columns[key].header}</Th>
+			{columns[key].hasOwnProperty('Filter')&& columns[key].Filter()}
+		</VStack>);
+		
+	};
+
+	const onIntermediateCheckboxChange=(val)=>{
+		
+		if (val){
+			setSelected([...Array(data.length).keys()]);
+		}else{
+			setSelected([]);
+		}
+	};
+
+	useEffect(() => {
+		let preSelected=[];
+		let projects=[];
+		for (let i = 0; i < data.length; i++) {
+			let obj=data[i];
+			if (obj.hasOwnProperty('isSelected')&obj.isSelected){
+				preSelected.push(i);
+				projects.push(obj);
+			}
+		}
+		setSelected(preSelected);
+		setSelectedRows(projects);
+	}, []);
+	
+
+	
+	return (<>
+		{rows && <TableContainer maxW={'100%'}>
+			<Input onChange={(e)=>{setQuery(e.target.value);}}/>
+			<Table>
+		  <Thead>
+					<Tr key={'header'} >
+						<Th ><Checkbox isChecked={data.length===selected.length}
+							isIndeterminate={selected.length>0 && selected.length<data.length}
+							onChange={(e)=>{onIntermediateCheckboxChange(e.target.checked);}}
+									
+						/></Th>
+		  {Object.keys(columns).map(key => (
+							<Th key={key} >
+								{renderHeader(key)}	
+							</Th>)
+		  )}
+		  </Tr>
+		  </Thead>
+		  <Tbody>
+		  {filteredRows.map((row,index)=> (
+						<Tr key={index}>
+							<Td ><Checkbox defaultChecked={selected.includes(row.rowID)} isChecked={selected.includes(row.rowID)} onChange={(e) => handleCheck(row.rowID,e.target.checked)} /></Td>
+							{Object.keys(columns).map((key)=>{
+
+	 return <Td key={index+key} >{renderCell(key,row.rowID,row[key])}</Td>;
+							})}</Tr>)
+					)}
+		 
+		  </Tbody>
+			</Table>
+		</TableContainer>}
+	</>
+	);
+}
+
+export default CustomTable;
