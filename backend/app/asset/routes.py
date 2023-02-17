@@ -238,9 +238,20 @@ INNER JOIN assets_in_tags ON assets.asset_id=assets_in_tags.asset_id WHERE soft_
             assets = cur.fetchall()
         #gets the type name for each assset
         with db_conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(
+                        """SELECT name FROM tags WHERE id=%(id)s;""",
+                        {"id": id},
+                    )
+            tag = cur.fetchone()["name"]
             for a in assets:
                 if a.classification <= access_level:
+                    cur.execute(
+                        """SELECT type_name FROM types WHERE type_id=%(id)s;""",
+                        {"id": a.type},
+                    )
+                    type = cur.fetchone()["type_name"]
                     aj = json.loads(a.json(by_alias=True))
+                    aj["type"] = type
                     assets_json.append(aj)
-            res = jsonify({"data": assets_json})
+            res = jsonify({"data": {"tag":tag,"assets":assets_json}})
     return res

@@ -1,5 +1,6 @@
 import { Box, Flex, HStack, Input, VStack, } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import { fetchTags } from '../api';
 import CustomNavLink from '../components/CustomNavLink';
 import NewTag from '../components/NewTag';
@@ -31,7 +32,9 @@ const Tags = () => {
 				
 			</VStack>
 		</Box>
-		<Box w='70%' minH='100%' bg='white' />
+		<Box w='70%' minH='100%' bg='white'>
+			<Outlet />
+		</Box> 
 	</Flex>
 	);
 };
