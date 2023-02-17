@@ -4,6 +4,12 @@ import {createMultiStyleConfigHelpers } from '@chakra-ui/react';
 const { definePartsStyle, defineMultiStyleConfig } =
   createMultiStyleConfigHelpers(tableAnatomy.keys);
 
+const baseStyle = definePartsStyle({
+	table: {
+		mt:'4',
+		borderWidth:'10px',
+	  	width: '100%'
+	}});
 const brandPrimary = definePartsStyle({
 	th: {
 		border:'none'
@@ -35,6 +41,7 @@ const brandPrimary = definePartsStyle({
 
 
 export const tableTheme = defineMultiStyleConfig({
+	baseStyle,
 	variants: {
 		brand: brandPrimary,
 	},

@@ -7,6 +7,7 @@ const brandPrimary = definePartsStyle({field: {
 	bg:'blue.100',
 	borderColor: 'red.900',
 	borderSize:'lg',
+	color:'blue.900',
 	_placeholder: {
 		color: 'blue.900',
 	},

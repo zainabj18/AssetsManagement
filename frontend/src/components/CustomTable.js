@@ -121,7 +121,7 @@ function CustomTable({setSelectedRows,rows,cols}) {
 
 	
 	return (<>
-		{rows && <TableContainer maxW={'100%'}>
+		{rows && <TableContainer maxW={'100%'} p={4}>
 			<Input onChange={(e)=>{setQuery(e.target.value);}}/>
 			<Table>
 		  <Thead>
