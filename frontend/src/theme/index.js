@@ -7,7 +7,7 @@ import { tagTheme } from './components/Tag';
 import Button from './components/Button';
 import { inputTheme } from './components/Input';
 import shadows from './foundations/shadows';
-
+import { tableTheme } from './components/Table';
 
 const overrides = {
 	styles,
@@ -17,7 +17,8 @@ const overrides = {
 		FormLabel,
 		Button,
 		Input:inputTheme,
-		Tag:tagTheme
+		Tag:tagTheme,
+		Table:tableTheme,
 	}
 };
 
