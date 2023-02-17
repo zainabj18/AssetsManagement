@@ -12,9 +12,7 @@ import {
 	Input,
 	VStack,
 	Alert,
-	AlertIcon,
-	AlertTitle,
-	AlertDescription,
+	AlertIcon
 } from '@chakra-ui/react';
 
 
@@ -28,38 +26,7 @@ function CustomTable({setSelectedRows,rows,cols}) {
 			rows.map((value,index)=>{return {...value,rowID:index};}),
 		[rows]);
 
-	const columns = useMemo(
-		() => {return {
-			'asset_id':{
-				header: 'Asset ID',
-				Filter:p=>{return <Input type='number' onChange={(e)=>{setFilter((prev)=>({
-					...prev,
-					'asset_id':e.target.value
-				}));}} />;}
-			},
-			'name':{
-				header: 'Asset Name',
-				Filter:p=>{return <Input onChange={(e)=>{setFilter((prev)=>({
-					...prev,
-					'name':e.target.value
-				}));}} />;}
-			},
-			'type':{
-				header: 'Asset Type',
-				Filter:p=>{return <Input onChange={(e)=>{setFilter((prev)=>({
-					...prev,
-					'type':e.target.value
-				}));}} />;}
-			},
-			'classification':{
-				header: 'Asset Classification',
-				Filter:p=>{return <Input onChange={(e)=>{setFilter((prev)=>({
-					...prev,
-					'classification':e.target.value
-				}));}} />;}
-			},
-		};},[]
-	);
+	const columns = cols;
 
 	const filteredRows = useMemo(() => {
 		if (!query && !filters) return data;
@@ -86,6 +53,7 @@ function CustomTable({setSelectedRows,rows,cols}) {
 	};
 	const renderCell=(key,rowID,value)=>{
 		if (columns[key].hasOwnProperty('Cell')){
+			console.log(value);
 			return columns[key].Cell(rowID,value);
 		}else{
 			return <Box>{value}</Box>;
@@ -94,7 +62,12 @@ function CustomTable({setSelectedRows,rows,cols}) {
 	const renderHeader=(key)=>{
 		return (<VStack>
 			<Th>{columns[key].header}</Th>
-			{columns[key].hasOwnProperty('Filter')&& columns[key].Filter()}
+			{(columns[key].hasOwnProperty('canFilter')&& columns[key].canFilter)&& (<Input type='text' onChange={
+				(e)=>{setFilter((prev)=>({
+					...prev,
+					[key]:e.target.value
+				}));}} />)
+			}
 		</VStack>);
 		
 	};
@@ -120,7 +93,9 @@ function CustomTable({setSelectedRows,rows,cols}) {
 		}
 		setSelected(preSelected);
 		setSelectedRows(projects);
-	}, []);
+		setFilter({});
+		setQuery('');
+	}, [rows]);
 	
 
 	
