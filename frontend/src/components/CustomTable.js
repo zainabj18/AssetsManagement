@@ -33,12 +33,12 @@ function CustomTable({setSelectedRows,rows,cols}) {
 		let preFiltered=data.filter((obj)=>{
 			for (const key of Object.keys(filters)) {
 
-				if (!obj[key].toString().includes(filters[key])){
+				if (!obj[key].toString().toLowerCase().includes(filters[key].toLowerCase())){
 					return false;
 				}
 			}
 			return true;});
-		return preFiltered.filter((obj)=>Object.values(obj).toString().includes(query));
+		return preFiltered.filter((obj)=>Object.values(obj).toString().toLowerCase().includes(query));
 	  }, [filters,query, data]);
 
 	const handleCheck=(rowID,val)=>{
