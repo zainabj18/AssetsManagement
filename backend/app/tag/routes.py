@@ -1,5 +1,6 @@
-from app.db import get_db
+from app.db import get_db,UserRole
 from app.schemas import TagBase
+from app.core.utils import protected
 from flask import Blueprint, jsonify, request
 from psycopg import Error
 from psycopg.errors import UniqueViolation
@@ -63,3 +64,15 @@ def list():
     except Error as e:
         return {"msg": str(e), "error": "Database Error"}, 500
     return jsonify({"msg": "tags", "data": tags})
+
+@bp.route("/<id>", methods=["DELETE"])
+@protected(role=UserRole.USER)
+def delete(id,user_id, access_level):
+    db = get_db()
+    with db.connection() as db_conn:
+        with db_conn.cursor() as cur:
+            cur.execute(
+                """DELETE FROM tags WHERE id=%(id)s;""",
+                {"id": id},
+            )
+    return {}, 200

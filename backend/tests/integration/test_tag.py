@@ -79,3 +79,17 @@ def test_tag_list_db_error(client):
             "error": "Database Error",
             "msg": "Fake error executing query",
         }
+
+def test_tag_delete(valid_client,db_conn):
+    res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
+    expected = {"id": 1, "name": "Test"}
+    assert res.status_code == 200
+    assert res.json == {"data": expected, "msg": "Tag Created"}
+    res = valid_client.delete(f"/api/v1/tag/{1}")
+    assert res.status_code == 200
+    with db_conn.cursor() as cur:
+        cur.execute(
+            """SELECT * FROM tags WHERE id=%(id)s;""",
+            {"id": 1},
+        )
+        assert cur.fetchall()==[]
