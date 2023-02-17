@@ -1,7 +1,8 @@
 from unittest import mock
-
 from psycopg import Error
 from psycopg.rows import dict_row
+from app.db import UserRole,DataAccess
+import pytest
 
 
 def test_tag_create_requires_name(client):
@@ -115,3 +116,14 @@ def test_tag_delete_db_error(valid_client,db_conn):
                 {"id": 1},
             )
             assert cur.fetchall()!=[]
+
+
+@pytest.mark.parametrize(
+    "valid_client",
+    [{"account_type": UserRole.VIEWER, "account_privileges": DataAccess.PUBLIC}],
+    indirect=True,
+)
+def test_tag_viewer_cannot_delete(valid_client):
+    res = valid_client.delete(f"/api/v1/tag/{1}")
+    assert res.status_code == 403
+    assert res.json=={'error': 'Invalid Token','msg': 'Your account is forbidden to access this please speak to your admin'}

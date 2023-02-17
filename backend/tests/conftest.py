@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, timedelta
-
+from app.db import UserRole,DataAccess
 import jwt
 import pytest
 from app import create_app
@@ -52,13 +52,14 @@ def valid_token(request):
     return token
 
 
-@pytest.fixture()
-def valid_client(flask_app):
+
+@pytest.fixture(params=[{"account_type": UserRole.ADMIN, "account_privileges": DataAccess.CONFIDENTIAL}])
+def valid_client(flask_app,request):
     token = jwt.encode(
         {
             "account_id": None,
-            "account_type": "ADMIN",
-            "account_privileges": "CONFIDENTIAL",
+            "account_type": request.param["account_type"].value,
+            "account_privileges": request.param["account_privileges"].value,
             "exp": datetime.utcnow() + timedelta(minutes=30),
         },
         current_app.config["SECRET_KEY"],
