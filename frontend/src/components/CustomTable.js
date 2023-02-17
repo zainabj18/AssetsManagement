@@ -50,6 +50,7 @@ function CustomTable({setSelectedRows,rows,cols}) {
 			let newSelected=selected.filter((id) => id !==rowID);
 			setSelected(newSelected);
 		}	
+		setSelectedRows(selected);
 	};
 	const renderCell=(key,rowID,value)=>{
 		if (columns[key].hasOwnProperty('Cell')){
@@ -73,11 +74,12 @@ function CustomTable({setSelectedRows,rows,cols}) {
 	};
 
 	const onIntermediateCheckboxChange=(val)=>{
-		
 		if (val){
 			setSelected([...Array(data.length).keys()]);
+			setSelectedRows([...Array(data.length).keys()]);
 		}else{
 			setSelected([]);
+			setSelectedRows([]);
 		}
 	};
 
