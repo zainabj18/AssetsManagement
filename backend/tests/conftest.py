@@ -80,10 +80,12 @@ def expected_res(request):
 
 
 # creates a new asset object with supported db structure
-@pytest.fixture()
+@pytest.fixture(params=[
+        {"batch_size":1,"add_to_db": False}
+    ])
 def new_assets(db_conn, request):
     batch_result = AssetFactory.batch(size=request.param["batch_size"])
-    add_to_db=request.param.get("add_to_db",False)
+    add_to_db=request.param.get("add_to_db")
     for asset in batch_result:
         attribute_ids = []
         with db_conn.cursor() as cur:

@@ -1,5 +1,5 @@
 from app.db import get_db, UserRole
-from app.schemas import TagBase
+from app.schemas import TagBase,TagCopy
 from app.core.utils import protected
 from flask import Blueprint, jsonify, request
 from psycopg import Error
@@ -85,3 +85,19 @@ def delete(id, user_id, access_level):
     except Error as e:
         return {"msg": str(e), "error": "Database Error"}, 500
     return {}, 200
+
+@bp.route("/copy", methods=["POST"])
+def copy():
+    try:
+        tag_copy = TagCopy(**request.json)
+    except ValidationError as e:
+        return (
+            jsonify(
+                {
+                    "msg": "Data provided is invalid",
+                    "data": e.errors(),
+                    "error": "Failed to copy to tag from the data provided",
+                }
+            ),
+            400,
+        )

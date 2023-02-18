@@ -240,4 +240,13 @@ def test_tag_delete_with_assets(valid_client, new_assets,db_conn):
             )
             assert cur.fetchall()==[]
 
-    
+def test_tag_copy_to_requires_tag_id(valid_client):
+    res = valid_client.post("/api/v1/tag/copy", json={})
+    assert res.status_code == 400
+    assert {
+                "loc": ["to_tag_id"],
+                "msg": "field required",
+                "type": "value_error.missing",
+            } in res.json["data"]
+    assert res.json["error"]=="Failed to copy to tag from the data provided"
+    assert res.json["msg"]=="Data provided is invalid"

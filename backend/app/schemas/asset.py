@@ -102,3 +102,6 @@ class AssetOut(AssetBaseInDB):
     projects: List[Any]
     tags: List[Any]
     metadata: List[AttributeInDB]
+
+class TagCopy(BaseModel):
+    to_tag_id:int
