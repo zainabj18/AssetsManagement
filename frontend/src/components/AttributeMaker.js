@@ -7,7 +7,7 @@ export default class AttributeMaker {
 	 * @returns The 'no errors' message (an ampty string).
 	*/
 	static get_message_noError() {
-		return { attributeName: '', num_lmt: '' };
+		return { attributeName: '', num_lmt: '', options: '' };
 	}
 
 	/** Creates an empty set of values for a new attribute.
@@ -31,7 +31,8 @@ export default class AttributeMaker {
 	checkForErrors = (allAttributes) => {
 		return {
 			attributeName: this.checkForNameError(allAttributes),
-			num_lmt: this.checkForMinMaxError()
+			num_lmt: this.checkForMinMaxError(),
+			options: this.checkForOptionsError()
 		};
 	};
 
@@ -48,6 +49,19 @@ export default class AttributeMaker {
 	checkForMinMaxError = () => {
 		if (this.type === 'num_lmt' && this.min >= this.max) {
 			return 'Minimum must be less than maxmium';
+		}
+		return '';
+	};
+
+	checkForOptionsError = () => {
+		let choices = this.choices.split(',');
+		if (this.type === 'options') {
+			if (choices.length < 2) {
+				return 'There must be at least 2 options';
+			}
+			if(choices.includes('')) {
+				return 'Can not contain an empty option';
+			}
 		}
 		return '';
 	};
