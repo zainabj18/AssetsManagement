@@ -105,3 +105,4 @@ class AssetOut(AssetBaseInDB):
 
 class TagCopy(BaseModel):
     to_tag_id:int
+    assest_ids:List[int]
