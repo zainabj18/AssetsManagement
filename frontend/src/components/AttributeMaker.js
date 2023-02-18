@@ -4,7 +4,7 @@ import TypeAdderManager from './TypeAdderManager';
 export default class AttributeMaker {
 
 	/** Gives the message for when there are no input errors when creating an attribute.
-	 * @returns The 'no errors' message (an ampty string).
+	 * @returns An object containg a key for each error message, each representing no error (an empty string).
 	*/
 	static get_message_noError() {
 		return { attributeName: '', num_lmt: '', options: '' };
@@ -23,8 +23,8 @@ export default class AttributeMaker {
 		this.isMulti = false;
 	}
 
-	/** Checks for any errors in the user's input
-	 * @param {Array.<{attributeName: string}>} allAttributes The list of attributes that already exist
+	/** Checks for any errors in the user's input.
+	 * @param {Array.<{attributeName: string}>} allAttributes The list of attributes that already exist.
 	 * @returns An object containg a key between names and their errorMessages.
 	 * An empty string for an error message means that there was no error.
 	 */
@@ -36,6 +36,10 @@ export default class AttributeMaker {
 		};
 	};
 
+	/** Checks for any errors in the name input
+	 * @param {Array.<{attributeName: string}>} allAttributes The list of attributes that already exist.
+	 * @returns The error message. An empty string represents no error.
+	 */
 	checkForNameError = (allAttributes) => {
 		if (this.name === '') {
 			return 'Name is required';
@@ -46,20 +50,28 @@ export default class AttributeMaker {
 		return '';
 	};
 
+	/** Checks for any errors in the num_lmt input.
+	 * @returns The error message. An empty string represents no error.
+	 */
 	checkForMinMaxError = () => {
-		if (this.type === 'num_lmt' && this.min >= this.max) {
-			return 'Minimum must be less than maxmium';
+		if (this.type === 'num_lmt') {
+			if (this.min >= this.max) {
+				return 'Minimum must be less than maxmium';
+			}
 		}
 		return '';
 	};
 
+	/** Checks for any errors in the options input.
+	 * @returns The error message. An empty string represents no error.
+	 */
 	checkForOptionsError = () => {
 		let choices = this.choices.split(',');
 		if (this.type === 'options') {
 			if (choices.length < 2) {
 				return 'There must be at least 2 options';
 			}
-			if(choices.includes('')) {
+			if (choices.includes('')) {
 				return 'Can not contain an empty option';
 			}
 		}
