@@ -246,7 +246,7 @@ const TypeAdder = () => {
 
 						{/** Extra form for the num_lmt data type*/}
 						{display_num_lmt &&
-							<FormControl isRequired>
+							<FormControl isRequired isInvalid={new_attribute_errorMessage.num_lmt !== ''}>
 								<FormLabel>Number Range</FormLabel>
 								<HStack>
 									<input
@@ -268,6 +268,7 @@ const TypeAdder = () => {
 										}}
 									></input>
 								</HStack>
+								<FormErrorMessage>{new_attribute_errorMessage.num_lmt}</FormErrorMessage>
 							</FormControl>}
 
 						{/** Extra form for the options data type*/}

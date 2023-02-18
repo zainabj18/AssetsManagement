@@ -7,7 +7,7 @@ export default class AttributeMaker {
 	 * @returns The 'no errors' message (an ampty string).
 	*/
 	static get_message_noError() {
-		return {attributeName: ''};
+		return { attributeName: '', num_lmt: '' };
 	}
 
 	/** Creates an empty set of values for a new attribute.
@@ -20,7 +20,7 @@ export default class AttributeMaker {
 		this.max = '';
 		this.list_type = '';
 		this.choices = '';
-		this.isMulti=false;
+		this.isMulti = false;
 	}
 
 	/** Checks for any errors in the user's input
@@ -29,21 +29,27 @@ export default class AttributeMaker {
 	 * An empty string for an error message means that there was no error.
 	 */
 	checkForErrors = (allAttributes) => {
-		let duplicate = TypeAdderManager.isAttributeNameIn(this.name, allAttributes);
-		let emptyName = this.name === '';
+		return {
+			attributeName: this.checkForNameError(allAttributes),
+			num_lmt: this.checkForMinMaxError()
+		};
+	};
 
-		let name_errorMessage;
-		if (emptyName) {
-			name_errorMessage = 'Name is required';
+	checkForNameError = (allAttributes) => {
+		if (this.name === '') {
+			return 'Name is required';
 		}
-		else if (duplicate) {
-			name_errorMessage = 'Name already in use';
+		if (TypeAdderManager.isAttributeNameIn(this.name, allAttributes)) {
+			return 'Name already in use';
 		}
-		else {
-			name_errorMessage = '';
-		}
+		return '';
+	};
 
-		return { attributeName: name_errorMessage };
+	checkForMinMaxError = () => {
+		if (this.type === 'num_lmt' && this.min >= this.max) {
+			return 'Minimum must be less than maxmium';
+		}
+		return '';
 	};
 
 	/** Forms and returns attribute
@@ -78,7 +84,7 @@ export default class AttributeMaker {
 			validation = {
 				validation: {
 					values: this.choices.split(','),
-					isMulti:this.isMulti
+					isMulti: this.isMulti
 				}
 			};
 			return { ...base, ...validation };
