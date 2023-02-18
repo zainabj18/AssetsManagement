@@ -283,3 +283,14 @@ def test_tag_copy_to_requires_assest_ids_list(valid_client):
             } in res.json["data"]
     assert res.json["error"]=="Failed to copy to tag from the data provided"
     assert res.json["msg"]=="Data provided is invalid"
+
+def test_tag_copy_to_requires_assest_ids_list_ints(valid_client):
+    res = valid_client.post("/api/v1/tag/copy", json={"assest_ids":["j",1]})
+    assert res.status_code == 400
+    assert {
+                "loc": ['assest_ids', 0],
+                "msg":'value is not a valid integer',
+                "type": "type_error.integer",
+            } in res.json["data"]
+    assert res.json["error"]=="Failed to copy to tag from the data provided"
+    assert res.json["msg"]=="Data provided is invalid"
