@@ -28,6 +28,12 @@ def list_tags(db):
             cur.execute("""SELECT * FROM tags;""")
             return cur.fetchall()
 
+def tag_in_db(db,id):
+    with db.connection() as conn:
+        with conn.cursor(row_factory=dict_row) as cur:
+            cur.execute("""SELECT id FROM tags WHERE id=%(id)s;""",{"id": id})
+            return cur.fetchall()!=[]
+
 
 def delete_tag(db, id):
     with db.connection() as db_conn:
@@ -101,3 +107,6 @@ def copy():
             ),
             400,
         )
+    db=get_db()
+    if not tag_in_db(db,tag_copy.to_tag_id):
+        return {"msg": "Data provided is invalid","data":tag_copy.to_tag_id,"error": f"Tag with {tag_copy.to_tag_id} doesn't exist"},400
