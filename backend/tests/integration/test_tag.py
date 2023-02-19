@@ -313,7 +313,7 @@ def test_tag_copy_to_requires_valid_to_tag_id(valid_client):
     indirect=True,
 )
 def test_tag_copy_db_change(valid_client,db_conn,new_assets):
-    new_tags = create_tags_in_db(db_conn,1,id=100,name="t")
+    create_tags_in_db(db_conn,1,id=100,name="tag100")
     asset_ids=[asset.asset_id for asset in new_assets]
     res = valid_client.post("/api/v1/tag/copy", json={"to_tag_id":100,"assest_ids":asset_ids})
     assert res.status_code == 200
@@ -321,3 +321,31 @@ def test_tag_copy_db_change(valid_client,db_conn,new_assets):
     with db_conn.cursor() as cur:
         cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":100})
         assert asset_ids==[row[0] for row in cur.fetchall()]
+
+def test_tag_copy_with_invalid_asset_id(valid_client,db_conn,new_assets):
+    create_tags_in_db(db_conn,1,id=100,name="tag100")
+    res = valid_client.post("/api/v1/tag/copy", json={"to_tag_id":100,"assest_ids":[1]})
+    assert res.status_code == 200
+    assert res.json=={"msg":"Copied assets to tag"}
+    with db_conn.cursor() as cur:
+        cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":100})
+        assert []==[row[0] for row in cur.fetchall()]
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_tag_copy_with_mixed_asset_id(valid_client,db_conn,new_assets):
+    create_tags_in_db(db_conn,1,id=100,name="tag100")
+    asset_ids=[asset.asset_id for asset in new_assets]
+    invalid_asset_ids=[10000000]
+    invalid_asset_ids.extend(asset_ids)
+    res = valid_client.post("/api/v1/tag/copy", json={"to_tag_id":100,"assest_ids":invalid_asset_ids})
+    assert res.status_code == 200
+    assert res.json=={"msg":"Copied assets to tag"}
+    with db_conn.cursor() as cur:
+        cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":100})
+        asset_ids_in_tag=[row[0] for row in cur.fetchall()]
+        assert asset_ids==asset_ids_in_tag
+        assert 10000000 not in asset_ids_in_tag
