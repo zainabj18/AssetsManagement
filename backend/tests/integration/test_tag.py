@@ -2,12 +2,13 @@ from unittest import mock
 from psycopg import Error
 from psycopg.rows import dict_row
 from app.db import UserRole, DataAccess
-from tests.factories import TagFactory
+from tests.factories import TagInDBFactory
 import pytest
 
 def create_tags_in_db(db_conn,size=1,**kwargs):
-    tags=TagFactory.batch(size,**kwargs)
+    tags=TagInDBFactory.batch(size,**kwargs)
     tags_in_db=[]
+    print(tags)
     with db_conn.cursor() as cur:
         for tag in tags:
             cur.execute(
@@ -110,7 +111,7 @@ def test_tag_duplicate_name(valid_client):
     indirect=True,
 )
 def test_tag_list_from_db(valid_client, db_conn):
-    expected_results = create_tags_in_db(db_conn,100)
+    expected_results = create_tags_in_db(db_conn,size=100)
     res = valid_client.get("/api/v1/tag/")
     assert res.status_code == 200
     assert res.json == {"msg": "tags", "data": expected_results}
@@ -232,14 +233,12 @@ def test_tag_viewer_cannot_delete(valid_client):
     indirect=True,
 )
 def test_tag_delete_with_assets(valid_client, new_assets,db_conn):
-    tags = []
-    for asset in new_assets:
-        tags.extend(asset.tags)
-    tags=set(tags)
-    for tag in tags:
-        res = valid_client.delete(f"/api/v1/tag/{tag}")
-        assert res.status_code == 200
-        with db_conn.cursor() as cur:
+    with db_conn.cursor() as cur:
+        cur.execute("""SELECT id FROM tags;""")
+        tags=[row[0] for row in cur.fetchall()]
+        for tag in tags:
+            res = valid_client.delete(f"/api/v1/tag/{tag}")
+            assert res.status_code == 200
             cur.execute(
                 """SELECT * FROM assets_in_tags WHERE tag_id=%(id)s;""",
                 {"id": tag},

@@ -87,9 +87,9 @@ def expected_res(request):
 def new_assets(db_conn, request):
     batch_result = AssetFactory.batch(size=request.param["batch_size"])
     add_to_db=request.param.get("add_to_db")
-    for asset in batch_result:
-        attribute_ids = []
-        with db_conn.cursor() as cur:
+    with db_conn.cursor() as cur:
+        for asset in batch_result:
+            attribute_ids = []
             new_type = TypeFactory.build(type_id=asset.type)
             cur.execute(
                 """
@@ -140,7 +140,9 @@ def new_assets(db_conn, request):
                         t.dict(),
                     )
             db_conn.commit()
-            if (add_to_db):
+    
+        if (add_to_db):
+            with db_conn.cursor() as cur:
                 cur.execute(
                     """
                 INSERT INTO assets (name,link,type,description, classification)

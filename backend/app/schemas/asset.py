@@ -9,6 +9,8 @@ class TagBase(BaseModel):
     id: Optional[int]
     name: str = Field(..., min_length=1)
 
+class TagInDB(TagBase):
+    id:int
 
 class Attribute_Model(BaseModel):
     attribute_name: str = Field(..., alias="attributeName")

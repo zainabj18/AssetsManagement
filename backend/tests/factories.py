@@ -2,7 +2,7 @@
 from random import choice, sample, randint
 from typing import Optional
 
-from app.schemas import Asset, AttributeInDB, Project, TagBase, TypeBase
+from app.schemas import Asset, AttributeInDB, Project, TagBase, TypeBase,TagInDB
 from pydantic_factories import ModelFactory, PostGenerated, Use
 
 
@@ -51,6 +51,9 @@ class ProjectFactory(ModelFactory):
 class TagFactory(ModelFactory):
     __model__ = TagBase
 
+
+class TagInDBFactory(ModelFactory):
+    __model__ = TagInDB
 
 class TypeFactory(ModelFactory):
     __model__ = TypeBase
