@@ -83,39 +83,42 @@ export default class AttributeMaker {
 	 * @returns The newly formed attribute object
 	 */
 	formAttribute = () => {
-		let base = {
+		let json = {
 			attributeName: this.name,
-			attributeType: this.type
+			attributeType: this.type,
+			validation: {
+				isOptional: this.isOptional
+			}
 		};
-		let validation;
+
+		let extra_validation = {};
 
 		if (this.type === 'num_lmt') {
-			validation = {
-				validation: {
-					min: this.min,
-					max: this.max
-				}
+			extra_validation =
+			{
+				min: this.min,
+				max: this.max
 			};
-			return { ...base, ...validation };
 		}
 
 		if (this.type === 'list') {
-			validation = {
-				validation: {
-					type: this.list_type
-				}
+			extra_validation = {
+				type: this.list_type
 			};
-			return { ...base, ...validation };
 		}
 		if (this.type === 'options') {
-			validation = {
-				validation: {
-					values: this.choices.split(','),
-					isMulti: this.isMulti
-				}
+			extra_validation = {
+				values: this.choices.split(','),
+				isMulti: this.isMulti
 			};
-			return { ...base, ...validation };
 		}
-		return base;
+
+		json.validation = {
+			...json.validation,
+			...extra_validation
+		};
+
+		console.log(json);
+		return json;
 	};
 };
