@@ -42,15 +42,17 @@ function CustomTable({setSelectedRows,rows,cols}) {
 	  }, [filters,query, data]);
 
 	const handleCheck=(rowID,val)=>{
+		console.log(val,'Welcome');
 		if (val){
 			if (!selected.includes(rowID)){
-				setSelected((prev)=>{return  [...prev,rowID];});
+				setSelectedRows([...selected,rowID]);
+				setSelected((prev)=>{return  [...prev,rowID];});	
 			}
 		}else {
 			let newSelected=selected.filter((id) => id !==rowID);
 			setSelected(newSelected);
+			setSelectedRows(newSelected);
 		}	
-		setSelectedRows(selected);
 	};
 	const renderCell=(key,rowID,value)=>{
 		if (columns[key].hasOwnProperty('Cell')){

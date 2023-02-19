@@ -28,7 +28,7 @@ const AssetTable = ({assets,setSelectedAssets}) => {
 		},
 	};
 	}
-	,[]);
+	,[colours]);
 	useEffect(() => {
 		console.log(assets,'I am assets');
 		fetchAssetClassifications().then((data)=>{
@@ -40,6 +40,7 @@ const AssetTable = ({assets,setSelectedAssets}) => {
 				let factor=i/(classification_levels.length-1);
 				customColours[classification_levels[i]]=`rgb(${factor*RED},${(1-factor)*GREEN},0)`;
 			}
+			console.log(customColours);
 			setColors(customColours);
 		}).catch((err) => {console.log(err);});},[]);
 	return (
