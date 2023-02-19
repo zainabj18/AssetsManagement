@@ -143,41 +143,42 @@ def new_assets(db_conn, request):
     
         if (add_to_db):
             with db_conn.cursor() as cur:
-                cur.execute(
-                    """
-                INSERT INTO assets (name,link,type,description, classification)
-        VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(classification)s) RETURNING asset_id;""",
-                    asset.dict(),
-                )
-                asset_id = cur.fetchone()[0]
-                for tag in asset.tags:
+                for asset in batch_result:
                     cur.execute(
                         """
-                    INSERT INTO assets_in_tags (asset_id,tag_id)
-            VALUES (%(asset_id)s,%(tag_id)s);""",
-                        {"asset_id": asset_id, "tag_id": tag},
+                    INSERT INTO assets (name,link,type,description, classification)
+            VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(classification)s) RETURNING asset_id;""",
+                        asset.dict(),
                     )
-                # add asset to projects to db
-                for project in asset.projects:
-                    cur.execute(
-                        """
-                    INSERT INTO assets_in_projects (asset_id,project_id)
-            VALUES (%(asset_id)s,%(project_id)s);""",
-                        {"asset_id": asset_id, "project_id": project},
-                    )
-                # add attribute values to db
-                for attribute in asset.metadata:
-                    cur.execute(
-                        """
-                    INSERT INTO attributes_values (asset_id,attribute_id,value)
-            VALUES (%(asset_id)s,%(attribute_id)s,%(value)s);""",
-                        {
-                            "asset_id": asset_id,
-                            "attribute_id": attribute.attribute_id,
-                            "value": attribute.attribute_value,
-                        },
-                    )
-                db_conn.commit()
+                    asset_id = cur.fetchone()[0]
+                    for tag in asset.tags:
+                        cur.execute(
+                            """
+                        INSERT INTO assets_in_tags (asset_id,tag_id)
+                VALUES (%(asset_id)s,%(tag_id)s);""",
+                            {"asset_id": asset_id, "tag_id": tag},
+                        )
+                    # add asset to projects to db
+                    for project in asset.projects:
+                        cur.execute(
+                            """
+                        INSERT INTO assets_in_projects (asset_id,project_id)
+                VALUES (%(asset_id)s,%(project_id)s);""",
+                            {"asset_id": asset_id, "project_id": project},
+                        )
+                    # add attribute values to db
+                    for attribute in asset.metadata:
+                        cur.execute(
+                            """
+                        INSERT INTO attributes_values (asset_id,attribute_id,value)
+                VALUES (%(asset_id)s,%(attribute_id)s,%(value)s);""",
+                            {
+                                "asset_id": asset_id,
+                                "attribute_id": attribute.attribute_id,
+                                "value": attribute.attribute_value,
+                            },
+                        )
+                    db_conn.commit()
     if (add_to_db):
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
             cur.execute("""SELECT * FROM assets WHERE soft_delete=0;""")

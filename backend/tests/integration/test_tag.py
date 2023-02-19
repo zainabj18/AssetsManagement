@@ -490,6 +490,7 @@ def test_tag_remove_db_change(valid_client,db_conn,new_assets):
     with db_conn.cursor() as cur:
         cur.execute("""SELECT id FROM tags;""")
         tags=[row[0] for row in cur.fetchall()]
+        print(tags)
         for tag in tags:
             cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":tag})
             asset_ids=[row[0] for row in cur.fetchall()]
@@ -499,11 +500,44 @@ def test_tag_remove_db_change(valid_client,db_conn,new_assets):
             cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":tag})
             assert [row[0] for row in cur.fetchall()]==[]
 
-def test_tag_remove_with_invalid_asset_id(valid_client,db_conn):
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_tag_remove_with_invalid_asset_id(valid_client,db_conn,new_assets):
     create_tags_in_db(db_conn,1,id=100,name="tag100")
-    res = valid_client.post("/api/v1/tag/remove", json={"to_tag_id":100,"assest_ids":[1]})
-    assert res.status_code == 200
-    assert res.json=={"msg":"Removed assets from tag"}
     with db_conn.cursor() as cur:
-        cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":100})
-        assert []==[row[0] for row in cur.fetchall()]
+        cur.execute("""SELECT id FROM tags;""")
+        tags=[row[0] for row in cur.fetchall()]
+        for tag in tags:
+            cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":tag})
+            asset_ids=[row[0] for row in cur.fetchall()]
+            res = valid_client.post("/api/v1/tag/remove", json={"to_tag_id":tag,"assest_ids":[100000]})
+            assert res.status_code == 200
+            assert res.json=={"msg":"Removed assets from tag"}
+            cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":tag})
+            assert asset_ids==[row[0] for row in cur.fetchall()]
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_tag_remove_with_mixed_asset_id(valid_client,db_conn,new_assets):
+    create_tags_in_db(db_conn,1,id=100,name="tag100")
+    with db_conn.cursor() as cur:
+        cur.execute("""SELECT id FROM tags;""")
+        tags=[row[0] for row in cur.fetchall()]
+        for tag in tags:
+            cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":tag})
+            asset_ids=[row[0] for row in cur.fetchall()]
+            asset_ids.append(100000)
+            res = valid_client.post("/api/v1/tag/remove", json={"to_tag_id":tag,"assest_ids":asset_ids})
+            assert res.status_code == 200
+            assert res.json=={"msg":"Removed assets from tag"}
+            cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":tag})
+            assert []==[row[0] for row in cur.fetchall()]
+
+
+

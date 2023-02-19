@@ -34,7 +34,7 @@ def delete_asset_in_tag(db,asset_ids,tag_id):
     with db.connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-            DELETE FROM assets_in_tags WHERE asset_id = ANY(%(asset_ids)s);
+            DELETE FROM assets_in_tags WHERE asset_id = ANY(%(asset_ids)s) AND tag_id=%(tag_id)s;
             """,{"tag_id":tag_id,"asset_ids":asset_ids})
 
 
