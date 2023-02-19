@@ -349,3 +349,29 @@ def test_tag_copy_with_mixed_asset_id(valid_client,db_conn,new_assets):
         asset_ids_in_tag=[row[0] for row in cur.fetchall()]
         assert asset_ids==asset_ids_in_tag
         assert 10000000 not in asset_ids_in_tag
+
+
+def test_tag_copy_db_error_tag_in_db(valid_client, db_conn):
+    with mock.patch(
+        "app.tag.routes.tag_in_db", side_effect=Error("Fake error executing query")
+    ) as p:
+        res = valid_client.post("/api/v1/tag/copy", json={"to_tag_id":1,"assest_ids":[1]})
+        assert res.status_code == 500
+        p.assert_called()
+        assert res.json == {
+            "error": "Database Error",
+            "msg": "Fake error executing query",
+        }
+
+def test_tag_copy_db_error_add_asset_to_tag(valid_client, db_conn):
+    with mock.patch(
+        "app.tag.routes.add_asset_to_tag", side_effect=Error("Fake error executing query")
+    ) as p:
+        create_tags_in_db(db_conn,1,id=100,name="tag100")
+        res = valid_client.post("/api/v1/tag/copy", json={"to_tag_id":100,"assest_ids":[1]})
+        assert res.status_code == 500
+        p.assert_called()
+        assert res.json == {
+            "error": "Database Error",
+            "msg": "Fake error executing query",
+        }

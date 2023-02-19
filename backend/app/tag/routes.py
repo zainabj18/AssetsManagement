@@ -117,9 +117,12 @@ def copy():
             ),
             400,
         )
-    db=get_db()
-    if not tag_in_db(db,tag_copy.to_tag_id):
-        return {"msg": "Data provided is invalid","data":tag_copy.to_tag_id,"error": f"Tag with {tag_copy.to_tag_id} doesn't exist"},400
-    add_asset_to_tag(db=db,asset_ids=tag_copy.assest_ids,tag_id=tag_copy.to_tag_id)
+    try:
+        db=get_db()
+        if not tag_in_db(db,tag_copy.to_tag_id):
+            return {"msg": "Data provided is invalid","data":tag_copy.to_tag_id,"error": f"Tag with {tag_copy.to_tag_id} doesn't exist"},400
+        add_asset_to_tag(db=db,asset_ids=tag_copy.assest_ids,tag_id=tag_copy.to_tag_id)
+    except Error as e:
+        return {"msg": str(e), "error": "Database Error"}, 500
     return {"msg":"Copied assets to tag"}, 200
 
