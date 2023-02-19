@@ -45,6 +45,9 @@ const TypeAdder = () => {
 	const [types] = useState([
 		'text', 'number', 'checkbox', 'datetime-local', 'num_lmt', 'options', 'list'
 	]);
+	const [list_types] = useState([
+		'text', 'email', 'url'
+	]);
 
 	const [typeName, set_typeName] = useState('');
 	const [new_typeName_errorMessage, set_new_typeName_errorMessage] = useState('');
@@ -89,6 +92,7 @@ const TypeAdder = () => {
 	const open_AttributeCreator = () => {
 		let new_data = new AttributeMaker();
 		new_data.type = types[0];
+		new_data.list_type = list_types[0];
 		updateSelectedTypes(new_data);
 		set_new_attribute_errorMessage(AttributeMaker.get_message_noError());
 		set_creationData(new_data);
@@ -298,9 +302,10 @@ const TypeAdder = () => {
 								creationData.list_type = e.target.value;
 								set_creationData(creationData);
 							}}>
-								<option>text</option>
-								<option>email</option>
-								<option>url</option>
+								{list_types.map((list_types) => {
+									return (<option value={list_types} key={list_types}>{list_types}</option>
+									);
+								})}
 							</Select>
 						</FormControl>}
 
