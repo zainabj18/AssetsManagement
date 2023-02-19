@@ -246,7 +246,7 @@ const TypeAdder = () => {
 
 						{/** Extra form for the num_lmt data type*/}
 						{display_num_lmt &&
-							<FormControl isRequired>
+							<FormControl isRequired isInvalid={new_attribute_errorMessage.num_lmt !== ''}>
 								<FormLabel>Number Range</FormLabel>
 								<HStack>
 									<input
@@ -268,41 +268,50 @@ const TypeAdder = () => {
 										}}
 									></input>
 								</HStack>
-							</FormControl>}
+								<FormErrorMessage>{new_attribute_errorMessage.num_lmt}</FormErrorMessage>
+							</FormControl>
+						}
 
 						{/** Extra form for the options data type*/}
-						{display_options && <FormControl isRequired>
-							<FormLabel>Choices</FormLabel>
-							<HStack>
-								<input
-									placeholder='options'
-									type='text'
-									variant='outline'
-									onChange={(e) => {
-										creationData.choices = e.target.value;
+						{display_options &&
+							<FormControl>
+								<FormLabel>Choices</FormLabel>
+								<HStack>
+									<FormControl isRequired isInvalid={new_attribute_errorMessage.options !== ''}>
+										<input
+											placeholder='options'
+											type='text'
+											variant='outline'
+											onChange={(e) => {
+												creationData.choices = e.target.value;
+												set_creationData(creationData);
+											}}
+										></input>
+										<FormErrorMessage>{new_attribute_errorMessage.options}</FormErrorMessage>
+									</FormControl>
+									<Text>Multiselect</Text>
+									<Checkbox onChange={(e) => {
+										creationData.isMulti = e.target.checked;
 										set_creationData(creationData);
-									}}
-								></input>
-								<Text>Multiselect</Text>
-								<Checkbox onChange={(e) => {
-									creationData.isMulti = e.target.checked;
-									set_creationData(creationData);
-								}} />
-							</HStack>
-						</FormControl>}
+									}} />
+								</HStack>
+							</FormControl>
+						}
 
 						{/** Extra form for the list data type*/}
-						{display_list && <FormControl isRequired>
-							<FormLabel>List Type</FormLabel>
-							<Select onChange={(e) => {
-								creationData.list_type = e.target.value;
-								set_creationData(creationData);
-							}}>
-								<option>text</option>
-								<option>email</option>
-								<option>url</option>
-							</Select>
-						</FormControl>}
+						{display_list &&
+							<FormControl isRequired>
+								<FormLabel>List Type</FormLabel>
+								<Select onChange={(e) => {
+									creationData.list_type = e.target.value;
+									set_creationData(creationData);
+								}}>
+									<option>text</option>
+									<option>email</option>
+									<option>url</option>
+								</Select>
+							</FormControl>
+						}
 
 					</ModalBody>
 					<ModalFooter>
