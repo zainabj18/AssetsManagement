@@ -101,12 +101,12 @@ export default class AttributeMaker {
 			};
 		}
 
-		if (this.type === 'list') {
+		else if (this.type === 'list') {
 			extra_validation = {
 				type: this.list_type
 			};
 		}
-		if (this.type === 'options') {
+		else if (this.type === 'options') {
 			extra_validation = {
 				values: this.choices.split(','),
 				isMulti: this.isMulti
@@ -118,7 +118,6 @@ export default class AttributeMaker {
 			...extra_validation
 		};
 
-		console.log(json);
 		return json;
 	};
 };
