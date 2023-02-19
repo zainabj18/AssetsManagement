@@ -563,3 +563,17 @@ def test_tag_remove_db_error_delete_asset_in_tag(valid_client, db_conn):
             "error": "Database Error",
             "msg": "Fake error executing query",
         }
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_tag_remove_aliases(valid_client,db_conn,new_assets):
+    create_tags_in_db(db_conn,1,id=100,name="tag100")
+    asset_ids=[asset.asset_id for asset in new_assets]
+    res = valid_client.post("/api/v1/tag/remove", json={"toTagID":100,"assetIDs":asset_ids})
+    print(res.json)
+    assert res.status_code == 200
+    assert res.json=={"msg":"Removed assets from tag"}
