@@ -250,7 +250,7 @@ def test_tag_copy_to_requires_tag_id(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={})
     assert res.status_code == 400
     assert {
-                "loc": ["to_tag_id"],
+                "loc": ["toTagID"],
                 "msg": "field required",
                 "type": "value_error.missing",
             } in res.json["data"]
@@ -261,7 +261,7 @@ def test_tag_copy_to_requires_assest_ids_list(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={})
     assert res.status_code == 400
     assert {
-                "loc": ["assest_ids"],
+                "loc": ["assetIDs"],
                 "msg": "field required",
                 "type": "value_error.missing",
             } in res.json["data"]
@@ -272,7 +272,7 @@ def test_tag_copy_to_requires_tag_id_int(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={"to_tag_id":"j"})
     assert res.status_code == 400
     assert {
-                "loc": ["to_tag_id"],
+                "loc": ["toTagID"],
                 "msg": "value is not a valid integer",
                 "type": "type_error.integer",
             } in res.json["data"]
@@ -283,7 +283,7 @@ def test_tag_copy_to_requires_assest_ids_list(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={"assest_ids":"j"})
     assert res.status_code == 400
     assert {
-                "loc": ["assest_ids"],
+                "loc": ["assetIDs"],
                 "msg": 'value is not a valid list',
                 "type": "type_error.list",
             } in res.json["data"]
@@ -294,7 +294,7 @@ def test_tag_copy_to_requires_assest_ids_list_ints(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={"assest_ids":["j",1]})
     assert res.status_code == 400
     assert {
-                "loc": ['assest_ids', 0],
+                "loc": ['assetIDs', 0],
                 "msg":'value is not a valid integer',
                 "type": "type_error.integer",
             } in res.json["data"]
@@ -310,6 +310,14 @@ def test_tag_copy_to_requires_valid_to_tag_id(valid_client):
 @pytest.mark.parametrize(
     "new_assets",
     [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+@pytest.mark.parametrize(
+    "valid_client",
+    [
+        ({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC}),
+        ({"account_type": UserRole.USER, "account_privileges": DataAccess.PUBLIC}),
+    ],
     indirect=True,
 )
 def test_tag_copy_db_change(valid_client,db_conn,new_assets):
@@ -351,7 +359,7 @@ def test_tag_copy_with_mixed_asset_id(valid_client,db_conn,new_assets):
         assert 10000000 not in asset_ids_in_tag
 
 
-def test_tag_copy_db_error_tag_in_db(valid_client, db_conn):
+def test_tag_copy_db_error_tag_in_db(valid_client):
     with mock.patch(
         "app.tag.routes.tag_in_db", side_effect=Error("Fake error executing query")
     ) as p:
@@ -375,3 +383,19 @@ def test_tag_copy_db_error_add_asset_to_tag(valid_client, db_conn):
             "error": "Database Error",
             "msg": "Fake error executing query",
         }
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_tag_copy_aliases(valid_client,db_conn,new_assets):
+    create_tags_in_db(db_conn,1,id=100,name="tag100")
+    asset_ids=[asset.asset_id for asset in new_assets]
+    res = valid_client.post("/api/v1/tag/copy", json={"toTagID":100,"assetIDs":asset_ids})
+    print(res.json)
+    assert res.status_code == 200
+    assert res.json=={"msg":"Copied assets to tag"}
+    with db_conn.cursor() as cur:
+        cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":100})
+        assert asset_ids==[row[0] for row in cur.fetchall()]
