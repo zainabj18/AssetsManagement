@@ -111,3 +111,8 @@ class TagCopy(BaseModel):
 
     class Config:
         allow_population_by_field_name = True
+
+class TagMove(TagCopy):
+    from_tag_id:int=Field(..., alias="fromTagID")
+    class Config:
+        allow_population_by_field_name = True

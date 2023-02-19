@@ -212,7 +212,6 @@ def test_tag_viewer_cannot_create(valid_client):
         "msg": "Your account is forbidden to access this please speak to your admin",
     }
 
-
 @pytest.mark.parametrize(
     "valid_client",
     [{"account_type": UserRole.VIEWER, "account_privileges": DataAccess.PUBLIC}],
@@ -303,7 +302,7 @@ def test_tag_copy_to_requires_assest_ids_list_ints(valid_client):
 def test_tag_copy_to_requires_valid_to_tag_id(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={"to_tag_id":1,"assest_ids":[1]})
     assert res.status_code == 400
-    assert res.json=={'data': 1, 'error': "Tag with 1 doesn't exist", 'msg': 'Data provided is invalid'}
+    assert res.json=={'data': 1, 'error': "Tag 1 doesn't exist", 'msg': 'Data provided is invalid'}
 
 
 @pytest.mark.parametrize(
@@ -398,3 +397,105 @@ def test_tag_copy_aliases(valid_client,db_conn,new_assets):
     with db_conn.cursor() as cur:
         cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":100})
         assert asset_ids==[row[0] for row in cur.fetchall()]
+
+@pytest.mark.parametrize(
+    "valid_client",
+    [{"account_type": UserRole.VIEWER, "account_privileges": DataAccess.PUBLIC}],
+    indirect=True,
+)
+def test_tag_viewer_cannot_copy(valid_client):
+    res = valid_client.post("/api/v1/tag/copy", json={"to_tag_id":100,"assest_ids":[1]})
+    assert res.status_code == 403
+    assert res.json == {
+        "error": "Invalid Token",
+        "msg": "Your account is forbidden to access this please speak to your admin",
+    }
+
+def test_tag_move_to_requires_to_tag_id(valid_client):
+    res = valid_client.post("/api/v1/tag/move", json={})
+    assert res.status_code == 400
+    assert {
+                "loc": ["toTagID"],
+                "msg": "field required",
+                "type": "value_error.missing",
+            } in res.json["data"]
+    assert res.json["error"]=="Failed to move to tag from the data provided"
+    assert res.json["msg"]=="Data provided is invalid"
+
+def test_tag_move_to_requires_from_tag_id(valid_client):
+    res = valid_client.post("/api/v1/tag/move", json={})
+    assert res.status_code == 400
+    assert {
+                "loc": ["fromTagID"],
+                "msg": "field required",
+                "type": "value_error.missing",
+            } in res.json["data"]
+    assert res.json["error"]=="Failed to move to tag from the data provided"
+    assert res.json["msg"]=="Data provided is invalid"
+
+def test_tag_move_to_requires_assest_ids_list(valid_client):
+    res = valid_client.post("/api/v1/tag/move", json={})
+    assert res.status_code == 400
+    assert {
+                "loc": ["assetIDs"],
+                "msg": "field required",
+                "type": "value_error.missing",
+            } in res.json["data"]
+    assert res.json["error"]=="Failed to move to tag from the data provided"
+    assert res.json["msg"]=="Data provided is invalid"
+
+def test_tag_move_to_requires_to_tag_id_int(valid_client):
+    res = valid_client.post("/api/v1/tag/move", json={"to_tag_id":"j"})
+    assert res.status_code == 400
+    assert {
+                "loc": ["toTagID"],
+                "msg": "value is not a valid integer",
+                "type": "type_error.integer",
+            } in res.json["data"]
+    assert res.json["error"]=="Failed to move to tag from the data provided"
+    assert res.json["msg"]=="Data provided is invalid"
+
+
+def test_tag_move_to_requires_from_tag_id_int(valid_client):
+    res = valid_client.post("/api/v1/tag/move", json={"from_tag_id":"j"})
+    assert res.status_code == 400
+    assert {
+                "loc": ["fromTagID"],
+                "msg": "value is not a valid integer",
+                "type": "type_error.integer",
+            } in res.json["data"]
+    assert res.json["error"]=="Failed to move to tag from the data provided"
+    assert res.json["msg"]=="Data provided is invalid"
+
+def test_tag_move_to_requires_assest_ids_list(valid_client):
+    res = valid_client.post("/api/v1/tag/move", json={"assest_ids":"j"})
+    assert res.status_code == 400
+    assert {
+                "loc": ["assetIDs"],
+                "msg": 'value is not a valid list',
+                "type": "type_error.list",
+            } in res.json["data"]
+    assert res.json["error"]=="Failed to move to tag from the data provided"
+    assert res.json["msg"]=="Data provided is invalid"
+
+def test_tag_move_to_requires_assest_ids_list_ints(valid_client):
+    res = valid_client.post("/api/v1/tag/move", json={"assest_ids":["j",1]})
+    assert res.status_code == 400
+    assert {
+                "loc": ['assetIDs', 0],
+                "msg":'value is not a valid integer',
+                "type": "type_error.integer",
+            } in res.json["data"]
+    assert res.json["error"]=="Failed to move to tag from the data provided"
+    assert res.json["msg"]=="Data provided is invalid"
+
+def test_tag_move_to_requires_valid_to_tag_id(valid_client):
+    res = valid_client.post("/api/v1/tag/move", json={"to_tag_id":1,"from_tag_id":2,"assest_ids":[1]})
+    assert res.status_code == 400
+    assert res.json=={'data': 1, 'error': "Tag 1 doesn't exist", 'msg': 'Data provided is invalid'}
+
+def test_tag_move_to_requires_valid_from_tag_id(valid_client,db_conn):
+    create_tags_in_db(db_conn,1,id=1,name="tag1")
+    res = valid_client.post("/api/v1/tag/move", json={"to_tag_id":1,"from_tag_id":2,"assest_ids":[1]})
+    assert res.status_code == 400
+    assert res.json=={'data': 2, 'error': "Tag 2 doesn't exist", 'msg': 'Data provided is invalid'}
