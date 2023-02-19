@@ -539,5 +539,27 @@ def test_tag_remove_with_mixed_asset_id(valid_client,db_conn,new_assets):
             cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":tag})
             assert []==[row[0] for row in cur.fetchall()]
 
+def test_tag_remove_db_error_tag_in_db(valid_client):
+    with mock.patch(
+        "app.tag.routes.tag_in_db", side_effect=Error("Fake error executing query")
+    ) as p:
+        res = valid_client.post("/api/v1/tag/remove", json={"to_tag_id":1,"assest_ids":[1]})
+        assert res.status_code == 500
+        p.assert_called()
+        assert res.json == {
+            "error": "Database Error",
+            "msg": "Fake error executing query",
+        }
 
-
+def test_tag_remove_db_error_delete_asset_in_tag(valid_client, db_conn):
+    with mock.patch(
+        "app.tag.routes.delete_asset_in_tag", side_effect=Error("Fake error executing query")
+    ) as p:
+        create_tags_in_db(db_conn,1,id=100,name="tag100")
+        res = valid_client.post("/api/v1/tag/remove", json={"to_tag_id":100,"assest_ids":[1]})
+        assert res.status_code == 500
+        p.assert_called()
+        assert res.json == {
+            "error": "Database Error",
+            "msg": "Fake error executing query",
+        }

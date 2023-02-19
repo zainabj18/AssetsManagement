@@ -150,8 +150,11 @@ def remove():
             ),
             400,
         )
-    db=get_db()
-    if not tag_in_db(db,tag_remove.to_tag_id):
-        return {"msg": "Data provided is invalid","data":tag_remove.to_tag_id,"error": f"Tag {tag_remove.to_tag_id} doesn't exist"},400
-    delete_asset_in_tag(db,tag_remove.assest_ids,tag_remove.to_tag_id)
+    try:
+        db=get_db()
+        if not tag_in_db(db,tag_remove.to_tag_id):
+            return {"msg": "Data provided is invalid","data":tag_remove.to_tag_id,"error": f"Tag {tag_remove.to_tag_id} doesn't exist"},400
+        delete_asset_in_tag(db,tag_remove.assest_ids,tag_remove.to_tag_id)
+    except Error as e:
+        return {"msg": str(e), "error": "Database Error"}, 500
     return {"msg":"Removed assets from tag"}, 200
