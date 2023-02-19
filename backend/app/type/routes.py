@@ -20,22 +20,22 @@ bp = Blueprint("type", __name__, url_prefix="/type")
 def add_type():
     new_type = Type(**request.json)
     db_type = new_type.dict(exclude={"metadata"})
-    query = """INSERT INTO types (type_name) VALUES (%(type_name)s);"""
+    query = """INSERT INTO types (type_name) VALUES (%(type_name)s) RETURNING type_id;"""
     database = get_db()
     with database.connection() as conn:
-        conn.execute(query, db_type)
+        ret = conn.execute(query, db_type)
+        type_id = ret.fetchone()[0]
 
-    query = """INSERT INTO attributes_in_types (attribute_id, type_id) VALUES ((SELECT attribute_id FROM attributes WHERE attribute_name = (%(attr_name)s)), (SELECT type_id FROM types WHERE type_name = (%(type_name)s)))"""
+    query = """INSERT INTO attributes_in_types (attribute_id, type_id) VALUES (%(attr_id)s, %(type_id)s)"""
     for attribute in new_type.metadata:
         with database.connection() as conn:
             conn.execute(
                 query,
                 {
-                    "type_name": new_type.type_name,
-                    "attr_name": attribute.attribute_name,
+                    "type_id": type_id,
+                    "attr_id": attribute.attribute_id,
                 },
             )
-
     return {"msg": ""}, 200
 
 
