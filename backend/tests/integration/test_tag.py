@@ -2,7 +2,27 @@ from unittest import mock
 from psycopg import Error
 from psycopg.rows import dict_row
 from app.db import UserRole, DataAccess
+from tests.factories import TagFactory
 import pytest
+
+def create_tags_in_db(db_conn,size=1,**kwargs):
+    tags=TagFactory.batch(size,**kwargs)
+    tags_in_db=[]
+    with db_conn.cursor() as cur:
+        for tag in tags:
+            cur.execute(
+                """
+            INSERT INTO tags (id,name)
+    VALUES (%(id)s,%(name)s) ON CONFLICT DO NOTHING RETURNING id;""",
+                tag.dict(),
+            )
+            if db_id := cur.fetchone():
+                tag.id=db_id[0]
+                print("tag in db")
+                print(tag.id)
+                tags_in_db.append(tag.dict())
+        db_conn.commit()
+    return tags_in_db
 
 
 def test_tag_create_requires_name(valid_client):
@@ -90,21 +110,7 @@ def test_tag_duplicate_name(valid_client):
     indirect=True,
 )
 def test_tag_list_from_db(valid_client, db_conn):
-    expected_results = []
-
-    with db_conn.cursor() as cur:
-        for x in range(100):
-            name = f"Test-{x}"
-            tag_dict = {"id": x + 1, "name": name}
-
-            cur.execute(
-                """
-            INSERT INTO tags (name)
-    VALUES (%(name)s) RETURNING id;""",
-                tag_dict,
-            )
-            expected_results.append(tag_dict)
-            db_conn.commit()
+    expected_results = create_tags_in_db(db_conn,100)
     res = valid_client.get("/api/v1/tag/")
     assert res.status_code == 200
     assert res.json == {"msg": "tags", "data": expected_results}
@@ -295,9 +301,23 @@ def test_tag_copy_to_requires_assest_ids_list_ints(valid_client):
     assert res.json["error"]=="Failed to copy to tag from the data provided"
     assert res.json["msg"]=="Data provided is invalid"
 
-
-
 def test_tag_copy_to_requires_valid_to_tag_id(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={"to_tag_id":1,"assest_ids":[1]})
     assert res.status_code == 400
     assert res.json=={'data': 1, 'error': "Tag with 1 doesn't exist", 'msg': 'Data provided is invalid'}
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_tag_copy_db_change(valid_client,db_conn,new_assets):
+    new_tags = create_tags_in_db(db_conn,1,id=100,name="t")
+    asset_ids=[asset.asset_id for asset in new_assets]
+    res = valid_client.post("/api/v1/tag/copy", json={"to_tag_id":100,"assest_ids":asset_ids})
+    assert res.status_code == 200
+    assert res.json=={"msg":"Copied assets to tag"}
+    with db_conn.cursor() as cur:
+        cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":100})
+        assert asset_ids==[row[0] for row in cur.fetchall()]

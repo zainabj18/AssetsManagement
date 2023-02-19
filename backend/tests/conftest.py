@@ -1,12 +1,13 @@
 import json
 from datetime import datetime, timedelta
 from app.db import UserRole, DataAccess
+from app.schemas import AssetBaseInDB
 import jwt
 import pytest
 from app import create_app
 from app.db import get_db, init_db
 from flask import current_app
-
+from psycopg.rows import class_row
 from .factories import (
     AssetFactory,
     AttributeFactory,
@@ -128,16 +129,22 @@ def new_assets(db_conn, request):
             for tag in asset.tags:
                 t = TagFactory.build(id=tag)
                 cur.execute(
-                    """
-        INSERT INTO tags (id,name)
-    VALUES (%(id)s,%(name)s) ON CONFLICT DO NOTHING;""",
-                    t.dict(),
-                )
+                """SELECT * FROM tags WHERE id=%(id)s;""",
+                {"id": tag},
+            )
+                if cur.fetchall() == []:
+                    cur.execute(
+                        """
+            INSERT INTO tags (id,name)
+        VALUES (%(id)s,%(name)s) ON CONFLICT (name) DO UPDATE SET name = excluded.name;""",
+                        t.dict(),
+                    )
+            db_conn.commit()
             if (add_to_db):
                 cur.execute(
                     """
                 INSERT INTO assets (name,link,type,description, classification)
-        VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(classification)s)  RETURNING asset_id;""",
+        VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(classification)s) RETURNING asset_id;""",
                     asset.dict(),
                 )
                 asset_id = cur.fetchone()[0]
@@ -168,5 +175,10 @@ def new_assets(db_conn, request):
                             "value": attribute.attribute_value,
                         },
                     )
-            db_conn.commit()
+                db_conn.commit()
+    if (add_to_db):
+        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+            cur.execute("""SELECT * FROM assets WHERE soft_delete=0;""")
+            assets = cur.fetchall()
+            return assets
     return batch_result

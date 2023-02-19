@@ -21,6 +21,16 @@ VALUES (%(name)s) RETURNING id;""",
             )
             return cur.fetchone()[0]
 
+def add_asset_to_tag(db,asset_ids,tag_id):
+    with db.connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+            INSERT INTO assets_in_tags(asset_id,tag_id)
+SELECT asset_id,%(tag_id)s AS tag_id FROM assets
+WHERE asset_id = ANY(%(asset_ids)s) ON CONFLICT DO NOTHING;
+            """,{"tag_id":tag_id,"asset_ids":asset_ids})
+
+
 
 def list_tags(db):
     with db.connection() as conn:
@@ -110,3 +120,6 @@ def copy():
     db=get_db()
     if not tag_in_db(db,tag_copy.to_tag_id):
         return {"msg": "Data provided is invalid","data":tag_copy.to_tag_id,"error": f"Tag with {tag_copy.to_tag_id} doesn't exist"},400
+    add_asset_to_tag(db=db,asset_ids=tag_copy.assest_ids,tag_id=tag_copy.to_tag_id)
+    return {"msg":"Copied assets to tag"}, 200
+
