@@ -574,6 +574,19 @@ def test_tag_remove_aliases(valid_client,db_conn,new_assets):
     create_tags_in_db(db_conn,1,id=100,name="tag100")
     asset_ids=[asset.asset_id for asset in new_assets]
     res = valid_client.post("/api/v1/tag/remove", json={"toTagID":100,"assetIDs":asset_ids})
-    print(res.json)
     assert res.status_code == 200
     assert res.json=={"msg":"Removed assets from tag"}
+
+
+@pytest.mark.parametrize(
+    "valid_client",
+    [{"account_type": UserRole.VIEWER, "account_privileges": DataAccess.PUBLIC}],
+    indirect=True,
+)
+def test_tag_viewer_cannot_remove(valid_client):
+    res = valid_client.post("/api/v1/tag/remove", json={"to_tag_id":100,"assest_ids":[1]})
+    assert res.status_code == 403
+    assert res.json == {
+        "error": "Invalid Token",
+        "msg": "Your account is forbidden to access this please speak to your admin",
+    }

@@ -136,7 +136,8 @@ def copy(user_id, access_level):
 
 
 @bp.route("/remove", methods=["POST"])
-def remove():
+@protected(role=UserRole.USER)
+def remove(user_id, access_level):
     try:
         tag_remove = TagBulkRequest(**request.json)
     except ValidationError as e:
