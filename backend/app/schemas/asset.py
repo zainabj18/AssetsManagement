@@ -105,14 +105,9 @@ class AssetOut(AssetBaseInDB):
     tags: List[Any]
     metadata: List[AttributeInDB]
 
-class TagCopy(BaseModel):
+class TagBulkRequest(BaseModel):
     to_tag_id:int=Field(..., alias="toTagID")
     assest_ids:List[int]=Field(..., alias="assetIDs")
 
-    class Config:
-        allow_population_by_field_name = True
-
-class TagMove(TagCopy):
-    from_tag_id:int=Field(..., alias="fromTagID")
     class Config:
         allow_population_by_field_name = True

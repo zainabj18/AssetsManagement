@@ -1,5 +1,5 @@
 from app.db import get_db, UserRole
-from app.schemas import TagBase,TagCopy,TagMove
+from app.schemas import TagBase,TagBulkRequest
 from app.core.utils import protected
 from flask import Blueprint, jsonify, request
 from psycopg import Error
@@ -28,6 +28,13 @@ def add_asset_to_tag(db,asset_ids,tag_id):
             INSERT INTO assets_in_tags(asset_id,tag_id)
 SELECT asset_id,%(tag_id)s AS tag_id FROM assets
 WHERE asset_id = ANY(%(asset_ids)s) ON CONFLICT DO NOTHING;
+            """,{"tag_id":tag_id,"asset_ids":asset_ids})
+
+def delete_asset_in_tag(db,asset_ids,tag_id):
+    with db.connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+            DELETE FROM assets_in_tags WHERE asset_id = ANY(%(asset_ids)s);
             """,{"tag_id":tag_id,"asset_ids":asset_ids})
 
 
@@ -106,7 +113,7 @@ def delete(id, user_id, access_level):
 @protected(role=UserRole.USER)
 def copy(user_id, access_level):
     try:
-        tag_copy = TagCopy(**request.json)
+        tag_copy = TagBulkRequest(**request.json)
     except ValidationError as e:
         return (
             jsonify(
@@ -128,10 +135,10 @@ def copy(user_id, access_level):
     return {"msg":"Copied assets to tag"}, 200
 
 
-@bp.route("/move", methods=["POST"])
-def move():
+@bp.route("/remove", methods=["POST"])
+def remove():
     try:
-        tag_move = TagMove(**request.json)
+        tag_remove = TagBulkRequest(**request.json)
     except ValidationError as e:
         return (
             jsonify(
@@ -144,6 +151,7 @@ def move():
             400,
         )
     db=get_db()
-    for tag in [tag_move.to_tag_id,tag_move.from_tag_id]:
-        if not tag_in_db(db,tag):
-            return {"msg": "Data provided is invalid","data":tag,"error": f"Tag {tag} doesn't exist"},400
+    if not tag_in_db(db,tag_remove.to_tag_id):
+        return {"msg": "Data provided is invalid","data":tag_remove.to_tag_id,"error": f"Tag {tag_remove.to_tag_id} doesn't exist"},400
+    delete_asset_in_tag(db,tag_remove.assest_ids,tag_remove.to_tag_id)
+    return {"msg":"Removed assets from tag"}, 200
