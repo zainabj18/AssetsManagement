@@ -243,6 +243,16 @@ const TypeAdder = () => {
 								})}
 							</Select>
 						</FormControl>
+						<FormControl>
+							<Checkbox
+								onChange={(e) => {
+									creationData.isOptional = e.target.checked;
+									set_creationData(creationData);
+								}}
+							>
+								Optional
+							</Checkbox>
+						</FormControl>
 
 						{/** Extra form for the num_lmt data type*/}
 						{display_num_lmt &&

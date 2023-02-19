@@ -16,6 +16,7 @@ export default class AttributeMaker {
 	constructor() {
 		this.name = '';
 		this.type = '';
+		this.isOptional = false;
 		this.min = '';
 		this.max = '';
 		this.list_type = '';
