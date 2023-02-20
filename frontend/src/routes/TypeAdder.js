@@ -22,6 +22,7 @@ import useAuth from '../hooks/useAuth';
 const TypeAdder = () => {
 
 	const [trigger_load_attributes, setTrigger_load_attributes] = useBoolean();
+	const [trigger_load_types, setTrigger_load_types] = useBoolean();
 	const { user } = useAuth();
 	let navigate = useNavigate();
 
@@ -35,6 +36,15 @@ const TypeAdder = () => {
 		}
 		load_allAttributes();
 	}, [trigger_load_attributes]);
+
+	useEffect(() => {
+		async function load_allTypes() {
+			let data = (await fetchTypesList(res => res.data)).data;
+			console.log(data);
+			set_allTypes(data);
+		}
+		load_allTypes();
+	}, [trigger_load_types]);
 
 	const {
 		isOpen: isOpen_attributeCreator,
@@ -54,6 +64,7 @@ const TypeAdder = () => {
 	const [selectedAttributes, set_selectedAttributes] = useState([]);
 	const [selectedAttributes_errorMessage, set_selectedAttributes_errorMessage] = useState('');
 	const [allAttributes, set_allAttributes] = useState([]);
+	const [allTypes, set_allTypes] = useState([]);
 	const [creationData, set_creationData] = useState(new AttributeMaker());
 	const [new_attribute_errorMessage, set_new_attribute_errorMessage] = useState(AttributeMaker.get_message_noError());
 	const [display_num_lmt, set_display_num_lmt] = useState(false);
@@ -257,6 +268,19 @@ const TypeAdder = () => {
 								Optional
 							</Checkbox>
 						</FormControl>
+						<FormControl>
+							<FormLabel>Depends On</FormLabel>
+							{allTypes.map((allTypes) => {
+								return (
+									<Checkbox
+										value={allTypes.type_id}
+										key={allTypes.type_id}
+									>
+										{allTypes.type_name}
+									</Checkbox>
+								);
+							})}
+						</FormControl>
 
 						{/** Extra form for the num_lmt data type*/}
 						{display_num_lmt &&
@@ -334,7 +358,7 @@ const TypeAdder = () => {
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
-		</VStack>
+		</VStack >
 	);
 };
 
