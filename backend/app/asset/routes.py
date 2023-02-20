@@ -9,7 +9,12 @@ bp = Blueprint("asset", __name__, url_prefix="/asset")
 import json
 def asset_differ(orginal,new):
     removed=list(set(orginal.keys())-set(new.keys()))
-    return {"removed":removed}
+    added=[]
+    new_keys=set(new.keys())-set(orginal.keys())
+    for key in new_keys:
+        added.append((key,new[key]))
+
+    return {"added":added,"removed":removed}
 def fetch_asset(db,id,classification):
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
