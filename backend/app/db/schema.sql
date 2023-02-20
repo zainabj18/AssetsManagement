@@ -85,7 +85,7 @@ CREATE TABLE attributes
 (
 	asset_id SERIAL,
 	tag_id SERIAL,
-	FOREIGN KEY (tag_id) REFERENCES tags(id),
+	FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
 	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
 	PRIMARY KEY (asset_id,tag_id)
 );

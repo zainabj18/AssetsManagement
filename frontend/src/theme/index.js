@@ -5,14 +5,20 @@ import FormLabel from './components/FormLabel';
 import styles from './styles';
 import { tagTheme } from './components/Tag';
 import Button from './components/Button';
+import { inputTheme } from './components/Input';
+import shadows from './foundations/shadows';
+import { tableTheme } from './components/Table';
 
 const overrides = {
 	styles,
+	shadows:shadows,
 	components: {
 		Link,
 		FormLabel,
 		Button,
-		Tag:tagTheme
+		Input:inputTheme,
+		Tag:tagTheme,
+		Table:tableTheme,
 	}
 };
 
