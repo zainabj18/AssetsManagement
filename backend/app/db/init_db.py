@@ -136,3 +136,12 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
 def init_db_command():
     init_db()
     click.echo("Database intialised.")
+
+
+@click.command("build-assets")
+@click.option('--size', default=100)
+def build_assets_command(size):
+    db = get_db()
+    with db.connection() as conn:
+        create_assets(db_conn=conn,batch_size=size,add_to_db=True)
+    click.echo("Added assets")
