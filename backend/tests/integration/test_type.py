@@ -99,6 +99,61 @@ def test_add_type_to_db(client, db_conn):
         assert type["attribute_data_type"] == test_type["metadata"][0]["attributeType"]
 
 
+def test_add_type_with_dependecnices(client, db_conn):
+    test_metaData = {
+        "attributeName": "programming Language(s)",
+        "attributeType": "text"
+    }
+    test_type_a = {
+        "typeName": "framework",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": test_metaData["attributeName"],
+                "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": []
+    }
+    test_type_b = {
+        "typeName": "Web app",
+        "metadata": [
+            {
+                "attributeID": 1,
+                    "attributeName": test_metaData["attributeName"],
+                    "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": [1]
+    }
+    test_type_c = {
+        "typeName": "internet",
+        "metadata": [
+            {
+                "attributeID": 1,
+                    "attributeName": test_metaData["attributeName"],
+                    "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": [2, 1]
+    }
+    client.post("/api/v1/type/adder/new", json=test_metaData)
+    client.post("/api/v1/type/new", json=test_type_a)
+    client.post("/api/v1/type/new", json=test_type_b)
+    client.post("/api/v1/type/new", json=test_type_c)
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT * FROM type_link"""
+        )
+        res = cur.fetchall()
+        assert res[0]["type_id_from"] == 2
+        assert res[0]["type_id_to"] == 1
+        assert res[1]["type_id_from"] == 3
+        assert res[1]["type_id_to"] == 2
+        assert res[2]["type_id_from"] == 3
+        assert res[2]["type_id_to"] == 1
+
+
 # Test to see if a type can be returned from the database
 def test_get_type(client):
     test_type = {
