@@ -131,15 +131,15 @@ CREATE TABLE attributes_values
 -- 	FOREIGN KEY project_id REFERENCES projects(project_id)
 -- );
 
--- CREATE TABLE people_in_projects
--- (
--- 	project_id BIGINT UNSIGNED,
--- 	account_id BIGINT UNSIGNED,
+ CREATE TABLE people_in_projects
+ (
+ 	project_id BIGINT UNSIGNED,
+ 	account_id BIGINT UNSIGNED,
 
--- 	PRIMARY KEY (project_id, account_id),
--- 	FOREIGN KEY project_id REFERENCES projects(project_id),
--- 	FOREIGN KEY account_id REFERENCES accounts(account_id)
--- );
+ 	PRIMARY KEY (project_id, account_id),
+ 	FOREIGN KEY project_id REFERENCES projects(project_id),
+ 	FOREIGN KEY account_id REFERENCES accounts(account_id)
+ );
 
 -- CREATE TABLE change_logs
 -- (
