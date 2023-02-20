@@ -2,13 +2,12 @@ from unittest import mock
 from psycopg import Error
 from psycopg.rows import dict_row
 from app.db import UserRole, DataAccess
-from tests.factories import TagInDBFactory
+from app.schemas.factories import TagInDBFactory
 import pytest
 
 def create_tags_in_db(db_conn,size=1,**kwargs):
     tags=TagInDBFactory.batch(size,**kwargs)
     tags_in_db=[]
-    print(tags)
     with db_conn.cursor() as cur:
         for tag in tags:
             cur.execute(
@@ -19,8 +18,6 @@ def create_tags_in_db(db_conn,size=1,**kwargs):
             )
             if db_id := cur.fetchone():
                 tag.id=db_id[0]
-                print("tag in db")
-                print(tag.id)
                 tags_in_db.append(tag.dict())
         db_conn.commit()
     return tags_in_db
@@ -391,7 +388,6 @@ def test_tag_copy_aliases(valid_client,db_conn,new_assets):
     create_tags_in_db(db_conn,1,id=100,name="tag100")
     asset_ids=[asset.asset_id for asset in new_assets]
     res = valid_client.post("/api/v1/tag/copy", json={"toTagID":100,"assetIDs":asset_ids})
-    print(res.json)
     assert res.status_code == 200
     assert res.json=={"msg":"Copied assets to tag"}
     with db_conn.cursor() as cur:
@@ -490,7 +486,6 @@ def test_tag_remove_db_change(valid_client,db_conn,new_assets):
     with db_conn.cursor() as cur:
         cur.execute("""SELECT id FROM tags;""")
         tags=[row[0] for row in cur.fetchall()]
-        print(tags)
         for tag in tags:
             cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":tag})
             asset_ids=[row[0] for row in cur.fetchall()]

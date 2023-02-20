@@ -114,7 +114,6 @@ def delete(id, user_id, access_level):
 def copy(user_id, access_level):
     try:
         tag_copy = TagBulkRequest(**request.json)
-        print(tag_copy)
     except ValidationError as e:
         return (
             jsonify(
@@ -153,7 +152,6 @@ def remove(user_id, access_level):
             400,
         )
     try:
-        print(tag_remove)
         db=get_db()
         if not tag_in_db(db,tag_remove.to_tag_id):
             return {"msg": "Data provided is invalid","data":tag_remove.to_tag_id,"error": f"Tag {tag_remove.to_tag_id} doesn't exist"},400

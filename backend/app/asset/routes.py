@@ -246,7 +246,11 @@ INNER JOIN assets_in_tags ON assets.asset_id=assets_in_tags.asset_id WHERE soft_
                 """SELECT name FROM tags WHERE id=%(id)s;""",
                 {"id": id},
             )
-            tag = cur.fetchone()["name"]
+            tag = cur.fetchone()
+            if tag:
+                tag=tag["name"]
+            else:
+                return {"msg":"No tag id found"},400
             for a in assets:
                 if a.classification <= access_level:
                     cur.execute(
