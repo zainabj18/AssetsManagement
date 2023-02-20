@@ -3,14 +3,16 @@ import {
 	VStack,
 	Table, Thead, Tbody, Tr, Th, Td, TableContainer, TableCaption,
 	Text,
+	useBoolean,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { Link as RouteLink } from 'react-router-dom';
-import { fetchAllTypes } from '../api';
+import { deleteType, fetchAllTypes } from '../api';
 import useAuth from '../hooks/useAuth';
 
 const TypeViewer = () => {
 	const { user } = useAuth();
+	const [toggle, set_toggle] = useBoolean();
 
 	useEffect(() => {
 		async function load_allTypes() {
@@ -18,9 +20,21 @@ const TypeViewer = () => {
 			set_types(data);
 		}
 		load_allTypes();
-	}, []);
+	}, [toggle]);
 
 	const [types, set_types] = useState([]);
+
+	const deleteThis = (type) => {
+		deleteType(type.typeId).then(data => {
+			if (data.wasAllowed == false) {
+				alert('Type ' + type.typeName + ' is depended upon, can not be deleted.');
+			}
+			else {
+				set_toggle.toggle();
+			}
+		});
+
+	};
 
 	return (
 		<VStack>
@@ -60,7 +74,7 @@ const TypeViewer = () => {
 										})}
 									</Td>
 									<Td>
-										<Button>Delete</Button>
+										<Button onClick={() => deleteThis(types)}>Delete</Button>
 									</Td>
 								</Tr>
 							);
