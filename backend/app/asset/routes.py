@@ -7,8 +7,53 @@ from pydantic import ValidationError
 
 bp = Blueprint("asset", __name__, url_prefix="/asset")
 import json
+def asset_differ(orginal,new):
+    removed=list(set(orginal.keys())-set(new.keys()))
+    return {"removed":removed}
+def fetch_asset(db,id,classification):
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+            # gets asset
+            cur.execute(
+                """SELECT * FROM assets WHERE asset_id=%(id)s AND soft_delete=0;""",
+                {"id": id},
+            )
+            asset = cur.fetchone()
+            # check user can view assset
+            if asset.classification > classification:
+                return {"data": []}, 401
+        # get related info for asset
+        with db_conn.cursor(row_factory=class_row(AttributeInDB)) as cur:
+            cur.execute(
+                """SELECT attributes.attribute_id,attribute_name, attribute_data_type as attribute_type, validation_data,value as attribute_value FROM attributes_values 
+INNER JOIN attributes on attributes.attribute_id=attributes_values.attribute_id WHERE asset_id=%(id)s;""",
+                {"id": id},
+            )
+            metadata = cur.fetchall()
+        with db_conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(
+                """SELECT projects.* FROM assets_in_projects
+INNER JOIN projects on projects.id=assets_in_projects.project_id WHERE asset_id=%(id)s;""",
+                {"id": id},
+            )
+            projects = cur.fetchall()
+            cur.execute(
+                """SELECT tags.id,name FROM assets_in_tags 
+INNER JOIN tags on tags.id=assets_in_tags.tag_id WHERE asset_id=%(id)s;""",
+                {"id": id},
+            )
+            tags = list(cur.fetchall())
+            cur.execute(
+                """SELECT type_name FROM types WHERE type_id=%(id)s;""",
+                {"id": asset.type},
+            )
+            type = cur.fetchone()["type_name"]
 
-
+        asset = AssetOut(
+            **asset.dict(), metadata=metadata, projects=projects, tags=tags
+        )
+        asset.type = type
+    return asset
 @bp.route("/", methods=["POST"])
 def create():
     # validate json
@@ -120,48 +165,8 @@ def list_asset_project(id):
 @protected(role=UserRole.VIEWER)
 def view(id, user_id, access_level):
     db = get_db()
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
-            # gets asset
-            cur.execute(
-                """SELECT * FROM assets WHERE asset_id=%(id)s AND soft_delete=0;""",
-                {"id": id},
-            )
-            asset = cur.fetchone()
-            # check user can view assset
-            if asset.classification > access_level:
-                return {"data": []}, 401
-        # get related info for asset
-        with db_conn.cursor(row_factory=class_row(AttributeInDB)) as cur:
-            cur.execute(
-                """SELECT attributes.attribute_id,attribute_name, attribute_data_type as attribute_type, validation_data,value as attribute_value FROM attributes_values 
-INNER JOIN attributes on attributes.attribute_id=attributes_values.attribute_id WHERE asset_id=%(id)s;""",
-                {"id": id},
-            )
-            metadata = cur.fetchall()
-        with db_conn.cursor(row_factory=dict_row) as cur:
-            cur.execute(
-                """SELECT projects.* FROM assets_in_projects
-INNER JOIN projects on projects.id=assets_in_projects.project_id WHERE asset_id=%(id)s;""",
-                {"id": id},
-            )
-            projects = cur.fetchall()
-            cur.execute(
-                """SELECT tags.id,name FROM assets_in_tags 
-INNER JOIN tags on tags.id=assets_in_tags.tag_id WHERE asset_id=%(id)s;""",
-                {"id": id},
-            )
-            tags = list(cur.fetchall())
-            cur.execute(
-                """SELECT type_name FROM types WHERE type_id=%(id)s;""",
-                {"id": asset.type},
-            )
-            type = cur.fetchone()["type_name"]
-
-        asset = AssetOut(
-            **asset.dict(), metadata=metadata, projects=projects, tags=tags
-        )
-        asset.type = type
+    asset=fetch_asset(db,id,access_level)
+    
     return {"data": json.loads(asset.json(by_alias=True))}, 200
 
 
@@ -204,9 +209,18 @@ def summary(user_id, access_level):
 
 
 @bp.route("/<id>", methods=["PATCH"])
-def update(id):
-    asset = dict(**request.json)
+@protected(role=UserRole.VIEWER)
+def update(id, user_id, access_level):
+    
     db = get_db()
+    
+    asset = dict(**request.json)
+    print(asset)
+    orgignal_asset=asset=fetch_asset(db,id,access_level)
+    print(orgignal_asset.json())
+   
+
+    #new_asset=Asset(**request.json)
 
     with db.connection() as conn:
         with conn.cursor() as cur:
