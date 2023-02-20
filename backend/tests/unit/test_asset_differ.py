@@ -132,4 +132,20 @@ def test_change_to_new_list_remove(new_assets):
     new_asset=old_asset.copy()
     new_asset["tags"]=[1, 5, 2, 7]
     res=asset_differ(old_asset,new_asset)
-    assert set(res["changed"])==set([("tags",tuple([8]),tuple([10]))])
+    assert set(res["changed"])==set([("tags",tuple([8]),tuple([]))])
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1,"add_to_db":False}],
+    indirect=True,
+)
+def test_change_to_new_list_multiple(new_assets):
+    old_asset=json.loads(new_assets[0].json())
+    old_asset["tags"]=[1, 5, 2, 7, 8]
+    new_asset=old_asset.copy()
+    new_asset["tags"]=[5, 2, 7,19,20]
+    res=asset_differ(old_asset,new_asset)
+    assert res["changed"][0][0]=="tags"
+    assert set(res["changed"][0][1])==set([8,1])
+    assert set(res["changed"][0][2])==set([19,20])
