@@ -63,6 +63,7 @@ const TypeAdder = () => {
 	const [new_typeName_errorMessage, set_new_typeName_errorMessage] = useState('');
 	const [selectedAttributes, set_selectedAttributes] = useState([]);
 	const [selectedAttributes_errorMessage, set_selectedAttributes_errorMessage] = useState('');
+	const [selectedTypes, set_selectedTypes] = useState([]);
 	const [allAttributes, set_allAttributes] = useState([]);
 	const [allTypes, set_allTypes] = useState([]);
 	const [creationData, set_creationData] = useState(new AttributeMaker());
@@ -84,6 +85,12 @@ const TypeAdder = () => {
 		set_selectedAttributes(selectedData);
 	};
 
+	const deselect = (item, list) => {
+		let index = list.indexOf(item);
+		list.splice(index, 1);
+		return list;
+	};
+
 	const ajustSelectedAttributes = (checked, index) => {
 		if (checked) {
 			selectAttribute([...allAttributes][index]);
@@ -93,7 +100,17 @@ const TypeAdder = () => {
 		}
 	};
 
-	const updateSelectedTypes = (data = creationData) => {
+	const ajustSelectedTypes = (checked, id) => {
+		if (checked) {
+			selectedTypes.push(id);
+			set_selectedTypes(selectedTypes);
+		}
+		if (!checked) {
+			set_selectedTypes(deselect(id, selectedTypes));
+		}
+	};
+
+	const update_selected_dataTypes = (data = creationData) => {
 		set_display_num_lmt(data.type === 'num_lmt');
 		set_display_list(data.type === 'list');
 		set_display_options(data.type === 'options');
@@ -104,7 +121,7 @@ const TypeAdder = () => {
 		let new_data = new AttributeMaker();
 		new_data.type = types[0];
 		new_data.list_type = list_types[0];
-		updateSelectedTypes(new_data);
+		update_selected_dataTypes(new_data);
 		set_new_attribute_errorMessage(AttributeMaker.get_message_noError());
 		set_creationData(new_data);
 		onOpen_attributeCreator();
@@ -215,6 +232,24 @@ const TypeAdder = () => {
 				</TableContainer>
 
 			</HStack>
+
+			<FormControl>
+				<FormLabel>Depends On</FormLabel>
+				{allTypes.map((allTypes) => {
+					return (
+						<Checkbox
+							key={allTypes.type_id}
+							onChange={(e) => {
+								ajustSelectedTypes(e.target.checked, allTypes.type_id);
+								set_creationData(creationData);
+							}}
+						>
+							{allTypes.type_name}
+						</Checkbox>
+					);
+				})}
+			</FormControl>
+
 			<Button onClick={open_AttributeCreator}>Add</Button>
 			<Button onClick={saveType}>Save</Button>
 
@@ -248,7 +283,7 @@ const TypeAdder = () => {
 								onChange={(e) => {
 									creationData.type = e.target.value;
 									set_creationData(creationData);
-									updateSelectedTypes();
+									update_selected_dataTypes();
 								}}
 							>
 								{types.map((types) => {
@@ -267,19 +302,6 @@ const TypeAdder = () => {
 							>
 								Optional
 							</Checkbox>
-						</FormControl>
-						<FormControl>
-							<FormLabel>Depends On</FormLabel>
-							{allTypes.map((allTypes) => {
-								return (
-									<Checkbox
-										value={allTypes.type_id}
-										key={allTypes.type_id}
-									>
-										{allTypes.type_name}
-									</Checkbox>
-								);
-							})}
 						</FormControl>
 
 						{/** Extra form for the num_lmt data type*/}
