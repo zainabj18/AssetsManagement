@@ -38,17 +38,25 @@ def add_type():
             )
 
     query = """INSERT INTO type_link (type_id_from, type_id_to) VALUES (%(from)s, %(to)s)"""
+    selfDependent_error = False
     for dependency_key in new_type.depends_on:
         with database.connection() as conn:
-            conn.execute(
-                query,
-                {
-                    "from": type_id,
-                    "to": dependency_key
-                }
-            )
+            # If the id refers to itself, it is skipped and an error code will be returned
+            if type_id != dependency_key:
+                conn.execute(
+                    query,
+                    {
+                        "from": type_id,
+                        "to": dependency_key
+                    }
+                )
+            else:
+                selfDependent_error = True
 
-    return {"msg": ""}, 200
+    if selfDependent_error:
+        return {"msg": "Type can not depend on self"}, 422
+    else:
+        return {"msg": ""}, 200
 
 
 @bp.route("/names", methods=["GET"])

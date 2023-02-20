@@ -99,6 +99,7 @@ def test_add_type_to_db(client, db_conn):
         assert type["attribute_data_type"] == test_type["metadata"][0]["attributeType"]
 
 
+# Test to see if dependecies can be added
 def test_add_type_with_dependecnices(client, db_conn):
     test_metaData = {
         "attributeName": "programming Language(s)",
@@ -152,6 +153,28 @@ def test_add_type_with_dependecnices(client, db_conn):
         assert res[1]["type_id_to"] == 2
         assert res[2]["type_id_from"] == 3
         assert res[2]["type_id_to"] == 1
+
+
+# Test to make sure that no type can depend on itself
+def test_no_self_dependencies(client):
+    test_metaData = {
+        "attributeName": "programming Language(s)",
+        "attributeType": "text"
+    }
+    test_type = {
+        "typeName": "framework",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": test_metaData["attributeName"],
+                "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": [1]
+    }
+    client.post("/api/v1/type/adder/new", json=test_metaData)
+    res = client.post("/api/v1/type/new", json=test_type)
+    assert res.status_code == 422
 
 
 # Test to see if a type can be returned from the database
