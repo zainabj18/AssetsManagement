@@ -26,3 +26,16 @@ def test_remove_from_orginal(new_assets):
     res=asset_differ(old_asset,new_asset)
     assert set(res["removed"])==set(["link"])
 
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1,"add_to_db":False}],
+    indirect=True,
+)
+def test_remove_multiple_from_orginal(new_assets):
+    old_asset=json.loads(new_assets[0].json())
+    new_asset=old_asset.copy()
+    del new_asset["link"]
+    del new_asset["name"]
+    del new_asset["tags"]
+    res=asset_differ(old_asset,new_asset)
+    assert set(res["removed"])==set(["link","name","tags"])
