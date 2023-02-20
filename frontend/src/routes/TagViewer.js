@@ -1,10 +1,9 @@
-import { Badge, Button, ButtonGroup, Heading,Modal,ModalBody,ModalCloseButton,ModalContent,ModalFooter,ModalHeader,ModalOverlay,useBoolean,useDisclosure,VStack } from '@chakra-ui/react';
-import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { copyAssetsinTag, copyRemoveFromTag, copyToTag, createTag, fetchAssetsinTag, fetchTags, removeFromTag } from '../api';
+import { Button, ButtonGroup, Heading,useBoolean,VStack } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { copyToTag,deleteTag, fetchAssetsinTag, removeFromTag } from '../api';
 import AssetTable from '../components/AssetTable';
-import CopyTo from '../components/CopyTo';
-import SearchSelect from '../components/SearchSelect';
+import OperationTo from '../components/OperationTo';
 
 const TagViewer = () => {
 	const [assetsin, setAssets] = useState([]);
@@ -12,17 +11,27 @@ const TagViewer = () => {
 	const [tag, setTag] = useState('');
 	const [trigger,setTrigger]=useBoolean();
 	const { id } = useParams();
+	let navigate = useNavigate();
 	
-
-	const handleRemove=()=>{
-		let assetIDs=selectedAssets.map(
+	const getAssetIDs=()=>{
+		return selectedAssets.map(
 			(rowID)=>{return assetsin[rowID].asset_id;});
+	};
+	const handleRemove=()=>{
+		let assetIDs=getAssetIDs();
 		removeFromTag(id,assetIDs).then((res)=>{console.log(res); setTrigger.toggle();});
 	};
 	const handleCopy=(tag)=>{
-		let assetIDs=selectedAssets.map(
-			(rowID)=>{return assetsin[rowID].asset_id;});
+		let assetIDs=getAssetIDs();
 		copyToTag(tag,assetIDs).then((res)=>{console.log(res); setTrigger.toggle();});
+	};
+	const handleMove=(tag)=>{
+		let assetIDs=getAssetIDs();
+		copyToTag(tag,assetIDs).then((res)=>{removeFromTag(id,assetIDs);setTrigger.toggle();});
+	};
+	const handleDelete=()=>{
+		deleteTag(id).then((res)=>{console.log(res);});
+		navigate('/tags');
 	};
 	useEffect(() => {
 		fetchAssetsinTag(id).then((res)=>{setAssets(res.data.assets);
@@ -34,8 +43,9 @@ const TagViewer = () => {
 		<AssetTable assets={assetsin} setSelectedAssets={setSelectedAssets}/>
 		<ButtonGroup>
 			<Button onClick={handleRemove}>Remove from tag</Button>
-			<CopyTo copyFunc={handleCopy} />
-			
+			<OperationTo actionFunc={handleCopy} actionName="Copy" />
+			<OperationTo actionFunc={handleMove} actionName="Move" />
+			<Button colorScheme='red' onClick={handleDelete}>Delete</Button>
 		</ButtonGroup>
 	</VStack> );
 };

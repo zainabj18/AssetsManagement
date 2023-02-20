@@ -3,35 +3,35 @@ import { useState } from 'react';
 import { createTag, fetchTags } from '../api';
 import SearchSelect from './SearchSelect';
 
-const CopyTo = ({copyFunc}) => {
+const OperationTo = ({actionFunc,actionName}) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [tag, setTag] = useState(null);
 
 	const handleCopy=()=>{
 		if(tag){
-			copyFunc(tag.id);
+			actionFunc(tag.id);
 			onClose();
 		}
 	};
 	return (
 		<>
-			<Button onClick={onOpen}>Copy To</Button>
+			<Button onClick={onOpen}>{actionName} To</Button>
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent>
-					<ModalHeader>Copy Selected Asset(s)</ModalHeader>
+					<ModalHeader>{actionName} Selected Asset(s)</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>
-						<Heading size="sm">Select a tag</Heading>
+						<Heading size="sm">Select a tag:</Heading>
 						<SearchSelect dataFunc={fetchTags} selectedValue={tag} setSelectedValue={setTag} createFunc={createTag}/>
 					</ModalBody>
 					<ModalFooter>
 						<Button colorScheme='blue' mr={3} onClick={onClose}>Close</Button>
-						<Button onClick={handleCopy}>Copy</Button>
+						<Button onClick={handleCopy}>{actionName}</Button>
 					</ModalFooter>
 				</ModalContent>
 			</Modal> 
 		</>);
 };
  
-export default CopyTo;
+export default OperationTo;
