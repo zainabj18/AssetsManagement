@@ -51,7 +51,7 @@ def test_add_to_new(new_assets):
     new_asset=copy.deepcopy(old_asset)
     new_asset["new"]=1
     res=asset_differ(old_asset,new_asset)
-    assert set(res["added"])==set([("new",1)])
+    assert set(res["added"])==set(["new"])
 @pytest.mark.parametrize(
     "new_assets",
     [{"batch_size": 1,"add_to_db":False}],
@@ -64,7 +64,7 @@ def test_add_multiple_to_new(new_assets):
     new_asset["new2"]=2
     new_asset["new3"]=3
     res=asset_differ(old_asset,new_asset)
-    assert set(res["added"])==set([("new1",1),("new2",2),("new3",3)])
+    assert set(res["added"])==set(["new1","new2","new3"])
 
 @pytest.mark.parametrize(
     "new_assets",
@@ -176,21 +176,21 @@ def test_metadata_removed(new_assets):
             "attribute_id": 1,
             "attributeName": "TRHAGaOwPNQpKDzXQwqU",
             "attributeType": "num_lmt",
-            "attributeValue": "10",
+            "attribute_value": "10",
             "validation": {"max": 10, "min": 4},
         },
         {
             "attribute_id": 2,
             "attributeName": "AmVVOSJvnVHhwXtDsjmy",
             "attributeType": "datetime-local",
-            "attributeValue": "1971-09-27T19:45",
+            "attribute_value": "1971-09-27T19:45",
             "validation": None,
         },
         {
             "attribute_id": 3,
             "attributeName": "kgMhKzcidTxblyVLgWai",
             "attributeType": "text",
-            "attributeValue": "text-kgMhKzcidTxblyVLgWai",
+            "attribute_value": "text-kgMhKzcidTxblyVLgWai",
             "validation": None,
         }
     ]
