@@ -19,7 +19,7 @@ bp = Blueprint("type", __name__, url_prefix="/type")
 @bp.route("/new", methods=["POST"])
 def add_type():
     new_type = Type(**request.json)
-    db_type = new_type.dict(exclude={"metadata"})
+    db_type = new_type.dict(exclude={"metadata", "depends_on"})
     query = """INSERT INTO types (type_name) VALUES (%(type_name)s) RETURNING type_id;"""
     database = get_db()
     with database.connection() as conn:
@@ -36,6 +36,18 @@ def add_type():
                     "attr_id": attribute.attribute_id,
                 },
             )
+
+    query = """INSERT INTO type_link (type_id_from, type_id_to) VALUES (%(from)s, %(to)s)"""
+    for dependency_key in new_type.depends_on:
+        with database.connection() as conn:
+            conn.execute(
+                query,
+                {
+                    "from": type_id,
+                    "to": dependency_key
+                }
+            )
+
     return {"msg": ""}, 200
 
 
@@ -118,6 +130,7 @@ def get_allTypes():
             res = conn.execute(query_b, {"type_id": type[0]})
             attributes = extract_attributes(res.fetchall())
             allTypes_listed.append(
-                {"typeId": type[0], "typeName": type[1], "metadata": attributes}
+                {"typeId": type[0], "typeName": type[1],
+                    "metadata": attributes}
             )
         return json.dumps(allTypes_listed), 200

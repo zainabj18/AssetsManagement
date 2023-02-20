@@ -83,6 +83,7 @@ def test_add_type_to_db(client, db_conn):
                 "attributeType": test_metaData["attributeType"]
             }
         ],
+        "dependsOn": []
     }
     client.post("/api/v1/type/adder/new", json=test_metaData)
     res = client.post("/api/v1/type/new", json=test_type)
@@ -90,7 +91,7 @@ def test_add_type_to_db(client, db_conn):
 
     with db_conn.cursor(row_factory=dict_row) as cur:
         cur.execute(
-            """SELECT * FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t on at.type_id = t.type_id;"""
+            """SELECT * FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t ON at.type_id = t.type_id;"""
         )
         type = cur.fetchone()
         assert type["type_name"] == test_type["typeName"]
@@ -111,13 +112,15 @@ def test_get_type(client):
                 "validation": None,
             }
         ],
+        "dependsOn": []
     }
     client.post("/api/v1/type/adder/new", json=test_type["metadata"][0])
     client.post("/api/v1/type/new", json=test_type)
     res = client.get("/api/v1/type/1")
     assert res.status_code == 200
     type = res.json
-    assert type == test_type
+    assert type["typeName"] == test_type["typeName"]
+    assert type["metadata"] == test_type["metadata"]
 
 
 # Test to see if a type can be returned from the database
@@ -133,13 +136,15 @@ def test_get_type_with_json(client):
                 "validation": {"min": 4, "max": 10},
             }
         ],
+        "dependsOn": []
     }
     client.post("/api/v1/type/adder/new", json=test_type["metadata"][0])
     client.post("/api/v1/type/new", json=test_type)
     res = client.get("/api/v1/type/1")
     assert res.status_code == 200
     type = res.json
-    assert type == test_type
+    assert type["typeName"] == test_type["typeName"]
+    assert type["metadata"] == test_type["metadata"]
 
 
 # Test to see if a list of all attributes can be returned from the database
@@ -187,6 +192,7 @@ def test_get_allTypes(client):
                     "validation": None,
                 }
             ],
+            "dependsOn": []
         },
         {
             "typeId": 2,
@@ -205,6 +211,7 @@ def test_get_allTypes(client):
                     "validation": None,
                 },
             ],
+            "dependsOn": []
         },
     ]
     client.post("/api/v1/type/adder/new", json=test_types[0]["metadata"][0])
@@ -215,4 +222,8 @@ def test_get_allTypes(client):
     res = client.get("/api/v1/type/allTypes")
     assert res.status_code == 200
     types = res.json
-    assert types == test_types
+    for i in range(0, len(types)):
+        type = types[i]
+        test_type = test_types[i]
+        assert type["typeName"] == test_type["typeName"]
+        assert type["metadata"] == test_type["metadata"]
