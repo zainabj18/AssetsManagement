@@ -89,3 +89,19 @@ def test_change_to_new_int(new_assets):
     new_asset["num"]=2
     res=asset_differ(old_asset,new_asset)
     assert set(res["changed"])==set([("num",old_asset["num"],new_asset["num"])])
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1,"add_to_db":False}],
+    indirect=True,
+)
+def test_change_multiple(new_assets):
+    old_asset=json.loads(new_assets[0].json())
+    old_asset["num"]=1
+    old_asset["link"]="http://www.price-griffi.com/"
+    new_asset=old_asset.copy()
+    new_asset["name"]=old_asset["name"]+"new"
+    new_asset["num"]=2
+    new_asset["link"]="http://www.price2-griffi.com/"
+    res=asset_differ(old_asset,new_asset)
+    assert set(res["changed"])==set([("num",old_asset["num"],new_asset["num"]),("name",old_asset["name"],new_asset["name"]),("link",old_asset["link"],new_asset["link"])])
