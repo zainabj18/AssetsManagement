@@ -172,7 +172,8 @@ const TypeAdder = () => {
 			if (nameError + selectedError === '') {
 				createType({
 					typeName: typeName,
-					metadata: selectedAttributes
+					metadata: selectedAttributes,
+					dependsOn: selectedTypes
 				});
 				navigate('/type');
 			}
