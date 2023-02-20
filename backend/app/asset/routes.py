@@ -10,11 +10,16 @@ import json
 def asset_differ(orginal,new):
     removed=list(set(orginal.keys())-set(new.keys()))
     added=[]
+    changed=[]
     new_keys=set(new.keys())-set(orginal.keys())
     for key in new_keys:
         added.append((key,new[key]))
+    for key in orginal:
+        if key in new:
+            if orginal[key]!=new[key]:
+                changed.append((key,orginal[key],new[key]))    
 
-    return {"added":added,"removed":removed}
+    return {"added":added,"removed":removed,"changed":changed}
 def fetch_asset(db,id,classification):
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:

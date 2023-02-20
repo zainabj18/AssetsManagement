@@ -64,3 +64,15 @@ def test_add_multiple_to_new(new_assets):
     new_asset["new3"]=3
     res=asset_differ(old_asset,new_asset)
     assert set(res["added"])==set([("new1",1),("new2",2),("new3",3)])
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1,"add_to_db":False}],
+    indirect=True,
+)
+def test_change_to_new_str(new_assets):
+    old_asset=json.loads(new_assets[0].json())
+    new_asset=old_asset.copy()
+    new_asset["name"]=old_asset["name"]+"new"
+    res=asset_differ(old_asset,new_asset)
+    assert set(res["changed"])==set([("name",old_asset["name"],new_asset["name"])])
