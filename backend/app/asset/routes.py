@@ -16,7 +16,13 @@ def asset_differ(orginal,new):
         added.append((key,new[key]))
     for key in orginal:
         if key in new:
-            if orginal[key]!=new[key]:
+            if key=="metadata":
+                print(orginal["metadata"])
+                print(new["metadata"])
+                metadata_removed=list(set([a["attribute_id"] for a in orginal["metadata"]])-set([a["attribute_id"] for a in new["metadata"]]))
+                for attribute in metadata_removed:
+                    removed.append(f"metadata-attributeID-{attribute}")
+            elif orginal[key]!=new[key]:
                 if isinstance(orginal[key],list) and isinstance(new[key],list):
                     list_removed=list(set(orginal[key])-set(new[key]))
                     list_added=list(set(new[key])-set(orginal[key]))
