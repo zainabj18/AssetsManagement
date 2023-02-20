@@ -17,7 +17,12 @@ def asset_differ(orginal,new):
     for key in orginal:
         if key in new:
             if orginal[key]!=new[key]:
-                changed.append((key,orginal[key],new[key]))    
+                if isinstance(orginal[key],list) and isinstance(new[key],list):
+                    list_removed=list(set(orginal[key])-set(new[key]))
+                    list_added=list(set(new[key])-set(orginal[key]))
+                    changed.append((key,tuple(list_removed),tuple(list_added)))   
+                else:
+                    changed.append((key,orginal[key],new[key]))    
 
     return {"added":added,"removed":removed,"changed":changed}
 def fetch_asset(db,id,classification):
