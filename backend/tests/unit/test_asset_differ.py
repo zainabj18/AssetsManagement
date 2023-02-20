@@ -76,3 +76,16 @@ def test_change_to_new_str(new_assets):
     new_asset["name"]=old_asset["name"]+"new"
     res=asset_differ(old_asset,new_asset)
     assert set(res["changed"])==set([("name",old_asset["name"],new_asset["name"])])
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1,"add_to_db":False}],
+    indirect=True,
+)
+def test_change_to_new_int(new_assets):
+    old_asset=json.loads(new_assets[0].json())
+    old_asset["num"]=1
+    new_asset=old_asset.copy()
+    new_asset["num"]=2
+    res=asset_differ(old_asset,new_asset)
+    assert set(res["changed"])==set([("num",old_asset["num"],new_asset["num"])])
