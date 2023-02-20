@@ -10,7 +10,7 @@ import { fetchAllTypes } from '../api';
 import useAuth from '../hooks/useAuth';
 
 const TypeViewer = () => {
-	const {user} = useAuth();
+	const { user } = useAuth();
 
 	useEffect(() => {
 		async function load_allTypes() {
@@ -33,6 +33,7 @@ const TypeViewer = () => {
 							<Th color='white'>Type</Th>
 							<Th color='white'>Attributes</Th>
 							<Th color='white'>Attribute Data Type</Th>
+							<Th color='white'>Delete</Th>
 						</Tr>
 					</Thead>
 					<Tbody>
@@ -58,13 +59,16 @@ const TypeViewer = () => {
 											);
 										})}
 									</Td>
+									<Td>
+										<Button>Delete</Button>
+									</Td>
 								</Tr>
 							);
 						})}
 					</Tbody>
 				</Table>
 			</TableContainer>
-			{(user && user.userRole==='ADMIN') && <RouteLink to='adder'>
+			{(user && user.userRole === 'ADMIN') && <RouteLink to='adder'>
 				<Button>New</Button>
 			</RouteLink>}
 		</VStack>
