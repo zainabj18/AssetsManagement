@@ -147,13 +147,31 @@ def get_allTypes():
 @bp.route("/delete/<id>", methods=["POST"])
 def delete_type(id):
     database = get_db()
+    canDo = True
 
-    query = """DELETE FROM attributes_in_types WHERE type_id = (%(id)s);"""
+    query = """SELECT COUNT(*) FROM assets WHERE type = (%(id)s);"""
     with database.connection() as conn:
-        conn.execute(query, {"id": id})
+        res = conn.execute(query, {"id": id})
+        if (res.fetchone()[0] > 0):
+            canDo = False
 
-    query = """DELETE FROM types WHERE type_id = (%(id)s);"""
+    query = """SELECT COUNT(*) FROM type_link WHERE type_id_to = (%(id)s);"""
     with database.connection() as conn:
-        conn.execute(query, {"id": id})
+        res = conn.execute(query, {"id": id})
+        if (res.fetchone()[0] > 0):
+            canDo = False
 
-    return {"msg": ""}, 200
+    if canDo:
+        query = """DELETE FROM type_link WHERE type_id_from = (%(id)s);"""
+        with database.connection() as conn:
+            conn.execute(query, {"id": id})
+
+        query = """DELETE FROM attributes_in_types WHERE type_id = (%(id)s);"""
+        with database.connection() as conn:
+            conn.execute(query, {"id": id})
+
+        query = """DELETE FROM types WHERE type_id = (%(id)s);"""
+        with database.connection() as conn:
+            conn.execute(query, {"id": id})
+
+    return {"msg": "", "wasAllowed": canDo}, 200

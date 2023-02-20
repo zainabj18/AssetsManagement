@@ -331,3 +331,42 @@ def test_delete_type(client, db_conn):
             """SELECT * FROM types WHERE type_id = 1"""
         )
         assert cur.fetchone() == None
+
+
+# Test that a complex type can be deleted and that depended ones wont
+def test_delete_complex_type(client):
+    test_metaData = {
+        "attributeName": "programming Language(s)",
+        "attributeType": "text"
+    }
+    test_type_a = {
+        "typeName": "framework",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": test_metaData["attributeName"],
+                "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": []
+    }
+    test_type_b = {
+        "typeName": "Web app",
+        "metadata": [
+            {
+                "attributeID": 1,
+                    "attributeName": test_metaData["attributeName"],
+                    "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": [1]
+    }
+    client.post("/api/v1/type/adder/new", json=test_metaData)
+    client.post("/api/v1/type/new", json=test_type_a)
+    client.post("/api/v1/type/new", json=test_type_b)
+    res = client.post("/api/v1/type/delete/1")
+    assert res.data == b'{\n  "msg": "",\n  "wasAllowed": false\n}\n'
+    res = client.post("/api/v1/type/delete/2")
+    assert res.data == b'{\n  "msg": "",\n  "wasAllowed": true\n}\n'
+    res = client.post("/api/v1/type/delete/1")
+    assert res.data == b'{\n  "msg": "",\n  "wasAllowed": true\n}\n'
