@@ -142,3 +142,18 @@ def get_allTypes():
                     "metadata": attributes}
             )
         return json.dumps(allTypes_listed), 200
+
+
+@bp.route("/delete/<id>", methods=["POST"])
+def delete_type(id):
+    database = get_db()
+
+    query = """DELETE FROM attributes_in_types WHERE type_id = (%(id)s);"""
+    with database.connection() as conn:
+        conn.execute(query, {"id": id})
+
+    query = """DELETE FROM types WHERE type_id = (%(id)s);"""
+    with database.connection() as conn:
+        conn.execute(query, {"id": id})
+
+    return {"msg": ""}, 200

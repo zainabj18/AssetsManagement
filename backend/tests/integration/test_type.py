@@ -305,3 +305,29 @@ def test_get_allTypes(client):
         test_type = test_types[i]
         assert type["typeName"] == test_type["typeName"]
         assert type["metadata"] == test_type["metadata"]
+
+
+# Test that a type can be deleted
+def test_delete_type(client, db_conn):
+    test_type = {
+        "typeId": 1,
+        "typeName": "library",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": "age",
+                "attributeType": "number",
+                "validation": {"min": 4, "max": 10},
+            }
+        ],
+        "dependsOn": []
+    }
+    client.post("/api/v1/type/adder/new", json=test_type["metadata"][0])
+    client.post("/api/v1/type/new", json=test_type)
+    res = client.post("/api/v1/type/delete/1")
+    assert res.status_code == 200
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT * FROM types WHERE type_id = 1"""
+        )
+        assert cur.fetchone() == None
