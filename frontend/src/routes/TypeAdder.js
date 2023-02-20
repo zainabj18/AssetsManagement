@@ -85,12 +85,6 @@ const TypeAdder = () => {
 		set_selectedAttributes(selectedData);
 	};
 
-	const deselect = (item, list) => {
-		let index = list.indexOf(item);
-		list.splice(index, 1);
-		return list;
-	};
-
 	const ajustSelectedAttributes = (checked, index) => {
 		if (checked) {
 			selectAttribute([...allAttributes][index]);
@@ -100,13 +94,23 @@ const TypeAdder = () => {
 		}
 	};
 
+	const selectType = (id) => {
+		selectedTypes.push(id);
+		set_selectedTypes(selectedTypes);
+	};
+
+	const deselectType = (item, list) => {
+		let index = list.indexOf(item);
+		list.splice(index, 1);
+		set_selectedTypes(list);
+	};
+
 	const ajustSelectedTypes = (checked, id) => {
 		if (checked) {
-			selectedTypes.push(id);
-			set_selectedTypes(selectedTypes);
+			selectType(id);
 		}
 		if (!checked) {
-			set_selectedTypes(deselect(id, selectedTypes));
+			deselectType(id, selectedTypes);
 		}
 	};
 
