@@ -19,6 +19,7 @@ import RelatedAssetViewer from './components/RelatedAssetViewer';
 import Tags from './routes/Tags';
 import TagViewer from './routes/TagViewer';
 import AssetOverview from './components/AssetOverview';
+import AssetLogs from './routes/assets/AssetLogs';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -32,7 +33,7 @@ function App() {
 						<Route path="new" element={<CreateAsset />} />
 						<Route path="view/:id" element={<AssetOverview />}>
 							<Route index element={<AssetViewer canEdit={true} isNew={false}/>} />	
-							<Route path="logs" element={<Box>logs</Box>} />	
+							<Route path="logs" element={<AssetLogs />} />	
 						</Route>
 						<Route path="related" element={<RelatedAssetViewer canEdit={true} isNew={false}/>} />
 					</Route>

@@ -7,6 +7,7 @@ const AssetOverview=() => {
 		<Box>
 			<HStack>
 				<CustomNavLink to={'./'}>Attributes</CustomNavLink>
+				<CustomNavLink to={'./logs'}>Logs</CustomNavLink>
 			</HStack>
 			<Box>
 				<Outlet />
