@@ -63,6 +63,14 @@ def create():
 
     return jsonify({"msg": "The user have created a new project"}), 200
 
+@bp.route("/new", methods=["GET"])
+def get_link():
+    database = get_db()
+    with database.connection() as conn:
+         conn.execute(
+            """SELECT projects.id, accounts.account_id FROM projects INNER JOIN accounts ON projects.id = accounts.account_id;"""
+        )
+    return jsonify({"msg": "The account id and project id has been linked"}), 200
 
 @bp.route("/new", methods=["POST"])
 def delete_project(db,id,name,description):
