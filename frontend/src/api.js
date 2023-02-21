@@ -91,3 +91,6 @@ export const fetchAssetsinTag = async (id) => {
 export const deleteType = async (id) => {
 	return await axios.post(`/type/delete/${id}`).then(res => res.data);
 };
+export const deleteAttribute = async (id) => {
+	return await axios.post(`/type/attribute/delete/${id}`).then(res => res.data);
+};
