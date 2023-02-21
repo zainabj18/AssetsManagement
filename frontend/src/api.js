@@ -88,3 +88,7 @@ export const createProject = async (project)=> {
 export const fetchAssetsinTag = async (id) => {
 	return await axios.get(`/asset/tags/summary/${id}`).then(res => res.data);
 };
+
+export const fetchAssetsLogs= async (id) => {
+	return await axios.get(`/asset/logs/${id}`).then(res => res.data);
+};
