@@ -175,3 +175,22 @@ def delete_type(id):
             conn.execute(query, {"id": id})
 
     return {"msg": "", "wasAllowed": canDo}, 200
+
+
+@bp.route("/attribute/delete/<id>", methods=["POST"])
+def delete_attribute(id):
+    database = get_db()
+    canDo = True
+
+    query = """SELECT COUNT(*) FROM attributes_in_types WHERE attribute_id = (%(id)s)"""
+    with database.connection() as conn:
+        res = conn.execute(query, {"id": id})
+        if (res.fetchone()[0] > 0):
+            canDo = False
+
+    if canDo:
+        query = """DELETE FROM attributes WHERE attribute_id = (%(id)s)"""
+        with database.connection() as conn:
+            conn.execute(query, {"id": id})
+
+    return {"msg": "", "wasAllowed": canDo}, 200

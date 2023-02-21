@@ -370,3 +370,29 @@ def test_delete_complex_type(client):
     assert res.data == b'{\n  "msg": "",\n  "wasAllowed": true\n}\n'
     res = client.post("/api/v1/type/delete/1")
     assert res.data == b'{\n  "msg": "",\n  "wasAllowed": true\n}\n'
+
+
+# Test that an attribute can be deleted
+def test_delete_attribute(client):
+    test_metaData = {
+        "attributeName": "programming Language(s)",
+        "attributeType": "text"
+    }
+    test_type = {
+        "typeName": "framework",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": test_metaData["attributeName"],
+                "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": []
+    }
+    client.post("/api/v1/type/adder/new", json=test_metaData)
+    client.post("/api/v1/type/new", json=test_type)
+    res = client.post("/api/v1/type/attribute/delete/1")
+    assert res.data == b'{\n  "msg": "",\n  "wasAllowed": false\n}\n'
+    client.post("/api/v1/type/delete/1")
+    res = client.post("/api/v1/type/attribute/delete/1")
+    assert res.data == b'{\n  "msg": "",\n  "wasAllowed": true\n}\n'
