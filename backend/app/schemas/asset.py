@@ -36,7 +36,8 @@ class Attribute(Attribute_Model):
         # convert if a number
         if (t == "num_lmt" or t == "number") and isinstance(v, str) and v.isnumeric():
             values["attribute_value"] = int(v)
-
+        if t=="checkbox":
+            values["attribute_value"]=str(v).lower()=='true'
         return values
 
 

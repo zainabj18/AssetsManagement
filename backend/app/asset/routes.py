@@ -17,22 +17,22 @@ def asset_differ(orginal,new):
                 old_values_dict={}
                 new_values_dict={}
                 for at in orginal["metadata"]:
-                    old_values_dict[at["attribute_id"]]=at
+                    old_values_dict[at["attributeID"]]=at
                 for at in new["metadata"]:
-                    new_values_dict[at["attribute_id"]]=at
+                    new_values_dict[at["attributeID"]]=at
                 metadata_removed=list(set(old_values_dict.keys())-set(new_values_dict.keys()))
                 metadata_added=list(set(new_values_dict.keys())-set(old_values_dict.keys()))
                 for attribute in metadata_removed:
-                    name=old_values_dict[attribute]["attribute_name"]
+                    name=old_values_dict[attribute]["attributeName"]
                     removed.append(f"metadata-{attribute}-{name}")
                 for attribute in metadata_added:
-                    name=new_values_dict[attribute]["attribute_name"]
+                    name=new_values_dict[attribute]["attributeName"]
                     added.append(f"metadata-{attribute}-{name}")
                 for key in old_values_dict:
                     if key in new_values_dict:
-                        if old_values_dict[key]["attribute_value"]!=new_values_dict[key]["attribute_value"]:
-                            name=old_values_dict[key]["attribute_name"]
-                            changed.append((f"metadata-{key}-{name}",old_values_dict[key]["attribute_value"],new_values_dict[key]["attribute_value"]))    
+                        if old_values_dict[key]["attributeValue"]!=new_values_dict[key]["attributeValue"]:
+                            name=old_values_dict[key]["attributeName"]
+                            changed.append((f"metadata-{key}-{name}",old_values_dict[key]["attributeValue"],new_values_dict[key]["attributeValue"]))    
             elif orginal[key]!=new[key]:
                 if isinstance(orginal[key],list) and isinstance(new[key],list):
                     list_removed=list(set(orginal[key])-set(new[key]))
@@ -181,6 +181,7 @@ def list_asset_project(id):
                 {"id": id},
             )
             selected_projects = list(cur.fetchall())
+            print(selected_projects)
             for x in selected_projects:
                 x["isSelected"] = True
             cur.execute(
@@ -188,9 +189,8 @@ def list_asset_project(id):
                 {"id": id},
             )
             projects = list(cur.fetchall())
-
-            # SELECT * FROM projects WHERE id not in (1);
-    return {"data": selected_projects + projects}, 200
+            selected_projects.extend(projects)
+    return {"data": selected_projects}, 200
 
 
 @bp.route("/<id>", methods=["GET"])
@@ -243,25 +243,48 @@ def summary(user_id, access_level):
 @bp.route("/<id>", methods=["PATCH"])
 @protected(role=UserRole.VIEWER)
 def update(id, user_id, access_level):
-    
     db = get_db()
-    
     asset = dict(**request.json)
-    print(asset)
-    orgignal_asset=asset=fetch_asset(db,id,access_level)
-    print(orgignal_asset.json())
-   
-
-    #new_asset=Asset(**request.json)
+    del asset['created_at']
+    del asset['last_modified_at']
+    orgignal_asset=fetch_asset(db,id,access_level)
+    orgignal_asset=json.loads(orgignal_asset.json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
+    orgignal_asset["tags"]=[tag["id"]for tag in orgignal_asset["tags"]]
+    orgignal_asset["projects"]=[project["id"]for project in orgignal_asset["projects"]]
+    projects_removed=list(set(orgignal_asset["projects"])-set(asset["projects"]))
+    projects_added=list(set(asset["projects"])-set(orgignal_asset["projects"]))
+    tags_removed=list(set(orgignal_asset["tags"])-set(asset["tags"]))
+    tags_added=list(set(asset["tags"])-set(orgignal_asset["tags"]))
 
     with db.connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """
             UPDATE assets 
-            SET name=%(name)s,link=%(link)s,description=%(description)s,last_modified_at=now() WHERE asset_id=%(asset_id)s ;""",
+            SET name=%(name)s,link=%(link)s,description=%(description)s,classification=%(classification)s,last_modified_at=now() WHERE asset_id=%(asset_id)s ;""",
                 asset,
             )
+            cur.execute("""
+            DELETE FROM assets_in_tags WHERE tag_id = ANY(%(tag_ids)s) AND asset_id=%(asset_id)s;
+            """,{"tag_ids":tags_removed,"asset_id":asset["asset_id"]})
+            cur.execute("""
+            DELETE FROM assets_in_projects WHERE project_id = ANY(%(project_ids)s) AND asset_id=%(asset_id)s;
+            """,{"project_ids":projects_removed,"asset_id":asset["asset_id"]})
+            for tag in tags_added:
+                cur.execute(
+                    """
+                INSERT INTO assets_in_tags (asset_id,tag_id)
+        VALUES (%(asset_id)s,%(tag_id)s);""",
+                    {"asset_id": asset["asset_id"], "tag_id": tag},
+                )
+            # add asset to projects to db
+            for project in projects_added:
+                cur.execute(
+                    """
+                INSERT INTO assets_in_projects (asset_id,project_id)
+        VALUES (%(asset_id)s,%(project_id)s);""",
+                    {"asset_id": asset["asset_id"], "project_id": project},
+                )
             # updates metadatat values
             for attribute in asset["metadata"]:
                 cur.execute(
@@ -270,6 +293,7 @@ def update(id, user_id, access_level):
                 SET value=%(attributeValue)s WHERE asset_id=%(asset_id)s AND attribute_id=%(attributeID)s;""",
                     {"asset_id": id, **attribute},
                 )
+            
     return {}, 200
 
 

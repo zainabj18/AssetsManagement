@@ -286,7 +286,7 @@ const AssetViewer = () => {
 									</Tag>
 								</WrapItem>
 							))}
-							{(!isDisabled||id) && <ProjectSelect setSelectedProjects={setProjects}  projects={projectList} />}
+							{!isDisabled && <ProjectSelect setSelectedProjects={setProjects}  projects={projectList} />}
 						</Wrap>
 					</FormControl>
 					<FormControl  >
@@ -294,7 +294,7 @@ const AssetViewer = () => {
 						<Select
 							isRequired
 							bg='blue.100'
-							isDisabled={isDisabled||id}
+							isDisabled={isDisabled}
 							onChange={(e) => {
 								handleChange('classification', e.target.value);
 							}}
@@ -326,11 +326,11 @@ const AssetViewer = () => {
 								<WrapItem key={key}>
 									<Tag key={key}>
 										<TagLabel>{value.name}</TagLabel>
-										{(tag || !id) && <TagCloseButton onClick={(e) => onTagClick(e, value)} />}
+										{(!isDisabled) && <TagCloseButton onClick={(e) => onTagClick(e, value)} />}
 									</Tag>
 								</WrapItem>
 							))}
-							{(tag || !id) && (<>
+							{(tag ||!isDisabled) && (<>
 								<SearchSelect dataFunc={fetchTags} selectedValue={tag} setSelectedValue={setTag} createFunc={createTag}/>
 								<Button onClick={onNewTag} isDisabled={isDisabled}>Add Tag</Button></>)}
 						</Wrap>
