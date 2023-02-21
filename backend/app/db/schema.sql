@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS attributes_in_types CASCADE;
 DROP TABLE IF EXISTS assets_in_tags CASCADE;
 DROP TABLE IF EXISTS assets_in_projects CASCADE;
 DROP TABLE IF EXISTS attributes_values CASCADE;
+DROP TABLE IF EXISTS people_in_projects CASCADE;
 
 CREATE TYPE account_role AS ENUM ('VIEWER', 'USER', 'ADMIN');
 CREATE TYPE data_classification AS ENUM ('PUBLIC', 'INTERNAL','RESTRICTED','CONFIDENTIAL');
@@ -33,6 +34,7 @@ CREATE TABLE tags
 	name VARCHAR NOT NULL UNIQUE,
 	PRIMARY KEY (id)
 );
+
 CREATE TABLE projects
 (
 	id SERIAL,
@@ -109,14 +111,6 @@ CREATE TABLE attributes_values
  	FOREIGN KEY (attribute_id) REFERENCES attributes(attribute_id)
  );
 
--- CREATE TABLE projects
--- (
--- 	project_id SERIAL,
--- 	project_name VARCHAR NOT NULL,
--- 	project_description VARCHAR,
-	
--- 	PRIMARY KEY (project_id)
--- );
 
 -- CREATE TABLE assets
 -- (
@@ -131,15 +125,15 @@ CREATE TABLE attributes_values
 -- 	FOREIGN KEY project_id REFERENCES projects(project_id)
 -- );
 
--- CREATE TABLE people_in_projects
--- (
--- 	project_id BIGINT UNSIGNED,
--- 	account_id BIGINT UNSIGNED,
+CREATE TABLE people_in_projects
+(
+	project_id INTEGER,
+	account_id INTEGER,
 
--- 	PRIMARY KEY (project_id, account_id),
--- 	FOREIGN KEY project_id REFERENCES projects(project_id),
--- 	FOREIGN KEY account_id REFERENCES accounts(account_id)
--- );
+	PRIMARY KEY (project_id, account_id),
+	FOREIGN KEY (project_id) REFERENCES projects(id),
+	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
+);
 
 -- CREATE TABLE change_logs
 -- (
