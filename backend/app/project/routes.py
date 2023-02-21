@@ -62,3 +62,9 @@ def create():
         )
 
     return jsonify({"msg": "The user have created a new project"}), 200
+
+
+
+
+
+

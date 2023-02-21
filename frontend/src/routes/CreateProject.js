@@ -7,8 +7,6 @@ import {
 	VStack,
 	Button,
 	Flex,
-	Spacer,
-	Center,
 } from '@chakra-ui/react';
 //import axios from 'axios';
 import React, { useState } from 'react';
@@ -17,6 +15,7 @@ import { IconButton } from '@chakra-ui/react';
 import {createProject} from '../api.js';
 const CreateProject = () => {
 	const [projects, setProjects] = useState([{ name: '', description: '' }]);
+	//const [display_people_in_project, set_display_people_in_project] = useState(false);
 
 	const handleCreate = (index, event) => {
 		let data = [...projects];
@@ -33,6 +32,7 @@ const CreateProject = () => {
 		
 	};
 
+	
 	const deleteProject = (index) => {
 		let data = [...projects];
 		data.splice(index, 1);
