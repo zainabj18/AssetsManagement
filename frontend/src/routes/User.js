@@ -13,6 +13,23 @@ const User = () => {
 	const [deleteobject, setDeleteObject] = useState([{delete: ''}]);
 	const [saveobject] = useState([{save: ''}]);
 
+	const handleFormChange = (index, event) => {
+		let data = [...textInput];
+		data[index][event.target.name] = event.target.value;
+		setTextInput(data);
+	};
+
+	const deleteObject = (index) => {
+		let data = [...deleteobject];
+		data.splice(index, 1);
+		setDeleteObject(data);
+	};
+
+	const saveObject = (e) => {
+		e.preventDefault();
+		console.log(saveobject);
+	};
+
 	return (
 		<Center height={'100vh'}>
 			<Box bg={'white'} color={'black'} p={10} borderRadius={10} w={'1000px'} mx={'auto'} mb={'100px'}>
