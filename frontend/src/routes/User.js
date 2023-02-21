@@ -1,7 +1,18 @@
 import { Box, Button, Center, FormControl, FormLabel, HStack, Heading, Input, Select, Stack } from '@chakra-ui/react';
-import { React } from 'react';
+import { React, useEffect, useState } from 'react';
+import useAuth from '../hooks/useAuth';
 
 const User = () => {
+	const { user } = useAuth();
+
+	useEffect(() => {
+		console.log(user);
+	});
+
+	const [textInput, setTextInput] = useState([{name: '', surname: '', username: '' }]);
+	const [deleteobject, setDeleteObject] = useState([{delete: ''}]);
+	const [saveobject] = useState([{save: ''}]);
+
 	return (
 		<Center height={'100vh'}>
 			<Box bg={'white'} color={'black'} p={10} borderRadius={10} w={'1000px'} mx={'auto'} mb={'100px'}>
