@@ -62,3 +62,11 @@ def create():
         )
 
     return jsonify({"msg": "The user have created a new project"}), 200
+
+@bp.route("/new", methods=["POST"])
+def delete_project(db,id,name,description):
+    with db.connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+            DELETE FROM projects WHERE id = ANY(%(id)s) AND name=%(name)s AND description=%(description)s;
+            """,{"project_id":id})
