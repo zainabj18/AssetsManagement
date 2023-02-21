@@ -255,9 +255,15 @@ def update(id, user_id, access_level):
     projects_added=list(set(asset["projects"])-set(orgignal_asset["projects"]))
     tags_removed=list(set(orgignal_asset["tags"])-set(asset["tags"]))
     tags_added=list(set(asset["tags"])-set(orgignal_asset["tags"]))
-
+    diff_dict=asset_differ(orgignal_asset,asset)
     with db.connection() as conn:
         with conn.cursor() as cur:
+            cur.execute(
+                    """
+                INSERT INTO asset_logs (account_id,asset_id,diff)
+        VALUES (%(account_id)s,%(asset_id)s,%(diff)s);""",
+                    {"account_id":user_id,"asset_id":asset["asset_id"],"diff":json.dumps(diff_dict)},
+                )
             cur.execute(
                 """
             UPDATE assets 
@@ -296,6 +302,21 @@ def update(id, user_id, access_level):
             
     return {}, 200
 
+@bp.route("/logs/<id>", methods=["GET"])
+@protected(role=UserRole.VIEWER)
+def tags_summary(id, user_id, access_level):
+    db = get_db()
+    assets_json = []
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+            cur.execute(
+                """SELECT * FROM asset_logs
+WHERE asset_id=%(asset_id)s
+ORDER BY date ASC;""",
+                {"asset_id": id},
+            )
+            logs = cur.fetchall()
+    return {"data":logs}
 
 @bp.route("/tags/summary/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)

@@ -108,7 +108,17 @@ CREATE TABLE attributes_values
 	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
  	FOREIGN KEY (attribute_id) REFERENCES attributes(attribute_id)
  );
-
+CREATE TABLE asset_logs
+ (
+ 	log_id SERIAL,
+	account_id INTEGER,
+ 	asset_id INTEGER,
+	diff JSON,
+	date timestamp NOT NULL DEFAULT now(),
+ 	PRIMARY KEY (log_id),
+	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
+	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
+ );
 -- CREATE TABLE projects
 -- (
 -- 	project_id SERIAL,
