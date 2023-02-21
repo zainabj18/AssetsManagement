@@ -4,7 +4,7 @@ from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
-
+from app.auth.routes import get_user_by_id
 bp = Blueprint("asset", __name__, url_prefix="/asset")
 import json
 def asset_differ(orginal,new):
@@ -304,11 +304,10 @@ def update(id, user_id, access_level):
 
 @bp.route("/logs/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
-def tags_summary(id, user_id, access_level):
+def logs(id, user_id, access_level):
     db = get_db()
-    assets_json = []
     with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+        with db_conn.cursor(row_factory=dict_row) as cur:
             cur.execute(
                 """SELECT * FROM asset_logs
 WHERE asset_id=%(asset_id)s
@@ -316,6 +315,10 @@ ORDER BY date ASC;""",
                 {"asset_id": id},
             )
             logs = cur.fetchall()
+            for log in logs:
+                if username := get_user_by_id(db,log["account_id"]):
+                    username = username[0]
+                log["username"]=username
     return {"data":logs}
 
 @bp.route("/tags/summary/<id>", methods=["GET"])
