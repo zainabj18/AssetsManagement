@@ -174,22 +174,22 @@ def test_metadata_removed(new_assets):
     old_asset["metadata"]=[
         {
             "attribute_id": 1,
-            "attributeName": "TRHAGaOwPNQpKDzXQwqU",
-            "attributeType": "num_lmt",
+            "attribute_name": "TRHAGaOwPNQpKDzXQwqU",
+            "attribute_type": "num_lmt",
             "attribute_value": "10",
             "validation": {"max": 10, "min": 4},
         },
         {
             "attribute_id": 2,
-            "attributeName": "AmVVOSJvnVHhwXtDsjmy",
-            "attributeType": "datetime-local",
+            "attribute_name": "AmVVOSJvnVHhwXtDsjmy",
+            "attribute_type": "datetime-local",
             "attribute_value": "1971-09-27T19:45",
             "validation": None,
         },
         {
             "attribute_id": 3,
-            "attributeName": "kgMhKzcidTxblyVLgWai",
-            "attributeType": "text",
+            "attribute_name": "kgMhKzcidTxblyVLgWai",
+            "attribute_type": "text",
             "attribute_value": "text-kgMhKzcidTxblyVLgWai",
             "validation": None,
         }
@@ -197,7 +197,7 @@ def test_metadata_removed(new_assets):
     new_asset=copy.deepcopy(old_asset)
     new_asset["metadata"].pop()
     res=asset_differ(old_asset,new_asset)
-    assert set(res["removed"])==set(["metadata-attributeID-3"])
+    assert set(res["removed"])==set(["metadata-3-kgMhKzcidTxblyVLgWai"])
 
 
 @pytest.mark.parametrize(
@@ -210,22 +210,22 @@ def test_metadata_added(new_assets):
     old_asset["metadata"]=[
         {
             "attribute_id": 1,
-            "attributeName": "TRHAGaOwPNQpKDzXQwqU",
-            "attributeType": "num_lmt",
+            "attribute_name": "TRHAGaOwPNQpKDzXQwqU",
+            "attribute_type": "num_lmt",
             "attribute_value": "10",
             "validation": {"max": 10, "min": 4},
         },
         {
             "attribute_id": 2,
-            "attributeName": "AmVVOSJvnVHhwXtDsjmy",
-            "attributeType": "datetime-local",
+            "attribute_name": "AmVVOSJvnVHhwXtDsjmy",
+            "attribute_type": "datetime-local",
             "attribute_value": "1971-09-27T19:45",
             "validation": None,
         },
         {
             "attribute_id": 3,
-            "attributeName": "kgMhKzcidTxblyVLgWai",
-            "attributeType": "text",
+            "attribute_name": "kgMhKzcidTxblyVLgWai",
+            "attribute_type": "text",
             "attribute_value": "text-kgMhKzcidTxblyVLgWai",
             "validation": None,
         }
@@ -233,13 +233,13 @@ def test_metadata_added(new_assets):
     new_asset=copy.deepcopy(old_asset)
     new_asset["metadata"].append({
             "attribute_id": 4,
-            "attributeName": "kgMhKzcidTxblyVLgWai",
-            "attributeType": "text",
+            "attribute_name": "kgMhKzcidTxblyVLgWai",
+            "attribute_type": "text",
             "attribute_value": "text-kgMhKzcidTxblyVLgWai",
             "validation": None,
         })
     res=asset_differ(old_asset,new_asset)
-    assert set(res["added"])==set(["metadata-attributeID-4"])
+    assert set(res["added"])==set(["metadata-4-kgMhKzcidTxblyVLgWai"])
 
 
 
@@ -248,27 +248,27 @@ def test_metadata_added(new_assets):
     [{"batch_size": 1,"add_to_db":False}],
     indirect=True,
 )
-def test_metadata_added(new_assets):
+def test_metadata_changed(new_assets):
     old_asset=json.loads(new_assets[0].json())
     old_asset["metadata"]=[
         {
             "attribute_id": 1,
-            "attributeName": "TRHAGaOwPNQpKDzXQwqU",
-            "attributeType": "num_lmt",
+            "attribute_name": "TRHAGaOwPNQpKDzXQwqU",
+            "attribute_type": "num_lmt",
             "attribute_value": "10",
             "validation": {"max": 10, "min": 4},
         },
         {
             "attribute_id": 2,
-            "attributeName": "AmVVOSJvnVHhwXtDsjmy",
-            "attributeType": "datetime-local",
+            "attribute_name": "AmVVOSJvnVHhwXtDsjmy",
+            "attribute_type": "datetime-local",
             "attribute_value": "1971-09-27T19:45",
             "validation": None,
         },
         {
             "attribute_id": 3,
-            "attributeName": "kgMhKzcidTxblyVLgWai",
-            "attributeType": "text",
+            "attribute_name": "kgMhKzcidTxblyVLgWai",
+            "attribute_type": "text",
             "attribute_value": "text-kgMhKzcidTxblyVLgWai",
             "validation": None,
         }
@@ -277,25 +277,25 @@ def test_metadata_added(new_assets):
     new_asset["metadata"]=[
         {
             "attribute_id": 1,
-            "attributeName": "TRHAGaOwPNQpKDzXQwqU",
-            "attributeType": "num_lmt",
+            "attribute_name": "TRHAGaOwPNQpKDzXQwqU",
+            "attribute_type": "num_lmt",
             "attribute_value": "9",
             "validation": {"max": 10, "min": 4},
         },
         {
             "attribute_id": 2,
-            "attributeName": "AmVVOSJvnVHhwXtDsjmy",
-            "attributeType": "datetime-local",
+            "attribute_name": "AmVVOSJvnVHhwXtDsjmy",
+            "attribute_type": "datetime-local",
             "attribute_value": "1971-09-27T19:45",
             "validation": None,
         },
         {
             "attribute_id": 3,
-            "attributeName": "kgMhKzcidTxblyVLgWai",
-            "attributeType": "text",
+            "attribute_name": "kgMhKzcidTxblyVLgWai",
+            "attribute_type": "text",
             "attribute_value": "text-kgMhKzcidTxblyVLgWai",
             "validation": None,
         }
     ]
     res=asset_differ(old_asset,new_asset)
-    assert set(res["changed"])==set([('metadata-attributeID-1', '10', '9')])
+    assert set(res["changed"])==set([('metadata-1-TRHAGaOwPNQpKDzXQwqU', '10', '9')])

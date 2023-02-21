@@ -14,24 +14,25 @@ def asset_differ(orginal,new):
     for key in orginal:
         if key in new:
             if key=="metadata":
-                old_values=[a["attribute_id"] for a in orginal["metadata"]]
-                new_values=[a["attribute_id"]for a in new["metadata"]]
-                metadata_removed=list(set(old_values)-set(new_values))
-                metadata_added=list(set(new_values)-set(old_values))
-                for attribute in metadata_removed:
-                    removed.append(f"metadata-attributeID-{attribute}")
-                for attribute in metadata_added:
-                    added.append(f"metadata-attributeID-{attribute}")
                 old_values_dict={}
                 new_values_dict={}
                 for at in orginal["metadata"]:
                     old_values_dict[at["attribute_id"]]=at
                 for at in new["metadata"]:
                     new_values_dict[at["attribute_id"]]=at
+                metadata_removed=list(set(old_values_dict.keys())-set(new_values_dict.keys()))
+                metadata_added=list(set(new_values_dict.keys())-set(old_values_dict.keys()))
+                for attribute in metadata_removed:
+                    name=old_values_dict[attribute]["attribute_name"]
+                    removed.append(f"metadata-{attribute}-{name}")
+                for attribute in metadata_added:
+                    name=new_values_dict[attribute]["attribute_name"]
+                    added.append(f"metadata-{attribute}-{name}")
                 for key in old_values_dict:
                     if key in new_values_dict:
                         if old_values_dict[key]["attribute_value"]!=new_values_dict[key]["attribute_value"]:
-                            changed.append((f"metadata-attributeID-{key}",old_values_dict[key]["attribute_value"],new_values_dict[key]["attribute_value"]))    
+                            name=old_values_dict[key]["attribute_name"]
+                            changed.append((f"metadata-{key}-{name}",old_values_dict[key]["attribute_value"],new_values_dict[key]["attribute_value"]))    
             elif orginal[key]!=new[key]:
                 if isinstance(orginal[key],list) and isinstance(new[key],list):
                     list_removed=list(set(orginal[key])-set(new[key]))
