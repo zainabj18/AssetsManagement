@@ -1,4 +1,4 @@
-import { Routes, Route, NavLink } from 'react-router-dom';
+import { Routes, Route, NavLink, Outlet } from 'react-router-dom';
 import AssetViewer from './components/AssetVeiwer';
 import CreateAsset from './routes/assets/CreateAsset';
 import Layout from './routes/Layout';
@@ -13,11 +13,12 @@ import AssetsOverview from './routes/assets/AssetsOverview';
 import SubLayout from './routes/assets/SubLayout';
 import AssetList from './components/AssetList';
 import CreateProject from './routes/CreateProject';
-import { Button } from '@chakra-ui/react';
+import { Box, Button } from '@chakra-ui/react';
 import AdminManager from './routes/AdminManager';
 import RelatedAssetViewer from './components/RelatedAssetViewer';
 import Tags from './routes/Tags';
 import TagViewer from './routes/TagViewer';
+import AssetOverview from './components/AssetOverview';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -29,9 +30,13 @@ function App() {
 					<Route path="assets/" element={<SubLayout name="Assets"/>}>
 						<Route index element={<AssetsOverview />} />
 						<Route path="new" element={<CreateAsset />} />
-						<Route path="view/:id" element={<AssetViewer canEdit={true} isNew={false}/>} />
+						<Route path="view/:id" element={<AssetOverview />}>
+							<Route index element={<AssetViewer canEdit={true} isNew={false}/>} />	
+							<Route path="logs" element={<Box>logs</Box>} />	
+						</Route>
 						<Route path="related" element={<RelatedAssetViewer canEdit={true} isNew={false}/>} />
 					</Route>
+
 					<Route path="tags/" element={<Tags />}>
 						<Route path=":id" element={<TagViewer/>} />	
 					</Route>
