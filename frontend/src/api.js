@@ -81,6 +81,7 @@ export const deleteAsset = async (id) => {
 export const deleteProject = async (id) => {
 	return await axios.delete(`/project/${id}`).then(res => res.data);
 };
+
 export const fetchAssetSummary = async () => {
 	return await axios.get('/asset/summary').then(res => res.data);
 };
