@@ -6,9 +6,11 @@ import {
 	useBoolean,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
+import useAuth from '../hooks/useAuth';
 import { deleteAttribute, fetchAllAttributes, } from '../api';
 
 const AttributeViewer = () => {
+	const { user } = useAuth();
 	const [toggle, set_toggle] = useBoolean();
 
 	useEffect(() => {
@@ -41,7 +43,10 @@ const AttributeViewer = () => {
 					return (
 						<HStack key={attributes.attributeID}>
 							<Text>{attributes.attributeName}</Text>
-							<Button onClick={() => deleteThis(attributes)}>Delete</Button>
+							{
+								(user && user.userRole === 'ADMIN') &&
+								<Button onClick={() => deleteThis(attributes)}>Delete</Button>
+							}
 						</HStack>
 
 					);
