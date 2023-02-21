@@ -7,8 +7,10 @@ from pydantic import BaseModel, Field, ValidationError, root_validator, validato
 
 class TagBase(BaseModel):
     id: Optional[int]
-    name: str
+    name: str = Field(..., min_length=1)
 
+class TagInDB(TagBase):
+    id:int
 
 class Attribute_Model(BaseModel):
     attribute_name: str = Field(..., alias="attributeName")
@@ -23,7 +25,7 @@ class Attribute(Attribute_Model):
     def check_metadata(cls, values):
         t = values.get("attribute_type")
         v = values.get("attribute_value")
-        #check if string is actually and array and convert
+        # check if string is actually and array and convert
         if (
             (t == "list" or t == "options")
             and isinstance(v, str)
@@ -31,7 +33,7 @@ class Attribute(Attribute_Model):
             and v.startswith("{")
         ):
             values["attribute_value"] = v[1:-1].split(",")
-        #convert if a number
+        # convert if a number
         if (t == "num_lmt" or t == "number") and isinstance(v, str) and v.isnumeric():
             values["attribute_value"] = int(v)
 
@@ -81,6 +83,7 @@ class AssetBaseInDB(AssetBase):
 
 
 class Asset(AssetBase):
+    # TODO change to conlist
     projects: List[int]
     tags: List[int]
     metadata: List[AttributeInDB]
@@ -101,3 +104,10 @@ class AssetOut(AssetBaseInDB):
     projects: List[Any]
     tags: List[Any]
     metadata: List[AttributeInDB]
+
+class TagBulkRequest(BaseModel):
+    to_tag_id:int=Field(..., alias="toTagID")
+    assest_ids:List[int]=Field(..., alias="assetIDs")
+
+    class Config:
+        allow_population_by_field_name = True

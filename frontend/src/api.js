@@ -21,11 +21,19 @@ export const fetchAssetClassifications= async ()=> {
 export const fetchTags= async ()=> {
 	return await axios.get('/tag/').then(res=>res.data);
 };
-
 export const createTag= async (tag)=> {
 	return await axios.post('/tag/',{'name':tag}).then(res=>res.data);
 };
-
+export const removeFromTag = async (id,assets) => {
+	console.log(assets,'hello');
+	return await axios.post('/tag/remove',{'toTagID':id,'assetIDs':assets}).then(res => res.data);
+};
+export const copyToTag = async (id,assets) => {
+	return await axios.post('/tag/copy',{'toTagID':id,'assetIDs':assets}).then(res => res.data);
+};
+export const deleteTag= async (id)=> {
+	return await axios.delete(`/tag/${id}`).then(res=>res.data);
+};
 export const fetchProjects= async ()=> {
 	return await axios.get('/project/').then(res=>res.data);
 };
@@ -76,4 +84,7 @@ export const updateAsset = async (id,asset) => {
 export const createProject = async (project)=> {
 	console.log(project);
 	return await axios.post('/project/new', project).then(res=>res.data);
+};
+export const fetchAssetsinTag = async (id) => {
+	return await axios.get(`/asset/tags/summary/${id}`).then(res => res.data);
 };

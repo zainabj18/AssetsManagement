@@ -11,7 +11,7 @@ import json
 
 @bp.route("/", methods=["POST"])
 def create():
-    #validate json
+    # validate json
     try:
         try:
             asset = Asset(**request.json)
@@ -39,7 +39,7 @@ def create():
         )
     db = get_db()
     db_asset = asset.dict(exclude={"metadata"})
-    #add asset to db
+    # add asset to db
     with db.connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
@@ -49,7 +49,7 @@ def create():
                 db_asset,
             )
             asset_id = cur.fetchone()[0]
-            #add asset to tags to db
+            # add asset to tags to db
             for tag in asset.tags:
                 cur.execute(
                     """
@@ -57,7 +57,7 @@ def create():
         VALUES (%(asset_id)s,%(tag_id)s);""",
                     {"asset_id": asset_id, "tag_id": tag},
                 )
-            #add asset to projects to db
+            # add asset to projects to db
             for project in asset.projects:
                 cur.execute(
                     """
@@ -65,7 +65,7 @@ def create():
         VALUES (%(asset_id)s,%(project_id)s);""",
                     {"asset_id": asset_id, "project_id": project},
                 )
-            #add attribute values to db
+            # add attribute values to db
             for attribute in asset.metadata:
                 cur.execute(
                     """
@@ -78,7 +78,7 @@ def create():
                     },
                 )
 
-    return jsonify({"msg": "Added asset", "data": asset_id}), 200
+    return {"msg": "Added asset", "data": asset_id}, 200
 
 
 @bp.route("/classifications", methods=["GET"])
@@ -95,7 +95,7 @@ def get_classifications(user_id, access_level):
 @bp.route("projects/<id>", methods=["GET"])
 def list_asset_project(id):
     db = get_db()
-    #get related projects for asset and set them to be selected for easy rendering on UI
+    # get related projects for asset and set them to be selected for easy rendering on UI
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=dict_row) as cur:
             cur.execute(
@@ -122,16 +122,16 @@ def view(id, user_id, access_level):
     db = get_db()
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
-            #gets asset
+            # gets asset
             cur.execute(
                 """SELECT * FROM assets WHERE asset_id=%(id)s AND soft_delete=0;""",
                 {"id": id},
             )
             asset = cur.fetchone()
-            #check user can view assset
+            # check user can view assset
             if asset.classification > access_level:
                 return {"data": []}, 401
-        #get related info for asset
+        # get related info for asset
         with db_conn.cursor(row_factory=class_row(AttributeInDB)) as cur:
             cur.execute(
                 """SELECT attributes.attribute_id,attribute_name, attribute_data_type as attribute_type, validation_data,value as attribute_value FROM attributes_values 
@@ -187,7 +187,7 @@ def summary(user_id, access_level):
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
             cur.execute("""SELECT * FROM assets WHERE soft_delete=0;""")
             assets = cur.fetchall()
-        #gets the type name for each assset
+        # gets the type name for each assset
         with db_conn.cursor(row_factory=dict_row) as cur:
             for a in assets:
                 if a.classification <= access_level:
@@ -216,7 +216,7 @@ def update(id):
             SET name=%(name)s,link=%(link)s,description=%(description)s,last_modified_at=now() WHERE asset_id=%(asset_id)s ;""",
                 asset,
             )
-            #updates metadatat values
+            # updates metadatat values
             for attribute in asset["metadata"]:
                 cur.execute(
                     """
@@ -225,3 +225,41 @@ def update(id):
                     {"asset_id": id, **attribute},
                 )
     return {}, 200
+
+
+@bp.route("/tags/summary/<id>", methods=["GET"])
+@protected(role=UserRole.VIEWER)
+def tags_summary(id, user_id, access_level):
+    db = get_db()
+    assets_json = []
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+            cur.execute(
+                """SELECT assets.* FROM assets
+INNER JOIN assets_in_tags ON assets.asset_id=assets_in_tags.asset_id WHERE soft_delete=0 AND tag_id=%(tag_id)s;""",
+                {"tag_id": id},
+            )
+            assets = cur.fetchall()
+        # gets the type name for each assset
+        with db_conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(
+                """SELECT name FROM tags WHERE id=%(id)s;""",
+                {"id": id},
+            )
+            tag = cur.fetchone()
+            if tag:
+                tag=tag["name"]
+            else:
+                return {"msg":"No tag id found"},400
+            for a in assets:
+                if a.classification <= access_level:
+                    cur.execute(
+                        """SELECT type_name FROM types WHERE type_id=%(id)s;""",
+                        {"id": a.type},
+                    )
+                    type = cur.fetchone()["type_name"]
+                    aj = json.loads(a.json(by_alias=True))
+                    aj["type"] = type
+                    assets_json.append(aj)
+            res = jsonify({"data": {"tag": tag, "assets": assets_json}})
+    return res

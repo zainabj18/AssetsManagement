@@ -87,7 +87,7 @@ CREATE TABLE attributes
 (
 	asset_id SERIAL,
 	tag_id SERIAL,
-	FOREIGN KEY (tag_id) REFERENCES tags(id),
+	FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
 	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
 	PRIMARY KEY (asset_id,tag_id)
 );
@@ -125,6 +125,7 @@ CREATE TABLE attributes_values
 -- 	FOREIGN KEY project_id REFERENCES projects(project_id)
 -- );
 
+
 CREATE TABLE people_in_projects
 (
 	project_id INTEGER,
@@ -134,6 +135,7 @@ CREATE TABLE people_in_projects
 	FOREIGN KEY (project_id) REFERENCES projects(id),
 	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
 );
+
 
 -- CREATE TABLE change_logs
 -- (
