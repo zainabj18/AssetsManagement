@@ -1,112 +1,57 @@
-import { FormControl, FormLabel, HStack, Input} from '@chakra-ui/react';
-import { Box } from '@chakra-ui/react';
-import { React, useEffect, useState } from 'react';
-import { Flex, InputGroup, InputLeftAddon } from '@chakra-ui/react';
-import { Select } from '@chakra-ui/react';
-import { Stack, Button} from '@chakra-ui/react';
-import useAuth from '../hooks/useAuth';
+import { Box, Button, Center, FormControl, FormLabel, HStack, Heading, Input, Select, Stack } from '@chakra-ui/react';
+import { React } from 'react';
+
 const User = () => {
-	const { user } = useAuth();
-
-	useEffect(() => {
-		console.log(user);
-	});
-
-	const [textInput, setTextInput] = useState([{name: '', surname: '', username: '' }]);
-	const [deleteobject, setDeleteObject] = useState([{delete: ''}]);
-	const [saveobject] = useState([{save: ''}]);
-
-	const handleFormChange = (index, event) => {
-		let data = [...textInput];
-		data[index][event.target.name] = event.target.value;
-		setTextInput(data);
-	};
-
-	const deleteObject = (index) => {
-		let data = [...deleteobject];
-		data.splice(index, 1);
-		setDeleteObject(data);
-	};
-
-	const saveObject = (e) => {
-		e.preventDefault();
-		console.log(saveobject);
-	};
-
 	return (
-		<Box p={50} ml={180} mt={20}>
-			<Flex ml={280}>
-				<Box mr={280}>
-					First Name
-				</Box>
-				<Box mr={210}>
-					Last Name
-				</Box>
-				<Box mr={83}>
-					Username
-				</Box>
-			</Flex>
-			{textInput.map((attr, index) => {return (
-				<HStack spacing={6} key={index}>
-					<FormControl isRequired>
-						<Box color ='black'>
-							<Input  bg = 'white' placeholder='Name' left={215} width={200} type='text' defaultValue={attr.name} onChange={event => handleFormChange(index, event)} name="name"/>
-							<FormLabel color = 'white' ml={280}> required </FormLabel>
-						</Box>
+		<Center height={'100vh'}>
+			<Box bg={'white'} color={'black'} p={10} borderRadius={10} w={'1000px'} mx={'auto'} mb={'100px'}>
+				<Heading mb={'25px'}>Your Profile</Heading>
+				<HStack spacing={'25px'}>
+					<FormControl>
+						<FormLabel>First Name</FormLabel>
+						<Input type='text' placeholder="Name" />
 					</FormControl>
-					<FormControl isRequired>
-						<Box color ='black'>
-							<Input  bg = 'white' placeholder='Surname' left={25} width={200} type='text' defaultValue={attr.surname} onChange={event => handleFormChange(index, event)} name="surname"/>
-							<FormLabel color = 'white' ml={100}> required </FormLabel>
-						</Box>
+					<FormControl>
+						<FormLabel>Last Name</FormLabel>
+						<Input type='text' placeholder="Surname" />
 					</FormControl>
-					<FormControl isRequired>
-						<Box color ='black'>
-							<InputGroup right={180} width={200} type='text' >
-								<InputLeftAddon children='#' />
-								<Input bg='white' placeholder='Username' defaultValue={attr.username} onChange={event => handleFormChange(index, event)} name="username"/>
-							</InputGroup>
-							<FormLabel color = 'white'> required </FormLabel>
-						</Box>
+					<FormControl>
+						<FormLabel>Username</FormLabel>
+						<Input type='text' placeholder="Username" />
 					</FormControl>
 				</HStack>
-			);})}
-			<Flex mt={8} ml={280}>
-				<Box mr={280}>
-					Access Level
-				</Box>
-				<Box mr={210}>
-					Role
-				</Box>
-			</Flex>
-			<HStack ml={280}>
-				<Box>
-					<Select placeholder='Select Access Level' color='black' bg='white' right={61} width={200}>
-						<option value='option1'>Option 1</option>
-						<option value='option2'>Option 2</option>
-						<option value='option3'>Option 3</option>
-					</Select>
-				</Box>
-				<Box>
-					<Select placeholder='Select Role' color='black' bg='white' left={79} width={200}>
-						<option value='option1'>Option 1</option>
-						<option value='option2'>Option 2</option>
-						<option value='option3'>Option 3</option>
-					</Select>
-				</Box>
-			</HStack>
-			{textInput.map((index) => {return (
-				<Stack direction='row' spacing={4} align='center' mt={14} ml={280} key={index}>
-					<Button colorScheme='blue' variant='solid' size='lg' onClick={saveObject}>
-						Save
+
+				<HStack spacing={'25px'} mt={'25px'}>
+					<FormControl>
+						<FormLabel>Access Level</FormLabel>
+						<Select placeholder='Select Access Level' color='black' bg='white'>
+							<option value='option1'>Option 1</option>
+							<option value='option2'>Option 2</option>
+							<option value='option3'>Option 3</option>
+						</Select>
+					</FormControl>
+					<FormControl>
+						<FormLabel>Role</FormLabel>
+						<Select placeholder='Select Role' color='black' bg='white'>
+							<option value='option1'>Option 1</option>
+							<option value='option2'>Option 2</option>
+							<option value='option3'>Option 3</option>
+						</Select>
+					</FormControl>
+				</HStack>
+
+				<Stack direction='row' align='center' mt={8}>
+					<Button colorScheme='blue' variant='solid' size='md'>
+              Save
 					</Button>
-					<Button colorScheme='red' variant='solid' size='lg' left={70} onClick={event => deleteObject(index)}>
-						Delete
+					<Button colorScheme='red' variant='solid' size='md'>
+              Delete
 					</Button>
 				</Stack>
-			);})}
-		</Box>
+			</Box>
+		</Center>
 	);
 };
 
 export default User;
+
