@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, List, Optional
 
 from app.db import DataAccess
-from pydantic import BaseModel, Field, ValidationError, root_validator, validator
+from pydantic import BaseModel, Field, ValidationError, root_validator, validator,Extra
 
 
 class TagBase(BaseModel):
@@ -81,7 +81,8 @@ class AssetBaseInDB(AssetBase):
     asset_id: Optional[int]
     created_at: datetime
     last_modified_at: datetime
-    isSelected: bool=False
+    class Config:
+        extra = Extra.allow
 
 
 class Asset(AssetBase):
