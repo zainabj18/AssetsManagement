@@ -47,11 +47,6 @@ const AdminManager = () => {
 		setInputField(data);
 	};
 
-	const newuser = (e) => {
-		e.preventDefault();
-		console.log(inputField);
-	};
-
 	const accountDetails = (e) => {
 		e.preventDefault();
 		console.log(accountdetails);
