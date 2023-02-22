@@ -10,7 +10,8 @@ import {
 	AlertDescription,
 	AlertIcon,
 	AlertTitle,
-	Box
+	Box,
+	EditableTextarea
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import EditableControls from './EditableControls';
@@ -24,7 +25,8 @@ const FormField = ({
 	onSubmitHandler,
 	clearOnSumbit,
 	trigger,
-	setErrorCount
+	setErrorCount,
+	isTextarea
 }) => {
 	const [error, setError] = useState('');
 	const [value,setValue]=useState('');
@@ -87,8 +89,8 @@ const FormField = ({
 					<EditablePreview background={value.length?'blue.100':undefined} px={6} minW={'100%'} alignItems='left'
 						alignContent='left' textAlign='left' />
 				
+					{isTextarea ?<EditableTextarea /> :<Input type={fieldType} as={EditableInput} onChange={e=>{validate(e);}} required />}
 					
-					<Input type={fieldType} as={EditableInput} onChange={e=>{validate(e);}} required />
 					<EditableControls error={error}/>
 	
 					
