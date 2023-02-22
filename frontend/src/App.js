@@ -18,6 +18,7 @@ import AdminManager from './routes/AdminManager';
 import RelatedAssetViewer from './components/RelatedAssetViewer';
 import Tags from './routes/Tags';
 import TagViewer from './routes/TagViewer';
+import ProjectViewer from './routes/ProjectViewer';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -35,9 +36,7 @@ function App() {
 					<Route path="tags/" element={<Tags />}>
 						<Route path=":id" element={<TagViewer/>} />	
 					</Route>
-					<Route path="projects/" element={<SubLayout name="Projects"/>}>
-						<Route index element={<NavLink to="./new">Create New Project</NavLink>} />
-						<Route path="new" element={<CreateProject />} />
+					<Route path="projects/" element={<ProjectViewer/>}>
 					</Route>
 					<Route path="type/" element={<SubLayout name="Types"/>}>
 						<Route index element={<TypeViewer />} />
@@ -45,6 +44,7 @@ function App() {
 					</Route>
 					<Route path="accounts" element={<AdminManager />} />
 					<Route path="user" element={<User />} />
+					<Route path="new" element={<CreateProject />} />
 				</Route>
 				<Route path="*" element={<NoMatch />} />
 			</Routes>

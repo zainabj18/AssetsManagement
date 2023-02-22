@@ -6,81 +6,59 @@ import {
 	Box,
 	VStack,
 	Button,
-	Flex,
+	Flex
 } from '@chakra-ui/react';
-//import axios from 'axios';
 import React, { useState } from 'react';
-import { DeleteIcon } from '@chakra-ui/icons';
-import { IconButton } from '@chakra-ui/react';
 import {createProject} from '../api.js';
-const CreateProject = () => {
-	const [projects, setProjects] = useState([{ name: '', description: '' }]);
-	//const [display_people_in_project, set_display_people_in_project] = useState(false);
+import { useNavigate } from 'react-router-dom';
 
-	const handleCreate = (index, event) => {
-		let data = [...projects];
-		data[index][event.target.name] = event.target.value;
-		setProjects(data);
+
+
+const CreateProject = () => {
+	const[newName, setNewName] = useState('');
+	const[newDescription, setNewDescription] = useState('');
+	let navigate=useNavigate();
+
+	const changeName = (name) => {
+		setNewName(name);
+	};
+
+	const changeDescription = (description) => {
+		setNewDescription(description);
 	};
 
 	const addProject = () => {
-		setProjects([...projects, { name: '', description: '' }]);
-	};
-	const submitProject = () => {
-		console.log(projects);
-		projects.forEach((val, i) => createProject(val));
-		
-	};
-
-	
-	const deleteProject = (index) => {
-		let data = [...projects];
-		data.splice(index, 1);
-		setProjects(data);
+		createProject({ name: newName, description: newDescription }).then(_ => {
+			navigate('../');
+		});
 	};
 
 	return (
 		<VStack minW="100vw" spacing={3}>
 			<Text fontSize='3xl'>Create Project</Text>
-  
-			{projects.map((project, index) => {
-				return (
-					<VStack key={index}>
-						<Box bg='white' w='100%' p={7} color='black'>
-							<FormControl isRequired>
-								<FormLabel color={'black'}>Project Name</FormLabel>
-								<Input
-									type="text"
-									placeholder="Project Name"
-									defaultValue={project.name}
-									onChange={(event) => handleCreate(index, event)}
-									name="name"
-								/>
-							</FormControl>
-							<FormControl isRequired>
-								<FormLabel color={'black'}>Description</FormLabel>
-								<Input
-									type="text"
-									placeholder="Description"
-									defaultValue={project.description}
-									onChange={(event) => handleCreate(index, event)}
-									name="description"
-								/>
-							</FormControl>
-							
-							<IconButton
-								left={20}
-								icon={<DeleteIcon />}
-								colorScheme="blue"
-								onClick={() => deleteProject(index)}
-							/>
-						</Box>
-					</VStack>
-				);
-			})}
+			<Box bg='white' w='100%' p={7} color='black'>
+				<FormControl isRequired>
+					<FormLabel color={'black'}>Project Name</FormLabel>
+					<Input
+						type="text"
+						placeholder="Project Name"
+
+						onChange={(event) => changeName(event.target.value)}
+						name="name"
+					/>
+				</FormControl>
+				<FormControl isRequired>
+					<FormLabel color={'black'}>Description</FormLabel>
+					<Input
+						type="text"
+						placeholder="Description"
+						onChange={(event) => changeDescription(event.target.value)}
+						name="description"
+					/>
+				</FormControl>
+			</Box>
 			<Flex minWidth='max-content' alignItems='center' gap='4'>
-				<Button onClick={addProject}>Add Project</Button>
-				<Button onClick={submitProject}> Submit</Button>
+				<Button onClick={addProject}>Save Project</Button>
 			</Flex>
 			
 		</VStack>
