@@ -19,24 +19,44 @@ bp = Blueprint("type", __name__, url_prefix="/type")
 @bp.route("/new", methods=["POST"])
 def add_type():
     new_type = Type(**request.json)
-    db_type = new_type.dict(exclude={"metadata"})
-    query = """INSERT INTO types (type_name) VALUES (%(type_name)s);"""
+    db_type = new_type.dict(exclude={"metadata", "depends_on"})
+    query = """INSERT INTO types (type_name) VALUES (%(type_name)s) RETURNING type_id;"""
     database = get_db()
     with database.connection() as conn:
-        conn.execute(query, db_type)
+        ret = conn.execute(query, db_type)
+        type_id = ret.fetchone()[0]
 
-    query = """INSERT INTO attributes_in_types (attribute_id, type_id) VALUES ((SELECT attribute_id FROM attributes WHERE attribute_name = (%(attr_name)s)), (SELECT type_id FROM types WHERE type_name = (%(type_name)s)))"""
+    query = """INSERT INTO attributes_in_types (attribute_id, type_id) VALUES (%(attr_id)s, %(type_id)s)"""
     for attribute in new_type.metadata:
         with database.connection() as conn:
             conn.execute(
                 query,
                 {
-                    "type_name": new_type.type_name,
-                    "attr_name": attribute.attribute_name,
+                    "type_id": type_id,
+                    "attr_id": attribute.attribute_id,
                 },
             )
 
-    return {"msg": ""}, 200
+    query = """INSERT INTO type_link (type_id_from, type_id_to) VALUES (%(from)s, %(to)s)"""
+    selfDependent_error = False
+    for dependency_key in new_type.depends_on:
+        with database.connection() as conn:
+            # If the id refers to itself, it is skipped and an error code will be returned
+            if type_id != dependency_key:
+                conn.execute(
+                    query,
+                    {
+                        "from": type_id,
+                        "to": dependency_key
+                    }
+                )
+            else:
+                selfDependent_error = True
+
+    if selfDependent_error:
+        return {"msg": "Type can not depend on self"}, 422
+    else:
+        return {"msg": ""}, 200
 
 
 @bp.route("/names", methods=["GET"])
@@ -118,6 +138,59 @@ def get_allTypes():
             res = conn.execute(query_b, {"type_id": type[0]})
             attributes = extract_attributes(res.fetchall())
             allTypes_listed.append(
-                {"typeId": type[0], "typeName": type[1], "metadata": attributes}
+                {"typeId": type[0], "typeName": type[1],
+                    "metadata": attributes}
             )
         return json.dumps(allTypes_listed), 200
+
+
+@bp.route("/delete/<id>", methods=["POST"])
+def delete_type(id):
+    database = get_db()
+    canDo = True
+
+    query = """SELECT COUNT(*) FROM assets WHERE type = (%(id)s);"""
+    with database.connection() as conn:
+        res = conn.execute(query, {"id": id})
+        if (res.fetchone()[0] > 0):
+            canDo = False
+
+    query = """SELECT COUNT(*) FROM type_link WHERE type_id_to = (%(id)s);"""
+    with database.connection() as conn:
+        res = conn.execute(query, {"id": id})
+        if (res.fetchone()[0] > 0):
+            canDo = False
+
+    if canDo:
+        query = """DELETE FROM type_link WHERE type_id_from = (%(id)s);"""
+        with database.connection() as conn:
+            conn.execute(query, {"id": id})
+
+        query = """DELETE FROM attributes_in_types WHERE type_id = (%(id)s);"""
+        with database.connection() as conn:
+            conn.execute(query, {"id": id})
+
+        query = """DELETE FROM types WHERE type_id = (%(id)s);"""
+        with database.connection() as conn:
+            conn.execute(query, {"id": id})
+
+    return {"msg": "", "wasAllowed": canDo}, 200
+
+
+@bp.route("/attribute/delete/<id>", methods=["POST"])
+def delete_attribute(id):
+    database = get_db()
+    canDo = True
+
+    query = """SELECT COUNT(*) FROM attributes_in_types WHERE attribute_id = (%(id)s)"""
+    with database.connection() as conn:
+        res = conn.execute(query, {"id": id})
+        if (res.fetchone()[0] > 0):
+            canDo = False
+
+    if canDo:
+        query = """DELETE FROM attributes WHERE attribute_id = (%(id)s)"""
+        with database.connection() as conn:
+            conn.execute(query, {"id": id})
+
+    return {"msg": "", "wasAllowed": canDo}, 200

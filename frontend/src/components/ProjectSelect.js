@@ -125,9 +125,10 @@ function ProjectSelect({setSelectedProjects,projects}) {
 				projects.push(obj);
 			}
 		}
+		console.log(data,preSelected,'I am in projects');
 		setSelected(preSelected);
 		setSelectedProjects(projects);
-	}, []);
+	}, [projects]);
 	
 
 	

@@ -13,20 +13,21 @@ import {
 	useDisclosure
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { Link as RouteLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import AttributeMaker from '../components/AttributeMaker';
-import AttributeManager from '../components/AttributeManager';
-import { fetchAllAttributes, createAttribute, createType } from '../api';
+import TypeAdderManager from '../components/TypeAdderManager';
+import { fetchAllAttributes, createAttribute, createType, fetchTypesList } from '../api';
 import useAuth from '../hooks/useAuth';
 
 const TypeAdder = () => {
 
-	const [trigger, setTrigger] = useBoolean();
-	const {user} = useAuth();
-	let navigate=useNavigate();
+	const [trigger_load_attributes, setTrigger_load_attributes] = useBoolean();
+	const [trigger_load_types, setTrigger_load_types] = useBoolean();
+	const { user } = useAuth();
+	let navigate = useNavigate();
 
 	useEffect(() => {
-		if (user && user.userRole!=='ADMIN'){
+		if (user && user.userRole !== 'ADMIN') {
 			navigate('../');
 		}
 		async function load_allAttributes() {
@@ -34,7 +35,16 @@ const TypeAdder = () => {
 			set_allAttributes(data);
 		}
 		load_allAttributes();
-	}, [trigger]);
+	}, [trigger_load_attributes]);
+
+	useEffect(() => {
+		async function load_allTypes() {
+			let data = (await fetchTypesList(res => res.data)).data;
+			console.log(data);
+			set_allTypes(data);
+		}
+		load_allTypes();
+	}, [trigger_load_types]);
 
 	const {
 		isOpen: isOpen_attributeCreator,
@@ -45,20 +55,27 @@ const TypeAdder = () => {
 	const [types] = useState([
 		'text', 'number', 'checkbox', 'datetime-local', 'num_lmt', 'options', 'list'
 	]);
+	const [list_types] = useState([
+		'text', 'email', 'url'
+	]);
 
 	const [typeName, set_typeName] = useState('');
+	const [new_typeName_errorMessage, set_new_typeName_errorMessage] = useState('');
 	const [selectedAttributes, set_selectedAttributes] = useState([]);
+	const [selectedAttributes_errorMessage, set_selectedAttributes_errorMessage] = useState('');
+	const [selectedTypes, set_selectedTypes] = useState([]);
 	const [allAttributes, set_allAttributes] = useState([]);
+	const [allTypes, set_allTypes] = useState([]);
 	const [creationData, set_creationData] = useState(new AttributeMaker());
 	const [new_attribute_errorMessage, set_new_attribute_errorMessage] = useState(AttributeMaker.get_message_noError());
 	const [display_num_lmt, set_display_num_lmt] = useState(false);
-	const [display_list, set_display_list] = useState(false);
 	const [display_options, set_display_options] = useState(false);
+	const [display_list, set_display_list] = useState(false);
 
 	const selectAttribute = (attribute) => {
 		let list = [...selectedAttributes];
 		list.push(attribute);
-		set_selectedAttributes(AttributeManager.sortAttributes(list));
+		set_selectedAttributes(TypeAdderManager.sortAttributes(list));
 	};
 
 	const deselectAttribute = (attribute) => {
@@ -77,17 +94,38 @@ const TypeAdder = () => {
 		}
 	};
 
-	const updateSelectedTypes = (data = creationData) => {
+	const selectType = (id) => {
+		selectedTypes.push(id);
+		set_selectedTypes(selectedTypes);
+	};
+
+	const deselectType = (item, list) => {
+		let index = list.indexOf(item);
+		list.splice(index, 1);
+		set_selectedTypes(list);
+	};
+
+	const ajustSelectedTypes = (checked, id) => {
+		if (checked) {
+			selectType(id);
+		}
+		if (!checked) {
+			deselectType(id, selectedTypes);
+		}
+	};
+
+	const update_selected_dataTypes = (data = creationData) => {
 		set_display_num_lmt(data.type === 'num_lmt');
 		set_display_list(data.type === 'list');
 		set_display_options(data.type === 'options');
-		
+
 	};
 
 	const open_AttributeCreator = () => {
 		let new_data = new AttributeMaker();
 		new_data.type = types[0];
-		updateSelectedTypes(new_data);
+		new_data.list_type = list_types[0];
+		update_selected_dataTypes(new_data);
 		set_new_attribute_errorMessage(AttributeMaker.get_message_noError());
 		set_creationData(new_data);
 		onOpen_attributeCreator();
@@ -98,38 +136,72 @@ const TypeAdder = () => {
 		set_new_attribute_errorMessage(errorMessage);
 		if (JSON.stringify(errorMessage) === JSON.stringify(AttributeMaker.get_message_noError())) {
 			createAttribute(creationData.formAttribute()).then(_ => {
-				setTrigger.toggle();
+				setTrigger_load_attributes.toggle();
 			});
 			onClose_attributeCreator();
 		};
 	};
 
+	const get_typeName_errorMessage = (name_already_exists, name_is_empty) => {
+		let errorMessage = '';
+		if (name_is_empty) {
+			errorMessage = 'Please enter a name';
+		}
+		else if (name_already_exists) {
+			errorMessage = 'Type name in use';
+		}
+		return errorMessage;
+	};
+
+	const get_selectedAttrs_errorMessage = (selected_count) => {
+		let errorMessage = '';
+		if (selected_count < 1) {
+			errorMessage = 'At least 1 attribute must be selected';
+		}
+		return errorMessage;
+	};
+
 	const saveType = () => {
-		createType({
-			typeName: typeName,
-			metadata: selectedAttributes
+		fetchTypesList().then(data => {
+			let typeNames = data.data;
+			let name_already_exists = TypeAdderManager.isTypeNameIn(typeName, typeNames);
+			let nameError = get_typeName_errorMessage(name_already_exists, typeName === '');
+			let selectedError = get_selectedAttrs_errorMessage(selectedAttributes.length);
+			set_new_typeName_errorMessage(nameError);
+			set_selectedAttributes_errorMessage(selectedError);
+			if (nameError + selectedError === '') {
+				createType({
+					typeName: typeName,
+					metadata: selectedAttributes,
+					dependsOn: selectedTypes
+				});
+				navigate('/type');
+			}
 		});
 	};
 
 	return (
 		<VStack width="90vw">
 			<Text>TypeAdder</Text>
-			<FormControl isRequired>
+			<FormControl isRequired isInvalid={new_typeName_errorMessage !== ''}>
 				<FormLabel>Name</FormLabel>
 				<Input type='text'
 					placeholder='Name'
 					onChange={(e) => set_typeName(e.target.value)}
 				/>
+				<FormErrorMessage>{new_typeName_errorMessage}</FormErrorMessage>
 			</FormControl>
 			<HStack minW='80%'>
+
 				{/** The list of all allAttributes */}
-				<FormControl width='30%'>
-					<FormLabel>Select all Attributes</FormLabel>
+				<FormControl isRequired isInvalid={selectedAttributes_errorMessage !== ''} width='30%'>
+					<FormLabel>Select Attributes</FormLabel>
+					<FormErrorMessage>{selectedAttributes_errorMessage}</FormErrorMessage>
 					{allAttributes.map((attribute, index) => {
 						return (
 							<VStack key={attribute.attributeName} align="left">
 								<Checkbox
-									isChecked={AttributeManager.isAttributeNameIn(
+									isChecked={TypeAdderManager.isAttributeNameIn(
 										attribute.attributeName, [...selectedAttributes]
 									)}
 									value={attribute.attributeName}
@@ -140,6 +212,7 @@ const TypeAdder = () => {
 						);
 					})}
 				</FormControl>
+
 				{/** The List of selected allAttributes */}
 				<TableContainer width='70%'>
 					<Table varient='simple'>
@@ -162,11 +235,28 @@ const TypeAdder = () => {
 						</Tbody>
 					</Table>
 				</TableContainer>
+
 			</HStack>
+
+			<FormControl>
+				<FormLabel>Depends On</FormLabel>
+				{allTypes.map((allTypes) => {
+					return (
+						<Checkbox
+							key={allTypes.type_id}
+							onChange={(e) => {
+								ajustSelectedTypes(e.target.checked, allTypes.type_id);
+								set_creationData(creationData);
+							}}
+						>
+							{allTypes.type_name}
+						</Checkbox>
+					);
+				})}
+			</FormControl>
+
 			<Button onClick={open_AttributeCreator}>Add</Button>
-			<RouteLink to='/type'>
-				<Button onClick={saveType}>Save</Button>
-			</RouteLink>
+			<Button onClick={saveType}>Save</Button>
 
 			<Modal
 				closeOnOverlayClick={false}
@@ -198,7 +288,7 @@ const TypeAdder = () => {
 								onChange={(e) => {
 									creationData.type = e.target.value;
 									set_creationData(creationData);
-									updateSelectedTypes();
+									update_selected_dataTypes();
 								}}
 							>
 								{types.map((types) => {
@@ -208,9 +298,20 @@ const TypeAdder = () => {
 								})}
 							</Select>
 						</FormControl>
+						<FormControl>
+							<Checkbox
+								onChange={(e) => {
+									creationData.isOptional = e.target.checked;
+									set_creationData(creationData);
+								}}
+							>
+								Optional
+							</Checkbox>
+						</FormControl>
+
 						{/** Extra form for the num_lmt data type*/}
 						{display_num_lmt &&
-							<FormControl isRequired>
+							<FormControl isRequired isInvalid={new_attribute_errorMessage.num_lmt !== ''}>
 								<FormLabel>Number Range</FormLabel>
 								<HStack>
 									<input
@@ -232,47 +333,59 @@ const TypeAdder = () => {
 										}}
 									></input>
 								</HStack>
+								<FormErrorMessage>{new_attribute_errorMessage.num_lmt}</FormErrorMessage>
 							</FormControl>
 						}
-						{display_list && <FormControl isRequired>
-							<FormLabel>List Type</FormLabel>
-							<Select onChange={(e) => {
-								creationData.list_type = e.target.value;
-								set_creationData(creationData);
-							}}>
-								<option>text</option>
-								<option>email</option>
-								<option>url</option>
-							</Select>
-						</FormControl>}
-						{display_options && <FormControl isRequired>
-							<FormLabel>Choices</FormLabel>
-							<HStack>
-								<input
-									placeholder='options'
-									type='text'
-									variant='outline'
-									onChange={(e) => {
-										creationData.choices = e.target.value;
+
+						{/** Extra form for the options data type*/}
+						{display_options &&
+							<FormControl>
+								<FormLabel>Choices</FormLabel>
+								<HStack>
+									<FormControl isRequired isInvalid={new_attribute_errorMessage.options !== ''}>
+										<input
+											placeholder='options'
+											type='text'
+											variant='outline'
+											onChange={(e) => {
+												creationData.choices = e.target.value;
+												set_creationData(creationData);
+											}}
+										></input>
+										<FormErrorMessage>{new_attribute_errorMessage.options}</FormErrorMessage>
+									</FormControl>
+									<Text>Multiselect</Text>
+									<Checkbox onChange={(e) => {
+										creationData.isMulti = e.target.checked;
 										set_creationData(creationData);
-									}}
-								></input>
-								<Text>Multiselect</Text>
-								<Checkbox onChange={(e) => {
-									creationData.isMulti = e.target.checked;
+									}} />
+								</HStack>
+							</FormControl>
+						}
+
+						{/** Extra form for the list data type*/}
+						{display_list &&
+							<FormControl isRequired>
+								<FormLabel>List Type</FormLabel>
+								<Select onChange={(e) => {
+									creationData.list_type = e.target.value;
 									set_creationData(creationData);
-								}}/>
-							</HStack>
-						</FormControl>}
+								}}>
+									{list_types.map((list_types) => {
+										return (<option value={list_types} key={list_types}>{list_types}</option>
+										);
+									})}
+								</Select>
+							</FormControl>}
+
 					</ModalBody>
 					<ModalFooter>
 						<Button onClick={tryCreate_attribute}>Save</Button>
-						<Button
-							onClick={onClose_attributeCreator}>Cancel</Button>
+						<Button onClick={onClose_attributeCreator}>Cancel</Button>
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
-		</VStack>
+		</VStack >
 	);
 };
 

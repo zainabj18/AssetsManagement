@@ -1,6 +1,6 @@
-/** Class containing functions to manipulate the attributes */
-export default class AttributeManager {
-	/** Checks to see if the given name is also in the given list.
+/** Class containing functions to manipulate the types and attributes */
+export default class TypeAdderManager {
+	/** Checks to see if the given attribute name is also in the given list.
 	 * @param {string} attributeName The name of the attribute to search for.
 	 * @param {Array.<{attributeName: string}>} list The list of attributes to search through.
 	 * @returns Is the attribute in the list.
@@ -32,5 +32,21 @@ export default class AttributeManager {
 			}
 		}
 		return attributes;
+	};
+
+	/** Checks to see if the given type name is also in the given list.
+	 * @param {string} typeName The name of the type to search for.
+	 * @param {Array.<{typeName: string}>} list The list of types to search through.
+	 * @returns Is the type in the list.
+	*/
+	static isTypeNameIn = (typeName, list) => {
+		let index;
+		let length = list.length;
+		for (index = 0; index < length; index++) {
+			if (list[index].type_name === typeName) {
+				return true;
+			}
+		}
+		return false;
 	};
 }
