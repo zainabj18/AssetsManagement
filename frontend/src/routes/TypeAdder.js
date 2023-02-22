@@ -10,7 +10,8 @@ import {
 	Table, Thead, Tbody, Tr, Th, Td, TableContainer, TableCaption,
 	Text,
 	useBoolean,
-	useDisclosure
+	useDisclosure,
+	Heading
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -214,9 +215,11 @@ const TypeAdder = () => {
 				</FormControl>
 
 				{/** The List of selected allAttributes */}
+				
 				<TableContainer width='70%'>
+					<Heading placement='top' color='blue.900' size="md">Selected Attributes</Heading>
 					<Table varient='simple'>
-						<TableCaption placement='top' color='white'>Selected Attributes</TableCaption>
+						
 						<Thead>
 							<Tr>
 								<Th color='white'>Attribute Name</Th>
@@ -262,6 +265,7 @@ const TypeAdder = () => {
 				closeOnOverlayClick={false}
 				isOpen={isOpen_attributeCreator}
 				onClose={onClose_attributeCreator}
+				variant="popup"
 			>
 				<ModalOverlay />
 				<ModalContent>
@@ -271,7 +275,6 @@ const TypeAdder = () => {
 						<FormControl isRequired isInvalid={new_attribute_errorMessage.attributeName !== ''}>
 							<FormLabel>Attribute Name</FormLabel>
 							<Input type='text'
-								variant='outline'
 								name='new_attributeName'
 								placeholder='Name'
 								onChange={(e) => {
@@ -314,24 +317,24 @@ const TypeAdder = () => {
 							<FormControl isRequired isInvalid={new_attribute_errorMessage.num_lmt !== ''}>
 								<FormLabel>Number Range</FormLabel>
 								<HStack>
-									<input
+									<Input
 										placeholder='Min'
 										type='number'
-										variant='outline'
+						
 										onChange={(e) => {
 											creationData.min = e.target.value;
 											set_creationData(creationData);
 										}}
-									></input>
-									<input
+									></Input>
+									<Input
 										placeholder='Max'
 										type='number'
-										variant='outline'
+					
 										onChange={(e) => {
 											creationData.max = e.target.value;
 											set_creationData(creationData);
 										}}
-									></input>
+									></Input>
 								</HStack>
 								<FormErrorMessage>{new_attribute_errorMessage.num_lmt}</FormErrorMessage>
 							</FormControl>
@@ -343,15 +346,15 @@ const TypeAdder = () => {
 								<FormLabel>Choices</FormLabel>
 								<HStack>
 									<FormControl isRequired isInvalid={new_attribute_errorMessage.options !== ''}>
-										<input
+										<Input
 											placeholder='options'
 											type='text'
-											variant='outline'
+											
 											onChange={(e) => {
 												creationData.choices = e.target.value;
 												set_creationData(creationData);
 											}}
-										></input>
+										></Input>
 										<FormErrorMessage>{new_attribute_errorMessage.options}</FormErrorMessage>
 									</FormControl>
 									<Text>Multiselect</Text>

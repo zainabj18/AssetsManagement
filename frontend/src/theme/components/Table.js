@@ -31,8 +31,8 @@ const brandPrimary = definePartsStyle({
 			},
 			'&:nth-of-type(even)': {
 				td: {
-					bg:'blue.900',
-					color:'blue.100'
+					bg:'blue.100',
+					color:'blue.900'
 				}
 			}
 		}
