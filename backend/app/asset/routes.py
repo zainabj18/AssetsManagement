@@ -74,3 +74,10 @@ def list():
             res.json["data"]=[1]
             print (res.json)
     return res
+
+@bp.route("/filter",methods = ["GET"])
+def filter():
+    db = get_db()
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+            cur.exceute("""SELECT """)
