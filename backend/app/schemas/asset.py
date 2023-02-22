@@ -81,6 +81,7 @@ class AssetBaseInDB(AssetBase):
     asset_id: Optional[int]
     created_at: datetime
     last_modified_at: datetime
+    isSelected: bool=False
 
 
 class Asset(AssetBase):
