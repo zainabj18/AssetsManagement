@@ -216,14 +216,14 @@ def list_asset_in_assets(id,user_id, access_level):
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
             cur.execute(
                 """SELECT assets.* FROM assets_in_assets
-    INNER JOIN assets on assets.asset_id=assets_in_assets.to_asset_id WHERE from_asset_id=%(id)s;""",
+    INNER JOIN assets on assets.asset_id=assets_in_assets.to_asset_id WHERE from_asset_id=%(id)s ORDER BY assets_in_assets.to_asset_id;""",
                 {"id": id},
             )
             selected_assets = list(cur.fetchall())
             for x in selected_assets:
                 x.isSelected = True
             cur.execute(
-                """SELECT * FROM assets WHERE asset_id not in (SELECT to_asset_id FROM assets_in_assets WHERE from_asset_id=%(id)s);""",
+                """SELECT * FROM assets WHERE asset_id not in (SELECT to_asset_id FROM assets_in_assets WHERE from_asset_id=%(id)s) ORDER BY asset_id;""",
                 {"id": id},
             )
             assets = list(cur.fetchall())
@@ -304,7 +304,6 @@ def update(id, user_id, access_level):
     orgignal_asset=json.loads(orgignal_asset.json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     orgignal_asset["tags"]=[tag["id"]for tag in orgignal_asset["tags"]]
     orgignal_asset["projects"]=[project["id"]for project in orgignal_asset["projects"]]
-    print(orgignal_asset["assets"])
     orgignal_asset["assets"]=[a["asset_id"]for a in orgignal_asset["assets"]]
     projects_removed=list(set(orgignal_asset["projects"])-set(asset["projects"]))
     projects_added=list(set(asset["projects"])-set(orgignal_asset["projects"]))
@@ -397,7 +396,7 @@ def tags_summary(id, user_id, access_level):
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
             cur.execute(
                 """SELECT assets.* FROM assets
-INNER JOIN assets_in_tags ON assets.asset_id=assets_in_tags.asset_id WHERE soft_delete=0 AND tag_id=%(tag_id)s;""",
+INNER JOIN assets_in_tags ON assets.asset_id=assets_in_tags.asset_id WHERE soft_delete=0 AND tag_id=%(tag_id)s ORDER BY assets.asset_id;""",
                 {"tag_id": id},
             )
             assets = cur.fetchall()

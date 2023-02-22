@@ -42,7 +42,7 @@ def delete_asset_in_tag(db,asset_ids,tag_id):
 def list_tags(db):
     with db.connection() as conn:
         with conn.cursor(row_factory=dict_row) as cur:
-            cur.execute("""SELECT * FROM tags;""")
+            cur.execute("""SELECT * FROM tags ORDER BY name;""")
             return cur.fetchall()
 
 def tag_in_db(db,id):
