@@ -21,7 +21,7 @@ const Tags = () => {
 		<Box w='30%' minH='100%' bg='gray.300' p={4} color='black' align={'top'}>
 			<HStack>
 				<Input type='text' placeholder='Search for tag ...'/>
-				<NewTag />
+				<NewTag trigger={setTrigger}/>
 			</HStack>
 			<VStack p={2}>
 				{tags.map((t,index)=>(

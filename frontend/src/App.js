@@ -1,17 +1,15 @@
-import { Routes, Route, NavLink, Outlet } from 'react-router-dom';
+import { Routes, Route} from 'react-router-dom';
 import AssetViewer from './components/AssetVeiwer';
 import CreateAsset from './routes/assets/CreateAsset';
 import Layout from './routes/Layout';
 import Login from './routes/Login';
 import NoMatch from './routes/NoMatch';
-import AssetSearcher from './routes/AssetSearcher';
 import User from './routes/User';
 import TypeAdder from './routes/TypeAdder';
 import TypeViewer from './routes/TypeViewer';
 import { AuthProvider } from './hooks/useAuth';
 import AssetsOverview from './routes/assets/AssetsOverview';
 import SubLayout from './routes/assets/SubLayout';
-import AssetList from './components/AssetList';
 import CreateProject from './routes/CreateProject';
 import { Box, Button } from '@chakra-ui/react';
 import AdminManager from './routes/AdminManager';
@@ -27,6 +25,7 @@ import RelatedType from './routes/assets/RelatedType';
 import RelatedFrom from './routes/assets/RelatedFrom';
 import RelatedTo from './routes/assets/RelatedTo';
 import AttributeViewer from './routes/AttributeViewer';
+import ProjectViewer from './routes/ProjectViewer';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -50,13 +49,13 @@ function App() {
 						</Route>
 						<Route path="related" element={<RelatedAssetViewer canEdit={true} isNew={false}/>} />
 					</Route>
+					<Route path="projects/" element={<SubLayout name="Projects"/>}>
+						<Route index element={<ProjectViewer/>} />
+						<Route path="new" element={<CreateProject />} />
+					</Route>
 
 					<Route path="tags/" element={<Tags />}>
 						<Route path=":id" element={<TagViewer/>} />	
-					</Route>
-					<Route path="projects/" element={<SubLayout name="Projects"/>}>
-						<Route index element={<NavLink to="./new">Create New Project</NavLink>} />
-						<Route path="new" element={<CreateProject />} />
 					</Route>
 					<Route path="type/" element={<SubLayout name="Types"/>}>
 						<Route index element={<TypeViewer />} />

@@ -38,6 +38,10 @@ export const fetchProjects = async () => {
 	return await axios.get('/project/').then(res => res.data);
 };
 
+export const fetchAllProjects = async () => {
+	return await axios.get('/project/allProjects').then(res => res.data);
+};
+
 export const fetchAllTypes = async () => {
 	return await axios.get('/type/allTypes').then(res => res.data);
 };
@@ -96,6 +100,12 @@ export const deleteAsset = async (id) => {
 	return await axios.delete(`/asset/${id}`).then(res => res.data);
 };
 
+export const deleteProject = async (id) => {
+
+	console.log(id);
+	return await axios.post(`/project/delete/${id}`).then(res => res.data);
+};
+
 export const fetchAssetSummary = async () => {
 	return await axios.get('/asset/summary').then(res => res.data);
 };
@@ -107,6 +117,7 @@ export const createProject = async (project) => {
 	console.log(project);
 	return await axios.post('/project/new', project).then(res => res.data);
 };
+
 export const fetchAssetsinTag = async (id) => {
 	return await axios.get(`/asset/tags/summary/${id}`).then(res => res.data);
 };
