@@ -9,8 +9,10 @@ class TagBase(BaseModel):
     id: Optional[int]
     name: str = Field(..., min_length=1)
 
+
 class TagInDB(TagBase):
-    id:int
+    id: int
+
 
 class Attribute_Model(BaseModel):
     attribute_name: str = Field(..., alias="attributeName")
@@ -21,6 +23,7 @@ class Attribute_Model(BaseModel):
 class Attribute(Attribute_Model):
     attribute_value: Any = Field(None, alias="attributeValue")
     # cast string to correct type based on attribute type
+
     @root_validator
     def check_metadata(cls, values):
         t = values.get("attribute_type")
@@ -50,7 +53,8 @@ class AttributeInDB(Attribute):
 
 class Type(BaseModel):
     type_name: str = Field(..., alias="typeName")
-    metadata: List[Attribute_Model]
+    metadata: List[AttributeInDB]
+    depends_on: List[int] = Field(..., alias="dependsOn")
 
 
 class TypeBase(BaseModel):
@@ -110,9 +114,10 @@ class AssetOut(AssetBaseInDB):
     assets: Optional[Any]
     metadata: List[AttributeInDB]
 
+
 class TagBulkRequest(BaseModel):
-    to_tag_id:int=Field(..., alias="toTagID")
-    assest_ids:List[int]=Field(..., alias="assetIDs")
+    to_tag_id: int = Field(..., alias="toTagID")
+    assest_ids: List[int] = Field(..., alias="assetIDs")
 
     class Config:
         allow_population_by_field_name = True

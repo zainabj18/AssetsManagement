@@ -13,6 +13,8 @@ DROP TABLE IF EXISTS assets_in_projects CASCADE;
 DROP TABLE IF EXISTS attributes_values CASCADE;
 DROP TABLE IF EXISTS asset_logs CASCADE;
 DROP TABLE IF EXISTS assets_in_assets CASCADE;
+DROP TABLE IF EXISTS type_link CASCADE;
+
 CREATE TYPE account_role AS ENUM ('VIEWER', 'USER', 'ADMIN');
 CREATE TYPE data_classification AS ENUM ('PUBLIC', 'INTERNAL','RESTRICTED','CONFIDENTIAL');
 CREATE TABLE accounts
@@ -129,6 +131,16 @@ CREATE TABLE asset_logs
 	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
 	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
  );
+
+ CREATE TABLE type_link
+ (
+	type_id_from INTEGER,
+	type_id_to INTEGER,
+	FOREIGN KEY (type_id_from) REFERENCES types(type_id),
+	FOREIGN KEY (type_id_to) REFERENCES types(type_id),
+	PRIMARY KEY (type_id_from, type_id_to)
+ )
+
 -- CREATE TABLE projects
 -- (
 -- 	project_id SERIAL,
