@@ -10,7 +10,7 @@ from app.asset.routes import asset_differ
     indirect=True,
 )
 def test_removed_empty_on_match(new_assets):
-    old_asset=json.loads(new_assets[0].json())
+    old_asset=json.loads(new_assets[0].json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     new_asset=copy.deepcopy(old_asset)
     res=asset_differ(old_asset,new_asset)
     assert res["removed"]==[]
@@ -21,7 +21,7 @@ def test_removed_empty_on_match(new_assets):
     indirect=True,
 )
 def test_remove_from_orginal(new_assets):
-    old_asset=json.loads(new_assets[0].json())
+    old_asset=json.loads(new_assets[0].json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     new_asset=copy.deepcopy(old_asset)
     del new_asset["link"]
     res=asset_differ(old_asset,new_asset)
@@ -33,7 +33,7 @@ def test_remove_from_orginal(new_assets):
     indirect=True,
 )
 def test_remove_multiple_from_orginal(new_assets):
-    old_asset=json.loads(new_assets[0].json())
+    old_asset=json.loads(new_assets[0].json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     new_asset=copy.deepcopy(old_asset)
     del new_asset["link"]
     del new_asset["name"]
@@ -47,7 +47,7 @@ def test_remove_multiple_from_orginal(new_assets):
     indirect=True,
 )
 def test_add_to_new(new_assets):
-    old_asset=json.loads(new_assets[0].json())
+    old_asset=json.loads(new_assets[0].json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     new_asset=copy.deepcopy(old_asset)
     new_asset["new"]=1
     res=asset_differ(old_asset,new_asset)
@@ -58,7 +58,7 @@ def test_add_to_new(new_assets):
     indirect=True,
 )
 def test_add_multiple_to_new(new_assets):
-    old_asset=json.loads(new_assets[0].json())
+    old_asset=json.loads(new_assets[0].json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     new_asset=copy.deepcopy(old_asset)
     new_asset["new1"]=1
     new_asset["new2"]=2
@@ -72,7 +72,7 @@ def test_add_multiple_to_new(new_assets):
     indirect=True,
 )
 def test_change_to_new_str(new_assets):
-    old_asset=json.loads(new_assets[0].json())
+    old_asset=json.loads(new_assets[0].json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     new_asset=copy.deepcopy(old_asset)
     new_asset["name"]=old_asset["name"]+"new"
     res=asset_differ(old_asset,new_asset)
@@ -84,7 +84,7 @@ def test_change_to_new_str(new_assets):
     indirect=True,
 )
 def test_change_to_new_int(new_assets):
-    old_asset=json.loads(new_assets[0].json())
+    old_asset=json.loads(new_assets[0].json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     old_asset["num"]=1
     new_asset=copy.deepcopy(old_asset)
     new_asset["num"]=2
@@ -97,7 +97,7 @@ def test_change_to_new_int(new_assets):
     indirect=True,
 )
 def test_change_to_new_boolean(new_assets):
-    old_asset=json.loads(new_assets[0].json())
+    old_asset=json.loads(new_assets[0].json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     old_asset["draft"]=False
     new_asset=copy.deepcopy(old_asset)
     new_asset["draft"]=True
@@ -110,7 +110,7 @@ def test_change_to_new_boolean(new_assets):
     indirect=True,
 )
 def test_change_multiple(new_assets):
-    old_asset=json.loads(new_assets[0].json())
+    old_asset=json.loads(new_assets[0].json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     old_asset["num"]=1
     old_asset["link"]="http://www.price-griffi.com/"
     new_asset=copy.deepcopy(old_asset)
@@ -127,7 +127,7 @@ def test_change_multiple(new_assets):
     indirect=True,
 )
 def test_change_to_new_list_add(new_assets):
-    old_asset=json.loads(new_assets[0].json())
+    old_asset=json.loads(new_assets[0].json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     old_asset["tags"]=[1, 5, 2, 7, 8]
     new_asset=copy.deepcopy(old_asset)
     new_asset["tags"]=[1, 5, 2, 7, 8, 10]
@@ -141,7 +141,7 @@ def test_change_to_new_list_add(new_assets):
     indirect=True,
 )
 def test_change_to_new_list_remove(new_assets):
-    old_asset=json.loads(new_assets[0].json())
+    old_asset=json.loads(new_assets[0].json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     old_asset["tags"]=[1, 5, 2, 7, 8]
     new_asset=copy.deepcopy(old_asset)
     new_asset["tags"]=[1, 5, 2, 7]
@@ -155,7 +155,7 @@ def test_change_to_new_list_remove(new_assets):
     indirect=True,
 )
 def test_change_to_new_list_multiple(new_assets):
-    old_asset=json.loads(new_assets[0].json())
+    old_asset=json.loads(new_assets[0].json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     old_asset["tags"]=[1, 5, 2, 7, 8]
     new_asset=copy.deepcopy(old_asset)
     new_asset["tags"]=[5, 2, 7,19,20]
@@ -170,27 +170,27 @@ def test_change_to_new_list_multiple(new_assets):
     indirect=True,
 )
 def test_metadata_removed(new_assets):
-    old_asset=json.loads(new_assets[0].json())
+    old_asset=json.loads(new_assets[0].json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     old_asset["metadata"]=[
         {
-            "attribute_id": 1,
-            "attribute_name": "TRHAGaOwPNQpKDzXQwqU",
-            "attribute_type": "num_lmt",
-            "attribute_value": "10",
+            "attributeID": 1,
+            "attributeName": "TRHAGaOwPNQpKDzXQwqU",
+            "attributeType": "num_lmt",
+            "attributeValue": "10",
             "validation": {"max": 10, "min": 4},
         },
         {
-            "attribute_id": 2,
-            "attribute_name": "AmVVOSJvnVHhwXtDsjmy",
-            "attribute_type": "datetime-local",
-            "attribute_value": "1971-09-27T19:45",
+            "attributeID": 2,
+            "attributeName": "AmVVOSJvnVHhwXtDsjmy",
+            "attributeType": "datetime-local",
+            "attributeValue": "1971-09-27T19:45",
             "validation": None,
         },
         {
-            "attribute_id": 3,
-            "attribute_name": "kgMhKzcidTxblyVLgWai",
-            "attribute_type": "text",
-            "attribute_value": "text-kgMhKzcidTxblyVLgWai",
+            "attributeID": 3,
+            "attributeName": "kgMhKzcidTxblyVLgWai",
+            "attributeType": "text",
+            "attributeValue": "text-kgMhKzcidTxblyVLgWai",
             "validation": None,
         }
     ]
@@ -206,36 +206,36 @@ def test_metadata_removed(new_assets):
     indirect=True,
 )
 def test_metadata_added(new_assets):
-    old_asset=json.loads(new_assets[0].json())
+    old_asset=json.loads(new_assets[0].json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     old_asset["metadata"]=[
         {
-            "attribute_id": 1,
-            "attribute_name": "TRHAGaOwPNQpKDzXQwqU",
-            "attribute_type": "num_lmt",
-            "attribute_value": "10",
+            "attributeID": 1,
+            "attributeName": "TRHAGaOwPNQpKDzXQwqU",
+            "attributeType": "num_lmt",
+            "attributeValue": "10",
             "validation": {"max": 10, "min": 4},
         },
         {
-            "attribute_id": 2,
-            "attribute_name": "AmVVOSJvnVHhwXtDsjmy",
-            "attribute_type": "datetime-local",
-            "attribute_value": "1971-09-27T19:45",
+            "attributeID": 2,
+            "attributeName": "AmVVOSJvnVHhwXtDsjmy",
+            "attributeType": "datetime-local",
+            "attributeValue": "1971-09-27T19:45",
             "validation": None,
         },
         {
-            "attribute_id": 3,
-            "attribute_name": "kgMhKzcidTxblyVLgWai",
-            "attribute_type": "text",
-            "attribute_value": "text-kgMhKzcidTxblyVLgWai",
+            "attributeID": 3,
+            "attributeName": "kgMhKzcidTxblyVLgWai",
+            "attributeType": "text",
+            "attributeValue": "text-kgMhKzcidTxblyVLgWai",
             "validation": None,
         }
     ]
     new_asset=copy.deepcopy(old_asset)
     new_asset["metadata"].append({
-            "attribute_id": 4,
-            "attribute_name": "kgMhKzcidTxblyVLgWai",
-            "attribute_type": "text",
-            "attribute_value": "text-kgMhKzcidTxblyVLgWai",
+            "attributeID": 4,
+            "attributeName": "kgMhKzcidTxblyVLgWai",
+            "attributeType": "text",
+            "attributeValue": "text-kgMhKzcidTxblyVLgWai",
             "validation": None,
         })
     res=asset_differ(old_asset,new_asset)
@@ -249,51 +249,51 @@ def test_metadata_added(new_assets):
     indirect=True,
 )
 def test_metadata_changed(new_assets):
-    old_asset=json.loads(new_assets[0].json())
+    old_asset=json.loads(new_assets[0].json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     old_asset["metadata"]=[
         {
-            "attribute_id": 1,
-            "attribute_name": "TRHAGaOwPNQpKDzXQwqU",
-            "attribute_type": "num_lmt",
-            "attribute_value": "10",
+            "attributeID": 1,
+            "attributeName": "TRHAGaOwPNQpKDzXQwqU",
+            "attributeType": "num_lmt",
+            "attributeValue": "10",
             "validation": {"max": 10, "min": 4},
         },
         {
-            "attribute_id": 2,
-            "attribute_name": "AmVVOSJvnVHhwXtDsjmy",
-            "attribute_type": "datetime-local",
-            "attribute_value": "1971-09-27T19:45",
+            "attributeID": 2,
+            "attributeName": "AmVVOSJvnVHhwXtDsjmy",
+            "attributeType": "datetime-local",
+            "attributeValue": "1971-09-27T19:45",
             "validation": None,
         },
         {
-            "attribute_id": 3,
-            "attribute_name": "kgMhKzcidTxblyVLgWai",
-            "attribute_type": "text",
-            "attribute_value": "text-kgMhKzcidTxblyVLgWai",
+            "attributeID": 3,
+            "attributeName": "kgMhKzcidTxblyVLgWai",
+            "attributeType": "text",
+            "attributeValue": "text-kgMhKzcidTxblyVLgWai",
             "validation": None,
         }
     ]
     new_asset=copy.deepcopy(old_asset)
     new_asset["metadata"]=[
         {
-            "attribute_id": 1,
-            "attribute_name": "TRHAGaOwPNQpKDzXQwqU",
-            "attribute_type": "num_lmt",
-            "attribute_value": "9",
+            "attributeID": 1,
+            "attributeName": "TRHAGaOwPNQpKDzXQwqU",
+            "attributeType": "num_lmt",
+            "attributeValue": "9",
             "validation": {"max": 10, "min": 4},
         },
         {
-            "attribute_id": 2,
-            "attribute_name": "AmVVOSJvnVHhwXtDsjmy",
-            "attribute_type": "datetime-local",
-            "attribute_value": "1971-09-27T19:45",
+            "attributeID": 2,
+            "attributeName": "AmVVOSJvnVHhwXtDsjmy",
+            "attributeType": "datetime-local",
+            "attributeValue": "1971-09-27T19:45",
             "validation": None,
         },
         {
-            "attribute_id": 3,
-            "attribute_name": "kgMhKzcidTxblyVLgWai",
-            "attribute_type": "text",
-            "attribute_value": "text-kgMhKzcidTxblyVLgWai",
+            "attributeID": 3,
+            "attributeName": "kgMhKzcidTxblyVLgWai",
+            "attributeType": "text",
+            "attributeValue": "text-kgMhKzcidTxblyVLgWai",
             "validation": None,
         }
     ]
