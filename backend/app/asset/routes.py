@@ -569,3 +569,36 @@ def related_type(id,user_id, access_level):
                     assets_json.append(aj)
             res = jsonify({"data": assets_json})
     return res
+
+
+@bp.route("/related/from/<id>", methods=["GET"])
+@protected(role=UserRole.VIEWER)
+def related_from(id,user_id, access_level):
+    #get all the assets that belong to the same project as an asset
+    db = get_db()
+    assets_json = []
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+            cur.execute(
+"""SELECT assets.* FROM assets_in_assets
+    INNER JOIN assets on assets.asset_id=assets_in_assets.to_asset_id WHERE from_asset_id=%(id)s ORDER BY assets_in_assets.to_asset_id;""",
+                {"id": id},
+            )
+            selected_assets = list(cur.fetchall())
+ 
+            assets = list(cur.fetchall())
+            selected_assets.extend(assets)
+        # gets the type name for each assset
+        with db_conn.cursor(row_factory=dict_row) as cur:
+            for a in selected_assets:
+                if a.classification <= access_level:
+                    cur.execute(
+                        """SELECT type_name FROM types WHERE type_id=%(id)s;""",
+                        {"id": a.type},
+                    )
+                    type = cur.fetchone()["type_name"]
+                    aj = json.loads(a.json(by_alias=True))
+                    aj["type"] = type
+                    assets_json.append(aj)
+            res = jsonify({"data": assets_json})
+    return res
