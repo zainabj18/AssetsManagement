@@ -17,7 +17,7 @@ import {
 
 
 
-function CustomTable({setSelectedRows,rows,cols}) {
+function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 	const [selected,setSelected] = useState([]); 
 	const [query,setQuery]= useState(''); 
 	const [filters,setFilter]= useState({}); 
@@ -42,7 +42,6 @@ function CustomTable({setSelectedRows,rows,cols}) {
 	  }, [filters,query, data]);
 
 	const handleCheck=(rowID,val)=>{
-		console.log(val,'Welcome');
 		if (val){
 			if (!selected.includes(rowID)){
 				setSelectedRows([...selected,rowID]);
@@ -56,7 +55,6 @@ function CustomTable({setSelectedRows,rows,cols}) {
 	};
 	const renderCell=(key,rowID,value)=>{
 		if (columns[key].hasOwnProperty('Cell')){
-			console.log(value);
 			return columns[key].Cell(rowID,value);
 		}else{
 			return <Box>{value}</Box>;
@@ -86,6 +84,7 @@ function CustomTable({setSelectedRows,rows,cols}) {
 	};
 
 	useEffect(() => {
+		console.log('new table');
 		let preSelected=[];
 		let projects=[];
 		for (let i = 0; i < data.length; i++) {
@@ -94,6 +93,11 @@ function CustomTable({setSelectedRows,rows,cols}) {
 				preSelected.push(i);
 				projects.push(obj);
 			}
+		}
+		for (let i = 0; i < preSelIDs.length; i++) {
+			let obj=data[i];
+			preSelected.push(i);
+			projects.push(obj);
 		}
 		setSelected(preSelected);
 		setSelectedRows(projects);

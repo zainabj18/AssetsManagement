@@ -17,6 +17,9 @@ const Header = () => {
 				<CustomNavLink to="projects/">
 				Projects
 				</CustomNavLink>
+				<CustomNavLink to="type/attributes/">
+				Attributes
+				</CustomNavLink>
 				<CustomNavLink to="tags/">
 				Tags
 				</CustomNavLink>

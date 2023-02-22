@@ -40,7 +40,7 @@ const TagViewer = () => {
     
 	return ( <VStack bg={'whiteAlpha.500'} h={'100%'} w={'100%'} p={2}>
 		<Heading>{tag}</Heading>
-		<AssetTable assets={assetsin} setSelectedAssets={setSelectedAssets}/>
+		<AssetTable assets={assetsin} setSelectedAssets={setSelectedAssets} preSelIDs={[]}/>
 		<ButtonGroup>
 			<Button onClick={handleRemove}>Remove from tag</Button>
 			<OperationTo actionFunc={handleCopy} actionName="Copy" />
