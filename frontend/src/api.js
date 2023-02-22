@@ -38,6 +38,10 @@ export const fetchProjects= async ()=> {
 	return await axios.get('/project/').then(res=>res.data);
 };
 
+export const fetchAllProjects = async () => {
+	return await axios.get('/project/allProjects').then(res => res.data);
+};
+
 export const fetchAllTypes = async () => {
 	return await axios.get('/type/allTypes').then(res => res.data);
 };
@@ -75,6 +79,7 @@ export const deleteAsset = async (id) => {
 };
 
 export const deleteProject = async (id) => {
+
 	console.log(id);
 	return await axios.post(`/project/delete/${id}`).then(res => res.data);
 };

@@ -72,6 +72,7 @@ def create():
     return jsonify({"msg": "The user have created a new project"}), 200
 
 
+
 #Remove Projects from database
 @bp.route("/delete/<id>", methods=["POST"])
 def delete_project(id):
@@ -104,5 +105,4 @@ def delete_project(id):
             conn.execute(query, {"id": id})
 
     return {"msg": "", "wasAllowed": canDo}, 200
-
 
