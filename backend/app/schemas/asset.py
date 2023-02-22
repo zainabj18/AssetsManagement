@@ -106,6 +106,7 @@ class AssetOut(AssetBaseInDB):
     type: str
     projects: List[Any]
     tags: List[Any]
+    assets: Optional[Any]
     metadata: List[AttributeInDB]
 
 class TagBulkRequest(BaseModel):

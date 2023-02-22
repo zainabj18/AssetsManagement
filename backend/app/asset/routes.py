@@ -76,13 +76,19 @@ INNER JOIN tags on tags.id=assets_in_tags.tag_id WHERE asset_id=%(id)s;""",
             )
             tags = list(cur.fetchall())
             cur.execute(
+                """SELECT assets.* FROM assets_in_assets
+    INNER JOIN assets on assets.asset_id=assets_in_assets.to_asset_id WHERE from_asset_id=%(id)s;""",
+                {"id": id},
+            )
+            assets = list(cur.fetchall())
+            cur.execute(
                 """SELECT type_name FROM types WHERE type_id=%(id)s;""",
                 {"id": asset.type},
             )
             type = cur.fetchone()["type_name"]
 
         asset = AssetOut(
-            **asset.dict(), metadata=metadata, projects=projects, tags=tags
+            **asset.dict(), metadata=metadata, projects=projects, tags=tags,assets=assets
         )
         asset.type = type
     return asset
@@ -298,8 +304,12 @@ def update(id, user_id, access_level):
     orgignal_asset=json.loads(orgignal_asset.json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     orgignal_asset["tags"]=[tag["id"]for tag in orgignal_asset["tags"]]
     orgignal_asset["projects"]=[project["id"]for project in orgignal_asset["projects"]]
+    print(orgignal_asset["assets"])
+    orgignal_asset["assets"]=[a["asset_id"]for a in orgignal_asset["assets"]]
     projects_removed=list(set(orgignal_asset["projects"])-set(asset["projects"]))
     projects_added=list(set(asset["projects"])-set(orgignal_asset["projects"]))
+    assets_removed=list(set(orgignal_asset["assets"])-set(asset["assets"]))
+    assets_added=list(set(asset["assets"])-set(orgignal_asset["assets"]))
     tags_removed=list(set(orgignal_asset["tags"])-set(asset["tags"]))
     tags_added=list(set(asset["tags"])-set(orgignal_asset["tags"]))
     diff_dict=asset_differ(orgignal_asset,asset)
@@ -323,6 +333,16 @@ def update(id, user_id, access_level):
             cur.execute("""
             DELETE FROM assets_in_projects WHERE project_id = ANY(%(project_ids)s) AND asset_id=%(asset_id)s;
             """,{"project_ids":projects_removed,"asset_id":asset["asset_id"]})
+            cur.execute("""
+            DELETE FROM assets_in_assets WHERE to_asset_id = ANY(%(asset_ids)s) AND from_asset_id=%(asset_id)s;
+            """,{"asset_ids":assets_removed,"asset_id":asset["asset_id"]})
+            for a in assets_added:
+                cur.execute(
+                    """
+                INSERT INTO assets_in_assets (from_asset_id,to_asset_id)
+        VALUES (%(from_asset_id)s,%(to_asset_id)s);""",
+                    {"from_asset_id": asset["asset_id"], "to_asset_id": a},
+                )
             for tag in tags_added:
                 cur.execute(
                     """
