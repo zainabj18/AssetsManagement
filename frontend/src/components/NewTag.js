@@ -1,7 +1,7 @@
 import {Button, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, Input, useDisclosure} from '@chakra-ui/react';
 import { useState } from 'react';
 import { createTag } from '../api';
-const NewTag = () => {
+const NewTag = ({trigger}) => {
 	const [name, setName] = useState('');
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -9,6 +9,7 @@ const NewTag = () => {
 		if (name){
 			createTag(name);
 			onClose();
+			trigger.toggle();
 		}
 	};
 

@@ -141,7 +141,7 @@ CREATE TABLE asset_logs
 	FOREIGN KEY (type_id_from) REFERENCES types(type_id),
 	FOREIGN KEY (type_id_to) REFERENCES types(type_id),
 	PRIMARY KEY (type_id_from, type_id_to)
- )
+ );
 
 
 -- CREATE TABLE assets
