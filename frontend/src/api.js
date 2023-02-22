@@ -83,6 +83,9 @@ export const fetchRelatedClassification= async (id)=> {
 	return await axios.get(`/asset/related/classification/${id}`).then(res=>res.data);
 };
 
+export const fetchRelatedType= async (id)=> {
+	return await axios.get(`/asset/related/type/${id}`).then(res=>res.data);
+};
 export const deleteAsset = async (id) => {
 	return await axios.delete(`/asset/${id}`).then(res => res.data);
 };

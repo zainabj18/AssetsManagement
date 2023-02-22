@@ -548,7 +548,7 @@ def related_type(id,user_id, access_level):
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
             cur.execute(
                 """
-                SELECT * FROM assets WHERE type=(SELECT classification FROM type WHERE asset_id=%(id)s) AND asset_id!=%(id)s ORDER BY asset_id;""",
+                SELECT * FROM assets WHERE type=(SELECT type FROM assets WHERE asset_id=%(id)s) AND asset_id!=%(id)s ORDER BY asset_id;""",
                 {"id": id},
             )
             selected_assets = list(cur.fetchall())
