@@ -38,15 +38,15 @@ const User = () => {
 					<HStack spacing={'25px'} key={index}>
 						<FormControl>
 							<FormLabel>First Name</FormLabel>
-							<Input type='text' placeholder="Name" />
+							<Input type='text' placeholder="Name" defaultValue={attr.name} onChange={event => handleFormChange(index, event)} name="name"/>
 						</FormControl>
 						<FormControl>
 							<FormLabel>Last Name</FormLabel>
-							<Input type='text' placeholder="Surname" />
+							<Input type='text' placeholder="Surname" defaultValue={attr.surname} onChange={event => handleFormChange(index, event)} name="surname"/>
 						</FormControl>
 						<FormControl>
 							<FormLabel>Username</FormLabel>
-							<Input type='text' placeholder="Username" />
+							<Input type='text' placeholder="Username" defaultValue={attr.username} onChange={event => handleFormChange(index, event)} name="username"/>
 						</FormControl>
 					</HStack>
 				);})}
