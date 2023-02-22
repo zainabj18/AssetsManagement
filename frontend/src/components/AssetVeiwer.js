@@ -33,13 +33,14 @@ import { useEffect, useState } from 'react';
 import { redirect, useNavigate, useParams } from 'react-router-dom';
 import FormField from './FormField';
 import axios from 'axios';
-import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset, updateAsset } from '../api';
+import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset, updateAsset, fetchAssetLinks, fetchAssetSummary } from '../api';
 import SearchSelect from './SearchSelect';
 import ProjectSelect from './ProjectSelect';
 import ListFormField from './ListFormField';
 import SelectFormField from './SelectFormField';
 import NumFormField from './NumFormField';
 import useAuth from '../hooks/useAuth';
+import AssetSelect from './AssetSelect';
 const AssetViewer = () => {
 	const { id } = useParams();
 	const {user} = useAuth();
@@ -49,6 +50,8 @@ const AssetViewer = () => {
 	const [tag, setTag] = useState('');
 	const [classifications,setClassifications] = useState([]);
 	const [projects,setProjects] = useState([]);
+	const [assets,setAssets] = useState([]);
+	const [assetsList,setAssetsList]=useState([]);
 	const [projectList,setProjectList]=useState([]);
 	const [errors,setErrors]=useState([]);
 	const [errorCount,setErrorCount]=useState(0);
@@ -137,7 +140,7 @@ const AssetViewer = () => {
 		setErrors([]);
 		let errs=[];
 		for (const [key, value] of Object.entries(assetSate)) {
-			if(value.length===0 && key!=='projects'){
+			if(value.length===0 && key!=='projects' && key!=='assets'){
 				errs.push(key+' is required');
 			}
 			
@@ -150,10 +153,12 @@ const AssetViewer = () => {
 			
 			let project_ids=projects.map(p=>p.id);
 			let tag_ids=assetSate.tags.map(t=>t.id);
+			let asset_ids=assets.map(a=>assetsList[a].asset_id);
 			let assetObj={
 				asset_id:id,
 				...assetSate,
 				projects: project_ids,
+				assets:asset_ids,
 				tags:tag_ids
 			};
 			console.log(assetObj);
@@ -200,6 +205,21 @@ const AssetViewer = () => {
 					setProjectList(res.data);
 				}
 			);
+			fetchAssetLinks(id).then(
+				(res)=>{
+					console.log(res.data,'I am assets');
+					setAssetsList(res.data);
+					let preSelected=[];
+					for (let i = 0; i < res.data.length; i++) {
+						let obj=res.data[i];
+						if (obj.hasOwnProperty('isSelected')&obj.isSelected){
+							preSelected.push(i);
+						}
+					}
+					console.log(preSelected,'pre selected');
+					setAssets(preSelected);
+				}
+			);
 		} else {
 			if (!user||user.userRole==='VIEWER'){
 				navigate('/assets');
@@ -209,6 +229,15 @@ const AssetViewer = () => {
 					setProjectList(res.data);
 				}
 			);
+
+			fetchAssetSummary().then(
+				(res)=>{
+			
+					setAssetsList(res.data);
+
+				}
+
+			);
 			setAssetState({
 				name: '',
 				link: '',
@@ -216,6 +245,7 @@ const AssetViewer = () => {
 				description: '',
 				tags: [],
 				projects: [],
+				assets: [],
 				classification: '',
 				metadata: [],
 			});
@@ -289,6 +319,21 @@ const AssetViewer = () => {
 							{!isDisabled && <ProjectSelect setSelectedProjects={setProjects}  projects={projectList} />}
 						</Wrap>
 					</FormControl>
+					<FormControl>
+						<FormLabel>Related Assets</FormLabel>
+						<Wrap spacing={4}>
+							{assets.map((value, key) => (
+								<WrapItem key={key}>
+									<Tag key={key} variant='brand'>
+										<TagLabel>{assetsList[value].name}</TagLabel>
+									</Tag>
+								</WrapItem>
+							))}
+							{!isDisabled &&   <AssetSelect setSelected={setAssets} assetsin={assetsList} />}
+						</Wrap>
+					</FormControl>
+
+					
 					<FormControl  >
 						<FormLabel>classification</FormLabel>
 						<Select
