@@ -70,27 +70,111 @@ def test_add_attribute_to_db_with_json(client, db_conn):
 
 # Test to see if a type can be added to the database
 def test_add_type_to_db(client, db_conn):
+    test_metaData = {
+        "attributeName": "programming Language(s)",
+        "attributeType": "text"
+    }
     test_type = {
         "typeName": "framework",
         "metadata": [
             {
-                "attributeName": "programming Language(s)",
-                "attributeType": "text",
+                "attributeID": 1,
+                "attributeName": test_metaData["attributeName"],
+                "attributeType": test_metaData["attributeType"]
             }
         ],
+        "dependsOn": []
     }
-    client.post("/api/v1/type/adder/new", json=test_type["metadata"][0])
+    client.post("/api/v1/type/adder/new", json=test_metaData)
     res = client.post("/api/v1/type/new", json=test_type)
     assert res.status_code == 200
 
     with db_conn.cursor(row_factory=dict_row) as cur:
         cur.execute(
-            """SELECT * FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t on at.type_id = t.type_id;"""
+            """SELECT * FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t ON at.type_id = t.type_id;"""
         )
         type = cur.fetchone()
         assert type["type_name"] == test_type["typeName"]
         assert type["attribute_name"] == test_type["metadata"][0]["attributeName"]
         assert type["attribute_data_type"] == test_type["metadata"][0]["attributeType"]
+
+
+# Test to see if dependecies can be added
+def test_add_type_with_dependecnices(client, db_conn):
+    test_metaData = {
+        "attributeName": "programming Language(s)",
+        "attributeType": "text"
+    }
+    test_type_a = {
+        "typeName": "framework",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": test_metaData["attributeName"],
+                "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": []
+    }
+    test_type_b = {
+        "typeName": "Web app",
+        "metadata": [
+            {
+                "attributeID": 1,
+                    "attributeName": test_metaData["attributeName"],
+                    "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": [1]
+    }
+    test_type_c = {
+        "typeName": "internet",
+        "metadata": [
+            {
+                "attributeID": 1,
+                    "attributeName": test_metaData["attributeName"],
+                    "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": [2, 1]
+    }
+    client.post("/api/v1/type/adder/new", json=test_metaData)
+    client.post("/api/v1/type/new", json=test_type_a)
+    client.post("/api/v1/type/new", json=test_type_b)
+    client.post("/api/v1/type/new", json=test_type_c)
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT * FROM type_link"""
+        )
+        res = cur.fetchall()
+        assert res[0]["type_id_from"] == 2
+        assert res[0]["type_id_to"] == 1
+        assert res[1]["type_id_from"] == 3
+        assert res[1]["type_id_to"] == 2
+        assert res[2]["type_id_from"] == 3
+        assert res[2]["type_id_to"] == 1
+
+
+# Test to make sure that no type can depend on itself
+def test_no_self_dependencies(client):
+    test_metaData = {
+        "attributeName": "programming Language(s)",
+        "attributeType": "text"
+    }
+    test_type = {
+        "typeName": "framework",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": test_metaData["attributeName"],
+                "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": [1]
+    }
+    client.post("/api/v1/type/adder/new", json=test_metaData)
+    res = client.post("/api/v1/type/new", json=test_type)
+    assert res.status_code == 422
 
 
 # Test to see if a type can be returned from the database
@@ -106,13 +190,15 @@ def test_get_type(client):
                 "validation": None,
             }
         ],
+        "dependsOn": []
     }
     client.post("/api/v1/type/adder/new", json=test_type["metadata"][0])
     client.post("/api/v1/type/new", json=test_type)
     res = client.get("/api/v1/type/1")
     assert res.status_code == 200
     type = res.json
-    assert type == test_type
+    assert type["typeName"] == test_type["typeName"]
+    assert type["metadata"] == test_type["metadata"]
 
 
 # Test to see if a type can be returned from the database
@@ -128,13 +214,15 @@ def test_get_type_with_json(client):
                 "validation": {"min": 4, "max": 10},
             }
         ],
+        "dependsOn": []
     }
     client.post("/api/v1/type/adder/new", json=test_type["metadata"][0])
     client.post("/api/v1/type/new", json=test_type)
     res = client.get("/api/v1/type/1")
     assert res.status_code == 200
     type = res.json
-    assert type == test_type
+    assert type["typeName"] == test_type["typeName"]
+    assert type["metadata"] == test_type["metadata"]
 
 
 # Test to see if a list of all attributes can be returned from the database
@@ -182,6 +270,7 @@ def test_get_allTypes(client):
                     "validation": None,
                 }
             ],
+            "dependsOn": []
         },
         {
             "typeId": 2,
@@ -200,6 +289,7 @@ def test_get_allTypes(client):
                     "validation": None,
                 },
             ],
+            "dependsOn": []
         },
     ]
     client.post("/api/v1/type/adder/new", json=test_types[0]["metadata"][0])
@@ -210,4 +300,99 @@ def test_get_allTypes(client):
     res = client.get("/api/v1/type/allTypes")
     assert res.status_code == 200
     types = res.json
-    assert types == test_types
+    for i in range(0, len(types)):
+        type = types[i]
+        test_type = test_types[i]
+        assert type["typeName"] == test_type["typeName"]
+        assert type["metadata"] == test_type["metadata"]
+
+
+# Test that a type can be deleted
+def test_delete_type(client, db_conn):
+    test_type = {
+        "typeId": 1,
+        "typeName": "library",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": "age",
+                "attributeType": "number",
+                "validation": {"min": 4, "max": 10},
+            }
+        ],
+        "dependsOn": []
+    }
+    client.post("/api/v1/type/adder/new", json=test_type["metadata"][0])
+    client.post("/api/v1/type/new", json=test_type)
+    res = client.post("/api/v1/type/delete/1")
+    assert res.status_code == 200
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT * FROM types WHERE type_id = 1"""
+        )
+        assert cur.fetchone() == None
+
+
+# Test that a complex type can be deleted and that depended ones wont
+def test_delete_complex_type(client):
+    test_metaData = {
+        "attributeName": "programming Language(s)",
+        "attributeType": "text"
+    }
+    test_type_a = {
+        "typeName": "framework",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": test_metaData["attributeName"],
+                "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": []
+    }
+    test_type_b = {
+        "typeName": "Web app",
+        "metadata": [
+            {
+                "attributeID": 1,
+                    "attributeName": test_metaData["attributeName"],
+                    "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": [1]
+    }
+    client.post("/api/v1/type/adder/new", json=test_metaData)
+    client.post("/api/v1/type/new", json=test_type_a)
+    client.post("/api/v1/type/new", json=test_type_b)
+    res = client.post("/api/v1/type/delete/1")
+    assert res.data == b'{\n  "msg": "",\n  "wasAllowed": false\n}\n'
+    res = client.post("/api/v1/type/delete/2")
+    assert res.data == b'{\n  "msg": "",\n  "wasAllowed": true\n}\n'
+    res = client.post("/api/v1/type/delete/1")
+    assert res.data == b'{\n  "msg": "",\n  "wasAllowed": true\n}\n'
+
+
+# Test that an attribute can be deleted
+def test_delete_attribute(client):
+    test_metaData = {
+        "attributeName": "programming Language(s)",
+        "attributeType": "text"
+    }
+    test_type = {
+        "typeName": "framework",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": test_metaData["attributeName"],
+                "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": []
+    }
+    client.post("/api/v1/type/adder/new", json=test_metaData)
+    client.post("/api/v1/type/new", json=test_type)
+    res = client.post("/api/v1/type/attribute/delete/1")
+    assert res.data == b'{\n  "msg": "",\n  "wasAllowed": false\n}\n'
+    client.post("/api/v1/type/delete/1")
+    res = client.post("/api/v1/type/attribute/delete/1")
+    assert res.data == b'{\n  "msg": "",\n  "wasAllowed": true\n}\n'

@@ -18,6 +18,7 @@ import AdminManager from './routes/AdminManager';
 import RelatedAssetViewer from './components/RelatedAssetViewer';
 import Tags from './routes/Tags';
 import TagViewer from './routes/TagViewer';
+import AttributeViewer from './routes/AttributeViewer';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -42,6 +43,7 @@ function App() {
 					<Route path="type/" element={<SubLayout name="Types"/>}>
 						<Route index element={<TypeViewer />} />
 						<Route path="adder" element={<TypeAdder />} />
+						<Route path="attributes" element={<AttributeViewer />} />
 					</Route>
 					<Route path="accounts" element={<AdminManager />} />
 					<Route path="user" element={<User />} />
