@@ -9,14 +9,14 @@ const User = () => {
 		console.log(user);
 	});
 
-	const [textInput, setTextInput] = useState([{name: '', surname: '', username: '' }]);
+	const [inputFields, setInputFields] = useState([{name: '', surname: '', username: '' }]);
 	const [deleteobject, setDeleteObject] = useState([{delete: ''}]);
 	const [saveobject] = useState([{save: ''}]);
 
 	const handleFormChange = (index, event) => {
-		let data = [...textInput];
+		let data = [...inputFields];
 		data[index][event.target.name] = event.target.value;
-		setTextInput(data);
+		setInputFields(data);
 	};
 
 	const deleteObject = (index) => {
@@ -34,7 +34,7 @@ const User = () => {
 		<Center height={'100vh'}>
 			<Box bg={'white'} color={'black'} p={10} borderRadius={10} w={'1000px'} mx={'auto'} mb={'100px'}>
 				<Heading mb={'25px'}>Your Profile</Heading>
-				{textInput.map((attr, index) => {return (
+				{inputFields.map((attr, index) => {return (
 					<HStack spacing={'25px'} key={index}>
 						<FormControl>
 							<FormLabel>First Name</FormLabel>
@@ -70,14 +70,16 @@ const User = () => {
 					</FormControl>
 				</HStack>
 
-				<Stack direction='row' align='center' mt={8}>
-					<Button colorScheme='blue' variant='solid' size='md'>
-              Save
-					</Button>
-					<Button colorScheme='red' variant='solid' size='md'>
-              Delete
-					</Button>
-				</Stack>
+				{inputFields.map((index) => {return (
+					<Stack direction='row' align='center' mt={8}>
+						<Button colorScheme='blue' variant='solid' size='md' onClick={saveObject}>
+				Save
+						</Button>
+						<Button colorScheme='red' variant='solid' size='md'>
+				Delete
+						</Button>
+					</Stack>
+				);})}
 			</Box>
 		</Center>
 	);
