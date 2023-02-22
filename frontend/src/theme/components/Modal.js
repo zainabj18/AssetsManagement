@@ -6,11 +6,22 @@ const { definePartsStyle, defineMultiStyleConfig } =
 
 const baseStyle = definePartsStyle({
 	dialog: {
-		bg: 'white',
-		color: 'black'
+		bg: 'gray.500',
+		color: 'blue.900'
 	},
 });
 
+
+const popup = definePartsStyle({
+	dialog: {
+	  borderRadius: 'md',
+	  bg: 'gray.300',
+	  color: 'blue.900',
+	},
+});
+  
+
 export const modalTheme = defineMultiStyleConfig({
 	baseStyle,
+	variants: { popup }
 });
