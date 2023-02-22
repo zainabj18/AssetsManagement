@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { fetchAssetClassifications } from '../api';
 import CustomTable from './CustomTable';
 
-const AssetTable = ({assets,setSelectedAssets}) => {
+const AssetTable = ({assets,setSelectedAssets,preSelIDs}) => {
 	const [colours,setColors]=useState({});
 	const columns =useMemo(()=>
 	{ return {
@@ -43,9 +43,9 @@ const AssetTable = ({assets,setSelectedAssets}) => {
 			console.log(customColours);
 			setColors(customColours);
 		}).catch((err) => {console.log(err);});},[]);
-	return (
+	return (colours && (
 
-		<CustomTable rows={assets} cols={columns}  setSelectedRows={setSelectedAssets}/>  );
+		<CustomTable rows={assets} cols={columns}  setSelectedRows={setSelectedAssets} preSelIDs={preSelIDs}/>  ));
 };
  
 export default AssetTable;
