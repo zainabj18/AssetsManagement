@@ -24,6 +24,7 @@ import RelatedTags from './routes/assets/RelatedTags';
 import RelatedProjects from './routes/assets/RelatedProjects';
 import RelatedClassification from './routes/assets/RelatedClassification';
 import RelatedType from './routes/assets/RelatedType';
+import RelatedFrom from './routes/assets/RelatedFrom';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -42,6 +43,7 @@ function App() {
 							<Route path="projects" element={<RelatedProjects />} />	
 							<Route path="classification" element={<RelatedClassification />} />	
 							<Route path="type" element={<RelatedType />} />	
+							<Route path="from" element={<RelatedFrom />} />	
 						</Route>
 						<Route path="related" element={<RelatedAssetViewer canEdit={true} isNew={false}/>} />
 					</Route>
