@@ -1,4 +1,4 @@
-import { Box, List, ListIcon, ListItem, UnorderedList } from '@chakra-ui/react';
+import { Box, Container, List, ListIcon, ListItem, UnorderedList } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchAssetsLogs } from '../../api';
@@ -20,7 +20,7 @@ const AssetLogs = () => {
 			setLogs(data.data);});
 	}, [])
 	;
-	return (<Accordion allowMultiple>
+	return (<Container><Accordion allowMultiple>
 		{logs && logs.map((log,index)=>{return <AccordionItem key={index}>
 			<AccordionButton>
 				<Box as="span" flex='1' textAlign='left'>
@@ -61,7 +61,7 @@ const AssetLogs = () => {
 				<Box><Text as='i'>Prefromed by {log.username}</Text></Box>
 			</AccordionPanel>
 		</AccordionItem>;})}
-	</Accordion>);
+	</Accordion></Container>);
 };
  
 export default AssetLogs;
