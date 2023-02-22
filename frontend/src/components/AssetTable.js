@@ -4,31 +4,35 @@ import { Link as NavLink } from 'react-router-dom';
 import { fetchAssetClassifications } from '../api';
 import CustomTable from './CustomTable';
 import {Link } from '@chakra-ui/react';
-const AssetTable = ({assets,setSelectedAssets,preSelIDs}) => {
+const AssetTable = ({assets,setSelectedAssets,preSelIDs,cols}) => {
 	const [colours,setColors]=useState({});
 	const columns =useMemo(()=>
-	{ return {
-		
-		
-		'asset_id':{
-			header: 'Asset ID',
-			canFilter:true,
-			Cell:(rowID,value)=><Link to={`/assets/view/${value}`} as={NavLink}>{value}</Link>
-		},
-		'name':{
-			header: 'Asset Name',
-			canFilter:true
-		},
-		'type':{
-			header: 'Asset Type',
-			canFilter:true
-		},
-		'classification':{
-			header: 'Asset Classification',
-			canFilter:true,
-			Cell:(rowID,value)=>{return <Badge bg={colours[value]} color={'white'}>{value}</Badge>;}
-		},
-	};
+	{ 
+		console.log(cols);
+		let orginal={
+			'asset_id':{
+				header: 'Asset ID',
+				canFilter:true,
+				Cell:(rowID,value)=><Link to={`/assets/view/${value}`} as={NavLink}>{value}</Link>
+			},
+			'name':{
+				header: 'Asset Name',
+				canFilter:true
+			},
+			'type':{
+				header: 'Asset Type',
+				canFilter:true
+			},
+			'classification':{
+				header: 'Asset Classification',
+				canFilter:true,
+				Cell:(rowID,value)=>{return <Badge bg={colours[value]} color={'white'}>{value}</Badge>;}
+			},
+		};
+		if (cols){
+			orginal={...orginal,...cols};
+		}
+		return orginal;
 	}
 	,[colours]);
 	useEffect(() => {
@@ -44,6 +48,8 @@ const AssetTable = ({assets,setSelectedAssets,preSelIDs}) => {
 			}
 			console.log(customColours);
 			setColors(customColours);
+			
+			
 		}).catch((err) => {console.log(err);});},[]);
 	return (colours && (
 
