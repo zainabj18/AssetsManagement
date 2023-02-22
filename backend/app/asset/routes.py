@@ -17,6 +17,7 @@ def asset_differ(orginal,new):
                 old_values_dict={}
                 new_values_dict={}
                 for at in orginal["metadata"]:
+                    print(at)
                     old_values_dict[at["attributeID"]]=at
                 for at in new["metadata"]:
                     new_values_dict[at["attributeID"]]=at
@@ -28,6 +29,8 @@ def asset_differ(orginal,new):
                 for attribute in metadata_added:
                     name=new_values_dict[attribute]["attributeName"]
                     added.append(f"metadata-{attribute}-{name}")
+                print(old_values_dict)
+                print(new_values_dict)
                 for key in old_values_dict:
                     if key in new_values_dict:
                         if old_values_dict[key]["attributeValue"]!=new_values_dict[key]["attributeValue"]:

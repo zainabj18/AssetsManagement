@@ -48,6 +48,7 @@ class AttributeFactory(ModelFactory):
 class AssetFactory(ModelFactory):
     __model__ = Asset
     link=f.url()
+    assets=[]
     tags = lambda: sample(range(1, 10), k=randint(1, 5))
     projects = lambda: sample(range(1, 10), k=randint(1, 5))
     metadata = list(AttributeFactory.batch(size=5))

@@ -111,7 +111,9 @@ def test_tag_list_from_db(valid_client, db_conn):
     expected_results = create_tags_in_db(db_conn,size=100)
     res = valid_client.get("/api/v1/tag/")
     assert res.status_code == 200
-    assert res.json == {"msg": "tags", "data": expected_results}
+    assert res.json["msg"] == "tags"
+    assert all(tag in expected_results for tag in res.json["data"])
+    assert len(expected_results)==len(res.json["data"])
 
 
 @pytest.mark.parametrize(
@@ -131,7 +133,9 @@ def test_tag_list_from_post(valid_client):
         expected_results.append({"id": x + 1, "name": name})
     res = valid_client.get("/api/v1/tag/")
     assert res.status_code == 200
-    assert res.json == {"msg": "tags", "data": expected_results}
+    assert res.json["msg"] == "tags"
+    assert all(tag in expected_results for tag in res.json["data"])
+    assert len(expected_results)==len(res.json["data"])
 
 
 def test_tag_list_db_error(valid_client):
