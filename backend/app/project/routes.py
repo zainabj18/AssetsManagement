@@ -27,6 +27,7 @@ def list():
 
 @bp.route("/new", methods=["POST"])
 def create():
+    db = get_db()
     try:
         try:
             project = Project(**request.json)
@@ -53,30 +54,36 @@ def create():
             400,
         )
     print(project)
-    db = get_db()
-    db_project = project.dict()
-    with db.connection() as conn:
-        conn.execute(
-            """INSERT INTO projects (name,description)VALUES (%(name)s,%(description)s);""",
-            db_project,
-        )
 
-    return jsonify({"msg": "The user have created a new project"}), 200
-
-@bp.route("/new", methods=["GET"])
-def get_link():
+#Remove Projects from database
+@bp.route("/delete/<id>", methods=["POST"])
+def delete_project(id):
     database = get_db()
+    canDo = True
+
+    query = """SELECT COUNT(*) FROM people_in_projects WHERE project_id = (%(id)s);"""
     with database.connection() as conn:
-         conn.execute(
-            """SELECT projects.id, accounts.account_id FROM projects INNER JOIN accounts ON projects.id = accounts.account_id;"""
-        )
-    return jsonify({"msg": "The account id and project id has been linked"}), 200
+        res = conn.execute(query, {"id": id})
+        if (res.fetchone()[0] > 0):
+            canDo = False
 
-@bp.route("/new", methods=["POST"])
-def delete_project(db,id,name,description):
-    with db.connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-            DELETE FROM projects WHERE id = ANY(%(id)s) AND name=%(name)s AND description=%(description)s;
-            """,{"project_id":id})
+    query = """SELECT COUNT(*) FROM assets_in_projects WHERE project_id = (%(id)s);"""
+    with database.connection() as conn:
+        res = conn.execute(query, {"id": id})
+        if (res.fetchone()[0] > 0):
+            canDo = False
 
+    if canDo:
+        query = """DELETE FROM people_in_projects WHERE project_id = (%(id)s);"""
+        with database.connection() as conn:
+            conn.execute(query, {"id": id})
+
+        query = """DELETE FROM assets_in_projects WHERE project_id = (%(id)s);"""
+        with database.connection() as conn:
+            conn.execute(query, {"id": id})
+
+        query = """DELETE FROM projects WHERE id = (%(id)s);"""
+        with database.connection() as conn:
+            conn.execute(query, {"id": id})
+
+    return {"msg": "", "wasAllowed": canDo}, 200
