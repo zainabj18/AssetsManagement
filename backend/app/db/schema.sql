@@ -11,6 +11,8 @@ DROP TABLE IF EXISTS attributes_in_types CASCADE;
 DROP TABLE IF EXISTS assets_in_tags CASCADE;
 DROP TABLE IF EXISTS assets_in_projects CASCADE;
 DROP TABLE IF EXISTS attributes_values CASCADE;
+DROP TABLE IF EXISTS asset_logs CASCADE;
+DROP TABLE IF EXISTS assets_in_assets CASCADE;
 DROP TABLE IF EXISTS type_link CASCADE;
 
 CREATE TYPE account_role AS ENUM ('VIEWER', 'USER', 'ADMIN');
@@ -100,6 +102,15 @@ CREATE TABLE attributes
 	PRIMARY KEY (asset_id,project_id)
 );
 
+ CREATE TABLE assets_in_assets
+(
+	from_asset_id INTEGER,
+	to_asset_id INTEGER,
+	FOREIGN KEY (from_asset_id) REFERENCES assets(asset_id),
+	FOREIGN KEY (to_asset_id) REFERENCES assets(asset_id),
+	PRIMARY KEY (from_asset_id,to_asset_id)
+);
+
 CREATE TABLE attributes_values
  (
  	attribute_id INTEGER,
@@ -108,6 +119,17 @@ CREATE TABLE attributes_values
  	PRIMARY KEY (attribute_id, asset_id),
 	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
  	FOREIGN KEY (attribute_id) REFERENCES attributes(attribute_id)
+ );
+CREATE TABLE asset_logs
+ (
+ 	log_id SERIAL,
+	account_id INTEGER,
+ 	asset_id INTEGER,
+	diff JSON,
+	date timestamp NOT NULL DEFAULT now(),
+ 	PRIMARY KEY (log_id),
+	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
+	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
  );
 
  CREATE TABLE type_link

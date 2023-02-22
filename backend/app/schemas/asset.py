@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, List, Optional
 
 from app.db import DataAccess
-from pydantic import BaseModel, Field, ValidationError, root_validator, validator
+from pydantic import BaseModel, Field, ValidationError, root_validator, validator,Extra
 
 
 class TagBase(BaseModel):
@@ -39,7 +39,8 @@ class Attribute(Attribute_Model):
         # convert if a number
         if (t == "num_lmt" or t == "number") and isinstance(v, str) and v.isnumeric():
             values["attribute_value"] = int(v)
-
+        if t=="checkbox":
+            values["attribute_value"]=str(v).lower()=='true'
         return values
 
 
@@ -84,12 +85,15 @@ class AssetBaseInDB(AssetBase):
     asset_id: Optional[int]
     created_at: datetime
     last_modified_at: datetime
+    class Config:
+        extra = Extra.allow
 
 
 class Asset(AssetBase):
     # TODO change to conlist
     projects: List[int]
     tags: List[int]
+    assets: Optional[List[int]]
     metadata: List[AttributeInDB]
 
     @validator("metadata", each_item=True, pre=True)
@@ -107,6 +111,7 @@ class AssetOut(AssetBaseInDB):
     type: str
     projects: List[Any]
     tags: List[Any]
+    assets: Optional[Any]
     metadata: List[AttributeInDB]
 
 

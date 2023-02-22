@@ -69,7 +69,29 @@ export const createAsset = async (asset) => {
 export const fetchAssetProjects = async (id) => {
 	return await axios.get(`/asset/projects/${id}`).then(res => res.data);
 };
+export const fetchAssetLinks= async (id)=> {
+	return await axios.get(`/asset/links/${id}`).then(res=>res.data);
+};
 
+export const fetchRelatedTags= async (id)=> {
+	return await axios.get(`/asset/related/tags/${id}`).then(res=>res.data);
+};
+export const fetchRelatedProjects= async (id)=> {
+	return await axios.get(`/asset/related/projects/${id}`).then(res=>res.data);
+};
+export const fetchRelatedClassification= async (id)=> {
+	return await axios.get(`/asset/related/classification/${id}`).then(res=>res.data);
+};
+
+export const fetchRelatedType= async (id)=> {
+	return await axios.get(`/asset/related/type/${id}`).then(res=>res.data);
+};
+export const fetchRelatedFrom= async (id)=> {
+	return await axios.get(`/asset/related/from/${id}`).then(res=>res.data);
+};
+export const fetchRelatedTo=async (id)=> {
+	return await axios.get(`/asset/related/to/${id}`).then(res=>res.data);
+};
 export const deleteAsset = async (id) => {
 	return await axios.delete(`/asset/${id}`).then(res => res.data);
 };
@@ -87,6 +109,10 @@ export const createProject = async (project) => {
 };
 export const fetchAssetsinTag = async (id) => {
 	return await axios.get(`/asset/tags/summary/${id}`).then(res => res.data);
+};
+
+export const fetchAssetsLogs= async (id) => {
+	return await axios.get(`/asset/logs/${id}`).then(res => res.data);
 };
 export const deleteType = async (id) => {
 	return await axios.post(`/type/delete/${id}`).then(res => res.data);
