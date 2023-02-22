@@ -254,7 +254,7 @@ const AssetViewer = () => {
 	
 
 	return assetSate ? (
-		<Container>
+		<Container p={4} maxW='70%'>
 			{assetSate && <VStack maxW='100%'>
 				{errors.length && <Alert status='error' flexDirection='column' alignItems='right'>
 					<AlertIcon alignSelf='center'/>
