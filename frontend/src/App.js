@@ -22,6 +22,7 @@ import AssetOverview from './components/AssetOverview';
 import AssetLogs from './routes/assets/AssetLogs';
 import RelatedTags from './routes/assets/RelatedTags';
 import RelatedProjects from './routes/assets/RelatedProjects';
+import RelatedClassification from './routes/assets/RelatedClassification';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -38,6 +39,7 @@ function App() {
 							<Route path="logs" element={<AssetLogs />} />	
 							<Route path="tags" element={<RelatedTags />} />	
 							<Route path="projects" element={<RelatedProjects />} />	
+							<Route path="classification" element={<RelatedClassification />} />	
 						</Route>
 						<Route path="related" element={<RelatedAssetViewer canEdit={true} isNew={false}/>} />
 					</Route>

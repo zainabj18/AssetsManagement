@@ -79,6 +79,9 @@ export const fetchRelatedTags= async (id)=> {
 export const fetchRelatedProjects= async (id)=> {
 	return await axios.get(`/asset/related/projects/${id}`).then(res=>res.data);
 };
+export const fetchRelatedClassification= async (id)=> {
+	return await axios.get(`/asset/related/classification/${id}`).then(res=>res.data);
+};
 
 export const deleteAsset = async (id) => {
 	return await axios.delete(`/asset/${id}`).then(res => res.data);
