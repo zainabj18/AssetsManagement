@@ -227,7 +227,7 @@ def list_asset_in_assets(id,user_id, access_level):
             for x in selected_assets:
                 x.isSelected = True
             cur.execute(
-                """SELECT * FROM assets WHERE asset_id not in (SELECT to_asset_id FROM assets_in_assets WHERE from_asset_id=%(id)s) ORDER BY asset_id;""",
+                """SELECT * FROM assets WHERE asset_id not in (SELECT to_asset_id FROM assets_in_assets WHERE from_asset_id=%(id)s) AND asset_id!=%(id)s ORDER BY asset_id;""",
                 {"id": id},
             )
             assets = list(cur.fetchall())
