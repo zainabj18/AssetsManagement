@@ -604,9 +604,9 @@ def related_from(id,user_id, access_level):
     return res
 
 
-@bp.route("/related/from/<id>", methods=["GET"])
+@bp.route("/related/to/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
-def related_from(id,user_id, access_level):
+def related_to(id,user_id, access_level):
     #get all the assets that belong to the same project as an asset
     db = get_db()
     assets_json = []
