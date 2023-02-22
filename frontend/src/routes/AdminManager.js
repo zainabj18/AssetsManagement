@@ -76,14 +76,14 @@ const AdminManager = () => {
 				</Stack>
 			);})}
 			<Stack pt={35}>
-				<TableContainer color='white'>
-					<Table variant='simple' size={'lg'}>
+				<TableContainer>
+					<Table size={'lg'}>
 						<Thead>
 							<Tr>
-								<Th color={'white'}>First Name</Th>
-								<Th color={'white'}>Last Name</Th>
-								<Th color={'white'}>Username</Th>
-								<Th color={'white'}></Th>
+								<Th>First Name</Th>
+								<Th>Last Name</Th>
+								<Th>Username</Th>
+								<Th></Th>
 							</Tr>
 						</Thead>
 						<Tbody>
