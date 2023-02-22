@@ -87,6 +87,7 @@ class Asset(AssetBase):
     # TODO change to conlist
     projects: List[int]
     tags: List[int]
+    assets: Optional[List[int]]
     metadata: List[AttributeInDB]
 
     @validator("metadata", each_item=True, pre=True)

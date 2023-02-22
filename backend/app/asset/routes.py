@@ -116,6 +116,7 @@ def create():
         )
     db = get_db()
     db_asset = asset.dict(exclude={"metadata"})
+    print(db_asset)
     # add asset to db
     with db.connection() as conn:
         with conn.cursor() as cur:
@@ -133,6 +134,13 @@ def create():
                 INSERT INTO assets_in_tags (asset_id,tag_id)
         VALUES (%(asset_id)s,%(tag_id)s);""",
                     {"asset_id": asset_id, "tag_id": tag},
+                )
+            for a in asset.assets:
+                cur.execute(
+                    """
+                INSERT INTO assets_in_assets (from_asset_id,to_asset_id)
+        VALUES (%(from_asset_id)s,%(to_asset_id)s);""",
+                    {"from_asset_id": asset_id, "to_asset_id": a},
                 )
             # add asset to projects to db
             for project in asset.projects:
@@ -192,6 +200,45 @@ def list_asset_project(id):
             selected_projects.extend(projects)
     return {"data": selected_projects}, 200
 
+@bp.route("links/<id>", methods=["GET"])
+@protected(role=UserRole.VIEWER)
+def list_asset_in_assets(id,user_id, access_level):
+    db = get_db()
+    # get related assets for  an asset and set them to be selected for easy rendering on UI
+    assets_json = []
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+            cur.execute(
+                """SELECT assets.* FROM assets_in_assets
+    INNER JOIN assets on assets.asset_id=assets_in_assets.to_asset_id WHERE from_asset_id=%(id)s;""",
+                {"id": id},
+            )
+            selected_assets = list(cur.fetchall())
+            for x in selected_assets:
+                x["isSelected"] = True
+            cur.execute(
+                """SELECT * FROM assets WHERE asset_id not in (SELECT to_asset_id FROM assets_in_assets WHERE from_asset_id=%(id)s);""",
+                {"id": id},
+            )
+            assets = list(cur.fetchall())
+            selected_assets.extend(assets)
+        # gets the type name for each assset
+        with db_conn.cursor(row_factory=dict_row) as cur:
+            for a in selected_assets:
+                if a.classification <= access_level:
+                    cur.execute(
+                        """SELECT type_name FROM types WHERE type_id=%(id)s;""",
+                        {"id": a.type},
+                    )
+                    type = cur.fetchone()["type_name"]
+                    aj = json.loads(a.json(by_alias=True))
+                    aj["type"] = type
+                    assets_json.append(aj)
+            res = jsonify({"data": assets_json})
+    return res
+
+
+
 
 @bp.route("/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
@@ -222,7 +269,7 @@ def summary(user_id, access_level):
     assets_json = []
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
-            cur.execute("""SELECT * FROM assets WHERE soft_delete=0;""")
+            cur.execute("""SELECT * FROM assets WHERE soft_delete=0 ORDER BY asset_id;""")
             assets = cur.fetchall()
         # gets the type name for each assset
         with db_conn.cursor(row_factory=dict_row) as cur:
