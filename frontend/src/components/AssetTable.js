@@ -1,8 +1,9 @@
 import { Badge,Box } from '@chakra-ui/react';
 import { useEffect, useMemo, useState } from 'react';
+import { Link as NavLink } from 'react-router-dom';
 import { fetchAssetClassifications } from '../api';
 import CustomTable from './CustomTable';
-
+import {Link } from '@chakra-ui/react';
 const AssetTable = ({assets,setSelectedAssets,preSelIDs}) => {
 	const [colours,setColors]=useState({});
 	const columns =useMemo(()=>
@@ -11,7 +12,8 @@ const AssetTable = ({assets,setSelectedAssets,preSelIDs}) => {
 		
 		'asset_id':{
 			header: 'Asset ID',
-			canFilter:true	
+			canFilter:true,
+			Cell:(rowID,value)=><Link to={`/assets/view/${value}`} as={NavLink}>{value}</Link>
 		},
 		'name':{
 			header: 'Asset Name',
