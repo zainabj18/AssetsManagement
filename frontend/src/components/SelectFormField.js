@@ -64,7 +64,7 @@ const SelectFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler
 				<MenuButton as={Button} colorScheme='blue' color={'white'}>
 					Select {fieldName}
 				</MenuButton>
-				{type && <MenuList>	
+				{type && <MenuList color={'white'}>	
 					<MenuOptionGroup type={type} onChange={handleChange} defaultValue={fieldDefaultValue} >
 						{options.map((value, key) => (
 							<MenuItemOption key={key} value={value} color={'white'}>{value}</MenuItemOption>

@@ -19,7 +19,7 @@ const UserMenuButton = () => {
 			{user.username}
 		</MenuButton>
 
-		<MenuList>
+		<MenuList color='white'>
 			<MenuGroup title='Profile'>
 				<HStack>
 					<Badge>{user.userRole}</Badge>

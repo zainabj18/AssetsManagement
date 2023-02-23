@@ -18,12 +18,12 @@ const EditableControls = (props) => {
 	}, [props.error]);
 	
 	return isDisabled ? null : isEditing ? (
-		<ButtonGroup m={'2'} justifyContent="end">
+		<ButtonGroup m={'2'} justifyContent="end" w="100%">
 			{props.error==='' && <IconButton icon={<CheckIcon />} {...getSubmitButtonProps()} />}
 			<IconButton icon={<CloseIcon />} {...getCancelButtonProps()} />
 		</ButtonGroup>
 	) : (
-		<ButtonGroup m={'2'} justifyContent="end">
+		<ButtonGroup m={'2'} justifyContent="end" w="100%">
 			<IconButton icon={<EditIcon />} {...getEditButtonProps()} />
 		</ButtonGroup>
 	);
