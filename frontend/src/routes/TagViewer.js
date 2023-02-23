@@ -78,12 +78,14 @@ const TagViewer = () => {
 			<SaveControl />
 		</Editable>}
 		<AssetTable assets={assetsin} setSelectedAssets={setSelectedAssets} preSelIDs={[]}/>
-		<ButtonGroup>
-			<Button onClick={handleRemove}>Remove from tag</Button>
-			<OperationTo actionFunc={handleCopy} actionName="Copy" />
-			<OperationTo actionFunc={handleMove} actionName="Move" />
-			<Button colorScheme='red' variant={'solid'} onClick={handleDelete}>Delete Tag</Button>
-		</ButtonGroup>
+		{(user && user.userRole !== 'VIEWER') && 
+			<ButtonGroup>
+				<Button onClick={handleRemove}>Remove from tag</Button>
+				<OperationTo actionFunc={handleCopy} actionName="Copy" />
+				<OperationTo actionFunc={handleMove} actionName="Move" />
+				{user.userRole === 'ADMIN' && 
+				<Button colorScheme='red' variant={'solid'} onClick={handleDelete}>Delete Tag</Button>}
+			</ButtonGroup>}
 	</VStack> );
 };
  
