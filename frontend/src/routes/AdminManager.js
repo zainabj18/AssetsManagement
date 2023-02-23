@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from 'react-router-dom';
-import { Heading, VStack,Text, HStack } from '@chakra-ui/react';
+import { Heading, VStack, Text, HStack } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import { Input, Stack } from '@chakra-ui/react';
 import { Button, ButtonGroup } from '@chakra-ui/react';
@@ -24,23 +24,31 @@ import {
 } from '@chakra-ui/react';
 import useAuth from '../hooks/useAuth';
 import { Link } from '@chakra-ui/react';
+import { getUsers } from '../api';
 
 const AdminManager = () => {
 
-	const {user} = useAuth();
-	let navigate=useNavigate();
+	const { user } = useAuth();
+	let navigate = useNavigate();
 
 	useEffect(() => {
-		if (user && user.userRole!=='ADMIN'){
+		if (user && user.userRole !== 'ADMIN') {
 			navigate('../');
 		}
-	});	
+		async function loadUsers() {
+			let data = await getUsers(res => res.data);
+			console.log(data);
+			setUsers(data);
+		}
+		loadUsers();
+	},[]);
 
-	const [inputField, setInputField] = useState([{username: '' }]);
-	const [accountdetails] = useState([{accdetails: ''}]);
-	const [pass] = useState([{pass: ''}]);
-	const [relatedprojects] =useState([{relatedproj: ''}]);
+	const [inputField, setInputField] = useState([{ username: '' }]);
+	const [accountdetails] = useState([{ accdetails: '' }]);
+	const [pass] = useState([{ pass: '' }]);
+	const [relatedprojects] = useState([{ relatedproj: '' }]);
 
+	const [users, setUsers] = useState([]);
 	const handleFormChange = (index, event) => {
 		let data = [...inputField];
 		data[index][event.target.name] = event.target.value;
@@ -65,11 +73,13 @@ const AdminManager = () => {
 	return (
 		<VStack minW="100vw">
 			<Text>AdminManager</Text>
-			{inputField.map((search, index) => {return (
-				<Stack spacing={3} color={'black'}>
-					<Input bg='white' placeholder='search' size='lg' type='text' width={800} top={25} defaultValue={search.username} onChange={event => handleFormChange(index, event)} name="username"/>
-				</Stack>
-			);})}
+			{inputField.map((search, index) => {
+				return (
+					<Stack spacing={3} color={'black'} key = {index}>
+						<Input bg='white' placeholder='search' size='lg' type='text' width={800} top={25} defaultValue={search.username} onChange={event => handleFormChange(index, event)} name="username" />
+					</Stack>
+				);
+			})}
 			<Stack pt={35}>
 				<TableContainer color='white'>
 					<Table variant='simple' size={'lg'}>
@@ -82,111 +92,43 @@ const AdminManager = () => {
 							</Tr>
 						</Thead>
 						<Tbody>
-							<Tr>
-								<Td>John</Td>
-								<Td>Plat</Td>
-								<Td>@John</Td>
-								<Td>
-									<Accordion allowToggle>
-										<AccordionItem>
-											<h2>
-												<AccordionButton>
-													<Box as="span" flex='1' textAlign='left'>
-													Edit Details
-													</Box>
-													<AccordionIcon />
-												</AccordionButton>
-											</h2>
-											<AccordionPanel pb={4}>
-												<Button bg='transparent' color='white' onClick={accountDetails}>View Account Details</Button>
-												<Button bg='transparent' color='white' onClick={pass_func}>Change Password</Button>
-												<Button bg='transparent' color='white' onClick={handleRelatedProjects}>View Related Projects</Button>
-											</AccordionPanel>
-										</AccordionItem>
-									</Accordion>
-								</Td>
-							</Tr>
-							<Tr>
-								<Td>Ben</Td>
-								<Td>Hatch</Td>
-								<Td>@Ben</Td>
-								<Td>
-									<Accordion allowToggle>
-										<AccordionItem>
-											<h2>
-												<AccordionButton>
-													<Box as="span" flex='1' textAlign='left'>
-													Edit Details
-													</Box>
-													<AccordionIcon />
-												</AccordionButton>
-											</h2>
-											<AccordionPanel pb={4}>
-												<Button bg='transparent' color='white' onClick={accountDetails}>View Account Details</Button>
-												<Button bg='transparent' color='white' onClick={pass_func}>Change Password</Button>
-												<Button bg='transparent' color='white' onClick={handleRelatedProjects}>View Related Projects</Button>
-											</AccordionPanel>
-										</AccordionItem>
-									</Accordion>
-								</Td>
-							</Tr>
-							<Tr>
-								<Td>Ben</Td>
-								<Td>Smith</Td>
-								<Td>@Ben.Smith</Td>
-								<Td>
-									<Accordion allowToggle>
-										<AccordionItem>
-											<h2>
-												<AccordionButton>
-													<Box as="span" flex='1' textAlign='left'>
-													Edit Details
-													</Box>
-													<AccordionIcon />
-												</AccordionButton>
-											</h2>
-											<AccordionPanel pb={4}>
-												<Button bg='transparent' color='white' onClick={accountDetails}>View Account Details</Button>
-												<Button bg='transparent' color='white' onClick={pass_func}>Change Password</Button>
-												<Button bg='transparent' color='white' onClick={handleRelatedProjects}>View Related Projects</Button>
-											</AccordionPanel>
-										</AccordionItem>
-									</Accordion>
-								</Td>
-							</Tr>
-							<Tr>
-								<Td>Kate</Td>
-								<Td>Barlow</Td>
-								<Td>@Kate</Td>
-								<Td>
-									<Accordion allowToggle>
-										<AccordionItem>
-											<h2>
-												<AccordionButton>
-													<Box as="span" flex='1' textAlign='left'>
-													Edit Details
-													</Box>
-													<AccordionIcon />
-												</AccordionButton>
-											</h2>
-											<AccordionPanel pb={4}>
-												<Button bg='transparent' color='white' onClick={accountDetails}>View Account Details</Button>
-												<Button bg='transparent' color='white' onClick={pass_func}>Change Password</Button>
-												<Button bg='transparent' color='white' onClick={handleRelatedProjects}>View Related Projects</Button>
-											</AccordionPanel>
-										</AccordionItem>
-									</Accordion>
-								</Td>
-							</Tr>
+							{users.map((user) => {
+								return (
+									<Tr key={user.account_id}>
+										<Td>{user.first_name}</Td>
+										<Td>{user.last_name}</Td>
+										<Td>{user.username}</Td>
+										<Td>
+											<Accordion allowToggle>
+												<AccordionItem>
+													<h2>
+														<AccordionButton>
+															<Box as="span" flex='1' textAlign='left'>
+																Edit Details
+															</Box>
+															<AccordionIcon />
+														</AccordionButton>
+													</h2>
+													<AccordionPanel pb={4}>
+														<Button bg='transparent' color='white' onClick={accountDetails}>View Account Details</Button>
+														<Button bg='transparent' color='white' onClick={pass_func}>Change Password</Button>
+														<Button bg='transparent' color='white' onClick={handleRelatedProjects}>View Related Projects</Button>
+													</AccordionPanel>
+												</AccordionItem>
+											</Accordion>
+										</Td>
+									</Tr>
+								);
+							})}
 						</Tbody>
 					</Table>
 				</TableContainer>
 			</Stack>
 			<Stack>
 				<Link href='/user'><Button right={370} colorScheme={'blue'} size={'lg'}>New</Button></Link>
-			</Stack>	
+			</Stack>
 		</VStack>
-    
+
 	);
 };
 

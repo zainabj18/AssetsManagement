@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import json
 
 import jwt
 from app.core.utils import protected
@@ -14,5 +15,10 @@ bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
 @bp.route("/accountmanager", methods=["GET"])
-def types():
-    return {"msg": ""}, 200
+def getUsers():
+    database = get_db()
+    query = """SELECT * FROM accounts;"""
+    with database.connection() as conn:
+        result = conn.execute(query)
+        usersfetched = result.fetchall()
+    return json.dumps(usersfetched), 200

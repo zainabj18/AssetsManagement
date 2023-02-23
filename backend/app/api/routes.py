@@ -28,3 +28,4 @@ bp.register_blueprint(asset_bp)
 bp.register_blueprint(type_bp)
 bp.register_blueprint(tag_bp)
 bp.register_blueprint(project_bp)
+

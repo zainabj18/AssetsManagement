@@ -77,3 +77,7 @@ export const createProject = async (project)=> {
 	console.log(project);
 	return await axios.post('/project/new', project).then(res=>res.data);
 };
+
+export const getUsers = async () => {
+	return await axios.get('/admin/accountmanager/').then(res => res.data);
+};
