@@ -21,6 +21,16 @@ VALUES (%(name)s) RETURNING id;""",
             )
             return cur.fetchone()[0]
 
+def update_tag(db,tag_dict):
+    with db.connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+            UPDATE tags 
+            SET name=%(name)s WHERE id=%(id)s ;""",
+                tag_dict,
+            )
+
 def add_asset_to_tag(db,asset_ids,tag_id):
     with db.connection() as conn:
         with conn.cursor() as cur:
@@ -105,6 +115,31 @@ def delete(id, user_id, access_level):
     try:
         db = get_db()
         delete_tag(db, id)
+    except Error as e:
+        return {"msg": str(e), "error": "Database Error"}, 500
+    return {}, 200
+
+@bp.route("/<id>", methods=["PATCH"])
+@protected(role=UserRole.ADMIN)
+def update(id, user_id, access_level):
+    try:
+        tag = TagBase(**request.json)
+    except ValidationError as e:
+        return (
+            jsonify(
+                {
+                    "msg": "Data provided is invalid",
+                    "data": e.errors(),
+                    "error": "Failed to create tag from the data provided",
+                }
+            ),
+            400,
+        )
+    try:
+        db = get_db()
+        update_tag(db,tag.dict())
+    except UniqueViolation as e:
+        return {"msg": f"Tag {tag.name} already exists", "error": "Database Error"}, 500
     except Error as e:
         return {"msg": str(e), "error": "Database Error"}, 500
     return {}, 200
