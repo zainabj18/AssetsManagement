@@ -31,6 +31,8 @@ const TagViewer = () => {
 	};
 	const handleDelete=()=>{
 		deleteTag(id).then((res)=>{console.log(res);});
+		setTrigger.toggle();
+		navigate(0);
 		navigate('/tags');
 	};
 	useEffect(() => {

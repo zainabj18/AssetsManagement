@@ -23,6 +23,7 @@ const Tags = () => {
 
 	useEffect(() => {
 		fetchTags().then((res)=>{
+			console.log('here');
 			setTags(res.data);
 			setResults(res.data);
 		}
