@@ -26,6 +26,7 @@ import RelatedFrom from './routes/assets/RelatedFrom';
 import RelatedTo from './routes/assets/RelatedTo';
 import AttributeViewer from './routes/AttributeViewer';
 import ProjectViewer from './routes/ProjectViewer';
+import People from './routes/assets/People';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -46,6 +47,8 @@ function App() {
 							<Route path="type" element={<RelatedType />} />	
 							<Route path="outgoing" element={<RelatedFrom />} />	
 							<Route path="incomming" element={<RelatedTo />} />	
+							<Route path="peopleLink" element={<People />} />
+
 						</Route>
 						<Route path="related" element={<RelatedAssetViewer canEdit={true} isNew={false}/>} />
 					</Route>
