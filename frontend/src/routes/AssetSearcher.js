@@ -116,13 +116,15 @@ const FilterBasedSearch = () => {
 									fontsize = '20'
 								/>
 								<Button onClick={() => removeFields(index)}>Remove</Button>
-							</HStack>	
+							</HStack>
 						);
 					})}
-					<Button onClick={addFields}>Add More</Button>
-					<Button onClick={submit}>Submit</Button>
 				</form>
     		</div>
+			<VStack>
+				<Button onClick={addFields}>Add More</Button>
+				<Button onClick={submit}>Submit</Button>
+			</VStack>
 		</Box>
 	);
 };
