@@ -7,12 +7,24 @@ import NewTag from '../components/NewTag';
 
 const Tags = () => {
 	const [tags, setTags] = useState([]);
+	const [results, setResults] = useState([]);
 	const [trigger,setTrigger]=useBoolean();
 	//trigger refresh of tags on create
+
+	const filter=(value) => { 
+		console.log(value);
+		if (value===''){
+			setResults(tags);
+		}else{
+			let filteredTag=tags.filter((t)=>t.name.toLowerCase().includes(value));
+			setResults(filteredTag);
+		}
+	 };
 
 	useEffect(() => {
 		fetchTags().then((res)=>{
 			setTags(res.data);
+			setResults(res.data);
 		}
 		);
 	}, [trigger]);
@@ -20,11 +32,11 @@ const Tags = () => {
 	return (<Flex w='100%' minH='80vh' alignItems={'stretch'} p={2} border>
 		<Box w='30%' minH='100%' bg='gray.300' p={4} color='black' align={'top'}>
 			<HStack>
-				<Input type='text' placeholder='Search for tag ...'/>
+				<Input type='text' placeholder='Search for tag ...' onChange={(e)=>{filter(e.target.value);}}/>
 				<NewTag trigger={setTrigger}/>
 			</HStack>
 			<VStack p={2}>
-				{tags.map((t,index)=>(
+				{results.map((t,index)=>(
 					<CustomNavLink key={index} to={`./${t.id}`} w='100%'>
 						{t.name}
 					</CustomNavLink>
