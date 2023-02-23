@@ -45,7 +45,6 @@ const ProjectViewer = () => {
 
 	return (
 		<VStack minW="100vw" spacing={3}>
-			<Text fontSize='3xl'>Create Project</Text>
 			<VStack>
 				{projects && projects.map((projects, index) => {
 					return (
