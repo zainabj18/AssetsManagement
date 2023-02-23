@@ -62,9 +62,7 @@ const User = () => {
 						<FormControl>
 							<FormLabel>Role</FormLabel>
 							<Select placeholder='Select Role' color='black' bg='white'>
-								<option value='option1'>Option 1</option>
-								<option value='option2'>Option 2</option>
-								<option value='option3'>Option 3</option>
+								<option value='option1'>{user.account_type}</option>
 							</Select>
 						</FormControl>
 					</HStack>
