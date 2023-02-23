@@ -14,7 +14,7 @@ import {
 	MenuItemOption
 } from '@chakra-ui/react';
 import { useState,useEffect } from 'react';
-const SelectFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler}) => {
+const SelectFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler,isDisabled}) => {
 
 	const [values, setValues] = useState([]);
 	const [options, setOptions] = useState([]);
@@ -60,18 +60,19 @@ const SelectFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler
 					</WrapItem>
 				))}
 			</Wrap>
-			<Menu closeOnSelect={false}>
+			{!isDisabled && <Menu closeOnSelect={false} >
 				<MenuButton as={Button} colorScheme='blue' color={'white'}>
 					Select {fieldName}
 				</MenuButton>
-				{type && <MenuList>	
+				{type && <MenuList color={'white'}>	
 					<MenuOptionGroup type={type} onChange={handleChange} defaultValue={fieldDefaultValue} >
 						{options.map((value, key) => (
 							<MenuItemOption key={key} value={value} color={'white'}>{value}</MenuItemOption>
 						))}
 					</MenuOptionGroup>
 				</MenuList>}
-			</Menu>
+			</Menu>}
+			
 		</FormControl>
 	);
 };

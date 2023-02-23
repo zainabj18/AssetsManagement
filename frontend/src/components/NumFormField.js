@@ -8,7 +8,7 @@ import {
 	NumberDecrementStepper
 } from '@chakra-ui/react';
 
-const NumFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler}) => {
+const NumFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler,isDisabled}) => {
 	return (
 		<FormControl >
 			<FormLabel>{fieldName}</FormLabel>
@@ -17,6 +17,7 @@ const NumFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler}) 
 				min={1} 
 				max={validation.max} 
 				onChange={(val) => onChangeHandler(fieldName,val)}
+				isDisabled={isDisabled}
 			>
 				<NumberInputField />
 				<NumberInputStepper >

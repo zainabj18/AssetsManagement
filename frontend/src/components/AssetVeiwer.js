@@ -395,17 +395,17 @@ const AssetViewer = () => {
 							console.log('I am here');
 							return (
 								<Fragment key={key}> 
-									<ListFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:[]} validation={value.validation} onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount}/>
+									<ListFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:[]} validation={value.validation} onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount} isDisabled={isDisabled}/>
 								</Fragment>);
 						case 'num_lmt':
 							return (
 								<Fragment key={key}> 
-									<NumFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:value.validation.min} validation={value.validation}  onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount}/>
+									<NumFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:value.validation.min} validation={value.validation}  onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount} isDisabled={isDisabled}/>
 								</Fragment>);
 						case 'options':
 							return (
 								<Fragment key={key}> 
-									<SelectFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:[]} validation={value.validation} onChangeHandler={handleMetadataChange}/>
+									<SelectFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:[]} validation={value.validation} onChangeHandler={handleMetadataChange} isDisabled={isDisabled}/>
 								</Fragment>);
 						default:
 							return (<Fragment key={key}>

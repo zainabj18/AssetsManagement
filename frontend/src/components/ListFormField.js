@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { useState,useEffect} from 'react';
 import FormField from './FormField';
-const ListFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler,setErrorCount}) => {
+const ListFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler,setErrorCount,isDisabled}) => {
 	const [trigger, setTrigger] = useBoolean();
 	const [values, setValues] = useState([]);
 
@@ -42,7 +42,7 @@ const ListFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler,s
 				fieldName={fieldName}
 				fieldType={validation.type}
 				fieldDefaultValue={''}
-				isDisabled={false}
+				isDisabled={isDisabled}
 				startWithEditView={true}
 				onSubmitHandler={(_,val)=>{addHandler(val);}}
 				clearOnSumbit={true}
@@ -53,7 +53,7 @@ const ListFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler,s
 						<WrapItem key={key}>
 							<Tag key={key}>
 								<TagLabel>{value}</TagLabel>
-								<TagCloseButton onClick={(e) => deleteHandler(e,value)} />
+								{!isDisabled && <TagCloseButton onClick={(e) => deleteHandler(e,value)} />}	
 							</Tag>
 						</WrapItem>
 					))}
