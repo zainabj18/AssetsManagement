@@ -51,24 +51,26 @@ const User = () => {
 					</HStack>
 				);})}
 
-				<HStack spacing={'25px'} mt={'25px'}>
-					<FormControl>
-						<FormLabel>Access Level</FormLabel>
-						<Select placeholder='Select Access Level' color='black' bg='white'>
-							<option value='option1'>Option 1</option>
-							<option value='option2'>Option 2</option>
-							<option value='option3'>Option 3</option>
-						</Select>
-					</FormControl>
-					<FormControl>
-						<FormLabel>Role</FormLabel>
-						<Select placeholder='Select Role' color='black' bg='white'>
-							<option value='option1'>Option 1</option>
-							<option value='option2'>Option 2</option>
-							<option value='option3'>Option 3</option>
-						</Select>
-					</FormControl>
-				</HStack>
+				{inputFields.map((user) => {return (
+					<HStack spacing={'25px'} mt={'25px'} key={user.account_id}>
+						<FormControl>
+							<FormLabel>Access Level</FormLabel>
+							<Select placeholder='Select Access Level' color='black' bg='white'>
+								<option value='option1'>Option 1</option>
+								<option value='option2'>Option 2</option>
+								<option value='option3'>Option 3</option>
+							</Select>
+						</FormControl>
+						<FormControl>
+							<FormLabel>Role</FormLabel>
+							<Select placeholder='Select Role' color='black' bg='white'>
+								<option value='option1'>Option 1</option>
+								<option value='option2'>Option 2</option>
+								<option value='option3'>Option 3</option>
+							</Select>
+						</FormControl>
+					</HStack>
+				);})}
 
 				{inputFields.map((index) => {return (
 					<Stack direction='row' align='center' mt={8}>
