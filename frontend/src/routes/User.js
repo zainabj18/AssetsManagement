@@ -75,7 +75,7 @@ const User = () => {
 						<Button colorScheme='blue' variant='solid' size='md' onClick={saveObject}>
 				Save
 						</Button>
-						<Button colorScheme='red' variant='solid' size='md'>
+						<Button colorScheme='red' variant='solid' size='md' onClick={deleteObject}>
 				Delete
 						</Button>
 					</Stack>
