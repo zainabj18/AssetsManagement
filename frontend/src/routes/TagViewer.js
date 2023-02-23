@@ -45,7 +45,7 @@ const TagViewer = () => {
 			<Button onClick={handleRemove}>Remove from tag</Button>
 			<OperationTo actionFunc={handleCopy} actionName="Copy" />
 			<OperationTo actionFunc={handleMove} actionName="Move" />
-			<Button colorScheme='red' onClick={handleDelete}>Delete</Button>
+			<Button colorScheme='red' variant={'solid'} onClick={handleDelete}>Delete Tag</Button>
 		</ButtonGroup>
 	</VStack> );
 };
