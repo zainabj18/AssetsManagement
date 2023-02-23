@@ -1,4 +1,4 @@
-import { Box, HStack,Text } from '@chakra-ui/react';
+import { Box, Flex, HStack,Spacer,Text } from '@chakra-ui/react';
 import useAuth from '../hooks/useAuth';
 import CustomNavLink from './CustomNavLink';
 import UserMenuButton from './UserMenuButton';
@@ -6,7 +6,7 @@ import UserMenuButton from './UserMenuButton';
 const Header = () => {
 	const {user} = useAuth();
 	return ( 
-		<Box>
+		<Flex w={'70%'}>
 			<HStack>
 				<CustomNavLink to="assets/">
 				Assets
@@ -26,11 +26,16 @@ const Header = () => {
 				{(user && user.userRole==='ADMIN') && <CustomNavLink to="accounts/">
 				Accounts
 				</CustomNavLink>}
+			</HStack>
+			<Spacer />
+			<HStack>
 				<Text>Hello</Text>
 				<UserMenuButton />
 			</HStack>
+		
+
 			
-		</Box> );
+		</Flex> );
 };
  
 export default Header;
