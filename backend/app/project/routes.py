@@ -52,6 +52,51 @@ def create():
             ),
             400,
         )
+        import { useEffect, useState } from 'react';
+import { Box, Divider, Heading, Text } from '@chakra-ui/react';
+
+function CommentDisplay({ assetId }) {
+  const [comments, setComments] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const response = await fetch(`/api/assets/${assetId}/comments`);
+        if (!response.ok) {
+          throw new Error(`Failed to retrieve comments for asset ${assetId}`);
+        }
+        const data = await response.json();
+        setComments(data);
+      } catch (error) {
+        setError(error.message);
+      }
+    };
+
+    fetchComments();
+  }, [assetId]);
+
+  if (error) {
+    return <Box>{error}</Box>;
+  }
+
+  return (
+    <Box mt={4}>
+      <Heading size="md">{comments.length} Comments</Heading>
+      {comments.map((comment) => (
+        <Box key={comment.id} mt={4}>
+          <Text fontWeight="bold">{comment.username}</Text>
+          <Text>{comment.content}</Text>
+          <Text fontSize="sm">{new Date(comment.timestamp).toLocaleString()}</Text>
+          <Divider my={2} />
+        </Box>
+      ))}
+    </Box>
+  );
+}
+
+export default CommentDisplay;
+
     print(project)
     db = get_db()
     db_project = project.dict()
