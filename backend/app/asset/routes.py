@@ -635,3 +635,32 @@ INNER JOIN assets on assets.asset_id=assets_in_assets.from_asset_id WHERE to_ass
                     assets_json.append(aj)
             res = jsonify({"data": assets_json})
     return res
+    from flask import Flask, render_template, request, jsonify
+
+app = Flask(__name__)
+
+# API endpoint to submit comments
+@app.route('/submit-comment', methods=['POST'])
+def submit_comment():
+    # Get comment data from request
+    comment = request.form.get('comment')
+    # Validate comment data
+    if not comment:
+        return jsonify({'success': False, 'error': 'Comment is required'})
+    # TODO: Add more validation logic here
+
+    # TODO: Add code to save comment data to database
+    # For now, just return a success response
+    return jsonify({'success': True})
+
+# Route to display asset and comment UI
+@app.route('/asset/<asset_id>')
+def asset_page(asset_id):
+    # TODO: Add code to retrieve asset data from database
+    asset = {'id': asset_id, 'name': 'Asset 1'}
+    comments = [{'id': 1, 'text': 'Comment 1'}, {'id': 2, 'text': 'Comment 2'}]
+    return render_template('asset.html', asset=asset, comments=comments)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
