@@ -20,7 +20,9 @@ bp = Blueprint("type", __name__, url_prefix="/type")
 def add_type():
     new_type = Type(**request.json)
     db_type = new_type.dict(exclude={"metadata", "depends_on"})
-    query = """INSERT INTO types (type_name) VALUES (%(type_name)s) RETURNING type_id;"""
+    query = (
+        """INSERT INTO types (type_name) VALUES (%(type_name)s) RETURNING type_id;"""
+    )
     database = get_db()
     with database.connection() as conn:
         ret = conn.execute(query, db_type)
@@ -37,19 +39,15 @@ def add_type():
                 },
             )
 
-    query = """INSERT INTO type_link (type_id_from, type_id_to) VALUES (%(from)s, %(to)s)"""
+    query = (
+        """INSERT INTO type_link (type_id_from, type_id_to) VALUES (%(from)s, %(to)s)"""
+    )
     selfDependent_error = False
     for dependency_key in new_type.depends_on:
         with database.connection() as conn:
             # If the id refers to itself, it is skipped and an error code will be returned
             if type_id != dependency_key:
-                conn.execute(
-                    query,
-                    {
-                        "from": type_id,
-                        "to": dependency_key
-                    }
-                )
+                conn.execute(query, {"from": type_id, "to": dependency_key})
             else:
                 selfDependent_error = True
 
@@ -87,7 +85,18 @@ def get_type(id):
         query_b = """SELECT at.attribute_id,attribute_name, attribute_data_type, validation_data FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t on at.type_id = t.type_id WHERE t.type_id = %(type_id)s;"""
         res = conn.execute(query_b, {"type_id": id})
         attributes = extract_attributes(res.fetchall())
-        return {"typeId": type[0], "typeName": type[1], "metadata": attributes}, 200
+        with conn.cursor(row_factory=dict_row) as cur:
+            dependents = cur.execute(
+                """
+                SELECT * FROM types where type_id in (SELECT type_id_to FROM type_link WHERE type_id_from=%(type_id)s);""",
+                {"type_id": id},
+            ).fetchall()
+        return {
+            "typeId": type[0],
+            "typeName": type[1],
+            "metadata": attributes,
+            "depends": dependents,
+        }, 200
 
 
 def extract_attributes(attributes):
@@ -138,8 +147,7 @@ def get_allTypes():
             res = conn.execute(query_b, {"type_id": type[0]})
             attributes = extract_attributes(res.fetchall())
             allTypes_listed.append(
-                {"typeId": type[0], "typeName": type[1],
-                    "metadata": attributes}
+                {"typeId": type[0], "typeName": type[1], "metadata": attributes}
             )
         return json.dumps(allTypes_listed), 200
 
@@ -152,13 +160,13 @@ def delete_type(id):
     query = """SELECT COUNT(*) FROM assets WHERE type = (%(id)s);"""
     with database.connection() as conn:
         res = conn.execute(query, {"id": id})
-        if (res.fetchone()[0] > 0):
+        if res.fetchone()[0] > 0:
             canDo = False
 
     query = """SELECT COUNT(*) FROM type_link WHERE type_id_to = (%(id)s);"""
     with database.connection() as conn:
         res = conn.execute(query, {"id": id})
-        if (res.fetchone()[0] > 0):
+        if res.fetchone()[0] > 0:
             canDo = False
 
     if canDo:
@@ -185,7 +193,7 @@ def delete_attribute(id):
     query = """SELECT COUNT(*) FROM attributes_in_types WHERE attribute_id = (%(id)s)"""
     with database.connection() as conn:
         res = conn.execute(query, {"id": id})
-        if (res.fetchone()[0] > 0):
+        if res.fetchone()[0] > 0:
             canDo = False
 
     if canDo:

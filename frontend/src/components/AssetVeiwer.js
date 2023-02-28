@@ -53,6 +53,7 @@ const AssetViewer = () => {
 	const [assets,setAssets] = useState([]);
 	const [assetsList,setAssetsList]=useState([]);
 	const [projectList,setProjectList]=useState([]);
+	const [dependencies,setDependencies]=useState([]);
 	const [errors,setErrors]=useState([]);
 	const [errorCount,setErrorCount]=useState(0);
 	const [trigger,setTrigger]=useBoolean();
@@ -120,6 +121,7 @@ const AssetViewer = () => {
 				type: attribute_value,
 				metadata:res.metadata,
 			}));
+			setDependencies(res.depends);
 			setTrigger.toggle();
 			console.log(res);
 
@@ -183,7 +185,7 @@ const AssetViewer = () => {
 
 	useEffect(() => {
 		if (user===undefined){
-			navigate('/assets');
+			navigate('/');
 		}
 		fetchAssetClassifications().then((data)=>{
 			setClassifications(data.data);}).catch((err) => {console.log(err);});
@@ -331,6 +333,13 @@ const AssetViewer = () => {
 							))}
 							{!isDisabled &&   <AssetSelect setSelected={setAssets} assetsin={assetsList} />}
 						</Wrap>
+						{dependencies.length && <Alert status='info' flexDirection='column' alignItems='right'>
+							<AlertIcon alignSelf='left'/>
+							<AlertTitle>The related assets must include assets of types: </AlertTitle>
+							<AlertDescription ><UnorderedList>
+								{dependencies.map((value, key)=><ListItem key={key}>{value.type_name}</ListItem>)}
+							</UnorderedList></AlertDescription>
+						</Alert>}
 					</FormControl>
 
 					
