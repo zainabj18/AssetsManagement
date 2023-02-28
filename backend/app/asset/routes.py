@@ -342,9 +342,14 @@ def update(id, user_id, access_level):
         with conn.cursor() as cur:
             cur.execute(
                 """SELECT type FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",
-                {"asset_ids":asset.assets})
+                {"asset_ids":assets_added})
             asset_types=set([x[0] for x in cur.fetchall()])
-            cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(type_id)s;""",{"type_id": asset.type})
+            cur.execute(
+                        """SELECT type_id FROM types WHERE type_name=%(name)s;""",
+                        {"name":asset["type"]},
+                    )
+            type_id=cur.fetchone()[0]
+            cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(type_id)s;""",{"type_id": type_id})
             dependents= set([x[0] for x in cur.fetchall()])
             if not asset_types.issuperset(dependents):
                 return (
