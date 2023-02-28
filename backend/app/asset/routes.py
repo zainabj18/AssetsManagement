@@ -126,10 +126,30 @@ def create():
         )
     db = get_db()
     db_asset = asset.dict(exclude={"metadata"})
+   
+
     print(db_asset)
     # add asset to db
     with db.connection() as conn:
         with conn.cursor() as cur:
+            cur.execute(
+                """SELECT type FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",
+                {"asset_ids":asset.assets})
+            asset_types=set([x[0] for x in cur.fetchall()])
+            cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(type_id)s;""",{"type_id": asset.type})
+            dependents= set([x[0] for x in cur.fetchall()])
+            if not asset_types.issuperset(dependents):
+                return (
+                    jsonify(
+                        {
+                            "msg": "Missing dependencies",
+                            "data": f"Must inlcude assets with type {dependents}",
+                            "error": "Failed to create asset from the data provided",
+                        }
+                    ),
+                    400,
+                )
+
             cur.execute(
                 """
             INSERT INTO assets (name,link,type,description, classification)
@@ -272,6 +292,8 @@ def delete(id):
     return {}, 200
 
 
+
+
 @bp.route("/summary", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def summary(user_id, access_level):
@@ -318,6 +340,23 @@ def update(id, user_id, access_level):
     diff_dict=asset_differ(orgignal_asset,asset)
     with db.connection() as conn:
         with conn.cursor() as cur:
+            cur.execute(
+                """SELECT type FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",
+                {"asset_ids":asset.assets})
+            asset_types=set([x[0] for x in cur.fetchall()])
+            cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(type_id)s;""",{"type_id": asset.type})
+            dependents= set([x[0] for x in cur.fetchall()])
+            if not asset_types.issuperset(dependents):
+                return (
+                    jsonify(
+                        {
+                            "msg": "Missing dependencies",
+                            "data": f"Must inlcude assets with type {dependents}",
+                            "error": "Failed to create asset from the data provided",
+                        }
+                    ),
+                    400,
+                )
             cur.execute(
                     """
                 INSERT INTO asset_logs (account_id,asset_id,diff)
