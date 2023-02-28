@@ -333,7 +333,7 @@ const AssetViewer = () => {
 							))}
 							{!isDisabled &&   <AssetSelect setSelected={setAssets} assetsin={assetsList} />}
 						</Wrap>
-						{dependencies.length && <Alert status='info' flexDirection='column' alignItems='right'>
+						{dependencies.length>0 && <Alert status='info' flexDirection='column' alignItems='right'>
 							<AlertIcon alignSelf='left'/>
 							<AlertTitle>The related assets must include assets of types: </AlertTitle>
 							<AlertDescription ><UnorderedList>
