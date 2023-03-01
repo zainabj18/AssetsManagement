@@ -417,6 +417,7 @@ const AssetViewer = () => {
 									onSubmitHandler={handleMetadataChange}
 									trigger={trigger}
 									setErrorCount={setErrorCount}
+									validation={value.validation}
 								/>
 							</Fragment>);
 					  }
