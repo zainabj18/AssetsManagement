@@ -15,9 +15,11 @@ DROP TABLE IF EXISTS people_in_projects CASCADE;
 DROP TABLE IF EXISTS asset_logs CASCADE;
 DROP TABLE IF EXISTS assets_in_assets CASCADE;
 DROP TABLE IF EXISTS type_link CASCADE;
+DROP TABLE IF EXISTS type_version CASCADE;
 
 CREATE TYPE account_role AS ENUM ('VIEWER', 'USER', 'ADMIN');
 CREATE TYPE data_classification AS ENUM ('PUBLIC', 'INTERNAL','RESTRICTED','CONFIDENTIAL');
+
 CREATE TABLE accounts
 (
 	account_id SERIAL,
@@ -29,7 +31,6 @@ CREATE TABLE accounts
 	account_privileges data_classification NOT NULL DEFAULT 'PUBLIC',
 	PRIMARY KEY (account_id)
 );
-
 
 CREATE TABLE tags
 (
@@ -62,13 +63,23 @@ CREATE TABLE attributes
  	PRIMARY KEY (type_id)
  );
 
+ CREATE TABLE type_version
+(
+	version_id SERIAL,
+	version_number INTEGER NOT NULL,
+	type_id INTEGER,
+
+	PRIMARY KEY (version_id),
+	FOREIGN KEY (type_id) REFERENCES types(type_id)
+);
+
  CREATE TABLE attributes_in_types
  (
  	attribute_id INTEGER,
- 	type_id INTEGER,
- 	PRIMARY KEY (attribute_id, type_id),
+ 	type_version INTEGER,
+ 	PRIMARY KEY (attribute_id, type_version),
  	FOREIGN KEY (attribute_id) REFERENCES attributes(attribute_id),
- 	FOREIGN KEY (type_id) REFERENCES types(type_id)
+ 	FOREIGN KEY (type_version) REFERENCES type_version(version_id)
  );
  
  CREATE TABLE assets
@@ -82,7 +93,7 @@ CREATE TABLE attributes
 	created_at timestamp NOT NULL DEFAULT now(),
 	last_modified_at timestamp NOT NULL DEFAULT now(),
 	soft_delete INTEGER DEFAULT 0,
-	FOREIGN KEY (type) REFERENCES types(type_id),
+	FOREIGN KEY (type) REFERENCES type_version(version_id),
 	PRIMARY KEY (asset_id)
 );
 
@@ -122,6 +133,7 @@ CREATE TABLE attributes_values
 	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
  	FOREIGN KEY (attribute_id) REFERENCES attributes(attribute_id)
  );
+
 CREATE TABLE asset_logs
  (
  	log_id SERIAL,
@@ -136,27 +148,12 @@ CREATE TABLE asset_logs
 
  CREATE TABLE type_link
  (
-	type_id_from INTEGER,
-	type_id_to INTEGER,
-	FOREIGN KEY (type_id_from) REFERENCES types(type_id),
-	FOREIGN KEY (type_id_to) REFERENCES types(type_id),
-	PRIMARY KEY (type_id_from, type_id_to)
+	type_version_from INTEGER,
+	type_version_to INTEGER,
+	FOREIGN KEY (type_version_from) REFERENCES type_version(version_id),
+	FOREIGN KEY (type_version_to) REFERENCES type_version(version_id),
+	PRIMARY KEY (type_version_from, type_version_to)
  );
-
-
--- CREATE TABLE assets
--- (
--- 	asset_id SERIAL,
--- 	asset_name VARCHAR NOT NULL,
--- 	link VARCHAR NOT NULL,
--- 	creation_date date NOT NULL,
--- 	acess_level INT NOT NULL,
--- 	project_id BIGINT UNSIGNED,
-	
--- 	PRIMARY KEY (asset_id),
--- 	FOREIGN KEY project_id REFERENCES projects(project_id)
--- );
-
 
 CREATE TABLE people_in_projects
 (
