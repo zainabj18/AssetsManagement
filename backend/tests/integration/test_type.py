@@ -309,6 +309,7 @@ def test_get_allTypes(client):
         test_type = test_types[i]
         assert type["typeName"] == test_type["typeName"]
         assert type["metadata"] == test_type["metadata"]
+        assert type["versionNumber"] == 1
 
 
 # Test that a type can be deleted

@@ -161,20 +161,34 @@ def get_allAttributes():
 @bp.route("/allTypes", methods=["GET"])
 def get_allTypes():
     database = get_db()
-    query_a = """SELECT type_id, type_name FROM types;"""
-    with database.connection() as conn:
-        res = conn.execute(query_a)
-        allTypes = res.fetchall()
-        allTypes_listed = []
-        for type in allTypes:
-            query_b = """SELECT at.attribute_id,attribute_name, attribute_data_type, validation_data FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t on at.type_id = t.type_id WHERE t.type_id = %(type_id)s;"""
-            res = conn.execute(query_b, {"type_id": type[0]})
-            attributes = extract_attributes(res.fetchall())
-            allTypes_listed.append(
-                {"typeId": type[0], "typeName": type[1],
-                    "metadata": attributes}
-            )
-        return json.dumps(allTypes_listed), 200
+    query = """
+    SELECT version_id, t.type_id, t.type_name, version_number
+    FROM types as t
+    INNER JOIN type_version as tv ON t.type_id = tv.type_id;
+    """
+    res = make_query(database, query)
+    allTypes = res.fetchall()
+    allTypes_listed = []
+    for type in allTypes:
+        query = """
+        SELECT at.attribute_id, attribute_name, attribute_data_type, validation_data
+        FROM attributes_in_types AS at
+        INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id
+        INNER JOIN type_version AS tv on at.type_version = tv.version_id
+        WHERE version_id = %(version_id)s;
+        """
+        res = make_query(database, query, {"version_id": type[0]})
+        attributes = extract_attributes(res.fetchall())
+        allTypes_listed.append(
+            {
+                "versionId": type[0],
+                "typeId": type[1],
+                "typeName": type[2],
+                "versionNumber": type[3],
+                "metadata": attributes
+            }
+        )
+    return json.dumps(allTypes_listed), 200
 
 
 @bp.route("/delete/<id>", methods=["POST"])
