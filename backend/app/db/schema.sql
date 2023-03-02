@@ -87,13 +87,13 @@ CREATE TABLE attributes
 	asset_id SERIAL,
 	name VARCHAR NOT NULL UNIQUE,
 	link VARCHAR NOT NULL,
-    type INTEGER,
+    version_id INTEGER,
     description VARCHAR NOT NULL,
 	classification data_classification NOT NULL DEFAULT 'PUBLIC',
 	created_at timestamp NOT NULL DEFAULT now(),
 	last_modified_at timestamp NOT NULL DEFAULT now(),
 	soft_delete INTEGER DEFAULT 0,
-	FOREIGN KEY (type) REFERENCES type_version(version_id),
+	FOREIGN KEY (version_id) REFERENCES type_version(version_id),
 	PRIMARY KEY (asset_id)
 );
 
