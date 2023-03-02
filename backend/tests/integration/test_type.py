@@ -333,7 +333,7 @@ def test_delete_type(client, db_conn):
     assert res.status_code == 200
     with db_conn.cursor(row_factory=dict_row) as cur:
         cur.execute(
-            """SELECT * FROM types WHERE type_id = 1"""
+            """SELECT * FROM type_version WHERE version_id = 1"""
         )
         assert cur.fetchone() == None
 

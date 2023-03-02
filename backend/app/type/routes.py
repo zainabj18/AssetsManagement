@@ -196,30 +196,45 @@ def delete_type(id):
     database = get_db()
     canDo = True
 
-    query = """SELECT COUNT(*) FROM assets WHERE type = (%(id)s);"""
-    with database.connection() as conn:
-        res = conn.execute(query, {"id": id})
-        if (res.fetchone()[0] > 0):
-            canDo = False
+    query = """SELECT version_id FROM type_version WHERE type_id = %(id)s"""
+    res = make_query(database, query, {"id": id})
+    version_ids = res.fetchall()
 
-    query = """SELECT COUNT(*) FROM type_link WHERE type_id_to = (%(id)s);"""
-    with database.connection() as conn:
-        res = conn.execute(query, {"id": id})
+    for version_id in version_ids:
+        query = """SELECT COUNT(*) FROM assets WHERE version_id = (%(id)s);"""
+        res = make_query(database, query, {"id": version_id[0]})
         if (res.fetchone()[0] > 0):
             canDo = False
+            break
+
+        query = """SELECT COUNT(*) FROM type_version_link WHERE type_version_to = (%(id)s);"""
+        res = make_query(database, query, {"id": version_id[0]})
+        if (res.fetchone()[0] > 0):
+            canDo = False
+            break
 
     if canDo:
-        query = """DELETE FROM type_link WHERE type_id_from = (%(id)s);"""
-        with database.connection() as conn:
-            conn.execute(query, {"id": id})
+        query = """
+        DELETE FROM type_version_link
+        USING type_version
+        WHERE version_id = type_version_from
+            AND type_id = %(id)s;
+        """
+        make_query(database, query, {"id": id})
 
-        query = """DELETE FROM attributes_in_types WHERE type_id = (%(id)s);"""
-        with database.connection() as conn:
-            conn.execute(query, {"id": id})
+        query = """
+        DELETE FROM attributes_in_types
+        USING type_version
+        WHERE version_id = type_version
+            AND type_id = %(id)s;
+        """
+        make_query(database, query, {"id": id})
 
-        query = """DELETE FROM types WHERE type_id = (%(id)s);"""
-        with database.connection() as conn:
-            conn.execute(query, {"id": id})
+        query = """DELETE FROM type_version WHERE type_id = %(id)s;"""
+        make_query(database, query, {"id": id})
+
+        query = """DELETE FROM types WHERE type_id = %(id)s;"""
+        make_query(database, query, {"id": id})
 
     return {"msg": "", "wasAllowed": canDo}, 200
 
