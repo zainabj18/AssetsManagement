@@ -146,7 +146,7 @@ CREATE TABLE asset_logs
 	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
  );
 
- CREATE TABLE type_link
+ CREATE TABLE type_version_link
  (
 	type_version_from INTEGER,
 	type_version_to INTEGER,
