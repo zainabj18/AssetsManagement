@@ -6,10 +6,11 @@ from flask import Blueprint, request
 from psycopg.rows import dict_row
 
 
-def make_query(db, query, params):
+def make_query(db, query, params=None):
     with db.connection() as conn:
-        result = conn.execute(query, params)
-        return result
+        if params == None:
+            return conn.execute(query)
+        return conn.execute(query, params)
 
 
 def get_types(db):
@@ -103,14 +104,23 @@ def add_attribute():
 @bp.route("/<id>", methods=["GET"])
 def get_type(id):
     database = get_db()
-    query_a = """SELECT type_id, type_name FROM types;"""
-    with database.connection() as conn:
-        res = conn.execute(query_a)
-        type = res.fetchone()
-        query_b = """SELECT at.attribute_id,attribute_name, attribute_data_type, validation_data FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t on at.type_id = t.type_id WHERE t.type_id = %(type_id)s;"""
-        res = conn.execute(query_b, {"type_id": id})
-        attributes = extract_attributes(res.fetchall())
-        return {"typeId": type[0], "typeName": type[1], "metadata": attributes}, 200
+    query_a = """
+    SELECT *
+    FROM types as t
+    INNER JOIN type_version as tv ON t.type_id = tv.type_id;
+    """
+    res = make_query(database, query_a)
+    type = res.fetchone()
+    query = """
+    SELECT at.attribute_id,attribute_name, attribute_data_type, validation_data
+    FROM attributes_in_types AS at
+    INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id
+    INNER JOIN type_version AS tv on at.type_version = tv.version_id
+    WHERE tv.version_id = %(id)s;
+    """
+    res = make_query(database, query, {"id": id})
+    attributes = extract_attributes(res.fetchall())
+    return {"typeId": type[0], "typeName": type[1], "metadata": attributes}, 200
 
 
 def extract_attributes(attributes):
