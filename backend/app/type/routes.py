@@ -6,6 +6,12 @@ from flask import Blueprint, request
 from psycopg.rows import dict_row
 
 
+def make_query(db, query, params):
+    with db.connection() as conn:
+        result = conn.execute(query, params)
+        return result
+
+
 def get_types(db):
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=dict_row) as cur:
@@ -20,38 +26,55 @@ bp = Blueprint("type", __name__, url_prefix="/type")
 def add_type():
     new_type = Type(**request.json)
     db_type = new_type.dict(exclude={"metadata", "depends_on"})
-    query = """INSERT INTO types (type_name) VALUES (%(type_name)s) RETURNING type_id;"""
     database = get_db()
-    with database.connection() as conn:
-        ret = conn.execute(query, db_type)
-        type_id = ret.fetchone()[0]
 
-    query = """INSERT INTO attributes_in_types (attribute_id, type_id) VALUES (%(attr_id)s, %(type_id)s)"""
+    query = """
+    SELECT version_number FROM type_version
+    INNER JOIN types ON types.type_id = type_version.type_id
+    WHERE type_name = %(type_name)s;
+    """
+    result = make_query(database, query, db_type)
+    type_version_number = 1
+    if result.fetchone() != None:
+        type_version_number = result.fetchone()[0] + 1
+
+    if type_version_number == 1:
+        query = """INSERT INTO types (type_name) VALUES (%(type_name)s) RETURNING type_id;"""
+    else:
+        query = """SELECT type_id FROM types WHERE type_nmae = %(type_name)s"""
+
+    type_id = make_query(database, query, db_type).fetchone()[0]
+
+    query = """
+    INSERT INTO type_version (version_number, type_id)
+    VALUES (%(version_number)s,%(type_id)s)
+    RETURNING version_id;
+    """
+    params = {"version_number": type_version_number, "type_id": type_id}
+    type_version = make_query(database, query, params).fetchone()[0]
+
+    query = """
+    INSERT INTO attributes_in_types (attribute_id, type_version)
+    VALUES (%(attr_id)s, %(type_version)s)
+    """
     for attribute in new_type.metadata:
-        with database.connection() as conn:
-            conn.execute(
-                query,
-                {
-                    "type_id": type_id,
-                    "attr_id": attribute.attribute_id,
-                },
-            )
+        params = {"type_version": type_version,
+                  "attr_id": attribute.attribute_id}
+        make_query(database, query, params)
 
-    query = """INSERT INTO type_link (type_id_from, type_id_to) VALUES (%(from)s, %(to)s)"""
+    query = """
+    INSERT INTO type_version_link (type_version_from, type_version_to)
+    VALUES (%(from)s, %(to)s)
+    """
     selfDependent_error = False
     for dependency_key in new_type.depends_on:
-        with database.connection() as conn:
-            # If the id refers to itself, it is skipped and an error code will be returned
-            if type_id != dependency_key:
-                conn.execute(
-                    query,
-                    {
-                        "from": type_id,
-                        "to": dependency_key
-                    }
-                )
-            else:
-                selfDependent_error = True
+        # If the id refers to itself, it is skipped and an error code will be returned
+        # Though the rest of the dependecies will still be added
+        if type_id != dependency_key:
+            params = {"from": type_version, "to": dependency_key}
+            make_query(database, query, params)
+        else:
+            selfDependent_error = True
 
     if selfDependent_error:
         return {"msg": "Type can not depend on self"}, 422

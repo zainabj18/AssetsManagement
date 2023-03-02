@@ -91,12 +91,16 @@ def test_add_type_to_db(client, db_conn):
 
     with db_conn.cursor(row_factory=dict_row) as cur:
         cur.execute(
-            """SELECT * FROM attributes_in_types AS at INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id INNER JOIN types AS t ON at.type_id = t.type_id;"""
+            """SELECT * FROM attributes_in_types AS at
+            INNER JOIN attributes AS a ON at.attribute_id = a.attribute_id
+            INNER JOIN type_version AS tv ON at.type_version = tv.version_id
+            INNER JOIN types AS t ON tv.type_id = t.type_id;"""
         )
         type = cur.fetchone()
         assert type["type_name"] == test_type["typeName"]
         assert type["attribute_name"] == test_type["metadata"][0]["attributeName"]
         assert type["attribute_data_type"] == test_type["metadata"][0]["attributeType"]
+        assert type["version_id"] == 1
 
 
 # Test to see if dependecies can be added
