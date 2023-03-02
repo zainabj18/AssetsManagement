@@ -104,7 +104,7 @@ def test_add_type_to_db(client, db_conn):
 
 
 # Test to see if dependecies can be added
-def test_add_type_with_dependecnices(client, db_conn):
+def test_add_type_with_dependencies(client, db_conn):
     test_metaData = {
         "attributeName": "programming Language(s)",
         "attributeType": "text"
@@ -148,15 +148,15 @@ def test_add_type_with_dependecnices(client, db_conn):
     client.post("/api/v1/type/new", json=test_type_c)
     with db_conn.cursor(row_factory=dict_row) as cur:
         cur.execute(
-            """SELECT * FROM type_link"""
+            """SELECT * FROM type_version_link"""
         )
         res = cur.fetchall()
-        assert res[0]["type_id_from"] == 2
-        assert res[0]["type_id_to"] == 1
-        assert res[1]["type_id_from"] == 3
-        assert res[1]["type_id_to"] == 2
-        assert res[2]["type_id_from"] == 3
-        assert res[2]["type_id_to"] == 1
+        assert res[0]["type_version_from"] == 2
+        assert res[0]["type_version_to"] == 1
+        assert res[1]["type_version_from"] == 3
+        assert res[1]["type_version_to"] == 2
+        assert res[2]["type_version_from"] == 3
+        assert res[2]["type_version_to"] == 1
 
 
 # Test to make sure that no type can depend on itself
