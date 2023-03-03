@@ -210,7 +210,7 @@ const TypeAdder = () => {
 
 			<AttributeModal
 				showModalButtonText="Add"
-				load_allAttributes_trigger={setTrigger_load_attributes}
+				load_allAttributes_trigger={load_allAttributes_setter}
 			></AttributeModal>
 			<Button onClick={saveType}>Save</Button>
 		</VStack >
