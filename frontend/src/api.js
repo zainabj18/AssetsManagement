@@ -134,3 +134,6 @@ export const deleteType = async (id) => {
 export const deleteAttribute = async (id) => {
 	return await axios.post(`/type/attribute/delete/${id}`).then(res => res.data);
 };
+export const isAttributeNameIn = async (name) => {
+	return await axios.post('/type/adder/isAttrNameIn', name).then(res => res.data);
+};
