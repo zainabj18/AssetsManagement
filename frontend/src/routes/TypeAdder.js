@@ -5,10 +5,9 @@ import {
 	FormControl, FormLabel, FormErrorMessage,
 	Input,
 	HStack, VStack,
-	Table, Thead, Tbody, Tr, Th, Td, TableContainer, TableCaption,
+	Table, Thead, Tbody, Tr, Th, Td, TableContainer,
 	Text,
 	useBoolean,
-	useDisclosure,
 	Heading
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
