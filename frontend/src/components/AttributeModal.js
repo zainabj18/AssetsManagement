@@ -57,7 +57,6 @@ const AttributeModal = ({ showModalButtonText, load_allAttributes_setter }) => {
 					load_allAttributes_setter.toggle();
 					onClose();
 				});
-
 			};
 		});
 	};
