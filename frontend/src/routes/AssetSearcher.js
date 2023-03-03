@@ -1,13 +1,15 @@
 import { VStack } from '@chakra-ui/react';
 import { HStack } from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
-import {Accordion,AccordionItem,AccordionButton,AccordionPanel,AccordionIcon, Input,Button} from '@chakra-ui/react';
+import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Input, Button } from '@chakra-ui/react';
 import { Checkbox } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { fetchTypesList } from '../api';
 
 const FilterBasedSearch = () => {
+	const [types, setTypes] = useState([]);
 	const [inputFields, setInputFields] = useState([
-		{ name: '', values: ''}
+		{ name: '', values: '' }
 	]);
 
 	const handleFormChange = (index, event) => {
@@ -32,6 +34,13 @@ const FilterBasedSearch = () => {
 		setInputFields(data);
 	};
 
+	useEffect(() => {
+		fetchTypesList().then((res) => {
+			setTypes(res.data);
+		}
+		);
+	}, []);
+
 	return (
 		<Box p={30}>
 			<VStack> <p>This is the Filter Based Search Page !!</p></VStack>
@@ -43,9 +52,12 @@ const FilterBasedSearch = () => {
 						</AccordionButton>
 					</h2>
 					<AccordionPanel pb={4}>
-						<VStack align = {'left'}>
-							<Checkbox colorScheme='green' defaultChecked>Framework</Checkbox>
-							<Checkbox colorScheme='green' defaultChecked>Documentation</Checkbox>
+						<VStack align={'left'}>
+							{types.map((types) => {
+								return ( 
+									<Checkbox colorScheme='green' defaultChecked>{types.type_name}</Checkbox>
+								);
+							})}
 						</VStack>
 					</AccordionPanel>
 				</AccordionItem>
@@ -57,7 +69,7 @@ const FilterBasedSearch = () => {
 						</AccordionButton>
 					</h2>
 					<AccordionPanel pb={4}>
-						<VStack align = {'left'}>
+						<VStack align={'left'}>
 							<Checkbox colorScheme='green' defaultChecked>React</Checkbox>
 						</VStack>
 					</AccordionPanel>
@@ -70,7 +82,7 @@ const FilterBasedSearch = () => {
 						</AccordionButton>
 					</h2>
 					<AccordionPanel pb={4}>
-						<VStack align = {'left'}>
+						<VStack align={'left'}>
 							<Checkbox colorScheme='green' defaultChecked>Project A</Checkbox>
 							<Checkbox colorScheme='green' defaultChecked>Project B</Checkbox>
 							<Checkbox colorScheme='green' defaultChecked>Project C</Checkbox>
@@ -86,7 +98,7 @@ const FilterBasedSearch = () => {
 						</AccordionButton>
 					</h2>
 					<AccordionPanel pb={4}>
-						<VStack align = {'left'}>
+						<VStack align={'left'}>
 							<Checkbox colorScheme='green' defaultChecked>Public</Checkbox>
 							<Checkbox colorScheme='green' defaultChecked>Internal</Checkbox>
 							<Checkbox colorScheme='green' defaultChecked>Restricted</Checkbox>
@@ -105,24 +117,24 @@ const FilterBasedSearch = () => {
 									placeholder='Attribute name'
 									value={input.name}
 									onChange={event => handleFormChange(index, event)}
-									color = 'white'
+									color='white'
 								/>
 								<Input
 									name='values'
 									placeholder='Attribute value'
 									value={input.values}
 									onChange={event => handleFormChange(index, event)}
-									color = 'white'
-									fontsize = '20'
+									color='white'
+									fontsize='20'
 								/>
 								<Button onClick={() => removeFields(index)}>Remove</Button>
-							</HStack>	
+							</HStack>
 						);
 					})}
 					<Button onClick={addFields}>Add More</Button>
 					<Button onClick={submit}>Submit</Button>
 				</form>
-    		</div>
+			</div>
 		</Box>
 	);
 };

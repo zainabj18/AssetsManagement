@@ -134,3 +134,7 @@ export const deleteType = async (id) => {
 export const deleteAttribute = async (id) => {
 	return await axios.post(`/type/attribute/delete/${id}`).then(res => res.data);
 };
+
+export const fetchTypes = async () => {
+	return await axios.get('/type/summary').then(res => res.data);
+};
