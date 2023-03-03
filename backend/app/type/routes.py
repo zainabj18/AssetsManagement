@@ -263,6 +263,5 @@ def is_attr_name_in():
     database = get_db()
     query = """SELECT COUNT(*) FROM attributes WHERE attribute_name = %(name)s"""
     res = make_query(database, query, {"name": request.json["name"]})
-    is_in =  res.fetchone()[0] > 0
+    is_in = res.fetchone()[0] > 0
     return {"data": is_in}, 200
-

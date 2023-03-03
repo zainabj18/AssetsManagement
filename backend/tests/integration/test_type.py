@@ -405,13 +405,15 @@ def test_delete_attribute(client):
 
 # Checks to see if an attribute name is in the database
 def test_is_attr_name_in(client):
-     test_attribute = {
+    test_attribute = {
         "attributeName": "public",
         "attributeType": "checkbox",
     }
-     client.post("/api/v1/type/adder/new", json=test_attribute)
-     res = client.post("/api/v1/type/adder/isAttrNameIn", json={"name": "public"})
-     assert res.status_code == 200
-     assert res.data == b'{\n  "data": true\n}\n'
-     res = client.post("/api/v1/type/adder/isAttrNameIn", json={"name": "private"})
-     assert res.data == b'{\n  "data": false\n}\n'
+    client.post("/api/v1/type/adder/new", json=test_attribute)
+    res = client.post("/api/v1/type/adder/isAttrNameIn",
+                      json={"name": "public"})
+    assert res.status_code == 200
+    assert res.data == b'{\n  "data": true\n}\n'
+    res = client.post("/api/v1/type/adder/isAttrNameIn",
+                      json={"name": "private"})
+    assert res.data == b'{\n  "data": false\n}\n'
