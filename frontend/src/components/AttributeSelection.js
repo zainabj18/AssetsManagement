@@ -19,20 +19,14 @@ const AttributeSelection = ({ selectedAttributes_state, set_selectedAttributes_s
 
 	const [allAttributes, set_allAttributes] = useState([]);
 
-	const [selectedAttributes, set_selectedAttributes] = useState([]);
-
-	useEffect(() => {
-		set_selectedAttributes(selectedAttributes_state);
-	}, [selectedAttributes_state]);
-
 	const selectAttribute = (attribute) => {
-		let list = [...selectedAttributes];
+		let list = [...selectedAttributes_state];
 		list.push(attribute);
 		set_selectedAttributes_state(TypeAdderManager.sortAttributes(list));
 	};
 
 	const deselectAttribute = (attribute) => {
-		let selectedData = [...selectedAttributes];
+		let selectedData = [...selectedAttributes_state];
 		let index = selectedData.indexOf(attribute);
 		selectedData.splice(index, 1);
 		set_selectedAttributes_state(selectedData);
@@ -48,9 +42,8 @@ const AttributeSelection = ({ selectedAttributes_state, set_selectedAttributes_s
 	};
 
 	const checkChecked = (name) => {
-		console.log(selectedAttributes);
-		if (typeof selectedAttributes !== 'undefined') {
-			return TypeAdderManager.isAttributeNameIn(name, [...selectedAttributes]);
+		if (typeof selectedAttributes_state !== 'undefined') {
+			return TypeAdderManager.isAttributeNameIn(name, [...selectedAttributes_state]);
 		}
 		else {
 			return false;
