@@ -24,28 +24,29 @@ const TypeEditor = () => {
 		load_type();
 	}, [toggle]);
 
-	const [canBackfill, set_canBackfill] = useState(true);
-
 	const [selectedTypes, set_selectedTypes] = useState([]);
-	useEffect(() => {
-		if (typeof type.dependsOn !== 'undefined') {
-			set_canBackfill(TypeMethodManager.doesContainAll(selectedTypes, type.dependsOn));
-		}
-	}, [selectedTypes]);
 
 	const [selectedAttributes, set_selectedAttributes] = useState([]);
 	useEffect(() => {
-		if (typeof type.metadata !== 'undefined') {
-			set_selectedAttributes_hasError(selectedAttributes.length < 1);
-			set_canBackfill(TypeMethodManager.doesContainAll(
-				TypeMethodManager.extractAttributeIds(selectedAttributes),
-				TypeMethodManager.extractAttributeIds(type.metadata))
-			);
-		}
+		set_selectedAttributes_hasError(selectedAttributes.length < 1);
 	}, [selectedAttributes]);
 
 	const [load_attribute_trigger, set_load_attribute_trigger] = useBoolean();
 	const [selectedAttributes_hasError, set_selectedAttributes_hasError] = useState(false);
+
+	const [canBackfill, set_canBackfill] = useState(true);
+	useEffect(() => {
+		if (typeof type.dependsOn !== 'undefined' && typeof type.metadata !== 'undefined') {
+			set_canBackfill(
+				TypeMethodManager.doesContainAll(selectedTypes, type.dependsOn)
+				&&
+				TypeMethodManager.doesContainAll(
+					TypeMethodManager.extractAttributeIds(selectedAttributes),
+					TypeMethodManager.extractAttributeIds(type.metadata)
+				)
+			);
+		}
+	}, [selectedTypes, selectedAttributes]);
 
 	const saveType = () => {
 		if (!selectedAttributes_hasError) {
