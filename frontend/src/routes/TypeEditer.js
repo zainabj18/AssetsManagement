@@ -1,12 +1,13 @@
-import { Heading, VStack, useBoolean } from '@chakra-ui/react';
+import { Heading, VStack, useBoolean, Button } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { fetchType } from '../api';
+import { useNavigate, useParams } from 'react-router-dom';
+import { createType, fetchType } from '../api';
 import AttributeSelection from '../components/AttributeSelection';
 import TypeSelection from '../components/TypeSelection';
 
 const TypeEditer = () => {
 	let { id } = useParams();
+	let navigate = useNavigate();
 
 	const [toggle, set_toggle] = useBoolean();
 
@@ -31,6 +32,17 @@ const TypeEditer = () => {
 	const [load_attribute_trigger, set_load_attribute_trigger] = useBoolean();
 	const [selectedAttributes_hasError, set_selectedAttributes_hasError] = useState(false);
 
+	const saveType = () => {
+		if (!selectedAttributes_hasError) {
+			createType({
+				typeName: type.typeName,
+				metadata: selectedAttributes,
+				dependsOn: selectedTypes
+			});
+			navigate('/type');
+		}
+	};
+
 	return (
 		<VStack align='stetch'>
 			<Heading as='h1' size='2xl'>Type: {type.typeName}</Heading>
@@ -45,6 +57,7 @@ const TypeEditer = () => {
 				selectedTypes_state={selectedTypes}
 				set_selectedTypes_state={set_selectedTypes}
 			/>
+			<Button onClick={saveType}>Save</Button>
 		</VStack>
 	);
 };
