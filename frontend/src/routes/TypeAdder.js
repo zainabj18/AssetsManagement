@@ -82,6 +82,7 @@ const TypeAdder = () => {
 			<HStack minW='80%'>
 				<AttributeSelection
 					width='30%'
+					selectedAttributes_state={selectedAttributes}
 					set_selectedAttributes_state={set_selectedAttributes}
 					load_attribute_trigger={load_attribute_trigger}
 					isInvalid={selectedAttributes_hasError}

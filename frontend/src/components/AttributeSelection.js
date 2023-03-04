@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import TypeAdderManager from '../components/TypeAdderManager';
 import { fetchAllAttributes } from '../api';
 
-const AttributeSelection = ({ set_selectedAttributes_state, load_attribute_trigger, isInvalid, isRequired, width }) => {
+const AttributeSelection = ({ selectedAttributes_state, set_selectedAttributes_state, load_attribute_trigger, isInvalid, isRequired, width }) => {
 
 	useEffect(() => {
 		async function load_allAttributes() {
@@ -20,21 +20,22 @@ const AttributeSelection = ({ set_selectedAttributes_state, load_attribute_trigg
 	const [allAttributes, set_allAttributes] = useState([]);
 
 	const [selectedAttributes, set_selectedAttributes] = useState([]);
+
 	useEffect(() => {
-		set_selectedAttributes_state(selectedAttributes);
-	}, [selectedAttributes]);
+		set_selectedAttributes(selectedAttributes_state);
+	}, [selectedAttributes_state]);
 
 	const selectAttribute = (attribute) => {
 		let list = [...selectedAttributes];
 		list.push(attribute);
-		set_selectedAttributes(TypeAdderManager.sortAttributes(list));
+		set_selectedAttributes_state(TypeAdderManager.sortAttributes(list));
 	};
 
 	const deselectAttribute = (attribute) => {
 		let selectedData = [...selectedAttributes];
 		let index = selectedData.indexOf(attribute);
 		selectedData.splice(index, 1);
-		set_selectedAttributes(selectedData);
+		set_selectedAttributes_state(selectedData);
 	};
 
 	const ajustSelectedAttributes = (checked, index) => {
@@ -46,6 +47,19 @@ const AttributeSelection = ({ set_selectedAttributes_state, load_attribute_trigg
 		}
 	};
 
+	const checkChecked = (name) => {
+		console.log(selectedAttributes);
+		if (typeof selectedAttributes !== 'undefined') {
+			return TypeAdderManager.isAttributeNameIn(
+				name, [...selectedAttributes]
+			);
+		}
+		else {
+			return false;
+		}
+	};
+
+
 	return (
 		<FormControl isRequired={isRequired} isInvalid={isInvalid} width={width}>
 			<FormLabel>Select Attributes</FormLabel>
@@ -54,9 +68,7 @@ const AttributeSelection = ({ set_selectedAttributes_state, load_attribute_trigg
 				return (
 					<VStack key={attribute.attributeName} align="left">
 						<Checkbox
-							isChecked={TypeAdderManager.isAttributeNameIn(
-								attribute.attributeName, [...selectedAttributes]
-							)}
+							isChecked={checkChecked(attribute.attributeName)}
 							value={attribute.attributeName}
 							onChange={(e) => ajustSelectedAttributes(e.target.checked, index)}
 						> {attribute.attributeName}
