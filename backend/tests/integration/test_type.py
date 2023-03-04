@@ -203,7 +203,7 @@ def test_get_type(client):
     type = res.json
     assert type["typeName"] == test_type["typeName"]
     assert type["metadata"] == test_type["metadata"]
-
+    assert type["versionNumber"] == 1
 
 # Test to see if a type can be returned from the database
 def test_get_type_with_json(client):

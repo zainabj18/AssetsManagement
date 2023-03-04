@@ -104,12 +104,13 @@ def add_attribute():
 @bp.route("/<id>", methods=["GET"])
 def get_type(id):
     database = get_db()
-    query_a = """
-    SELECT *
+    query = """
+    SELECT t.type_id, type_name, version_id, version_number
     FROM types as t
-    INNER JOIN type_version as tv ON t.type_id = tv.type_id;
+    INNER JOIN type_version as tv ON t.type_id = tv.type_id
+    WHERE tv.version_id = %(id)s;
     """
-    res = make_query(database, query_a)
+    res = make_query(database, query, {"id": id})
     type = res.fetchone()
     query = """
     SELECT at.attribute_id,attribute_name, attribute_data_type, validation_data
@@ -120,7 +121,13 @@ def get_type(id):
     """
     res = make_query(database, query, {"id": id})
     attributes = extract_attributes(res.fetchall())
-    return {"typeId": type[0], "typeName": type[1], "metadata": attributes}, 200
+    return {
+        "typeId": type[0],
+        "typeName": type[1],
+        "versionId": type[2],
+        "versionNumber": type[3],
+        "metadata": attributes
+    }, 200
 
 
 def extract_attributes(attributes):
