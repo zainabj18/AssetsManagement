@@ -1,5 +1,5 @@
 /** Class containing functions to manipulate the types and attributes */
-export default class TypeAdderManager {
+export default class TypeMethodManager {
 	/** Checks to see if the given attribute name is also in the given list.
 	 * @param {string} attributeName The name of the attribute to search for.
 	 * @param {Array.<{attributeName: string}>} list The list of attributes to search through.

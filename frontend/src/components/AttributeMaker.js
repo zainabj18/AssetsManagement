@@ -1,5 +1,3 @@
-import TypeAdderManager from './TypeAdderManager';
-
 /** Class to hold and use the input data for creating a new attribute */
 export default class AttributeMaker {
 

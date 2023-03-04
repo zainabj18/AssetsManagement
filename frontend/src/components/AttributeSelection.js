@@ -4,7 +4,7 @@ import {
 	VStack,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import TypeAdderManager from '../components/TypeAdderManager';
+import TypeMethodManager from '../components/TypeMethodManager';
 import { fetchAllAttributes } from '../api';
 
 const AttributeSelection = ({ selectedAttributes_state, set_selectedAttributes_state, load_attribute_trigger, isInvalid, isRequired, width }) => {
@@ -22,7 +22,7 @@ const AttributeSelection = ({ selectedAttributes_state, set_selectedAttributes_s
 	const selectAttribute = (attribute) => {
 		let list = [...selectedAttributes_state];
 		list.push(attribute);
-		set_selectedAttributes_state(TypeAdderManager.sortAttributes(list));
+		set_selectedAttributes_state(TypeMethodManager.sortAttributes(list));
 	};
 
 	const deselectAttribute = (attribute) => {
@@ -43,7 +43,7 @@ const AttributeSelection = ({ selectedAttributes_state, set_selectedAttributes_s
 
 	const checkChecked = (name) => {
 		if (typeof selectedAttributes_state !== 'undefined') {
-			return TypeAdderManager.isAttributeNameIn(name, [...selectedAttributes_state]);
+			return TypeMethodManager.isAttributeNameIn(name, [...selectedAttributes_state]);
 		}
 		else {
 			return false;

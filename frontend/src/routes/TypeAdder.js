@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import TypeAdderManager from '../components/TypeAdderManager';
+import TypeMethodManager from '../components/TypeMethodManager';
 import { createType, fetchTypesList } from '../api';
 import useAuth from '../hooks/useAuth';
 import AttributeModal from '../components/AttributeModal';
@@ -49,7 +49,7 @@ const TypeAdder = () => {
 	const saveType = () => {
 		fetchTypesList().then(data => {
 			let typeNames = data.data;
-			let name_already_exists = TypeAdderManager.isTypeNameIn(typeName, typeNames);
+			let name_already_exists = TypeMethodManager.isTypeNameIn(typeName, typeNames);
 			let nameError = get_typeName_errorMessage(name_already_exists, typeName === '');
 			set_new_typeName_errorMessage(nameError);
 
