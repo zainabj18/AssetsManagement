@@ -1,20 +1,13 @@
 import {
 	Checkbox,
 	FormControl, FormLabel,
-	useBoolean,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { fetchTypesList } from '../api';
 
-const TypeSelection = ({set_selectedTypes_state}) => {
+const TypeSelection = ({ selectedTypes_state, set_selectedTypes_state }) => {
 
-	const [trigger_load_types] = useBoolean();
 	const [allTypes, set_allTypes] = useState([]);
-	const [selectedTypes, set_selectedTypes] = useState([]);
-
-	useEffect(() => {
-		set_selectedTypes_state(selectedTypes);
-	}, [selectedTypes]);
 
 	useEffect(() => {
 		async function load_allTypes() {
@@ -22,17 +15,19 @@ const TypeSelection = ({set_selectedTypes_state}) => {
 			set_allTypes(data);
 		}
 		load_allTypes();
-	}, [trigger_load_types]);
+	}, []);
 
 	const selectType = (id) => {
-		selectedTypes.push(id);
-		set_selectedTypes(selectedTypes);
+		let selectedData = [...selectedTypes_state];
+		selectedData.push(id);
+		set_selectedTypes_state(selectedData);
 	};
 
 	const deselectType = (item) => {
-		let index = selectedTypes.indexOf(item);
-		selectedTypes.splice(index, 1);
-		set_selectedTypes(selectedTypes);
+		let selectedData = [...selectedTypes_state];
+		let index = selectedData.indexOf(item);
+		selectedData.splice(index, 1);
+		set_selectedTypes_state(selectedData);
 	};
 
 	const ajustSelectedTypes = (checked, id) => {
@@ -43,19 +38,30 @@ const TypeSelection = ({set_selectedTypes_state}) => {
 			deselectType(id);
 		}
 	};
-	
+
+	const checkChecked = (id) => {
+		console.log('checkbox');
+		if (typeof selectedTypes_state !== 'undefined') {
+			return [...selectedTypes_state].includes(id);
+		}
+		else {
+			return false;
+		}
+	};
+
 	return (
 		<FormControl>
 			<FormLabel>Depends On</FormLabel>
-			{allTypes.map((allTypes) => {
+			{allTypes.map((type) => {
 				return (
 					<Checkbox
-						key={allTypes.type_id}
+						key={type.type_id}
+						isChecked={checkChecked(type.type_id)}
 						onChange={(e) => {
-							ajustSelectedTypes(e.target.checked, allTypes.type_id);
+							ajustSelectedTypes(e.target.checked, type.type_id);
 						}}
 					>
-						{allTypes.type_name}
+						{type.type_name}
 					</Checkbox>
 				);
 			})}

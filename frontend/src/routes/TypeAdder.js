@@ -91,7 +91,10 @@ const TypeAdder = () => {
 				<SelectedAttributesList selectedAttributes_state={selectedAttributes} />
 			</HStack>
 
-			<TypeSelection set_selectedTypes_state={set_selectedTypes} />
+			<TypeSelection
+				selectedTypes_state={selectedTypes}
+				set_selectedTypes_state={set_selectedTypes}
+			/>
 
 			<AttributeModal
 				showModalButtonText="Add"

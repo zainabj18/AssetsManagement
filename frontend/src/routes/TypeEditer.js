@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchType } from '../api';
 import AttributeSelection from '../components/AttributeSelection';
+import TypeSelection from '../components/TypeSelection';
 
 const TypeEditer = () => {
-	let { id } = useParams(); 
+	let { id } = useParams();
 
 	const [toggle, set_toggle] = useBoolean();
 
@@ -16,10 +17,12 @@ const TypeEditer = () => {
 			let data = await fetchType(id, res => res.data);
 			set_type(data);
 			set_selectedAttributes(data.metadata);
+			set_selectedTypes(data.dependsOn);
 		}
 		load_type();
 	}, [toggle]);
 
+	const [selectedTypes, set_selectedTypes] = useState([]);
 	const [selectedAttributes, set_selectedAttributes] = useState([]);
 	useEffect(() => {
 		set_selectedAttributes_hasError(selectedAttributes.length < 1);
@@ -37,6 +40,10 @@ const TypeEditer = () => {
 				set_selectedAttributes_state={set_selectedAttributes}
 				load_attribute_trigger={load_attribute_trigger}
 				isInvalid={selectedAttributes_hasError}
+			/>
+			<TypeSelection
+				selectedTypes_state={selectedTypes}
+				set_selectedTypes_state={set_selectedTypes}
 			/>
 		</VStack>
 	);
