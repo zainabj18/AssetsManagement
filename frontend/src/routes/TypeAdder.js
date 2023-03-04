@@ -16,52 +16,26 @@ import useAuth from '../hooks/useAuth';
 import AttributeModal from '../components/AttributeModal';
 import SelectedAttributesList from '../components/SelectedAttributesList';
 import DependsOnMenu from '../components/DependsOnMenu';
+import AttributeSelection from '../components/AttributeSelection';
 
 const TypeAdder = () => {
 
-	const [trigger_load_attributes, setTrigger_load_attributes] = useBoolean();
+	const [load_attribute_trigger, set_load_attribute_trigger] = useBoolean();
 	const { user } = useAuth();
 	let navigate = useNavigate();
 
+	// On Load
 	useEffect(() => {
 		if (user && user.userRole !== 'ADMIN') {
 			navigate('../');
 		}
-		async function load_allAttributes() {
-			let data = await fetchAllAttributes(res => res.data);
-			set_allAttributes(data);
-		}
-		load_allAttributes();
-	}, [trigger_load_attributes]);
+	}, []);
 
 	const [typeName, set_typeName] = useState('');
 	const [new_typeName_errorMessage, set_new_typeName_errorMessage] = useState('');
 	const [selectedAttributes, set_selectedAttributes] = useState([]);
-	const [selectedAttributes_errorMessage, set_selectedAttributes_errorMessage] = useState('');
+	const [selectedAttributes_hasError, set_selectedAttributes_hasError] = useState(false);
 	const [selectedTypes, set_selectedTypes] = useState([]);
-	const [allAttributes, set_allAttributes] = useState([]);
-
-	const selectAttribute = (attribute) => {
-		let list = [...selectedAttributes];
-		list.push(attribute);
-		set_selectedAttributes(TypeAdderManager.sortAttributes(list));
-	};
-
-	const deselectAttribute = (attribute) => {
-		let selectedData = [...selectedAttributes];
-		let index = selectedData.indexOf(attribute);
-		selectedData.splice(index, 1);
-		set_selectedAttributes(selectedData);
-	};
-
-	const ajustSelectedAttributes = (checked, index) => {
-		if (checked) {
-			selectAttribute([...allAttributes][index]);
-		}
-		if (!checked) {
-			deselectAttribute([...allAttributes][index]);
-		}
-	};
 
 	const get_typeName_errorMessage = (name_already_exists, name_is_empty) => {
 		let errorMessage = '';
@@ -74,23 +48,16 @@ const TypeAdder = () => {
 		return errorMessage;
 	};
 
-	const get_selectedAttrs_errorMessage = (selected_count) => {
-		let errorMessage = '';
-		if (selected_count < 1) {
-			errorMessage = 'At least 1 attribute must be selected';
-		}
-		return errorMessage;
-	};
-
 	const saveType = () => {
 		fetchTypesList().then(data => {
 			let typeNames = data.data;
 			let name_already_exists = TypeAdderManager.isTypeNameIn(typeName, typeNames);
 			let nameError = get_typeName_errorMessage(name_already_exists, typeName === '');
-			let selectedError = get_selectedAttrs_errorMessage(selectedAttributes.length);
 			set_new_typeName_errorMessage(nameError);
-			set_selectedAttributes_errorMessage(selectedError);
-			if (nameError + selectedError === '') {
+
+			let min1_selected_attribute = selectedAttributes.length > 0;
+			set_selectedAttributes_hasError(!min1_selected_attribute);
+			if (nameError === '' && min1_selected_attribute) {
 				createType({
 					typeName: typeName,
 					metadata: selectedAttributes,
@@ -114,35 +81,23 @@ const TypeAdder = () => {
 			</FormControl>
 			<HStack minW='80%'>
 
-				{/** The list of all allAttributes */}
-				<FormControl isRequired isInvalid={selectedAttributes_errorMessage !== ''} width='30%'>
-					<FormLabel>Select Attributes</FormLabel>
-					<FormErrorMessage>{selectedAttributes_errorMessage}</FormErrorMessage>
-					{allAttributes.map((attribute, index) => {
-						return (
-							<VStack key={attribute.attributeName} align="left">
-								<Checkbox
-									isChecked={TypeAdderManager.isAttributeNameIn(
-										attribute.attributeName, [...selectedAttributes]
-									)}
-									value={attribute.attributeName}
-									onChange={(e) => ajustSelectedAttributes(e.target.checked, index)}
-								> {attribute.attributeName}
-								</Checkbox>
-							</VStack>
-						);
-					})}
-				</FormControl>
+				<AttributeSelection
+					width='30%'
+					set_selectedAttributes_state={set_selectedAttributes}
+					load_attribute_trigger={load_attribute_trigger}
+					isInvalid={selectedAttributes_hasError}
+					isRequired='true'
+				/>
 
 				<SelectedAttributesList selectedAttributes_state={selectedAttributes} />
 
 			</HStack>
 
-			<DependsOnMenu set_selectedTypes_state={set_selectedTypes}/>
+			<DependsOnMenu set_selectedTypes_state={set_selectedTypes} />
 
 			<AttributeModal
 				showModalButtonText="Add"
-				load_allAttributes_setter={setTrigger_load_attributes}
+				load_allAttributes_setter={set_load_attribute_trigger}
 			/>
 			<Button onClick={saveType}>Save</Button>
 		</VStack >
