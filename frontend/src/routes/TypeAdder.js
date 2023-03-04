@@ -16,6 +16,7 @@ import TypeAdderManager from '../components/TypeAdderManager';
 import { fetchAllAttributes, createType, fetchTypesList } from '../api';
 import useAuth from '../hooks/useAuth';
 import AttributeModal from '../components/AttributeModal';
+import SelectedAttributesList from '../components/SelectedAttributesList';
 
 const TypeAdder = () => {
 
@@ -165,30 +166,7 @@ const TypeAdder = () => {
 					})}
 				</FormControl>
 
-				{/** The List of selected allAttributes */}
-
-				<TableContainer width='70%'>
-					<Heading placement='top' color='blue.900' size="md">Selected Attributes</Heading>
-					<Table varient='simple'>
-
-						<Thead>
-							<Tr>
-								<Th color='white'>Attribute Name</Th>
-								<Th color='white'>Data Type</Th>
-							</Tr>
-						</Thead>
-						<Tbody>
-							{selectedAttributes.map((attribute) => {
-								return (
-									<Tr key={attribute.attributeName}>
-										<Td>{attribute.attributeName}</Td>
-										<Td>{attribute.attributeType}</Td>
-									</Tr>
-								);
-							})}
-						</Tbody>
-					</Table>
-				</TableContainer>
+				<SelectedAttributesList selectedAttributes_state={selectedAttributes} />
 
 			</HStack>
 
@@ -211,7 +189,7 @@ const TypeAdder = () => {
 			<AttributeModal
 				showModalButtonText="Add"
 				load_allAttributes_setter={setTrigger_load_attributes}
-			></AttributeModal>
+			/>
 			<Button onClick={saveType}>Save</Button>
 		</VStack >
 	);
