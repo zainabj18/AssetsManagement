@@ -205,7 +205,58 @@ def test_get_type(client):
     assert type["metadata"] == test_type["metadata"]
     assert type["versionNumber"] == 1
 
-# Test to see if a type can be returned from the database
+
+# Test to see if a type can be returned from the databasee with type dependencies
+def test_get_type_with_dependencies(client):
+    test_type_a = {
+        "typeName": "library",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": "age",
+                "attributeType": "number",
+                "validation": None,
+            }
+        ],
+        "dependsOn": []
+    }
+    test_type_b = {
+        "typeName": "documentation",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": "age",
+                "attributeType": "number",
+                "validation": None,
+            }
+        ],
+        "dependsOn": [1]
+    }
+    test_type_c = {
+        "typeName": "programming langauge",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": "age",
+                "attributeType": "number",
+                "validation": None,
+            }
+        ],
+        "dependsOn": [1,2]
+    }
+    client.post("/api/v1/type/adder/new", json=test_type_a["metadata"][0])
+    client.post("/api/v1/type/new", json=test_type_a)
+    client.post("/api/v1/type/new", json=test_type_b)
+    client.post("/api/v1/type/new", json=test_type_c)
+    jsn = client.get("/api/v1/type/1").json
+    assert jsn["dependsOn"] == []
+    jsn = client.get("/api/v1/type/2").json
+    assert jsn["dependsOn"] == [1]
+    jsn = client.get("/api/v1/type/3").json
+    assert jsn["dependsOn"] == [1,2]
+
+
+# Test to see if a type can be returned from the database with a validation json
 def test_get_type_with_json(client):
     test_type = {
         "typeId": 1,

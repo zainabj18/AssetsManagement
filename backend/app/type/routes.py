@@ -36,13 +36,14 @@ def add_type():
     """
     result = make_query(database, query, db_type)
     type_version_number = 1
-    if result.fetchone() != None:
-        type_version_number = result.fetchone()[0] + 1
+    res_id = result.fetchone()
+    if res_id is not None:
+        type_version_number = res_id[0] + 1
 
     if type_version_number == 1:
         query = """INSERT INTO types (type_name) VALUES (%(type_name)s) RETURNING type_id;"""
     else:
-        query = """SELECT type_id FROM types WHERE type_nmae = %(type_name)s"""
+        query = """SELECT type_id FROM types WHERE type_name = %(type_name)s"""
 
     type_id = make_query(database, query, db_type).fetchone()[0]
 
@@ -112,6 +113,7 @@ def get_type(id):
     """
     res = make_query(database, query, {"id": id})
     type = res.fetchone()
+
     query = """
     SELECT at.attribute_id,attribute_name, attribute_data_type, validation_data
     FROM attributes_in_types AS at
@@ -121,12 +123,18 @@ def get_type(id):
     """
     res = make_query(database, query, {"id": id})
     attributes = extract_attributes(res.fetchall())
+
+    query = """SELECT type_version_to FROM type_version_link WHERE type_version_from = %(id)s;"""
+    res = make_query(database, query, {"id": id})
+    depends_on = [value[0] for value in res.fetchall()]
+
     return {
         "typeId": type[0],
         "typeName": type[1],
         "versionId": type[2],
         "versionNumber": type[3],
-        "metadata": attributes
+        "metadata": attributes,
+        "dependsOn": depends_on
     }, 200
 
 
