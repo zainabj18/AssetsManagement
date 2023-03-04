@@ -50,9 +50,7 @@ const AttributeSelection = ({ selectedAttributes_state, set_selectedAttributes_s
 	const checkChecked = (name) => {
 		console.log(selectedAttributes);
 		if (typeof selectedAttributes !== 'undefined') {
-			return TypeAdderManager.isAttributeNameIn(
-				name, [...selectedAttributes]
-			);
+			return TypeAdderManager.isAttributeNameIn(name, [...selectedAttributes]);
 		}
 		else {
 			return false;
