@@ -9,7 +9,6 @@ import { fetchTypesList } from '../api';
 const TypeSelection = ({set_selectedTypes_state}) => {
 
 	const [trigger_load_types] = useBoolean();
-
 	const [allTypes, set_allTypes] = useState([]);
 	const [selectedTypes, set_selectedTypes] = useState([]);
 

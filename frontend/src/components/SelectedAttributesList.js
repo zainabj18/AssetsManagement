@@ -3,12 +3,11 @@ import {
 	Heading,
 } from '@chakra-ui/react';
 
-const SelectedAttributesList = ({selectedAttributes_state}) => {
+const SelectedAttributesList = ({ selectedAttributes_state }) => {
 	return (
 		<TableContainer>
 			<Heading placement='top' size="md">Selected Attributes</Heading>
 			<Table varient='simple'>
-
 				<Thead>
 					<Tr>
 						<Th color='white'>Attribute Name</Th>

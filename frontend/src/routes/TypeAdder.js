@@ -1,7 +1,6 @@
 
 import {
 	Button,
-	Checkbox,
 	FormControl, FormLabel, FormErrorMessage,
 	Input,
 	HStack, VStack,
@@ -11,7 +10,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TypeAdderManager from '../components/TypeAdderManager';
-import { fetchAllAttributes, createType, fetchTypesList } from '../api';
+import { createType, fetchTypesList } from '../api';
 import useAuth from '../hooks/useAuth';
 import AttributeModal from '../components/AttributeModal';
 import SelectedAttributesList from '../components/SelectedAttributesList';
@@ -20,17 +19,16 @@ import AttributeSelection from '../components/AttributeSelection';
 
 const TypeAdder = () => {
 
-	const [load_attribute_trigger, set_load_attribute_trigger] = useBoolean();
 	const { user } = useAuth();
 	let navigate = useNavigate();
 
-	// On Load
 	useEffect(() => {
 		if (user && user.userRole !== 'ADMIN') {
 			navigate('../');
 		}
 	}, []);
 
+	const [load_attribute_trigger, set_load_attribute_trigger] = useBoolean();
 	const [typeName, set_typeName] = useState('');
 	const [new_typeName_errorMessage, set_new_typeName_errorMessage] = useState('');
 	const [selectedAttributes, set_selectedAttributes] = useState([]);
@@ -70,6 +68,7 @@ const TypeAdder = () => {
 
 	return (
 		<VStack width="90vw">
+
 			<Text>TypeAdder</Text>
 			<FormControl isRequired isInvalid={new_typeName_errorMessage !== ''}>
 				<FormLabel>Name</FormLabel>
@@ -79,8 +78,8 @@ const TypeAdder = () => {
 				/>
 				<FormErrorMessage>{new_typeName_errorMessage}</FormErrorMessage>
 			</FormControl>
-			<HStack minW='80%'>
 
+			<HStack minW='80%'>
 				<AttributeSelection
 					width='30%'
 					set_selectedAttributes_state={set_selectedAttributes}
@@ -88,9 +87,7 @@ const TypeAdder = () => {
 					isInvalid={selectedAttributes_hasError}
 					isRequired='true'
 				/>
-
 				<SelectedAttributesList selectedAttributes_state={selectedAttributes} />
-
 			</HStack>
 
 			<TypeSelection set_selectedTypes_state={set_selectedTypes} />

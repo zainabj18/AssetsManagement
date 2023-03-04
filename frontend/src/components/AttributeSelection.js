@@ -7,20 +7,7 @@ import React, { useEffect, useState } from 'react';
 import TypeAdderManager from '../components/TypeAdderManager';
 import { fetchAllAttributes } from '../api';
 
-const AttributeSelection = ({
-	set_selectedAttributes_state,
-	load_attribute_trigger,
-	isInvalid,
-	isRequired,
-	width
-}) => {
-
-	const [allAttributes, set_allAttributes] = useState([]);
-	const [selectedAttributes, set_selectedAttributes] = useState([]);
-
-	useEffect(() => {
-		set_selectedAttributes_state(selectedAttributes);
-	}, [selectedAttributes]);
+const AttributeSelection = ({ set_selectedAttributes_state, load_attribute_trigger, isInvalid, isRequired, width }) => {
 
 	useEffect(() => {
 		async function load_allAttributes() {
@@ -29,6 +16,13 @@ const AttributeSelection = ({
 		}
 		load_allAttributes();
 	}, [load_attribute_trigger]);
+
+	const [allAttributes, set_allAttributes] = useState([]);
+
+	const [selectedAttributes, set_selectedAttributes] = useState([]);
+	useEffect(() => {
+		set_selectedAttributes_state(selectedAttributes);
+	}, [selectedAttributes]);
 
 	const selectAttribute = (attribute) => {
 		let list = [...selectedAttributes];
