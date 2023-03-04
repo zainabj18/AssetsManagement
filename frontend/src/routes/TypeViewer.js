@@ -26,7 +26,7 @@ const TypeViewer = () => {
 
 	const deleteThis = (type) => {
 		deleteType(type.typeId).then(data => {
-			if (data.wasAllowed == false) {
+			if (!data.wasAllowed) {
 				alert('Type ' + type.typeName + ' is depended upon, can not be deleted.');
 			}
 			else {
