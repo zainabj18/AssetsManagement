@@ -6,7 +6,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { fetchTypesList } from '../api';
 
-const DependsOnMenu = ({set_selectedTypes_state}) => {
+const TypeSelection = ({set_selectedTypes_state}) => {
 
 	const [trigger_load_types] = useBoolean();
 
@@ -64,4 +64,4 @@ const DependsOnMenu = ({set_selectedTypes_state}) => {
 	);
 };
 
-export default DependsOnMenu;
+export default TypeSelection;

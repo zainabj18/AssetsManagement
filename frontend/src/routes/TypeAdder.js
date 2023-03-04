@@ -15,7 +15,7 @@ import { fetchAllAttributes, createType, fetchTypesList } from '../api';
 import useAuth from '../hooks/useAuth';
 import AttributeModal from '../components/AttributeModal';
 import SelectedAttributesList from '../components/SelectedAttributesList';
-import DependsOnMenu from '../components/DependsOnMenu';
+import TypeSelection from '../components/TypeSelection';
 import AttributeSelection from '../components/AttributeSelection';
 
 const TypeAdder = () => {
@@ -93,7 +93,7 @@ const TypeAdder = () => {
 
 			</HStack>
 
-			<DependsOnMenu set_selectedTypes_state={set_selectedTypes} />
+			<TypeSelection set_selectedTypes_state={set_selectedTypes} />
 
 			<AttributeModal
 				showModalButtonText="Add"
