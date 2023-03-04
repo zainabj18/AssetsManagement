@@ -43,10 +43,11 @@ const TypeViewer = () => {
 					<TableCaption placement='top' color='white'>Types</TableCaption>
 					<Thead>
 						<Tr>
-							<Th color='white'>Type</Th>
-							<Th color='white'>Attributes</Th>
-							<Th color='white'>Attribute Data Type</Th>
-							<Th color='white'>Delete</Th>
+							<Th>Type</Th>
+							<Th>Attributes</Th>
+							<Th>Attribute Data Type</Th>
+							<Th>Edit</Th>
+							<Th>Delete</Th>
 						</Tr>
 					</Thead>
 					<Tbody>
@@ -71,6 +72,11 @@ const TypeViewer = () => {
 												</VStack>
 											);
 										})}
+									</Td>
+									<Td>
+										<RouteLink to={`./${types.versionId}`}>
+											<Button>Edit</Button>
+										</RouteLink>
 									</Td>
 									<Td>
 										<Button onClick={() => deleteThis(types)}>Delete</Button>
