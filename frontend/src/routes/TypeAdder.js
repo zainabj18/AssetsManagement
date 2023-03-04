@@ -5,10 +5,8 @@ import {
 	FormControl, FormLabel, FormErrorMessage,
 	Input,
 	HStack, VStack,
-	Table, Thead, Tbody, Tr, Th, Td, TableContainer,
 	Text,
 	useBoolean,
-	Heading
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -17,11 +15,11 @@ import { fetchAllAttributes, createType, fetchTypesList } from '../api';
 import useAuth from '../hooks/useAuth';
 import AttributeModal from '../components/AttributeModal';
 import SelectedAttributesList from '../components/SelectedAttributesList';
+import DependsOnMenu from '../components/DependsOnMenu';
 
 const TypeAdder = () => {
 
 	const [trigger_load_attributes, setTrigger_load_attributes] = useBoolean();
-	const [trigger_load_types, setTrigger_load_types] = useBoolean();
 	const { user } = useAuth();
 	let navigate = useNavigate();
 
@@ -36,22 +34,12 @@ const TypeAdder = () => {
 		load_allAttributes();
 	}, [trigger_load_attributes]);
 
-	useEffect(() => {
-		async function load_allTypes() {
-			let data = (await fetchTypesList(res => res.data)).data;
-			console.log(data);
-			set_allTypes(data);
-		}
-		load_allTypes();
-	}, [trigger_load_types]);
-
 	const [typeName, set_typeName] = useState('');
 	const [new_typeName_errorMessage, set_new_typeName_errorMessage] = useState('');
 	const [selectedAttributes, set_selectedAttributes] = useState([]);
 	const [selectedAttributes_errorMessage, set_selectedAttributes_errorMessage] = useState('');
 	const [selectedTypes, set_selectedTypes] = useState([]);
 	const [allAttributes, set_allAttributes] = useState([]);
-	const [allTypes, set_allTypes] = useState([]);
 
 	const selectAttribute = (attribute) => {
 		let list = [...selectedAttributes];
@@ -72,26 +60,6 @@ const TypeAdder = () => {
 		}
 		if (!checked) {
 			deselectAttribute([...allAttributes][index]);
-		}
-	};
-
-	const selectType = (id) => {
-		selectedTypes.push(id);
-		set_selectedTypes(selectedTypes);
-	};
-
-	const deselectType = (item, list) => {
-		let index = list.indexOf(item);
-		list.splice(index, 1);
-		set_selectedTypes(list);
-	};
-
-	const ajustSelectedTypes = (checked, id) => {
-		if (checked) {
-			selectType(id);
-		}
-		if (!checked) {
-			deselectType(id, selectedTypes);
 		}
 	};
 
@@ -170,21 +138,7 @@ const TypeAdder = () => {
 
 			</HStack>
 
-			<FormControl>
-				<FormLabel>Depends On</FormLabel>
-				{allTypes.map((allTypes) => {
-					return (
-						<Checkbox
-							key={allTypes.type_id}
-							onChange={(e) => {
-								ajustSelectedTypes(e.target.checked, allTypes.type_id);
-							}}
-						>
-							{allTypes.type_name}
-						</Checkbox>
-					);
-				})}
-			</FormControl>
+			<DependsOnMenu set_selectedTypes_state={set_selectedTypes}/>
 
 			<AttributeModal
 				showModalButtonText="Add"
