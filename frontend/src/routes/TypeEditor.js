@@ -6,7 +6,7 @@ import AttributeSelection from '../components/AttributeSelection';
 import TypeMethodManager from '../components/TypeMethodManager';
 import TypeSelection from '../components/TypeSelection';
 
-const TypeEditer = () => {
+const TypeEditor = () => {
 	let { id } = useParams();
 	let navigate = useNavigate();
 
@@ -78,4 +78,4 @@ const TypeEditer = () => {
 	);
 };
 
-export default TypeEditer;
+export default TypeEditor;
