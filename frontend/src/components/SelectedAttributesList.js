@@ -3,7 +3,7 @@ import {
 	Heading,
 } from '@chakra-ui/react';
 
-const SelectedAttributesList = (selectedAttributes_state) => {
+const SelectedAttributesList = ({selectedAttributes_state}) => {
 	return (
 		<TableContainer>
 			<Heading placement='top' size="md">Selected Attributes</Heading>
@@ -16,7 +16,7 @@ const SelectedAttributesList = (selectedAttributes_state) => {
 					</Tr>
 				</Thead>
 				<Tbody>
-					{selectedAttributes_state.selectedAttributes_state.map((attribute) => {
+					{selectedAttributes_state.map((attribute) => {
 						return (
 							<Tr key={attribute.attributeName}>
 								<Td>{attribute.attributeName}</Td>
