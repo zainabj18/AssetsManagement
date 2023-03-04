@@ -40,7 +40,6 @@ const TypeSelection = ({ selectedTypes_state, set_selectedTypes_state }) => {
 	};
 
 	const checkChecked = (id) => {
-		console.log('checkbox');
 		if (typeof selectedTypes_state !== 'undefined') {
 			return [...selectedTypes_state].includes(id);
 		}
