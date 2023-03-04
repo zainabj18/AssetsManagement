@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createType, fetchType } from '../api';
 import AttributeSelection from '../components/AttributeSelection';
+import TypeMethodManager from '../components/TypeMethodManager';
 import TypeSelection from '../components/TypeSelection';
 
 const TypeEditer = () => {
@@ -23,10 +24,24 @@ const TypeEditer = () => {
 		load_type();
 	}, [toggle]);
 
+	const [canBackfill, set_canBackfill] = useState(true);
+
 	const [selectedTypes, set_selectedTypes] = useState([]);
+	useEffect(() => {
+		if (typeof type.dependsOn !== 'undefined') {
+			set_canBackfill(TypeMethodManager.doesContainAll(selectedTypes, type.dependsOn));
+		}
+	}, [selectedTypes]);
+
 	const [selectedAttributes, set_selectedAttributes] = useState([]);
 	useEffect(() => {
-		set_selectedAttributes_hasError(selectedAttributes.length < 1);
+		if (typeof type.metadata !== 'undefined') {
+			set_selectedAttributes_hasError(selectedAttributes.length < 1);
+			set_canBackfill(TypeMethodManager.doesContainAll(
+				TypeMethodManager.extractAttributeIds(selectedAttributes),
+				TypeMethodManager.extractAttributeIds(type.metadata))
+			);
+		}
 	}, [selectedAttributes]);
 
 	const [load_attribute_trigger, set_load_attribute_trigger] = useBoolean();
@@ -58,6 +73,7 @@ const TypeEditer = () => {
 				set_selectedTypes_state={set_selectedTypes}
 			/>
 			<Button onClick={saveType}>Save</Button>
+			<Heading>Can Backfill: {canBackfill.toString()}</Heading>
 		</VStack>
 	);
 };

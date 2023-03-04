@@ -49,4 +49,58 @@ export default class TypeMethodManager {
 		}
 		return false;
 	};
+
+	/** Binary search that returns the index of the target item.
+	 * @param {[any]} list An ordered list of comparable items.
+	 * @param {[any]} target The item to find.
+	 * @returns {int} The index of the target or -1 if no match is found.
+	 */
+	static bin_search = (list, target) => {
+		let start = 0;
+		let end = list.length - 1;
+
+		while (start <= end) {
+			let mid = Math.floor((start + end) / 2);
+
+			if (list[mid] < target) {
+				start = mid + 1;
+			}
+			else if (list[mid] > target) {
+				end = mid - 1;
+			}
+			else {
+				return mid;
+			}
+		}
+		return -1;
+	};
+
+	/** Search to find if all the items in the a list are in another list regardless of the lists' order.
+	 * @param {[int]} bigList The list of all items.
+	 * @param {[int]} smallList The list of items to check for.
+	 * @returns Are all the items in the smallList are in the bigList.
+	 */
+	static doesContainAll = (bigList, smallList) => {
+		bigList.sort();
+		smallList.sort();
+		let index = 0;
+		let failed = false;
+		while (index < smallList.length && !failed) {
+			failed = this.bin_search(bigList, smallList[index]) < 0;
+			index += 1;
+		}
+		return !failed;
+	};
+
+	/** Takes a list of attributes and extracts their ids.
+	 * @param {[object]} list The list of attributes.
+	 * @returns {[int]} The list of ids.
+	 */
+	static extractAttributeIds = (list) => {
+		let newList = [];
+		list.forEach(attribute => {
+			newList.push(attribute.attributeID);
+		});
+		return newList;
+	};
 }
