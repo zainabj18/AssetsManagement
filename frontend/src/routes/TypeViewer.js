@@ -53,7 +53,7 @@ const TypeViewer = () => {
 					<Tbody>
 						{types.map((types) => {
 							return (
-								<Tr key={types.typeName}>
+								<Tr key={types.versionId}>
 									<Td>{types.typeName}</Td>
 									<Td>
 										{types.metadata.map((metadata) => {
