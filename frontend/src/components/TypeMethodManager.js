@@ -103,4 +103,19 @@ export default class TypeMethodManager {
 		});
 		return newList;
 	};
+
+	/** Removes the given types from the given list of types
+	 * @param {[object]} list The list of types
+	 * @param {[int]} toRemove The list og type ids to remove
+	 * @returns {[object]}The given list minus the items given to remove
+	 */
+	static removeTheseFromList(list, toRemove) {
+		let newList = [];
+		list.forEach(type => {
+			if (!toRemove.includes(type.type_id)) {
+				newList.push(type);
+			}
+		});
+		return newList;
+	}
 }

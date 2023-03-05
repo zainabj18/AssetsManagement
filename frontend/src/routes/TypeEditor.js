@@ -72,6 +72,7 @@ const TypeEditor = () => {
 			<TypeSelection
 				selectedTypes_state={selectedTypes}
 				set_selectedTypes_state={set_selectedTypes}
+				excludeIds={[type.typeId]}
 			/>
 			<Button onClick={saveType}>Save</Button>
 			<Heading>Can Backfill: {canBackfill.toString()}</Heading>

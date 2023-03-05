@@ -4,18 +4,20 @@ import {
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { fetchTypesList } from '../api';
+import TypeMethodManager from './TypeMethodManager';
 
-const TypeSelection = ({ selectedTypes_state, set_selectedTypes_state }) => {
+const TypeSelection = ({ selectedTypes_state, set_selectedTypes_state, excludeIds = [] }) => {
 
 	const [allTypes, set_allTypes] = useState([]);
 
 	useEffect(() => {
 		async function load_allTypes() {
 			let data = (await fetchTypesList(res => res.data)).data;
-			set_allTypes(data);
+			let modifiedData = TypeMethodManager.removeTheseFromList(data, excludeIds);
+			set_allTypes(modifiedData);
 		}
 		load_allTypes();
-	}, []);
+	}, [excludeIds]);
 
 	const selectType = (id) => {
 		let selectedData = [...selectedTypes_state];
