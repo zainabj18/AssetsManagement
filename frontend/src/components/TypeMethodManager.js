@@ -15,7 +15,7 @@ export default class TypeMethodManager {
 		return false;
 	};
 
-	/** An insersion sort for attributes.
+	/** An insersion sort for attributes, references their names to compare.
 	 * @param {Array.<{attributeName: string}>} attributes The list of attributes to sort.
 	*/
 	static sortAttributes = (attributes) => {
@@ -133,5 +133,52 @@ export default class TypeMethodManager {
 			}
 		}
 		return -1;
+	};
+
+	/** An insersion sort for attributes, refrences their ids to sort.
+	 * @param {Array.<{attributeID: int}>} attributes The list of attributes to sort.
+	 * @returns {[int]} The ids in ascending order.
+	*/
+	static get_sortedAttributes_byId = (attributes) => {
+		let size = attributes.length;
+		let index;
+		for (index = 1; index < size; index++) {
+			let pos = index - 1;
+			let currentItem = attributes[index];
+			while (pos >= 0 && currentItem.attributeID < attributes[pos].attributeID) {
+				let temp = attributes[pos];
+				attributes[pos] = attributes[pos + 1];
+				attributes[pos + 1] = temp;
+				pos -= 1;
+			}
+		}
+		let ret = [];
+		attributes.forEach(attribute => { ret.push(attribute.attributeID); });
+		return ret;
+	};
+
+	/** Algorithm to find all the indexes of the current attributes in all that arn't in prev.
+	 * @param {[object.<{attributeID: int}>]} curr The list of attributes to find.
+	 * @param {[object.<{attributeID: int}>]} prev The list of the attributes to ignore.
+	 * @param {[object.<{attributeID: int}>]} all The list of all possible attributes.
+	 * @returns {[int]} The indexes of the attribute with reference to out.
+	 */
+	static getNewAttributeIndexes = (curr, prev, all) => {
+		curr = this.get_sortedAttributes_byId(curr);
+		prev = this.get_sortedAttributes_byId(prev);
+		all = this.get_sortedAttributes_byId(all);
+		let curr_p = 0;
+		let all_i = 0;
+		let out = [];
+		while (curr_p < curr.length && all_i < all.length) {
+			if (all[all_i] === curr[curr_p]) {
+				if (this.bin_search(prev, curr[curr_p]) === -1) {
+					out.push(all_i);
+				}
+				curr_p += 1;
+			}
+			all_i += 1;
+		}
+		return out;
 	};
 }
