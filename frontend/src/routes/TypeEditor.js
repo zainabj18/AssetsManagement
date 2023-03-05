@@ -35,7 +35,7 @@ const TypeEditor = () => {
 	useEffect(() => {
 		set_selectedAttributes_hasError(selectedAttributes.length < 1);
 	}, [selectedAttributes]);
-	const [new_selectedAttributeIndexes ,set_new_selectedAttributeIndexes] = useState([]);
+	const [new_selectedAttributes, set_new_selectedAttributes] = useState();
 
 	const [load_attribute_trigger, set_load_attribute_trigger] = useBoolean();
 	const [selectedAttributes_hasError, set_selectedAttributes_hasError] = useState(false);
@@ -58,8 +58,12 @@ const TypeEditor = () => {
 
 	const saveType = () => {
 		// Backfill code
-		fetchAllAttributes().then(data => {
-			set_new_selectedAttributeIndexes(TypeMethodManager.getNewAttributeIndexes(selectedAttributes, type.metadata, data));
+		fetchAllAttributes().then(allAttributes => {
+			let new_selectedAttribiteIndexes = TypeMethodManager
+				.getNewAttributeIndexes(selectedAttributes, type.metadata, allAttributes);
+			let new_selectedAttributes = [];
+			new_selectedAttribiteIndexes.forEach(index => { new_selectedAttributes.push(allAttributes[index]); });
+			set_new_selectedAttributes(new_selectedAttributes);
 			onOpen();
 		});
 		// End of backfill code
@@ -99,7 +103,7 @@ const TypeEditor = () => {
 				<ModalContent>
 					<ModalHeader>Backfill Data</ModalHeader>
 					<ModalBody>
-						NewIndexesInAll: {new_selectedAttributeIndexes}
+						{}
 					</ModalBody>
 					<ModalFooter>
 						<Button>Confirm</Button>
