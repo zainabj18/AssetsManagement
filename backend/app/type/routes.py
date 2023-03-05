@@ -179,7 +179,8 @@ def get_allTypes():
     query = """
     SELECT version_id, t.type_id, t.type_name, version_number
     FROM types as t
-    INNER JOIN type_version as tv ON t.type_id = tv.type_id;
+    INNER JOIN type_version as tv ON t.type_id = tv.type_id
+    ORDER BY t.type_name, version_number;
     """
     res = make_query(database, query)
     allTypes = res.fetchall()

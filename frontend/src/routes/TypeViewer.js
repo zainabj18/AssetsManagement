@@ -44,6 +44,7 @@ const TypeViewer = () => {
 					<Thead>
 						<Tr>
 							<Th>Type</Th>
+							<Th>Version</Th>
 							<Th>Attributes</Th>
 							<Th>Attribute Data Type</Th>
 							<Th>Edit</Th>
@@ -55,6 +56,7 @@ const TypeViewer = () => {
 							return (
 								<Tr key={types.versionId}>
 									<Td>{types.typeName}</Td>
+									<Td>{types.versionNumber}</Td>
 									<Td>
 										{types.metadata.map((metadata) => {
 											return (
