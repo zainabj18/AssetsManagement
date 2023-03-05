@@ -5,7 +5,8 @@ import {
 	NumberInputField,
 	NumberInputStepper,
 	NumberIncrementStepper,
-	NumberDecrementStepper
+	NumberDecrementStepper,
+	FormHelperText
 } from '@chakra-ui/react';
 
 const NumFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler,isDisabled}) => {
@@ -24,6 +25,7 @@ const NumFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler,is
 					<NumberIncrementStepper color={'blue.100'}/>
 					<NumberDecrementStepper color={'blue.100'}/>
 				</NumberInputStepper>
+				<FormHelperText color={'white'}>Please enter a number between {validation.min} to {validation.max}  </FormHelperText>
 			</NumberInput>
 		</FormControl>
 	);
