@@ -470,6 +470,7 @@ def test_is_attr_name_in(client):
     assert res.data == b'{\n  "data": false\n}\n'
 
 
+# Checks that adding a new version correctly increments the version number
 def test_version_incremetation(client):
     test_metaData = {
         "attributeName": "programming Language(s)",
