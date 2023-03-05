@@ -40,6 +40,8 @@ const TypeEditor = () => {
 			set_canBackfill(
 				TypeMethodManager.doesContainAll(selectedTypes, type.dependsOn)
 				&&
+				selectedTypes.length === type.dependsOn.length
+				&&
 				TypeMethodManager.doesContainAll(
 					TypeMethodManager.extractAttributeIds(selectedAttributes),
 					TypeMethodManager.extractAttributeIds(type.metadata)
