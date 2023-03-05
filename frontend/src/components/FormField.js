@@ -78,7 +78,7 @@ const FormField = ({
 					defaultValue={fieldDefaultValue}
 					startWithEditView={startWithEditView}
 					isDisabled={isDisabled}	
-					submitOnBlur={false}
+					submitOnBlur={true}
 					alignItems='left' 
 					alignContent='left'
 					onSubmit={(e) => {
