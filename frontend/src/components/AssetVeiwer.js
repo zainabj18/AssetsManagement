@@ -149,7 +149,7 @@ const AssetViewer = () => {
 		}
 		console.log(assetSate.metadata);
 		for (const [key, value] of Object.entries(assetSate.metadata)){
-			if(value.validation.isOptional && (!(value.hasOwnProperty('attributeValue'))) || (value.hasOwnProperty('attributeValue') && value.attributeValue.length===0)){
+			if(!value.validation.isOptional && (!(value.hasOwnProperty('attributeValue'))) || (value.hasOwnProperty('attributeValue') && value.attributeValue.length===0)){
 				errs.push(value.attributeName);
 			}
 		}
