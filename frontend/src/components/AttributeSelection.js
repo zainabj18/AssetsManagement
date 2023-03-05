@@ -27,9 +27,14 @@ const AttributeSelection = ({ selectedAttributes_state, set_selectedAttributes_s
 
 	const deselectAttribute = (attribute) => {
 		let selectedData = [...selectedAttributes_state];
-		let index = selectedData.indexOf(attribute);
-		selectedData.splice(index, 1);
-		set_selectedAttributes_state(selectedData);
+		let index = TypeMethodManager.getAttributeIndex(selectedData, attribute);
+		if (index >= 0) {
+			selectedData.splice(index, 1);
+			set_selectedAttributes_state(selectedData);
+		}
+		else {
+			console.warn('Attribute not found when deselecting.');
+		}
 	};
 
 	const ajustSelectedAttributes = (checked, index) => {

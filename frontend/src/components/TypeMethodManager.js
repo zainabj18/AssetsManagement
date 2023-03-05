@@ -118,4 +118,20 @@ export default class TypeMethodManager {
 		});
 		return newList;
 	}
+
+
+	/** Finds the given index of the attribute where the attributeID matches.
+	 * @param {[object]} list The list of attributes.
+	 * @param {object} attribute The attribute to find.
+	 * @returns {int} The index of the attribute in the list, -1 if not found.
+	 */
+	static getAttributeIndex = (list, attribute) => {
+		let index;
+		for (index = 0; index < list.length; index++) {
+			if (list[index].attributeID === attribute.attributeID) {
+				return index;
+			}
+		}
+		return -1;
+	};
 }
