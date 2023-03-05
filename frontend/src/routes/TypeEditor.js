@@ -56,26 +56,28 @@ const TypeEditor = () => {
 		}
 	}, [selectedTypes, selectedAttributes]);
 
-	const saveType = () => {
-		// Backfill code
+	const doBackFill = () => {
 		fetchAllAttributes().then(allAttributes => {
 			let new_selectedAttribiteIndexes = TypeMethodManager
 				.getNewAttributeIndexes(selectedAttributes, type.metadata, allAttributes);
 			let new_selectedAttributes = [];
-			new_selectedAttribiteIndexes.forEach(index => { new_selectedAttributes.push(allAttributes[index]); });
+			new_selectedAttribiteIndexes.forEach(index => {
+				new_selectedAttributes.push(allAttributes[index]);
+			});
 			set_new_selectedAttributes(new_selectedAttributes);
 			onOpen();
 		});
-		// End of backfill code
-		/* Lower code temp disabled for testing and implimenting backfill code
-		if (!selectedAttributes_hasError && ) {
+	};
+
+	const saveType = () => {
+		if (!selectedAttributes_hasError) {
 			createType({
 				typeName: type.typeName,
 				metadata: selectedAttributes,
 				dependsOn: selectedTypes
 			});
 			navigate('/type');
-		}*/
+		}
 	};
 
 	return (
@@ -95,7 +97,6 @@ const TypeEditor = () => {
 					excludeIds={[type.typeId]}
 				/>
 				<Button onClick={saveType}>Save</Button>
-				<Heading>Can Backfill: {canBackfill.toString()}</Heading>
 			</VStack>
 
 			<Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose} variant="popup">
@@ -103,7 +104,7 @@ const TypeEditor = () => {
 				<ModalContent>
 					<ModalHeader>Backfill Data</ModalHeader>
 					<ModalBody>
-						{}
+
 					</ModalBody>
 					<ModalFooter>
 						<Button>Confirm</Button>
