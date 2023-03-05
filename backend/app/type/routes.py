@@ -30,15 +30,15 @@ def add_type():
     database = get_db()
 
     query = """
-    SELECT version_number FROM type_version
+    SELECT MAX(version_number) FROM type_version
     INNER JOIN types ON types.type_id = type_version.type_id
     WHERE type_name = %(type_name)s;
     """
     result = make_query(database, query, db_type)
     type_version_number = 1
-    res_id = result.fetchone()
+    res_id = result.fetchone()[0]
     if res_id is not None:
-        type_version_number = res_id[0] + 1
+        type_version_number = res_id + 1
 
     if type_version_number == 1:
         query = """INSERT INTO types (type_name) VALUES (%(type_name)s) RETURNING type_id;"""

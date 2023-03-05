@@ -242,7 +242,7 @@ def test_get_type_with_dependencies(client):
                 "validation": None,
             }
         ],
-        "dependsOn": [1,2]
+        "dependsOn": [1, 2]
     }
     client.post("/api/v1/type/adder/new", json=test_type_a["metadata"][0])
     client.post("/api/v1/type/new", json=test_type_a)
@@ -253,7 +253,7 @@ def test_get_type_with_dependencies(client):
     jsn = client.get("/api/v1/type/2").json
     assert jsn["dependsOn"] == [1]
     jsn = client.get("/api/v1/type/3").json
-    assert jsn["dependsOn"] == [1,2]
+    assert jsn["dependsOn"] == [1, 2]
 
 
 # Test to see if a type can be returned from the database with a validation json
@@ -468,3 +468,65 @@ def test_is_attr_name_in(client):
     res = client.post("/api/v1/type/adder/isAttrNameIn",
                       json={"name": "private"})
     assert res.data == b'{\n  "data": false\n}\n'
+
+
+def test_version_incremetation(client):
+    test_metaData = {
+        "attributeName": "programming Language(s)",
+        "attributeType": "text"
+    }
+    test_type_v1 = {
+        "typeName": "framework",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": test_metaData["attributeName"],
+                "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": []
+    }
+    test_type_v2 = {
+        "typeName": "framework",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": test_metaData["attributeName"],
+                "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": []
+    }
+    test_type_v3 = {
+        "typeName": "framework",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": test_metaData["attributeName"],
+                "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": []
+    }
+    test_type_dif = {
+        "typeName": "libary",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": test_metaData["attributeName"],
+                "attributeType": test_metaData["attributeType"]
+            }
+        ],
+        "dependsOn": []
+    }
+    client.post("/api/v1/type/adder/new", json=test_metaData)
+    client.post("/api/v1/type/new", json=test_type_v1)
+    client.post("/api/v1/type/new", json=test_type_v2)
+    client.post("/api/v1/type/new", json=test_type_v3)
+    client.post("/api/v1/type/new", json=test_type_dif)
+    res = client.get("/api/v1/type/allTypes")
+    data = res.json
+    assert data[0]["versionNumber"] == 1
+    assert data[1]["versionNumber"] == 2
+    assert data[2]["versionNumber"] == 3
+    assert data[3]["versionNumber"] == 1
