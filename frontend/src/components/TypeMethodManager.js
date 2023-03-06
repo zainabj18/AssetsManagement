@@ -181,4 +181,20 @@ export default class TypeMethodManager {
 		}
 		return out;
 	};
+
+	/** Inserts an item into the given array.
+	 * @param {*} item The item to insert.
+	 * @param {int} index The index to insert at.
+	 * @param {[*]} array The array to insert into.
+	 * @returns {[*]} The newly inserted array.
+	 * If the index is outof bounds of the array, no insertion is made.
+	 */
+	static insertInto = (item, index, array) => {
+		if (index >= array.length) {
+			console.warn('Index out of bounds of array. No new item inserted.');
+			return array;
+		}
+		array[index] = item;
+		return array;
+	};
 }
