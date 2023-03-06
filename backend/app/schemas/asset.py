@@ -45,7 +45,7 @@ class Attribute(Attribute_Model):
 
 
 class AttributeInDB(Attribute):
-    attribute_id: Any = Field(None, alias="attributeID")
+    attribute_id: int = Field(None, alias="attributeID")
 
     class Config:
         allow_population_by_field_name = True
