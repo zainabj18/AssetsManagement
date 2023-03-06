@@ -281,3 +281,55 @@ def is_attr_name_in():
     res = make_query(database, query, {"name": request.json["name"]})
     is_in = res.fetchone()[0] > 0
     return {"data": is_in}, 200
+
+
+@bp.route("/backfill", methods=["POST"])
+def backfill():
+    jason = request.json
+    database = get_db()
+    key = {"id": request.json["version_id"]}
+
+    query = """
+    SELECT asset_id FROM assets
+    WHERE version_id = %(id)s;
+    """
+    asset_ids = make_query(database, query, key).fetchall()
+
+    query = """
+    SELECT MAX(version_id)
+    FROM type_version
+    WHERE type_id = (
+        SELECT type_id
+        FROM type_version
+        WHERE version_id = %(id)s 
+    );
+    """
+    latest_version = make_query(database, query, key).fetchone()[0]
+
+    if (latest_version == jason["version_id"]):
+        return {"msg": "Given version is already the latest version."}, 400
+
+    query_a = """
+    UPDATE assets
+    SET version_id = %(new_id)s
+    WHERE asset_id = %(asset_id)s;
+    """
+    query_b = """
+    INSERT INTO attributes_values (attribute_id, asset_id, value)
+    VALUES (%(attribute_id)s, %(asset_id)s, %(value)s)
+    """
+
+    for asset_id in asset_ids:
+        key_a = {
+            "new_id": latest_version,
+            "asset_id": asset_id[0]
+        }
+        for attribute in jason["attributes"]:
+            key_b = {
+                "attribute_id": attribute["attributeID"],
+                "asset_id": asset_id[0],
+                "value": attribute["data"]
+            }
+            make_query(database, query_b, key_b)
+        make_query(database, query_a, key_a)
+    return {"msg": ""}, 200
