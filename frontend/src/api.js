@@ -137,3 +137,6 @@ export const deleteAttribute = async (id) => {
 export const isAttributeNameIn = async (name) => {
 	return await axios.post('/type/adder/isAttrNameIn', name).then(res => res.data);
 };
+export const makeBackfill = async (data) => {
+	return await axios.post('type/backfill', data).then(res => res.data);
+};

@@ -7,7 +7,7 @@ import {
 } from '@chakra-ui/react';
 import { useEffect, useState, Fragment } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createType, fetchAllAttributes, fetchType } from '../api';
+import { createType, fetchAllAttributes, fetchType, makeBackfill } from '../api';
 import AttributeSelection from '../components/AttributeSelection';
 import List from '../components/TypeEditorBackfill/List';
 import Num_Lmt from '../components/TypeEditorBackfill/Num_Lmt';
@@ -91,7 +91,7 @@ const TypeEditor = () => {
 	const saveType = () => {
 		if (!selectedAttributes_hasError) {
 			if (canBackfill && wantsToBackfill) {
-				onOpen();
+				doBackFill();
 			}
 			else {
 				createType({
@@ -194,8 +194,20 @@ const TypeEditor = () => {
 				metadata: selectedAttributes,
 				dependsOn: selectedTypes
 			});
-			
-			// TODO: Find the assets that the type is linked to, assign all attribute values to that asset_id
+
+			let index;
+			let attribute_list = [];
+			for (index = 0; index < new_attribute_data.length; index++) {
+				attribute_list.push({
+					attributeID: new_selectedAttributes[index].attributeID,
+					data: new_attribute_data[index]
+				});
+			}
+
+			makeBackfill({
+				version_id: 2,
+				attributes: attribute_list
+			});
 
 			navigate('/type');
 		}
