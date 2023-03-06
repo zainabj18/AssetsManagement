@@ -417,7 +417,9 @@ def test_new_assets_with_required_attributes(valid_client, new_assets):
     new_assets[0].metadata=required_attributes
     data = json.loads(new_assets[0].json())
     res = valid_client.post("/api/v1/asset/", json=data)
+    print(res.json)
     assert res.status_code == 200
+    
 
 @pytest.mark.parametrize(
     "new_assets",

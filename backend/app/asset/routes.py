@@ -160,8 +160,6 @@ WHERE attributes_in_types.type_id=%(type_id)s;""",{"type_id": asset.type})
             all_type_attributes=set([x[0] for x in cur.fetchall()])
             
             if not required_attributes.issubset(attribute_ids):
-                 print(attribute_ids)
-                 print(required_attributes)
                  return (
                     jsonify(
                         {
@@ -172,7 +170,7 @@ WHERE attributes_in_types.type_id=%(type_id)s;""",{"type_id": asset.type})
                     ),
                     400,
                 )
-            if(all_type_attributes!=attribute_ids):
+            if not (attribute_ids.issubset(all_type_attributes)):
                 return (
                     jsonify(
                         {
