@@ -55,7 +55,7 @@ class AssetFactory(ModelFactory):
     assets=[]
     tags = lambda: sample(range(1, 10), k=randint(1, 5))
     projects = lambda: sample(range(1, 10), k=randint(1, 5))
-    metadata = list(AttributeFactory.batch(size=5))
+    metadata = lambda: list(AttributeFactory.batch(size=5))+[(AttributeFactory.build(attribute_type="text",validation_data={"isOptional":True}))]
 
 
 class ProjectFactory(ModelFactory):
