@@ -389,3 +389,18 @@ def test_assets_with_tags(valid_client, new_assets):
         assert res.status_code == 200
         assert len(res.json["data"]["assets"]) == len(tags[tag])
         assert set(asset["asset_id"] for asset in res.json["data"]["assets"]) == set(tags[tag])
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_new_assets_non_optional_attribute(valid_client, new_assets):
+    attribute_ids=[attribute.attribute_id for attribute in new_assets[0].metadata]
+    new_assets[0].metadata=[]
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 400
+    assert res.json["msg"]=="Missing required attributes"
+    assert res.json["error"]=="Failed to create asset from the data provided"
+    assert res.json["data"]== f"Must inlcude the following attrubutes with ids {list(attribute_ids)}"
