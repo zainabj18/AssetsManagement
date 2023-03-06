@@ -46,7 +46,7 @@ const TypeViewer = () => {
 		<VStack>
 			<TableContainer>
 				<Table varient='simple'>
-					<TableCaption placement='top' color='white'>Types</TableCaption>
+					<TableCaption placement='top'>Types</TableCaption>
 					<Thead>
 						<Tr>
 							<Th>Type</Th>
