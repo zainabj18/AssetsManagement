@@ -197,4 +197,43 @@ export default class TypeMethodManager {
 		array[index] = item;
 		return array;
 	};
+
+	/** Finds the highest version number for each type.
+	 * @param {*} types The list of types.
+	 * @returns A list with the highest version_number for each index.
+	 */
+	static assignHighest = (types) => {
+		let index;
+		let curr;
+		if (types.length > 0) {
+			curr = types[0].typeId;
+		}
+		let count = 0;
+		let highest = 1;
+		let out = [];
+		for (index = 0; index < types.length; index++) {
+			if (types[index].typeId === curr) {
+				if (highest < types[index].versionNumber) {
+					highest = types[index].versionNumber;
+				}
+				count += 1;
+			}
+			else {
+				console.log(count);
+				while (count > 0) {
+					out.push(highest);
+					count -= 1;
+				}
+				count = 1;
+				curr = types[index].typeId;
+				highest = 1;
+			}
+		}
+		while (count > 0) {
+			out.push(highest);
+			count -= 1;
+		}
+		console.log(out);
+		return out;
+	};
 }
