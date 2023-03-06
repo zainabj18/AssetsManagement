@@ -3,12 +3,14 @@ import {
 	ModalHeader, ModalCloseButton, ModalBody, ModalFooter,
 	useDisclosure,
 	Input,
-	Checkbox, Text, FormControl, FormLabel, FormErrorMessage
+	Checkbox, FormControl, FormLabel, FormErrorMessage, HStack
 } from '@chakra-ui/react';
 import { useEffect, useState, Fragment } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createType, fetchAllAttributes, fetchType, makeBackfill } from '../api';
+import AttributeModal from '../components/AttributeModal';
 import AttributeSelection from '../components/AttributeSelection';
+import SelectedAttributesList from '../components/SelectedAttributesList';
 import List from '../components/TypeEditorBackfill/List';
 import Num_Lmt from '../components/TypeEditorBackfill/Num_Lmt';
 import Options from '../components/TypeEditorBackfill/Options';
@@ -215,28 +217,34 @@ const TypeEditor = () => {
 	};
 
 	return (
-		<>
-			<VStack align='stetch'>
-				<Heading as='h1' size='2xl'>Type: {type.typeName}</Heading>
-				<Heading as='h2' size='1xl'>Version: {type.versionNumber}</Heading>
+		<VStack width='80%'>
+			<Heading as='h1' size='2xl'>Type: {type.typeName}</Heading>
+			<Heading as='h2' size='1xl'>Version: {type.versionNumber}</Heading>
+			<HStack width='100%'>
 				<AttributeSelection
 					selectedAttributes_state={selectedAttributes}
 					set_selectedAttributes_state={set_selectedAttributes}
 					load_attribute_trigger={load_attribute_trigger}
 					isInvalid={selectedAttributes_hasError}
+					width='30%'
 				/>
-				<TypeSelection
-					selectedTypes_state={selectedTypes}
-					set_selectedTypes_state={set_selectedTypes}
-					excludeIds={[type.typeId]}
-				/>
-				<Checkbox
-					isDisabled={!canBackfill}
-					isChecked={canBackfill && wantsToBackfill}
-					onChange={(e) => set_wantsToBackfill(e.target.checked)}
-				>Backfill Data</Checkbox>
-				<Button onClick={saveType}>Save</Button>
-			</VStack>
+				<SelectedAttributesList selectedAttributes_state={selectedAttributes} />
+			</HStack>
+			<TypeSelection
+				selectedTypes_state={selectedTypes}
+				set_selectedTypes_state={set_selectedTypes}
+				excludeIds={[type.typeId]}
+			/>
+			<AttributeModal
+				showModalButtonText='Create New Attribute'
+				load_allAttributes_setter={set_load_attribute_trigger}
+			/>
+			<Checkbox
+				isDisabled={!canBackfill}
+				isChecked={canBackfill && wantsToBackfill}
+				onChange={(e) => set_wantsToBackfill(e.target.checked)}
+			>Backfill Data</Checkbox>
+			<Button onClick={saveType}>Save</Button>
 
 			<Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose} variant="popup">
 				<ModalOverlay />
@@ -345,7 +353,7 @@ const TypeEditor = () => {
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
-		</>
+		</VStack>
 	);
 };
 
