@@ -404,3 +404,17 @@ def test_new_assets_non_optional_attribute(valid_client, new_assets):
     assert res.json["msg"]=="Missing required attributes"
     assert res.json["error"]=="Failed to create asset from the data provided"
     assert res.json["data"]== f"Must inlcude the following attrubutes with ids {list(attribute_ids)}"
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_new_assets_with_required_attributes(valid_client, new_assets):
+   
+    required_attributes = list(filter(lambda x: x.validation_data["isOptional"]==False, new_assets[0].metadata))
+    new_assets[0].metadata=required_attributes
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 200
