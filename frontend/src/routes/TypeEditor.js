@@ -69,6 +69,7 @@ const TypeEditor = () => {
 			);
 		}
 	}, [selectedTypes, selectedAttributes]);
+	const [wantsToBackfill, set_wantsToBackfill] = useState(false);
 
 	const doBackFill = () => {
 		fetchAllAttributes().then(allAttributes => {
@@ -201,8 +202,15 @@ const TypeEditor = () => {
 					set_selectedTypes_state={set_selectedTypes}
 					excludeIds={[type.typeId]}
 				/>
+				<Checkbox
+					isDisabled={!canBackfill}
+					isChecked={canBackfill && wantsToBackfill}
+					onChange={(e) => set_wantsToBackfill(e.target.checked)}
+				>Backfill Data</Checkbox>
 				<Button onClick={saveType}>Save</Button>
 				<Button onClick={doBackFill}>Testing: backfiller</Button>
+				<Heading>Can: {canBackfill.toString()}</Heading>
+				<Heading>Wants to: {wantsToBackfill.toString()}</Heading>
 			</VStack>
 
 			<Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose} variant="popup">
