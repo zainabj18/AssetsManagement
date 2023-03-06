@@ -115,7 +115,6 @@ const AssetViewer = () => {
 	const handleTypeChange = (e, attribute_value) => {
 		e.preventDefault();
 		fetchType(attribute_value).then(res=>{
-			console.log(res);
 			setAssetState((prevAssetState) => ({
 				...prevAssetState,
 				type: attribute_value,
@@ -123,7 +122,6 @@ const AssetViewer = () => {
 			}));
 			setDependencies(res.depends);
 			setTrigger.toggle();
-			console.log(res);
 
 		});
 	
