@@ -8,12 +8,13 @@ f=Faker()
 
 def add_validation_json(name: str, values: dict, *args, **kwds):
     if values["attribute_type"] == "num_lmt":
-        return {"min": 4, "max": 10}
-    if values["attribute_type"] == "list":
-        return {"type": "text"}
-    if values["attribute_type"] == "options":
-        return {"values": f.words(10), "isMulti": True}
-    return {"isOptional": False}
+        validation={"min": 4, "max": 10}
+    elif values["attribute_type"] == "list":
+        validation={"type": "text"}
+    elif values["attribute_type"] == "options":
+        validation={"values": f.words(10), "isMulti": True}
+    validation["isOptional"]=False
+    return validation
 
 
 def add_value(name: str, values: dict, *args, **kwds):
