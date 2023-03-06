@@ -25,14 +25,18 @@ const TypeViewer = () => {
 	const [types, set_types] = useState([]);
 
 	const deleteThis = (type) => {
-		deleteType(type.typeId).then(data => {
-			if (!data.wasAllowed) {
-				alert('Type ' + type.typeName + ' is depended upon, can not be deleted.');
-			}
-			else {
-				set_toggle.toggle();
-			}
-		});
+		let text = 'Waring!\nThis will delete all versions of this type';
+		let doDelete = window.confirm(text);
+		if (doDelete) {
+			deleteType(type.typeId).then(data => {
+				if (!data.wasAllowed) {
+					alert('Type ' + type.typeName + ' is depended upon, can not be deleted.');
+				}
+				else {
+					set_toggle.toggle();
+				}
+			});
+		}
 
 	};
 
