@@ -154,12 +154,28 @@ INNER JOIN attributes on attributes_in_types.attribute_id=attributes.attribute_i
 WHERE (attributes.validation_data->>'isOptional')::boolean is false AND attributes_in_types.type_id=%(type_id)s;""",{"type_id": asset.type})
             required_attributes=set([x[0] for x in cur.fetchall()])
             attribute_ids=set([attribute.attribute_id for attribute in asset.metadata])
-            if required_attributes!=attribute_ids:
+            cur.execute("""SELECT attributes_in_types.attribute_id FROM attributes_in_types
+INNER JOIN attributes on attributes_in_types.attribute_id=attributes.attribute_id
+WHERE attributes_in_types.type_id=%(type_id)s;""",{"type_id": asset.type})
+            all_type_attributes=set([x[0] for x in cur.fetchall()])
+            
+            if not attribute_ids.issuperset(required_attributes):
                  return (
                     jsonify(
                         {
                             "msg": "Missing required attributes",
                             "data": f"Must inlcude the following attrubutes with ids {list(required_attributes)}",
+                            "error": "Failed to create asset from the data provided",
+                        }
+                    ),
+                    400,
+                )
+            if(all_type_attributes!=attribute_ids):
+                return (
+                    jsonify(
+                        {
+                            "msg": "Addtional attributes",
+                            "data": f"Must only inlcude the following attrubutes with ids {list(all_type_attributes)}",
                             "error": "Failed to create asset from the data provided",
                         }
                     ),

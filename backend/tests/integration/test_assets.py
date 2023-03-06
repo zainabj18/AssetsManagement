@@ -5,7 +5,7 @@ from app.db import DataAccess, UserRole
 from app.schemas import Attribute
 from psycopg.rows import dict_row
 from collections import defaultdict
-
+from app.schemas.factories import AttributeFactory
 
 def test_new_assset_requires_name(client):
     res = client.post("/api/v1/asset/", json={})
@@ -412,9 +412,24 @@ def test_new_assets_non_optional_attribute(valid_client, new_assets):
     indirect=True,
 )
 def test_new_assets_with_required_attributes(valid_client, new_assets):
-   
     required_attributes = list(filter(lambda x: x.validation_data["isOptional"]==False, new_assets[0].metadata))
     new_assets[0].metadata=required_attributes
     data = json.loads(new_assets[0].json())
     res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 200
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_new_assets_with_addtional_attributes(valid_client, new_assets):
+    
+    attribute_ids=[attribute.attribute_id for attribute in new_assets[0].metadata]
+    new_assets[0].metadata.append(AttributeFactory.build(attribute_id=max(attribute_ids)+1))
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 400
+    assert res.json["msg"]=="Addtional attributes"
+    assert res.json["error"]=="Failed to create asset from the data provided"
+    assert res.json["data"]== f"Must only inlcude the following attrubutes with ids {list(attribute_ids)}"
