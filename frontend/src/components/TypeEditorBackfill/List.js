@@ -1,14 +1,15 @@
 import {
-	VStack, Button, Tag, TagLabel, Wrap, TagCloseButton, Input, Text
+	Button, Tag, TagLabel, Wrap, TagCloseButton, Input, FormControl, FormLabel, FormErrorMessage
 } from '@chakra-ui/react';
 import { useState } from 'react';
 
-const List = ({ insertInto_new_attribute_data, attribute, attributeIndex }) => {
+const List = ({ insertInto_new_attribute_data, attribute, attributeIndex, isInvalid, errorMessage }) => {
 	const [inputField, set_inputField] = useState('');
 	const [data, set_data] = useState([]);
 	return (
-		<VStack align='left'>
-			<Text>{attribute.attributeName}</Text>
+		<FormControl isInvalid={isInvalid}>
+			<FormLabel>{attribute.attributeName}</FormLabel>
+			<FormErrorMessage>{errorMessage}</FormErrorMessage>
 			<Wrap spacing={4}>
 				{data.map((entry, index) => {
 					return (
@@ -35,7 +36,7 @@ const List = ({ insertInto_new_attribute_data, attribute, attributeIndex }) => {
 				insertInto_new_attribute_data(newData, attributeIndex);
 				set_data(newData);
 			}}>Add</Button>
-		</VStack>
+		</FormControl>
 	);
 };
 

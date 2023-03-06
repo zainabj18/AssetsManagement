@@ -3,7 +3,7 @@ import {
 	ModalHeader, ModalCloseButton, ModalBody, ModalFooter,
 	useDisclosure,
 	Input,
-	Checkbox, Text
+	Checkbox, Text, FormControl, FormLabel, FormErrorMessage
 } from '@chakra-ui/react';
 import { useEffect, useState, Fragment } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -49,6 +49,7 @@ const TypeEditor = () => {
 			)
 		);
 	};
+	const [new_attribute_data_errorMessages, set_new_attribute_data_errorMessages] = useState([]);
 
 	const [load_attribute_trigger, set_load_attribute_trigger] = useBoolean();
 	const [selectedAttributes_hasError, set_selectedAttributes_hasError] = useState(false);
@@ -79,6 +80,9 @@ const TypeEditor = () => {
 			});
 			populate_new_attribute_data(new_selectedAttributes);
 			set_new_selectedAttributes(new_selectedAttributes);
+			let errorMessages = Array(new_selectedAttributes.length);
+			errorMessages.fill('');;
+			set_new_attribute_data_errorMessages(errorMessages);
 			onOpen();
 		});
 	};
@@ -127,6 +131,60 @@ const TypeEditor = () => {
 		insertInto_new_attribute_data(value, index);
 	};
 
+	const checkForError = (attributeIndex) => {
+		if (attributeIndex >= new_attribute_data.length || attributeIndex >= new_selectedAttributes.length) {
+			console.error('Lists not populated correctly.');
+		}
+		let data = new_attribute_data[attributeIndex];
+		let attribute = new_selectedAttributes[attributeIndex];
+		let type = attribute.attributeType;
+		if (type === 'list') {
+			if (data.length <= 0) {
+				return 'Must contain at least 1 element';
+			}
+		}
+		if (type === 'num_lmt') {
+			if (!(attribute.validation.min <= data && data <= attribute.validation.max)) {
+				return 'Number is outside of defined range';
+			}
+		}
+		if (type === 'options') {
+			if (data.length <= 0) {
+				return 'Must contain at least 1 element';
+			}
+		}
+		if (type === 'datetime-local') {
+			if (data === '') {
+				return 'Can not be left empty';
+			}
+		}
+		if (type === 'number') {
+
+		}
+		if (type === 'checkbox') {
+
+		}
+		if (type === 'text') {
+			if (data === '') {
+				return 'Can not be left empty';
+			}
+		}
+		return '';
+	};
+
+	const confirmBackfill = () => {
+		let index = 0;
+		let failed = false;
+		let errorMessages = [];
+		for (index = 0; index < new_attribute_data.length; index++) {
+			let error = checkForError(index);
+			errorMessages.push(error);
+			if (error !== '') { failed = true; }
+		}
+		set_new_attribute_data_errorMessages(errorMessages);
+		console.log(failed);
+	};
+
 	return (
 		<>
 			<VStack align='stetch'>
@@ -162,6 +220,8 @@ const TypeEditor = () => {
 											insertInto_new_attribute_data={insertInto_new_attribute_data}
 											attribute={attribute}
 											attributeIndex={index}
+											isInvalid={new_attribute_data_errorMessages[index] !== ''}
+											errorMessage={new_attribute_data_errorMessages[index]}
 										/>
 									</Fragment>
 								);
@@ -174,6 +234,8 @@ const TypeEditor = () => {
 											insertInto_new_attribute_data={insertInto_new_attribute_data}
 											attribute={attribute}
 											attributeIndex={index}
+											isInvalid={new_attribute_data_errorMessages[index] !== ''}
+											errorMessage={new_attribute_data_errorMessages[index]}
 										/>
 									</Fragment>
 								);
@@ -186,60 +248,66 @@ const TypeEditor = () => {
 											insertInto_new_attribute_data={insertInto_new_attribute_data}
 											attribute={attribute}
 											attributeIndex={index}
+											isInvalid={new_attribute_data_errorMessages[index] !== ''}
+											errorMessage={new_attribute_data_errorMessages[index]}
 										/>
 									</Fragment>
 								);
 							}
 							if (typeName === 'datetime-local') {
 								return (
-									<Fragment key={index}>
-										<Text>{attribute.attributeName}</Text>
+									<FormControl key={index} isInvalid={new_attribute_data_errorMessages[index] !== ''}>
+										<FormLabel>{attribute.attributeName}</FormLabel>
+										<FormErrorMessage>{new_attribute_data_errorMessages[index]}</FormErrorMessage>
 										<Input
 											type='datetime-local'
 											onChange={(e) => default_backfillHandleChange(e.target.value, index)}
 										/>
-									</Fragment>
+									</FormControl>
 								);
 							}
 							if (typeName === 'number') {
 								return (
-									<Fragment key={index}>
-										<Text>{attribute.attributeName}</Text>
+									<FormControl key={index} isInvalid={new_attribute_data_errorMessages[index] !== ''}>
+										<FormLabel>{attribute.attributeName}</FormLabel>
+										<FormErrorMessage>{new_attribute_data_errorMessages[index]}</FormErrorMessage>
 										<Input
 											type='number'
 											defaultValue={new_attribute_data[index]}
 											onChange={(e) => default_backfillHandleChange(e.target.value, index)}
 										/>
-									</Fragment>
+									</FormControl>
 								);
 							}
 							if (typeName === 'checkbox') {
 								return (
-									<Fragment key={index}>
-										<Text>{attribute.attributeName}</Text>
+									<FormControl key={index} isInvalid={new_attribute_data_errorMessages[index] !== ''}>
+										<FormLabel>{attribute.attributeName}</FormLabel>
+										<FormErrorMessage>{new_attribute_data_errorMessages[index]}</FormErrorMessage>
 										<Checkbox
 											type='checkbox'
 											onChange={(e) => default_backfillHandleChange(e.target.checked, index)}
 										>Select</Checkbox>
-									</Fragment>
+									</FormControl>
 								);
 							}
 							if (typeName === 'text') {
 								return (
-									<Fragment key={index}>
-										<Text>{attribute.attributeName}</Text>
+									<FormControl key={index} isInvalid={new_attribute_data_errorMessages[index] !== ''}>
+										<FormLabel>{attribute.attributeName}</FormLabel>
+										<FormErrorMessage>{new_attribute_data_errorMessages[index]}</FormErrorMessage>
 										<Input
 											type='text'
 											placeholder='Enter Text'
 											onChange={(e) => default_backfillHandleChange(e.target.value, index)}
 										/>
-									</Fragment>
+									</FormControl>
 								);
 							}
 						})}
 					</ModalBody>
 					<ModalFooter>
-						<Button>Confirm</Button>
+						<Button onClick={confirmBackfill}>Confirm</Button>
 						<Button onClick={onClose}>Cancel</Button>
 					</ModalFooter>
 				</ModalContent>

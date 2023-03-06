@@ -1,6 +1,6 @@
-import { VStack, Checkbox, Text } from '@chakra-ui/react';
+import { VStack, Checkbox, Text, FormControl, FormLabel, FormErrorMessage } from '@chakra-ui/react';
 
-const Options = ({ new_attribute_data, insertInto_new_attribute_data, attribute, attributeIndex }) => {
+const Options = ({ new_attribute_data, insertInto_new_attribute_data, attribute, attributeIndex, isInvalid, errorMessage }) => {
 	const ajustChecked = (checked, value) => {
 		let list;
 		if (!attribute.validation.isMulti) {
@@ -25,8 +25,9 @@ const Options = ({ new_attribute_data, insertInto_new_attribute_data, attribute,
 	};
 
 	return (
-		<VStack align='left'>
-			<Text>{attribute.attributeName}</Text>
+		<FormControl isInvalid={isInvalid}>
+			<FormLabel>{attribute.attributeName}</FormLabel>
+			<FormErrorMessage>{errorMessage}</FormErrorMessage>
 			{attribute.validation.values.map((value, index) => {
 				return (
 					<Checkbox
@@ -36,7 +37,7 @@ const Options = ({ new_attribute_data, insertInto_new_attribute_data, attribute,
 					>{value}</Checkbox>
 				);
 			})}
-		</VStack>
+		</FormControl>
 	);
 };
 
