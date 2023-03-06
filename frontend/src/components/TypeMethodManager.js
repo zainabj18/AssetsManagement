@@ -219,7 +219,6 @@ export default class TypeMethodManager {
 				count += 1;
 			}
 			else {
-				console.log(count);
 				while (count > 0) {
 					out.push(highest);
 					count -= 1;
@@ -233,7 +232,6 @@ export default class TypeMethodManager {
 			out.push(highest);
 			count -= 1;
 		}
-		console.log(out);
 		return out;
 	};
 }
