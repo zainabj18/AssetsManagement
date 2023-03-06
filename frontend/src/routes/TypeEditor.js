@@ -151,6 +151,7 @@ const TypeEditor = () => {
 				<ModalOverlay />
 				<ModalContent>
 					<ModalHeader>Backfill Data</ModalHeader>
+					<ModalCloseButton />
 					<ModalBody>
 						{new_selectedAttributes.length > 0 && new_selectedAttributes.map((attribute, index) => {
 							let typeName = attribute.attributeType;
