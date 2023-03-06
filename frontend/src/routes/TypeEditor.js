@@ -90,12 +90,17 @@ const TypeEditor = () => {
 
 	const saveType = () => {
 		if (!selectedAttributes_hasError) {
-			createType({
-				typeName: type.typeName,
-				metadata: selectedAttributes,
-				dependsOn: selectedTypes
-			});
-			navigate('/type');
+			if (canBackfill && wantsToBackfill) {
+				onOpen();
+			}
+			else {
+				createType({
+					typeName: type.typeName,
+					metadata: selectedAttributes,
+					dependsOn: selectedTypes
+				});
+				navigate('/type');
+			}
 		}
 	};
 
@@ -173,7 +178,7 @@ const TypeEditor = () => {
 		return '';
 	};
 
-	const confirmBackfill = () => {
+	const backfill = () => {
 		let index = 0;
 		let failed = false;
 		let errorMessages = [];
@@ -183,7 +188,18 @@ const TypeEditor = () => {
 			if (error !== '') { failed = true; }
 		}
 		set_new_attribute_data_errorMessages(errorMessages);
-		console.log(failed);
+		if (!failed) {
+			createType({
+				typeName: type.typeName,
+				metadata: selectedAttributes,
+				dependsOn: selectedTypes
+			});
+			
+			// TODO: Find the assets that the type is linked to, assign all attribute values to that asset_id
+
+			navigate('/type');
+		}
+
 	};
 
 	return (
@@ -208,9 +224,6 @@ const TypeEditor = () => {
 					onChange={(e) => set_wantsToBackfill(e.target.checked)}
 				>Backfill Data</Checkbox>
 				<Button onClick={saveType}>Save</Button>
-				<Button onClick={doBackFill}>Testing: backfiller</Button>
-				<Heading>Can: {canBackfill.toString()}</Heading>
-				<Heading>Wants to: {wantsToBackfill.toString()}</Heading>
 			</VStack>
 
 			<Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose} variant="popup">
@@ -315,7 +328,7 @@ const TypeEditor = () => {
 						})}
 					</ModalBody>
 					<ModalFooter>
-						<Button onClick={confirmBackfill}>Confirm</Button>
+						<Button onClick={backfill}>Confirm</Button>
 						<Button onClick={onClose}>Cancel</Button>
 					</ModalFooter>
 				</ModalContent>
