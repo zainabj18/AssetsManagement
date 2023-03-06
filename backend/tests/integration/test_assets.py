@@ -395,8 +395,9 @@ def test_assets_with_tags(valid_client, new_assets):
     [{"batch_size": 1}],
     indirect=True,
 )
-def test_new_assets_non_optional_attribute(valid_client, new_assets):
-    attribute_ids=[attribute.attribute_id for attribute in new_assets[0].metadata]
+def test_new_assets_non_optional_attributes(valid_client, new_assets):
+    required_attributes = list(filter(lambda x: x.validation_data["isOptional"]==False, new_assets[0].metadata))
+    attribute_ids=[attribute.attribute_id for attribute in required_attributes]
     new_assets[0].metadata=[]
     data = json.loads(new_assets[0].json())
     res = valid_client.post("/api/v1/asset/", json=data)

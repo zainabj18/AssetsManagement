@@ -159,7 +159,9 @@ INNER JOIN attributes on attributes_in_types.attribute_id=attributes.attribute_i
 WHERE attributes_in_types.type_id=%(type_id)s;""",{"type_id": asset.type})
             all_type_attributes=set([x[0] for x in cur.fetchall()])
             
-            if not attribute_ids.issuperset(required_attributes):
+            if not required_attributes.issubset(attribute_ids):
+                 print(attribute_ids)
+                 print(required_attributes)
                  return (
                     jsonify(
                         {
