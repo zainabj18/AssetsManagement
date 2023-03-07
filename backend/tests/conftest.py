@@ -109,3 +109,4 @@ def type_verions(db_conn,request):
                     VALUES (%(version_id)s,%(version_number)s,%(type_id)s);""",
                                 type_version.dict(),
                             )
+        db_conn.commit()
