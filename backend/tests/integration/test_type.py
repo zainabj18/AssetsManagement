@@ -1,5 +1,5 @@
 from psycopg.rows import dict_row
-
+import pytest
 
 def test_type_list(client, db_conn):
     expected_types = []
@@ -20,6 +20,8 @@ VALUES (%(type_name)s) RETURNING type_id;""",
     res = client.get("/api/v1/type/names")
     assert res.status_code == 200
     assert res.json == {"msg": "types", "data": expected_types}
+
+
 
 
 # Test to see if an attribute can be added to the database
@@ -606,3 +608,19 @@ def test_backfill(client, db_conn):
     res_d = client.post("api/v1/type/backfill", json=jason)
     assert res_d.status_code == 400
     assert res_d.json == {"msg": "Given version is already the latest version."}
+
+
+@pytest.mark.parametrize(
+    "type_verions",
+    [{"size": 10}],
+    indirect=True,
+)
+def test_type_with_versions_list(client,type_verions):
+    max_type=type_verions[0][0]
+    for type_version in type_verions[0]:
+        if type_version.version_number>max_type.version_number:
+            max_type=type_version
+    res = client.get("/api/v1/type/version/names")
+    assert res.status_code == 200
+    assert res.json == {"msg": "types-w-versions","data":[{'version_id':max_type.version_id,'type_name':type_verions[1].type_name}]}
+    

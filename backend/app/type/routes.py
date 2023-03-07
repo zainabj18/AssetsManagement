@@ -90,6 +90,23 @@ def list():
     return {"msg": "types", "data": get_types(db)}, 200
 
 
+@bp.route("/version/names", methods=["GET"])
+def list_type_names_with_versions():
+    db = get_db()
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=dict_row) as cur:
+            cur.execute("""WITH ranked_types AS (
+SELECT *,
+       rank() OVER (PARTITION BY type_id ORDER BY version_number DESC) as row_rank
+FROM type_version)
+
+SELECT version_id,type_name FROM ranked_types 
+INNER JOIN types ON types.type_id=ranked_types.type_id
+WHERE row_rank=1""")
+            types=cur.fetchall()
+
+    return {"msg": "types-w-versions", "data": types}, 200
+
 @bp.route("/adder/new", methods=["POST"])
 def add_attribute():
     new_attribute = Attribute_Model(**request.json)
