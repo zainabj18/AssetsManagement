@@ -31,16 +31,29 @@ VALUES (%(username)s,%(password)s,'ADMIN','CONFIDENTIAL');""",
 
 def create_assets(db_conn,batch_size=10,add_to_db=False):
     batch_result = AssetFactory.batch(size=batch_size)
+    added_assets=[]
+    existing_version_ids=set()
     with db_conn.cursor() as cur:
         for asset in batch_result:
             attribute_ids = []
-            new_type_version = TypeVersionFactory.build(version_id=asset.version_id)
+            if asset.version_id in existing_version_ids:
+                continue
+            existing_version_ids.add(asset.version_id)
+            new_type_version = TypeVersionFactory.build(version_id=asset.version_id) 
+            new_type=TypeFactory.build(type_id=new_type_version.type_id)
+            # check if type already exists with id
             cur.execute(
-                """
-        INSERT INTO types (type_id,type_name)
-    VALUES (%(type_id)s,%(type_name)s) ON CONFLICT (type_id) DO NOTHING;""",
+                """SELECT * FROM types WHERE type_id=%(type_id)s;""",
                 new_type.dict(),
-            )
+                )
+            # if no type already exists
+            if cur.fetchall() == []:
+                cur.execute(
+                    """
+            INSERT INTO types (type_id,type_name)
+        VALUES (%(type_id)s,%(type_name)s) ON CONFLICT (type_name) DO NOTHING;""",
+                    new_type.dict(),
+                )
 
             for attribute in asset.metadata:
                 db_attribute = attribute.dict(exclude={"validation_data"})
@@ -75,7 +88,7 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
                 cur.execute(
                 """SELECT * FROM tags WHERE id=%(id)s;""",
                 {"id": tag},
-            )
+                )
                 if cur.fetchall() == []:
                     cur.execute(
                         """
