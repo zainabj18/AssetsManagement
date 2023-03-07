@@ -44,7 +44,15 @@ def test_project_route(client, db_conn):
     test_project = {
         "name": "Project1",
         "description": "New Project",
+        "accounts": "1,2,3"
     }
+    q1 = """INSERT INTO accounts(first_name,last_name,username,hashed_password) VALUES (john,mark,john123,321)"""
+    q2 = """INSERT INTO accounts(first_name,last_name,username,hashed_password) VALUES (sam,johnstone,sam69,123)"""
+    q3 = """INSERT INTO accounts(first_name,last_name,username,hashed_password) VALUES (Taka,Minamino,taka12,690)"""
+    with db_conn as conn: 
+        conn.execute(q1)
+        conn.execute(q2)
+        conn.execute(q3)
     res = client.post("/api/v1/project/new", json=test_project)
     assert res.status_code == 200
 
