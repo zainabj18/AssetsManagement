@@ -6,7 +6,8 @@ import {
 	Box,
 	VStack,
 	Button,
-	Flex
+	Flex,
+	Checkbox
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import {createProject} from '../api.js';
@@ -28,10 +29,26 @@ const CreateProject = () => {
 	};
 
 	const addProject = () => {
-		createProject({ name: newName, description: newDescription }).then(_ => {
+		createProject({ name: newName, description: newDescription, accountID: selectedPeople }).then(_ => {
 			navigate('../');
 		});
 	};
+ 
+	const [selectedPeople, setSelectedPeople] = useState([]);
+	
+	const adjustSelectedPeople = (checked, value) => {
+		let list = selectedPeople;
+		if (checked){
+			list.push(value);
+		}
+		if(!checked){
+			let index = list.indexOf(value);
+			list.splice(index,1);
+		}
+		setSelectedPeople(list);
+	};
+
+
 
 	return (
 		<VStack minW="100vw" spacing={3}>
@@ -60,6 +77,16 @@ const CreateProject = () => {
 			<Flex minWidth='max-content' alignItems='center' gap='4'>
 				<Button onClick={addProject}>Save Project</Button>
 			</Flex>
+			{allPeople.map((person, index) => {
+				return (
+					<VStack key={person.accountID} align="left">
+						<Checkbox>
+							onChange={(e) => adjustSelectedPeople(e.target.checked, index)}
+						    {person.username}
+						</Checkbox>
+					</VStack>
+				);
+			})}
 			
 		</VStack>
 
