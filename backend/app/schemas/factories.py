@@ -2,7 +2,7 @@
 from random import choice, sample, randint
 from typing import Optional
 from faker import Faker
-from app.schemas import Asset, AttributeInDB, Project, TagBase, TypeBase,TagInDB
+from app.schemas import Asset, AttributeInDB, Project, TagBase, TypeBase,TagInDB,TypeVersion
 from pydantic_factories import ModelFactory, PostGenerated, Use
 f=Faker()
 
@@ -67,3 +67,6 @@ class TagInDBFactory(ModelFactory):
 
 class TypeFactory(ModelFactory):
     __model__ = TypeBase
+
+class TypeVersionFactory(ModelFactory):
+    __model__ = TypeVersion
