@@ -199,7 +199,6 @@ def list_asset_project(id):
                 {"id": id},
             )
             selected_projects = list(cur.fetchall())
-            print(selected_projects)
             for x in selected_projects:
                 x["isSelected"] = True
             cur.execute(
