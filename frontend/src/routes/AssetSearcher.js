@@ -6,11 +6,13 @@ import { Checkbox } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { fetchTypesList } from '../api';
 import { fetchTags } from '../api';
+import { fetchProjects } from '../api';
+
 
 
 const FilterBasedSearch = () => {
 	const [types, setTypes] = useState([]);
-	
+	const [projects, setProjects] = useState([]);
 	const [tags, setTags] = useState([]);
 	const [inputFields, setInputFields] = useState([
 		{ name: '', values: '' }
@@ -49,6 +51,10 @@ const FilterBasedSearch = () => {
 		}
 		);
 
+		fetchProjects().then((res) => {
+			setProjects(res.data);
+		}
+		);
 	}, []);
 
 	return (
@@ -97,10 +103,11 @@ const FilterBasedSearch = () => {
 					</h2>
 					<AccordionPanel pb={4}>
 						<VStack align={'left'}>
-							<Checkbox colorScheme='green' defaultChecked>Project A</Checkbox>
-							<Checkbox colorScheme='green' defaultChecked>Project B</Checkbox>
-							<Checkbox colorScheme='green' defaultChecked>Project C</Checkbox>
-							<Checkbox colorScheme='green' defaultChecked>Project D</Checkbox>
+							{projects.map((project) => {
+								return ( 
+									<Checkbox colorScheme='green' defaultChecked>{project.name}</Checkbox>
+								);
+							})}
 						</VStack>
 					</AccordionPanel>
 				</AccordionItem>
