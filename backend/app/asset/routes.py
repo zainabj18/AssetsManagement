@@ -85,15 +85,15 @@ INNER JOIN tags on tags.id=assets_in_tags.tag_id WHERE asset_id=%(id)s;""",
             )
             assets = list(cur.fetchall())
             cur.execute(
-                """SELECT type_name FROM types WHERE type_id=%(id)s;""",
-                {"id": asset.type},
+                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
+INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
+                {"version_id": asset.version_id},
             )
             type = cur.fetchone()["type_name"]
 
         asset = AssetOut(
-            **asset.dict(), metadata=metadata, projects=projects, tags=tags,assets=assets
+            **asset.dict(), metadata=metadata, projects=projects, tags=tags,assets=assets,type=type
         )
-        asset.type = type
     return asset
 
 @bp.route("/", methods=["POST"])
