@@ -121,3 +121,8 @@ class TagBulkRequest(BaseModel):
 
     class Config:
         allow_population_by_field_name = True
+
+class TypeVersion(BaseModel):
+    version_id:int
+    version_number:int
+    type_id:int
