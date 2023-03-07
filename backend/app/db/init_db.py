@@ -57,7 +57,7 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
             cur.execute(
                     """
             INSERT INTO type_version (version_id,version_number,type_id)
-        VALUES (%(version_id)s,%(version_number)s,%(type_id)s) ON CONFLICT (type_name) DO NOTHING;""",
+        VALUES (%(version_id)s,%(version_number)s,%(type_id)s);""",
                     new_type_version.dict(),
                 )
 
