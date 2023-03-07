@@ -262,7 +262,7 @@ def view(id, user_id, access_level):
 def delete(id):
     db = get_db()
     with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+        with db_conn.cursor() as cur:
             cur.execute(
                 """UPDATE assets SET soft_delete = %(del)s WHERE asset_id=%(id)s;""",
                 {"id": id, "del": 1},
