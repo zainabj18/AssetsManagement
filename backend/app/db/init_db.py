@@ -54,6 +54,14 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
         VALUES (%(type_id)s,%(type_name)s) ON CONFLICT (type_name) DO NOTHING;""",
                     new_type.dict(),
                 )
+            cur.execute(
+                    """
+            INSERT INTO type_version (version_id,version_number,type_id)
+        VALUES (%(version_id)s,%(version_number)s,%(type_id)s) ON CONFLICT (type_name) DO NOTHING;""",
+                    new_type.dict(),
+                )
+
+
 
             for attribute in asset.metadata:
                 db_attribute = attribute.dict(exclude={"validation_data"})
