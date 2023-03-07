@@ -33,7 +33,12 @@ def generate_assets(existing_version_ids,db_conn,batch_result,added_assets):
        with db_conn.cursor() as cur:
         for asset in batch_result:
             attribute_ids = []
-            if asset.version_id in existing_version_ids:
+            cur.execute(
+                """SELECT * FROM type_version WHERE version_id=%(version_id)s;""",
+                {"version_id":asset.version_id},
+                )
+            # if no type_version already exists
+            if cur.fetchall() != []:
                 continue
             existing_version_ids.add(asset.version_id)
             new_type_version = TypeVersionFactory.build(version_id=asset.version_id) 
@@ -44,13 +49,14 @@ def generate_assets(existing_version_ids,db_conn,batch_result,added_assets):
                 new_type.dict(),
                 )
             # if no type already exists
-            if cur.fetchall() == []:
-                cur.execute(
-                    """
-            INSERT INTO types (type_id,type_name)
-        VALUES (%(type_id)s,%(type_name)s) ON CONFLICT (type_name) DO NOTHING;""",
-                    new_type.dict(),
-                )
+            if cur.fetchall() != []:
+                continue
+            cur.execute(
+                """
+        INSERT INTO types (type_id,type_name)
+    VALUES (%(type_id)s,%(type_name)s) ON CONFLICT (type_name) DO NOTHING;""",
+                new_type.dict(),
+            )
             cur.execute(
                 """SELECT version_id FROM type_version;""",
                 new_type.dict(),
