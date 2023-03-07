@@ -110,3 +110,4 @@ def type_verions(db_conn,request):
                                 type_version.dict(),
                             )
         db_conn.commit()
+        return (added_versions,new_type)
