@@ -8,31 +8,37 @@ import {
 import { useEffect, useState } from 'react';
 import { Link as RouteLink } from 'react-router-dom';
 import { deleteType, fetchAllTypes } from '../api';
+import TypeMethodManager from '../components/TypeMethodManager';
 import useAuth from '../hooks/useAuth';
 
 const TypeViewer = () => {
 	const { user } = useAuth();
 	const [toggle, set_toggle] = useBoolean();
+	const [types, set_types] = useState([]);
+	const [highest, set_highest] = useState([]);
 
 	useEffect(() => {
 		async function load_allTypes() {
 			let data = await fetchAllTypes(res => res.data);
+			set_highest(TypeMethodManager.assignHighest(data));
 			set_types(data);
 		}
 		load_allTypes();
 	}, [toggle]);
 
-	const [types, set_types] = useState([]);
-
 	const deleteThis = (type) => {
-		deleteType(type.typeId).then(data => {
-			if (!data.wasAllowed) {
-				alert('Type ' + type.typeName + ' is depended upon, can not be deleted.');
-			}
-			else {
-				set_toggle.toggle();
-			}
-		});
+		let text = 'Waring!\nThis will delete all versions of this type';
+		let doDelete = window.confirm(text);
+		if (doDelete) {
+			deleteType(type.typeId).then(data => {
+				if (!data.wasAllowed) {
+					alert('Type ' + type.typeName + ' is depended upon, can not be deleted.');
+				}
+				else {
+					set_toggle.toggle();
+				}
+			});
+		}
 
 	};
 
@@ -40,7 +46,7 @@ const TypeViewer = () => {
 		<VStack>
 			<TableContainer>
 				<Table varient='simple'>
-					<TableCaption placement='top' color='white'>Types</TableCaption>
+					<TableCaption placement='top'>Types</TableCaption>
 					<Thead>
 						<Tr>
 							<Th>Type</Th>
@@ -52,7 +58,7 @@ const TypeViewer = () => {
 						</Tr>
 					</Thead>
 					<Tbody>
-						{types.map((types) => {
+						{types.map((types, index) => {
 							return (
 								<Tr key={types.versionId}>
 									<Td>{types.typeName}</Td>
@@ -76,12 +82,16 @@ const TypeViewer = () => {
 										})}
 									</Td>
 									<Td>
-										<RouteLink to={`./${types.versionId}`}>
-											<Button>Edit</Button>
-										</RouteLink>
+										{highest[index] === types.versionNumber &&
+											<RouteLink to={`./${types.versionId}`}>
+												<Button>Edit</Button>
+											</RouteLink>
+										}
 									</Td>
 									<Td>
-										<Button onClick={() => deleteThis(types)}>Delete</Button>
+										{highest[index] === types.versionNumber &&
+											<Button onClick={() => deleteThis(types)}>Delete</Button>
+										}
 									</Td>
 								</Tr>
 							);

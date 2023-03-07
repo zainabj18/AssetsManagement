@@ -531,3 +531,78 @@ def test_version_incremetation(client):
     assert data[1]["versionNumber"] == 2
     assert data[2]["versionNumber"] == 3
     assert data[3]["versionNumber"] == 1
+
+
+# Tests backfilling and upgrading asset types
+def test_backfill(client, db_conn):
+    test_metaData_a = {
+        "attributeName": "programming Language(s)",
+        "attributeType": "text"
+    }
+    test_metaData_b = {
+        "attributeName": "licence",
+        "attributeType": "text"
+    }
+    test_type = {
+        "typeName": "framework",
+        "metadata": [
+            {
+                "attributeID": 1,
+                "attributeName": test_metaData_a["attributeName"],
+                "attributeType": test_metaData_a["attributeType"]
+            }
+        ],
+        "dependsOn": []
+    }
+    query_a = """
+    INSERT INTO assets (name, link, version_id, description)
+    VALUES ('asset1', 'www.example.com', 1, 'first asset');
+    """
+    query_b = """
+    INSERT INTO attributes_values (attribute_id, asset_id, value)
+    VALUES (1, 1, 'I am some text');
+    """
+    client.post("/api/v1/type/adder/new", json=test_metaData_a)
+    client.post("/api/v1/type/adder/new", json=test_metaData_b)
+    client.post("/api/v1/type/new", json=test_type)
+    client.post("/api/v1/type/new", json=test_type)
+    with db_conn as conn:
+        conn.execute(query_a)
+        conn.execute(query_b)
+
+    jason = {
+        "version_id": 1,
+        "attributes": [{
+            "attributeID": 2,
+            "data": "I am some more text"
+        }]
+    }
+    res_a = client.post("api/v1/type/backfill", json=jason)
+    assert res_a.status_code == 200
+    assert res_a.json == {"msg": ""}
+    
+    query_c = """
+    SELECT * FROM attributes_values;
+    """
+    query_d = """
+    SELECT version_id FROM assets;
+    """
+    with db_conn as conn:
+        res_b = conn.execute(query_c)
+        res_c = conn.execute(query_d)
+        assert res_b.fetchone() == (1, 1, 'I am some text')
+        assert res_b.fetchone() == (2, 1, 'I am some more text')
+        assert res_b.fetchone() is None
+        assert res_c.fetchone()[0] == 2
+        assert res_c.fetchone() is None
+    
+    jason = {
+        "version_id": 2,
+        "attributes": [{
+            "attributeID": 2,
+            "data": "I am some more text"
+        }]
+    }
+    res_d = client.post("api/v1/type/backfill", json=jason)
+    assert res_d.status_code == 400
+    assert res_d.json == {"msg": "Given version is already the latest version."}

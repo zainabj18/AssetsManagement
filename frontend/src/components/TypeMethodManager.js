@@ -181,4 +181,57 @@ export default class TypeMethodManager {
 		}
 		return out;
 	};
+
+	/** Inserts an item into the given array.
+	 * @param {*} item The item to insert.
+	 * @param {int} index The index to insert at.
+	 * @param {[*]} array The array to insert into.
+	 * @returns {[*]} The newly inserted array.
+	 * If the index is outof bounds of the array, no insertion is made.
+	 */
+	static insertInto = (item, index, array) => {
+		if (index >= array.length) {
+			console.warn('Index out of bounds of array. No new item inserted.');
+			return array;
+		}
+		array[index] = item;
+		return array;
+	};
+
+	/** Finds the highest version number for each type.
+	 * @param {*} types The list of types.
+	 * @returns A list with the highest version_number for each index.
+	 */
+	static assignHighest = (types) => {
+		let index;
+		let curr;
+		if (types.length > 0) {
+			curr = types[0].typeId;
+		}
+		let count = 0;
+		let highest = 1;
+		let out = [];
+		for (index = 0; index < types.length; index++) {
+			if (types[index].typeId === curr) {
+				if (highest < types[index].versionNumber) {
+					highest = types[index].versionNumber;
+				}
+				count += 1;
+			}
+			else {
+				while (count > 0) {
+					out.push(highest);
+					count -= 1;
+				}
+				count = 1;
+				curr = types[index].typeId;
+				highest = 1;
+			}
+		}
+		while (count > 0) {
+			out.push(highest);
+			count -= 1;
+		}
+		return out;
+	};
 }
