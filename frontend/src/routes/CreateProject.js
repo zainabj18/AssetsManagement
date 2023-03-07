@@ -10,7 +10,8 @@ import {
 	Checkbox
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
-import {createProject} from '../api.js';
+import {createProject, fetchPeople, setAllProjects} from '../api.js';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -18,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 const CreateProject = () => {
 	const[newName, setNewName] = useState('');
 	const[newDescription, setNewDescription] = useState('');
+	const [toggle] = useEffect();
 	let navigate=useNavigate();
 
 	const changeName = (name) => {
@@ -47,7 +49,17 @@ const CreateProject = () => {
 		}
 		setSelectedPeople(list);
 	};
-
+	
+	const[allPeople, setAllPeople] = useState([]);
+	
+	  useEffect(() => {
+		async function load_allPeople() {
+			let data = await fetchPeople();
+			console.log(data);
+			setAllProjects(data.data);
+		}
+		load_allPeople();
+	}, [toggle]);
 
 
 	return (
@@ -94,4 +106,3 @@ const CreateProject = () => {
 };
 
 export default CreateProject;
-
