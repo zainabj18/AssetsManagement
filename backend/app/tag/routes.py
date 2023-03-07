@@ -1,196 +1,309 @@
-from app.db import get_db, UserRole
-from app.schemas import TagBase,TagBulkRequest
-from app.core.utils import protected
+import json
+from app.db import get_db
+from app.schemas import Project
 from flask import Blueprint, jsonify, request
 from psycopg import Error
-from psycopg.errors import UniqueViolation
 from psycopg.rows import dict_row
 from pydantic import ValidationError
 
-bp = Blueprint("tag", __name__, url_prefix="/tag")
+from backend.app.core.utils import decode_token
+
+bp = Blueprint("project", __name__, url_prefix="/project")
 
 
-def create_tag(db, tag_dict):
-    with db.connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-        INSERT INTO tags (name)
-VALUES (%(name)s) RETURNING id;""",
-                tag_dict,
-            )
-            return cur.fetchone()[0]
+def get_projects(db):
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=dict_row) as cur:
+            cur.execute("""SELECT * FROM projects;""")
+            pList = """SELECT project_id, name, description FROM PROJECTS"""
+            allProjects = []
+            for project in pList:
+                query = """SELECT username, account_id
+                FROM people_in_projects
+                INNER JOIN accounts ON accounts.account_id = people_in_projects.account_id
+                WHERE project_id = %(project_id)s;"""
+                key = {"project_id":project.project_id}
+                res = db_conn.execute(query, key)
+                people = res.fetchall()
+                accounts = []
+                for account in people:
+                    accounts.append({"accountName": account[0], "account_id": account[1]})
+                allProjects.append({
+                    "projectID": project[0],
+                    "projectname":project[1],
+                    "projectDescription":project[2],
+                    "accounts":{
+                        accounts
+                    }
+                })
+    return {"data": allProjects}
 
-def update_tag(db,tag_dict):
-    with db.connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-            UPDATE tags 
-            SET name=%(name)s WHERE id=%(id)s ;""",
-                tag_dict,
-            )
+def extract_people(people):
+    allPeople_listed = []
+    for person in people:
+        allPeople_listed.append(
+                { 
+                    "accountID": person[0],
+                    "firstName": person[1],
+                    "lastName": person[2],
+                    "username": person[3]
+                }
+        )
+    return allPeople_listed
 
-def add_asset_to_tag(db,asset_ids,tag_id):
+def add_people_to_project(db,id,account_id):
     with db.connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-            INSERT INTO assets_in_tags(asset_id,tag_id)
-SELECT asset_id,%(tag_id)s AS tag_id FROM assets
-WHERE asset_id = ANY(%(asset_ids)s) ON CONFLICT DO NOTHING;
-            """,{"tag_id":tag_id,"asset_ids":asset_ids})
+            INSERT INTO people_in_projects(project_id,account_id)
+            VALUES(%(project_id)s,%(account_id)s);
+            """,{"account_id":account_id,"project_id":id})
 
-def delete_asset_in_tag(db,asset_ids,tag_id):
-    with db.connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-            DELETE FROM assets_in_tags WHERE asset_id = ANY(%(asset_ids)s) AND tag_id=%(tag_id)s;
-            """,{"tag_id":tag_id,"asset_ids":asset_ids})
-
-
-
-def list_tags(db):
+def list_people(db):
     with db.connection() as conn:
         with conn.cursor(row_factory=dict_row) as cur:
-            cur.execute("""SELECT * FROM tags ORDER BY name;""")
+            cur.execute("""SELECT account_id FROM people_in_projects;""")
             return cur.fetchall()
 
-def tag_in_db(db,id):
-    with db.connection() as conn:
-        with conn.cursor(row_factory=dict_row) as cur:
-            cur.execute("""SELECT id FROM tags WHERE id=%(id)s;""",{"id": id})
-            return cur.fetchall()!=[]
-
-
-def delete_tag(db, id):
-    with db.connection() as db_conn:
-        with db_conn.cursor() as cur:
-            cur.execute(
-                """DELETE FROM tags WHERE id=%(id)s;""",
-                {"id": id},
-            )
-
-
-@bp.route("/", methods=["POST"])
-@protected(role=UserRole.USER)
-def create(user_id, access_level):
-    try:
-        tag = TagBase(**request.json)
-    except ValidationError as e:
-        return (
-            jsonify(
-                {
-                    "msg": "Data provided is invalid",
-                    "data": e.errors(),
-                    "error": "Failed to create tag from the data provided",
-                }
-            ),
-            400,
-        )
-    db = get_db()
-    try:
-        id = create_tag(db, tag.dict())
-    except UniqueViolation as e:
-        return {"msg": f"Tag {tag.name} already exists", "error": "Database Error"}, 500
-    except Error as e:
-        return {"msg": str(e), "error": "Database Error"}, 500
-    tag.id = id
-    return jsonify({"msg": "Tag Created", "data": tag.dict()})
-
+# def get_people(db):
+#     with db.connection() as db_conn:
+#         with db_conn.cursor(row_factory=dict_row) as cur:
+#             cur.execute("""SELECT * FROM people_in_projects;""")
+#             return cur.fetchall()
+        
+# def get_user_by_project(db):
+#     with db.connection() as db_conn:
+#         with db_conn.cursor(row_factory=dict_row) as cur:
+#             cur.execute(
+#                 """SELECT projects.id, projects.name, account.username FROM projects INNER JOIN people_in_projects ON projects.id = people_in_projects.project_id INNER JOIN accounts ON people_in_projects.account_id = accounts.account_id;"""
+#             )
+#             return cur.fetchall()
 
 @bp.route("/", methods=["GET"])
-@protected(role=UserRole.VIEWER)
-def list(user_id, access_level):
+def project_list():
     try:
         db = get_db()
-        tags = list_tags(db)
+        projects = get_projects(db)
     except Error as e:
         return {"msg": str(e), "error": "Database Error"}, 500
-    return jsonify({"msg": "tags", "data": tags})
+    return jsonify({"msg": "projects", "data": projects})
 
-
-@bp.route("/<id>", methods=["DELETE"])
-@protected(role=UserRole.USER)
-def delete(id, user_id, access_level):
+@bp.route("/", methods=["GET"])
+def people_list():
     try:
         db = get_db()
-        delete_tag(db, id)
+        people = list_people(db)
     except Error as e:
         return {"msg": str(e), "error": "Database Error"}, 500
-    return {}, 200
+    return jsonify({"msg": "projects", "data": people})
 
-@bp.route("/<id>", methods=["PATCH"])
-@protected(role=UserRole.ADMIN)
-def update(id, user_id, access_level):
+@bp.route("/new", methods=["POST"])
+def create():
+    db = get_db()
     try:
-        tag = TagBase(**request.json)
-    except ValidationError as e:
+        try:
+            project = Project(**request.json)
+        except ValidationError as e:
+            return (
+                jsonify(
+                    {
+                        "msg": "Data provided is invalid",
+                        "data": e.errors(),
+                        "error": "Failed to create asset from the data provided",
+                    }
+                ),
+                400,
+            )
+    except Exception as e:
         return (
             jsonify(
                 {
                     "msg": "Data provided is invalid",
-                    "data": e.errors(),
-                    "error": "Failed to create tag from the data provided",
+                    "data": None,
+                    "error": "Failed to create asset from the data provided",
                 }
             ),
             400,
         )
-    try:
-        db = get_db()
-        update_tag(db,tag.dict())
-    except UniqueViolation as e:
-        return {"msg": f"Tag {tag.name} already exists", "error": "Database Error"}, 500
-    except Error as e:
-        return {"msg": str(e), "error": "Database Error"}, 500
-    return {}, 200
+    print(project)
 
-@bp.route("/copy", methods=["POST"])
-@protected(role=UserRole.USER)
-def copy(user_id, access_level):
-    try:
-        tag_copy = TagBulkRequest(**request.json)
-    except ValidationError as e:
-        return (
-            jsonify(
-                {
-                    "msg": "Data provided is invalid",
-                    "data": e.errors(),
-                    "error": "Failed to copy to tag from the data provided",
-                }
-            ),
-            400,
+    
+    db_project = project.dict()
+    with db.connection() as conn:
+            res = conn.execute(
+                """INSERT INTO projects (name,description)VALUES (%(name)s,%(description)s) RETURNING id;""",
+                db_project,
+            )
+            id = res.fetchone()[0]
+    for person in request.json["accountID"]:
+        with db.connection() as conn:
+            conn.execute(
+        """INSERT INTO people_in_projects (project_id, account_id) VALUES (%(project_id)s, %(account_id)s)""",
+        {"project_id" : id,
+        "account_id": person}
         )
-    try:
-        db=get_db()
-        if not tag_in_db(db,tag_copy.to_tag_id):
-            return {"msg": "Data provided is invalid","data":tag_copy.to_tag_id,"error": f"Tag {tag_copy.to_tag_id} doesn't exist"},400
-        add_asset_to_tag(db=db,asset_ids=tag_copy.assest_ids,tag_id=tag_copy.to_tag_id)
-    except Error as e:
-        return {"msg": str(e), "error": "Database Error"}, 500
-    return {"msg":"Copied assets to tag"}, 200
+
+    return jsonify({"msg": "The user have created a new project"}), 200
 
 
-@bp.route("/remove", methods=["POST"])
-@protected(role=UserRole.USER)
-def remove(user_id, access_level):
-    try:
-        tag_remove = TagBulkRequest(**request.json)
-    except ValidationError as e:
-        return (
-            jsonify(
-                {
-                    "msg": "Data provided is invalid",
-                    "data": e.errors(),
-                    "error": "Failed to move to tag from the data provided",
-                }
-            ),
-            400,
-        )
-    try:
-        db=get_db()
-        if not tag_in_db(db,tag_remove.to_tag_id):
-            return {"msg": "Data provided is invalid","data":tag_remove.to_tag_id,"error": f"Tag {tag_remove.to_tag_id} doesn't exist"},400
-        delete_asset_in_tag(db,tag_remove.assest_ids,tag_remove.to_tag_id)
-    except Error as e:
-        return {"msg": str(e), "error": "Database Error"}, 500
-    return {"msg":"Removed assets from tag"}, 200
+
+# @bp.route("/identify", methods=["GET"])
+# def identify():
+#     data = decode_token(request)
+#     db = get_db()
+#     try:
+#         if username := get_user_by_project(db, data["account_id"]):
+#             username = username[0]
+#     except Error as e:
+#         return {"msg": str(e), "error": "Database Connection Error"}, 500
+
+#     resp = jsonify(
+#         {
+#             "msg": "found you",
+#             "data": {
+#                 "userID": data["account_id"],
+#                 "userRole": data["account_type"],
+#                 "username": username,
+#                 "userPrivileges": data["account_privileges"],
+#             },
+#         }
+#     )
+#     return resp
+
+#Remove Projects from database
+@bp.route("/delete/<id>", methods=["POST"])
+def delete_project(id):
+    database = get_db()
+    canDo = True
+
+    query = """SELECT COUNT(*) FROM people_in_projects WHERE project_id = (%(id)s);"""
+    with database.connection() as conn:
+        res = conn.execute(query, {"id": id})
+        if (res.fetchone()[0] > 0):
+            canDo = False
+
+    query = """SELECT COUNT(*) FROM assets_in_projects WHERE project_id = (%(id)s);"""
+    with database.connection() as conn:
+        res = conn.execute(query, {"id": id})
+        if (res.fetchone()[0] > 0):
+            canDo = False
+
+    if canDo:
+        query = """DELETE FROM people_in_projects WHERE project_id = (%(id)s);"""
+        with database.connection() as conn:
+            conn.execute(query, {"id": id})
+
+        query = """DELETE FROM assets_in_projects WHERE project_id = (%(id)s);"""
+        with database.connection() as conn:
+            conn.execute(query, {"id": id})
+
+        query = """DELETE FROM projects WHERE id = (%(id)s);"""
+        with database.connection() as conn:
+            conn.execute(query, {"id": id})
+
+    return {"msg": "", "wasAllowed": canDo}, 200
+
+@bp.route("/allPeople", methods=["GET"])
+def get_allProjects():
+    database = get_db()
+    query = """SELECT account_id,first_name, last_name, username FROM accounts;"""
+    with database.connection() as conn:
+        res = conn.execute(query)
+        allPeople = res.fetchall()
+        allPeople_listed = extract_people(allPeople)
+        return {"data": allPeople_listed}, 200
+
+# @bp.route("/<id>", methods=["POST"])
+# def get_people_from_project(id):
+#     db = get_db()
+#     people = get_people(db)
+#     with db.connection() as conn:
+#             conn.execute(
+#                 "SELECT * FROM projects WHERE id = %(id)s"
+#             )
+#             project = conn.fetchone()
+#             if project is None:
+#                 return {"msg": "Project not found"}, 404
+            
+#             data = decode_token(request)
+#             conn.execute(
+#                 "INSERT INTO people_in_projects (project_id, account_id) VALUES (%(id)s, %(account_id)s)",
+#                 {"project_id": id, "account_id": data["account_id"]},
+#             )
+#             return {"msg": "People added to project successfully", "data": people}, 200
+
+# @bp.route("/people/<id>", methods=["POST"])
+# def add_people_to_project(id):
+#     db = get_db()
+#     try:
+#         account_id = request.json['account_id']
+#     except KeyError:
+#         return jsonify(
+#             {"msg": "Data provided is invalid", "data": None, "error": "Missing 'account_id' field"}
+#         ), 400
+    
+#     with db.connection() as conn:
+#         conn.execute(
+#             "SELECT * FROM projects WHERE id = %(id)s",
+#             {"id": id}
+#         )
+        
+#         project = conn.fetchone()
+#         if project is None:
+#             return {"msg": "Project not found"}, 404
+        
+#         conn.execute(
+#             "SELECT * FROM accounts WHERE account_id = %(account_id)s",
+#             {"account_id": account_id}
+#         )
+#         account = conn.fetchone()
+#         if account is None:
+#             return {"msg": "Account not found"}, 404
+        
+#         try:
+#             conn.execute(
+#                 "INSERT INTO people_in_projects (project_id, account_id) VALUES (%(project_id)s, %(account_id)s)",
+#                 {"project_id": id, "account_id": account_id}
+#             )
+#         except Error as e:
+#             return {"msg": str(e), "error": "Database Error"}, 500
+        
+#         return {"msg": "People added to project successfully"}, 200
+
+# @bp.route("/<id>/people", methods=["DELETE"])
+# def remove_people_from_project(id):
+#     db = get_db()
+#     try:
+#         account_id = request.json['account_id']
+#     except KeyError:
+#         return jsonify(
+#             {"msg": "Data provided is invalid", "data": None, "error": "Missing 'account_id' field"}
+#         ), 400
+    
+#     with db.connection() as conn:
+#         conn.execute(
+#             "SELECT * FROM projects WHERE id = %(id)s",
+#             {"id": id}
+#         )
+#         project = conn.fetchone()
+#         if project is None:
+#             return {"msg": "Project not found"}, 404
+        
+#         conn.execute(
+#             "SELECT * FROM accounts WHERE account_id = %(account_id)s",
+#             {"account_id": account_id}
+#         )
+#         account = conn.fetchone()
+
+#         if account is None:
+#             return {"msg": "Account not found"}, 404
+        
+#         try:
+#             conn.execute(
+#                 "DELETE FROM people_in_projects WHERE project_id = %(project_id)s AND account_id = %(account_id)s",
+#                 {"project_id": id, "account_id": account_id}
+#             )
+#         except Error as e:
+#             return {"msg": str(e), "error": "Database Error"}, 500
+        
+#         return {"msg": "People removed from project successfully"}, 200
