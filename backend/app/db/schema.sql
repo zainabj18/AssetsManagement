@@ -146,6 +146,7 @@ CREATE TABLE audit_logs
  	log_id SERIAL,
 	account_id INTEGER,
  	model_id INTEGER,
+	action actions,
 	diff JSON,
 	date timestamp NOT NULL DEFAULT now(),
  	PRIMARY KEY (log_id),
