@@ -5,7 +5,7 @@ from psycopg.rows import class_row
 from app.db import close_db, get_db
 from flask import current_app
 from werkzeug.security import generate_password_hash
-from app.schemas.factories import AssetFactory,TypeVersionFactory,ProjectFactory,TagFactory
+from app.schemas.factories import AssetFactory,TypeVersionFactory,ProjectFactory,TagFactory,TypeFactory
 from app.schemas import AssetBaseInDB
 def init_db():
     db = get_db(new=True)
@@ -34,7 +34,7 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
     with db_conn.cursor() as cur:
         for asset in batch_result:
             attribute_ids = []
-            new_type_version = TypeVersionFactory.build(type_id=asset.version_id)
+            new_type_version = TypeVersionFactory.build(version_id=asset.version_id)
             cur.execute(
                 """
         INSERT INTO types (type_id,type_name)
