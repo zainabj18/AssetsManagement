@@ -61,6 +61,10 @@ export const createType = async (newType) => {
 export const fetchTypesList = async () => {
 	return await axios.get('/type/names').then(res => res.data);
 };
+export const fetchTypesNamesVersionList = async () => {
+	return await axios.get('/type/version/names').then(res => res.data);
+};
+
 
 export const fetchType = async (id) => {
 	return await axios.get(`/type/${id}`).then(res => res.data);
