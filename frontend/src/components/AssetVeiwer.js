@@ -33,7 +33,7 @@ import { useEffect, useState } from 'react';
 import { redirect, useNavigate, useParams } from 'react-router-dom';
 import FormField from './FormField';
 import axios from 'axios';
-import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset, updateAsset, fetchAssetLinks, fetchAssetSummary } from '../api';
+import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset, updateAsset, fetchAssetLinks, fetchAssetSummary, fetchTypesNamesVersionList } from '../api';
 import SearchSelect from './SearchSelect';
 import ProjectSelect from './ProjectSelect';
 import ListFormField from './ListFormField';
@@ -188,8 +188,9 @@ const AssetViewer = () => {
 		fetchAssetClassifications().then((data)=>{
 			setClassifications(data.data);}).catch((err) => {console.log(err);});
 
-		fetchTypesList().then((data)=>{
-			setTypes(data.data);}).catch((err) => {console.log(err);});
+		fetchTypesNamesVersionList().then((data)=>{
+			console.log(data,'I am types');
+			setTypes(data.data);}).catch((err) => {console.log(err,'types eroro');});
 		if (id) {
 			fetchAsset(id).then((res)=>{
 				console.log(res.data);
