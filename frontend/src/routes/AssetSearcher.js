@@ -5,9 +5,13 @@ import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIco
 import { Checkbox } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { fetchTypesList } from '../api';
+import { fetchTags } from '../api';
+
 
 const FilterBasedSearch = () => {
 	const [types, setTypes] = useState([]);
+	
+	const [tags, setTags] = useState([]);
 	const [inputFields, setInputFields] = useState([
 		{ name: '', values: '' }
 	]);
@@ -38,7 +42,13 @@ const FilterBasedSearch = () => {
 		fetchTypesList().then((res) => {
 			setTypes(res.data);
 		}
+		
 		);
+		fetchTags().then((res) => {
+			setTags(res.data);
+		}
+		);
+
 	}, []);
 
 	return (
@@ -53,9 +63,9 @@ const FilterBasedSearch = () => {
 					</h2>
 					<AccordionPanel pb={4}>
 						<VStack align={'left'}>
-							{types.map((types) => {
+							{types.map((type) => {
 								return ( 
-									<Checkbox colorScheme='green' defaultChecked>{types.type_name}</Checkbox>
+									<Checkbox colorScheme='green' defaultChecked>{type.type_name}</Checkbox>
 								);
 							})}
 						</VStack>
@@ -70,7 +80,11 @@ const FilterBasedSearch = () => {
 					</h2>
 					<AccordionPanel pb={4}>
 						<VStack align={'left'}>
-							<Checkbox colorScheme='green' defaultChecked>React</Checkbox>
+							{tags.map((tag) => {
+								return ( 
+									<Checkbox colorScheme='green' defaultChecked>{tag.name}</Checkbox>
+								);
+							})}
 						</VStack>
 					</AccordionPanel>
 				</AccordionItem>
