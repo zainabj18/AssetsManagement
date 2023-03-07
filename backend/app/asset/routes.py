@@ -418,8 +418,9 @@ INNER JOIN assets_in_tags ON assets.asset_id=assets_in_tags.asset_id WHERE soft_
             for a in assets:
                 if a.classification <= access_level:
                     cur.execute(
-                        """SELECT type_name FROM types WHERE type_id=%(id)s;""",
-                        {"id": a.type},
+                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
+INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
+                        {"version_id": a.version_id},
                     )
                     type = cur.fetchone()["type_name"]
                     aj = json.loads(a.json(by_alias=True))
