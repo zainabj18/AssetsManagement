@@ -77,9 +77,9 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
             for id in attribute_ids:
                 cur.execute(
                     """
-        INSERT INTO attributes_in_types (attribute_id,type_id)
-    VALUES (%(attribute_id)s,%(type_id)s) ON CONFLICT (attribute_id,type_id) DO NOTHING;""",
-                    {"attribute_id": id, "type_id": asset.type},
+        INSERT INTO attributes_in_types (attribute_id,type_version)
+    VALUES (%(attribute_id)s,%(type_version)s) ON CONFLICT (attribute_id,type_version) DO NOTHING;""",
+                    {"attribute_id": id, "type_version": asset.version_id},
                 )
             for project in asset.projects:
                 p = ProjectFactory.build(id=project)
