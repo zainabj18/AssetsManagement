@@ -7,11 +7,11 @@ import { useEffect, useState } from 'react';
 import { fetchTypesList } from '../api';
 import { fetchTags } from '../api';
 import { fetchProjects } from '../api';
-
-
+import { fetchAssetClassifications} from '../api';
 
 const FilterBasedSearch = () => {
 	const [types, setTypes] = useState([]);
+	const [classifications, setClassifications] = useState([]);
 	const [projects, setProjects] = useState([]);
 	const [tags, setTags] = useState([]);
 	const [inputFields, setInputFields] = useState([
@@ -44,8 +44,8 @@ const FilterBasedSearch = () => {
 		fetchTypesList().then((res) => {
 			setTypes(res.data);
 		}
-		
 		);
+
 		fetchTags().then((res) => {
 			setTags(res.data);
 		}
@@ -53,6 +53,11 @@ const FilterBasedSearch = () => {
 
 		fetchProjects().then((res) => {
 			setProjects(res.data);
+		}
+		);
+
+		fetchAssetClassifications().then((res) => {
+			setClassifications(res.data);
 		}
 		);
 	}, []);
@@ -120,10 +125,11 @@ const FilterBasedSearch = () => {
 					</h2>
 					<AccordionPanel pb={4}>
 						<VStack align={'left'}>
-							<Checkbox colorScheme='green' defaultChecked>Public</Checkbox>
-							<Checkbox colorScheme='green' defaultChecked>Internal</Checkbox>
-							<Checkbox colorScheme='green' defaultChecked>Restricted</Checkbox>
-							<Checkbox colorScheme='green' defaultChecked>Confidential</Checkbox>
+							{classifications.map((classification) => {
+								return ( 
+									<Checkbox colorScheme='green' defaultChecked>{classification}</Checkbox>
+								); 
+							})}
 						</VStack>
 					</AccordionPanel>
 				</AccordionItem>
