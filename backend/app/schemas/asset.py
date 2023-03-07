@@ -71,7 +71,7 @@ class Project(BaseModel):
 class AssetBase(BaseModel):
     name: str
     link: str
-    type: int
+    version_id: int
     description: str
     classification: DataAccess
 
