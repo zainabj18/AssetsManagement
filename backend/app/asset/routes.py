@@ -132,8 +132,8 @@ def create():
         with conn.cursor() as cur:
             cur.execute(
                 """
-            INSERT INTO assets (name,link,type,description, classification)
-    VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(classification)s)  RETURNING asset_id;""",
+            INSERT INTO assets (name,link,version_id,description, classification)
+    VALUES (%(name)s,%(link)s,%(version_id)s,%(description)s,%(classification)s)  RETURNING asset_id;""",
                 db_asset,
             )
             asset_id = cur.fetchone()[0]
