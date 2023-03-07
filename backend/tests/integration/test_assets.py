@@ -320,7 +320,7 @@ def test_new_assets_in_db(client, new_assets, db_conn):
         asset = cur.fetchone()
         assert asset["name"] == new_assets[0].name
         assert asset["link"] == new_assets[0].link
-        assert asset["type"] == new_assets[0].type
+        assert asset["version_id"] == new_assets[0].version_id
         assert asset["description"] == new_assets[0].description
         assert asset["classification"] == new_assets[0].classification
 
