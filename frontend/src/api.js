@@ -85,3 +85,7 @@ export const getUsers = async () => {
 export const getAccountDetails = async () => {
 	return await axios.get('/admin/accountmanager/').then(res => res.data);
 };
+
+export const changePassword = async () => {
+	return await axios.get('/admin/accountmanager/').then(res => res.data);
+};
