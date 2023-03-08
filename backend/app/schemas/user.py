@@ -64,6 +64,3 @@ class UserCreate(UserBase):
             len(set(SPECIAL_CHARECTERS).intersection(set(pwd))) > 0
         ), f"password must contain a charecter from {SPECIAL_CHARECTERS}"
         return v
-
-
-# data=jwt.decode(token,current_app.config['SECRET_KEY'],algorithms=[current_app.config['JWT_ALGO']])

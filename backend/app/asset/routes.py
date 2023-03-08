@@ -149,6 +149,38 @@ def create():
                     ),
                     400,
                 )
+            cur.execute("""SELECT attributes_in_types.attribute_id FROM attributes_in_types
+INNER JOIN attributes on attributes_in_types.attribute_id=attributes.attribute_id
+WHERE (attributes.validation_data->>'isOptional')::boolean is false AND attributes_in_types.type_id=%(type_id)s;""",{"type_id": asset.type})
+            required_attributes=set([x[0] for x in cur.fetchall()])
+            attribute_ids=set([attribute.attribute_id for attribute in asset.metadata])
+            cur.execute("""SELECT attributes_in_types.attribute_id FROM attributes_in_types
+INNER JOIN attributes on attributes_in_types.attribute_id=attributes.attribute_id
+WHERE attributes_in_types.type_id=%(type_id)s;""",{"type_id": asset.type})
+            all_type_attributes=set([x[0] for x in cur.fetchall()])
+            
+            if not required_attributes.issubset(attribute_ids):
+                 return (
+                    jsonify(
+                        {
+                            "msg": "Missing required attributes",
+                            "data": f"Must inlcude the following attrubutes with ids {list(required_attributes)}",
+                            "error": "Failed to create asset from the data provided",
+                        }
+                    ),
+                    400,
+                )
+            if not (attribute_ids.issubset(all_type_attributes)):
+                return (
+                    jsonify(
+                        {
+                            "msg": "Addtional attributes",
+                            "data": f"Must only inlcude the following attrubutes with ids {list(all_type_attributes)}",
+                            "error": "Failed to create asset from the data provided",
+                        }
+                    ),
+                    400,
+                )
 
             cur.execute(
                 """

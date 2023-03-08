@@ -31,16 +31,18 @@ import {
 import { Fragment } from 'react';
 import { useEffect, useState } from 'react';
 import { redirect, useNavigate, useParams } from 'react-router-dom';
-import FormField from './FormField';
+
 import axios from 'axios';
 import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset, updateAsset, fetchAssetLinks, fetchAssetSummary } from '../api';
-import SearchSelect from './SearchSelect';
 import ProjectSelect from './ProjectSelect';
-import ListFormField from './ListFormField';
-import SelectFormField from './SelectFormField';
-import NumFormField from './NumFormField';
 import useAuth from '../hooks/useAuth';
 import AssetSelect from './AssetSelect';
+import NumFormField from './asset/formfields/NumFormField';
+import FormField from './asset/formfields/FormField';
+import SearchSelect from './asset/formfields/SearchSelect';
+import SelectFormField from './asset/formfields/SelectFormField';
+import ListFormField from './asset/formfields/ListFormField';
+
 const AssetViewer = () => {
 	const { id } = useParams();
 	const {user} = useAuth();
@@ -145,6 +147,13 @@ const AssetViewer = () => {
 			}
 			
 		}
+		console.log(assetSate.metadata);
+		for (const [key, value] of Object.entries(assetSate.metadata)){
+			if(!value.validation.isOptional && (!(value.hasOwnProperty('attributeValue'))) || (value.hasOwnProperty('attributeValue') && value.attributeValue.length===0)){
+				errs.push(value.attributeName);
+			}
+		}
+	
 		if (projects.length===0){
 			errs.push('project(s) is required');
 		}
@@ -424,6 +433,7 @@ const AssetViewer = () => {
 									onSubmitHandler={handleMetadataChange}
 									trigger={trigger}
 									setErrorCount={setErrorCount}
+									validation={value.validation}
 								/>
 							</Fragment>);
 					  }
