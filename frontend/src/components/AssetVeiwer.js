@@ -118,7 +118,7 @@ const AssetViewer = () => {
 			console.log(res);
 			setAssetState((prevAssetState) => ({
 				...prevAssetState,
-				type: attribute_value,
+				version_id: attribute_value,
 				metadata:res.metadata,
 			}));
 			setTrigger.toggle();
