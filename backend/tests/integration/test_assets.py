@@ -423,7 +423,6 @@ SET type_id = %(type_id)s""",
             {"type_id": type_id},
         )
         min_version_number=min([row.version_number for row in type_verions[0]])
-        print(min_version_number)
         cur.execute(
             """UPDATE type_version
 SET version_number = %(version_number)s WHERE version_id=%(version_id)s""",
