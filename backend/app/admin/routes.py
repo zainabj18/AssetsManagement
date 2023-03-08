@@ -22,3 +22,10 @@ def getUsers():
         result = conn.execute(query)
         usersfetched = result.fetchall()
     return json.dumps(usersfetched), 200
+
+def insertUsers():
+    database = get_db()
+    query = """INSERT INTO accounts 
+                VALUES (1,'John','Smith','John_Smith123','hello12345','VIEWER','PUBLIC');"""
+    with database.connection() as conn:
+        result = conn.execute(query)
