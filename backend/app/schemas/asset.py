@@ -16,8 +16,12 @@ class TagInDB(TagBase):
 
 class Attribute_Model(BaseModel):
     attribute_name: str = Field(..., alias="attributeName")
-    attribute_type: str = Field(..., alias="attributeType")
+    attribute_data_type: str = Field(..., alias="attributeType")
     validation_data: Any = Field(None, alias="validation")
+
+    class Config:
+        allow_population_by_field_name = True
+
 
 
 class Attribute(Attribute_Model):
@@ -26,7 +30,7 @@ class Attribute(Attribute_Model):
 
     @root_validator
     def check_metadata(cls, values):
-        t = values.get("attribute_type")
+        t = values.get("attribute_data_type")
         v = values.get("attribute_value")
         # check if string is actually and array and convert
         if (
