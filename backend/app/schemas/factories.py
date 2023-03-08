@@ -13,7 +13,7 @@ def add_validation_json(name: str, values: dict, *args, **kwds):
         return {"type": "text"}
     if values["attribute_type"] == "options":
         return {"values": f.words(10), "isMulti": True}
-    return None
+    return {}
 
 
 def add_value(name: str, values: dict, *args, **kwds):
