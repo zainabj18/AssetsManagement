@@ -114,19 +114,30 @@ def type_verions(db_conn,request):
             cur.execute(
                                 """
                         INSERT INTO type_version (version_id,version_number,type_id)
-                    VALUES (%(version_id)s,%(version_number)s,%(type_id)s);""",
+                    VALUES (%(version_id)s,%(version_number)s,%(type_id)s) RETURNING version_id;""",
                                 type_version.dict(),
                             )
+            type_version.version_id=cur.fetchone()[0]
             attributes=AttributeFactory.batch(size=20)
-            print(attributes)
+            attribute_ids=[]
             for attribute in attributes:
                 attribute_in = attribute.dict(exclude={"validation_data"})
                 attribute_in["validation_data"] = json.dumps(attribute.validation_data)
                 cur.execute(
                     """
         INSERT INTO attributes (attribute_name,attribute_data_type,validation_data)
-    VALUES (%(attribute_name)s,%(attribute_type)s,%(validation_data)s) ON CONFLICT  DO NOTHING;""",
+    VALUES (%(attribute_name)s,%(attribute_type)s,%(validation_data)s) ON CONFLICT (attribute_name) DO UPDATE
+  SET attribute_name = attributes.attribute_name RETURNING attribute_id;""",
                     attribute_in,
+                )
+                id = cur.fetchone()[0]
+                attribute_ids.append(id)
+            for id in attribute_ids:
+                cur.execute(
+                    """
+        INSERT INTO attributes_in_types (attribute_id,type_version)
+    VALUES (%(attribute_id)s,%(type_version)s) ON CONFLICT (attribute_id,type_version) DO NOTHING;""",
+                    {"attribute_id": id, "type_version": type_version.version_id},
                 )
         db_conn.commit()
         return (added_versions,new_type)
