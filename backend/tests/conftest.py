@@ -119,6 +119,7 @@ def type_verions(db_conn,request):
                             )
             type_version.version_id=cur.fetchone()[0]
             attributes=AttributeFactory.batch(size=20)
+            type_version.attributes=attributes
             attribute_ids=[]
             for attribute in attributes:
                 attribute_in = attribute.dict(exclude={"validation_data"})
@@ -127,10 +128,11 @@ def type_verions(db_conn,request):
                     """
         INSERT INTO attributes (attribute_name,attribute_data_type,validation_data)
     VALUES (%(attribute_name)s,%(attribute_data_type)s,%(validation_data)s) ON CONFLICT (attribute_name) DO UPDATE
-  SET attribute_name = attributes.attribute_name RETURNING attribute_id;""",
+  SET attribute_name = excluded.attribute_name RETURNING attribute_id;""",
                     attribute_in,
                 )
                 id = cur.fetchone()[0]
+                attribute.attribute_id=id
                 attribute_ids.append(id)
             for id in attribute_ids:
                 cur.execute(
