@@ -33,7 +33,7 @@ import { useEffect, useState } from 'react';
 import { redirect, useNavigate, useParams } from 'react-router-dom';
 import FormField from './FormField';
 import axios from 'axios';
-import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset, updateAsset, fetchAssetLinks, fetchAssetSummary, fetchTypesNamesVersionList } from '../api';
+import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset, updateAsset, fetchAssetLinks, fetchAssetSummary, fetchTypesNamesVersionList, fetchAssetUpgradeOptions } from '../api';
 import SearchSelect from './SearchSelect';
 import ProjectSelect from './ProjectSelect';
 import ListFormField from './ListFormField';
@@ -57,6 +57,8 @@ const AssetViewer = () => {
 	const [errorCount,setErrorCount]=useState(0);
 	const [trigger,setTrigger]=useBoolean();
 	const [types,setTypes]=useState([]);
+	const [upgradeable,setUpgradeable]=useState(false);
+	const [upgradeData,setUpgradeData]=useState(undefined);
 	
 	const handleChange = (attribute_name, attribute_value) => {
 		setAssetState((prevAssetState) => ({
@@ -222,6 +224,12 @@ const AssetViewer = () => {
 					setAssets(preSelected);
 				}
 			);
+
+			fetchAssetUpgradeOptions(id).then(
+				(res)=>{
+					setUpgradeable(res.canUpgrade);
+				}
+			);
 		} else {
 			if (!user||user.userRole==='VIEWER'){
 				navigate('/assets');
@@ -307,6 +315,7 @@ const AssetViewer = () => {
 									);
 								})}
 						</Select>
+						{upgradeable && <Button>Upgrade</Button>}
 					</FormControl>
 					<FormControl>
 						<FormLabel>Projects</FormLabel>
