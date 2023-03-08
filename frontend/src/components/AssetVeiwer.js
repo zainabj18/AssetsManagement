@@ -228,6 +228,8 @@ const AssetViewer = () => {
 			fetchAssetUpgradeOptions(id).then(
 				(res)=>{
 					setUpgradeable(res.canUpgrade);
+					setUpgradeData(res.data);
+					console.log(res.data);
 				}
 			);
 		} else {
@@ -315,7 +317,20 @@ const AssetViewer = () => {
 									);
 								})}
 						</Select>
-						{upgradeable && <Button>Upgrade</Button>}
+						{upgradeable && <Alert status='warning' flexDirection='column' alignItems='right'>
+							<AlertIcon alignSelf='center'/>
+							<AlertTitle>It looks like a newer version of type is availiable.Please upgrade to the latest version.</AlertTitle>
+							<AlertDescription>
+								
+								
+								{upgradeData[1].length>0 && <Fragment>
+									The following attributes will be removed:
+									<UnorderedList>
+										{upgradeData[1].map((value, key)=><ListItem key={key}>{value}</ListItem>)}
+									</UnorderedList></Fragment>}</AlertDescription>
+							<Button>Upgrade</Button>
+						</Alert>}
+				
 					</FormControl>
 					<FormControl>
 						<FormLabel>Projects</FormLabel>
