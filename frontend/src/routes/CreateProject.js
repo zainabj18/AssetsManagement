@@ -8,10 +8,11 @@ import {
 	Button,
 	Flex,
 	Checkbox, useBoolean,
-	HStack
+	HStack,
+	FormErrorMessage
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
-import {createProject, fetchPeople} from '../api.js';
+import {createProject, fetchPeople, fetchProjects} from '../api.js';
 import NewTag from '../components/NewTag';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -23,25 +24,44 @@ const CreateProject = () => {
 	const[newName, setNewName] = useState('');
 	const[newDescription, setNewDescription] = useState('');
 	const [toggle, set_toggle] = useBoolean();
-	const [trigger,setTrigger]=useBoolean();
+	const [selectedPeople, setSelectedPeople] = useState([]);
+	const [allPeople, setAllPeople] = useState([]);
+	const [projects, setProjects] = useState([]);
+	const [formError, setFormError] = useState('');
 
 	let navigate=useNavigate();
 
-	const changeName = (name) => {
-		setNewName(name);
-	};
 
 	const changeDescription = (description) => {
 		setNewDescription(description);
 	};
 
+	//projectName
+
+	const isProjectNameIn = (projectName, list) => {
+		let index;
+		for (index = 0; index < list.length; index++) {
+			if (list[index].projectName === projectName) {
+				return true;
+			}
+		}
+		return false;
+	};
+
 	const addProject = () => {
-		createProject({ name: newName, description: newDescription, accounts: selectedPeople }).then(_ => {
-			navigate('../');
-		});
+		console.log(newName);
+		console.log(projects);
+		if (isProjectNameIn(newName, projects)) {
+			setFormError('This project name is already used');
+		}else{
+			createProject({ name: newName, description: newDescription, accounts: selectedPeople }).then(_ => {
+				navigate('../');
+			});
+		}
+
 	};
  
-	const [selectedPeople, setSelectedPeople] = useState([]);
+
 	
 	const adjustSelectedPeople = (checked, value) => {
 		let list = selectedPeople;
@@ -55,7 +75,6 @@ const CreateProject = () => {
 		setSelectedPeople(list);
 	};
 	
-	const[allPeople, setAllPeople] = useState([]);
 	
 	  useEffect(() => {
 		async function load_allPeople() {
@@ -64,22 +83,29 @@ const CreateProject = () => {
 			setAllPeople(data.data);
 		}
 		load_allPeople();
+
+		async function load_allProjects() {
+			let data = await fetchProjects();
+			setProjects(data.data);
+			
+		}
+		load_allProjects();
 	}, [toggle]);
 
 
 	return (<Flex w='100%' minH='80vh' alignItems={'stretch'} p={2} border>
 		{/* <Text fontSize='3xl'>Create Project</Text> */}
 		<Box w='30%' minH='100%' bg='gray.300' p={4} color='black' align={'top'}>
-			<HStack>
+			<FormControl isInvalid = {formError !== ''}>
 				<Input
 					type="text"
 					placeholder="Project Name"
 
-					onChange={(event) => changeName(event.target.value)}
+					onChange={(event) => setNewName(event.target.value)}
 					name="name"
 				/>
-				<NewTag trigger={setTrigger}/>
-			</HStack>
+				<FormErrorMessage>{formError}</FormErrorMessage>
+			</FormControl>
 			<HStack>
 				<Input
 					type="text"
@@ -87,7 +113,6 @@ const CreateProject = () => {
 					onChange={(event) => changeDescription(event.target.value)}
 					name="description"
 				/>
-				<NewTag trigger={setTrigger}/>
 			</HStack>
 		</Box>
 		<VStack p={2}>
@@ -111,33 +136,7 @@ const CreateProject = () => {
 	</Flex>
 
 	);
-
-
-
-
-	
-	// 	return (
-	// 		<Flex w='100%' minH='80vh' alignItems={'stretch'} p={2} border>
-	// 			<Box w='30%' minH='100%' bg='gray.300' p={4} color='black' align={'top'}>
-	// 				<HStack>
-	// 					<Input type='text' placeholder='Search for tag ...' onChange={(e)=>{filter(e.target.value);}}/>
-	// 					<NewTag trigger={setTrigger}/>
-	// 				</HStack>
-	// 				<VStack p={2}>
-	// 					{results.map((t,index)=>(
-	// 						<CustomNavLink key={index} to={`./${t.id}`} w='100%'>
-	// 							{t.name}
-	// 						</CustomNavLink>
-
-	// 					))}
-				
-// 				</VStack>
-// 			</Box>
-// 			<Box w='70%' minH='100%' bg='white'>
-// 				<Outlet />
-// 			</Box> 
-// 		</Flex>
-// 	);
 };
 
 export default CreateProject;
+
