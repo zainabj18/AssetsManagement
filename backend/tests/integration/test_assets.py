@@ -396,9 +396,42 @@ def test_assets_with_tags(valid_client, new_assets):
     [{"batch_size": 1,"add_to_db":True}],
     indirect=True,
 )
-def test_no_upgrade_availiable(client,new_assets):
+def test_upgrade_not_availiable(client,new_assets):
     res = client.get(f"/api/v1/asset/upgrade/{new_assets[0].asset_id}")
     assert res.status_code == 200
     assert res.json["msg"] == "no upgrade needed"
     assert res.json["data"] == []
     assert res.json["canUpgrade"]==False
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1,"add_to_db":True}],
+    indirect=True,
+)
+@pytest.mark.parametrize(
+    "type_verions",
+    [{"size": 10,"add_to_db": True}],
+    indirect=True,
+)
+def test_upgrade_availiable(db_conn,client,new_assets,type_verions):
+    with db_conn.cursor() as cur:
+        cur.execute("SELECT type_id FROM type_version WHERE version_id=%(version_id)s",{"version_id":new_assets[0].version_id})
+        type_id=cur.fetchone()[0]
+        cur.execute(
+            """UPDATE type_version
+SET type_id = %(type_id)s""",
+            {"type_id": type_id},
+        )
+        min_version_number=min([row.version_number for row in type_verions[0]])
+        print(min_version_number)
+        cur.execute(
+            """UPDATE type_version
+SET version_number = %(version_number)s WHERE version_id=%(version_id)s""",
+            {"version_number":min_version_number-1,"version_id":new_assets[0].version_id},
+        )
+        db_conn.commit()
+        res = client.get(f"/api/v1/asset/upgrade/{new_assets[0].asset_id}")
+        assert res.status_code == 200
+        assert res.json["msg"] == "upgrade needed"
+        assert res.json["data"] == []
+        assert res.json["canUpgrade"]==True

@@ -667,8 +667,4 @@ WHERE asset_id=%(asset_id)s;""",
             current_version=cur.fetchone()
             if max_version==current_version:
                 return {"msg":"no upgrade needed","data":[],"canUpgrade":False}
-
-
-
-    
-    return {}
+            return {"msg":"upgrade needed","data":[],"canUpgrade":True}
