@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 from app.db import UserRole, DataAccess
 from app.schemas import AssetBaseInDB
-from app.schemas.factories import TypeVersionFactory,TypeFactory
+from app.schemas.factories import TypeVersionFactory,TypeFactory,AttributeFactory
 import jwt
+import json
 import pytest
 from app import create_app
 from app.db import get_db, init_db,create_assets
@@ -116,5 +117,16 @@ def type_verions(db_conn,request):
                     VALUES (%(version_id)s,%(version_number)s,%(type_id)s);""",
                                 type_version.dict(),
                             )
+            attributes=AttributeFactory.batch(size=20)
+            print(attributes)
+            for attribute in attributes:
+                attribute_in = attribute.dict(exclude={"validation_data"})
+                attribute_in["validation_data"] = json.dumps(attribute.validation_data)
+                cur.execute(
+                    """
+        INSERT INTO attributes (attribute_name,attribute_data_type,validation_data)
+    VALUES (%(attribute_name)s,%(attribute_type)s,%(validation_data)s) ON CONFLICT  DO NOTHING;""",
+                    attribute_in,
+                )
         db_conn.commit()
         return (added_versions,new_type)
