@@ -1,37 +1,74 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route} from 'react-router-dom';
 import AssetViewer from './components/AssetVeiwer';
 import CreateAsset from './routes/assets/CreateAsset';
 import Layout from './routes/Layout';
 import Login from './routes/Login';
 import NoMatch from './routes/NoMatch';
-import FilterBasedSearch from './routes/FilterBasedSearch';
 import User from './routes/User';
 import TypeAdder from './routes/TypeAdder';
+import TypeViewer from './routes/TypeViewer';
 import { AuthProvider } from './hooks/useAuth';
 import AssetsOverview from './routes/assets/AssetsOverview';
-import AssetsLayout from './routes/assets/AssetsLayout';
-
-
-
+import SubLayout from './routes/assets/SubLayout';
+import CreateProject from './routes/CreateProject';
+import { Box, Button } from '@chakra-ui/react';
+import AdminManager from './routes/AdminManager';
+import Tags from './routes/Tags';
+import TagViewer from './routes/TagViewer';
+import AssetOverview from './components/AssetOverview';
+import AssetLogs from './routes/assets/AssetLogs';
+import RelatedTags from './routes/assets/RelatedTags';
+import RelatedProjects from './routes/assets/RelatedProjects';
+import RelatedClassification from './routes/assets/RelatedClassification';
+import RelatedType from './routes/assets/RelatedType';
+import RelatedFrom from './routes/assets/RelatedFrom';
+import RelatedTo from './routes/assets/RelatedTo';
+import AttributeViewer from './routes/AttributeViewer';
+import ProjectViewer from './routes/ProjectViewer';
+import TypeEditor from './routes/TypeEditor';
+//TODO:Wrap in error boundary
 function App() {
-	
+
 	return (
 		<AuthProvider>
 			<Routes>
 				<Route path="/login" element={<Login />} />
 				<Route path="/" element={<Layout />}>
-					<Route path="assets/" element={<AssetsLayout />}>
+					<Route path="assets/" element={<SubLayout name="Assets"/>}>
 						<Route index element={<AssetsOverview />} />
 						<Route path="new" element={<CreateAsset />} />
-						<Route path="view/:id" element={<AssetViewer canEdit={true} isNew={false}/>} />
+						<Route path="view/:id" element={<AssetOverview />}>
+							<Route index element={<AssetViewer canEdit={true} isNew={false}/>} />	
+							<Route path="logs" element={<AssetLogs />} />	
+							<Route path="tags" element={<RelatedTags />} />	
+							<Route path="projects" element={<RelatedProjects />} />	
+							<Route path="classification" element={<RelatedClassification />} />	
+							<Route path="type" element={<RelatedType />} />	
+							<Route path="outgoing" element={<RelatedFrom />} />	
+							<Route path="incomming" element={<RelatedTo />} />	
+						</Route>
 					</Route>
-					<Route path="filter" element={<FilterBasedSearch />} />
+					<Route path="projects/" element={<SubLayout name="Projects"/>}>
+						<Route index element={<ProjectViewer/>} />
+						<Route path="new" element={<CreateProject />} />
+					</Route>
+
+					<Route path="tags/" element={<Tags />}>
+						<Route path=":id" element={<TagViewer/>} />	
+					</Route>
+					<Route path="type/" element={<SubLayout name="Types"/>}>
+						<Route index element={<TypeViewer />} />
+						<Route path="adder" element={<TypeAdder />} />
+						<Route path="attributes" element={<AttributeViewer />} />
+						<Route path=":id" element={<TypeEditor />} />
+					</Route>
+					<Route path="accounts" element={<AdminManager />} />
 					<Route path="user" element={<User />} />
-					<Route path="type/adder" element={<TypeAdder />} />
 				</Route>
 				<Route path="*" element={<NoMatch />} />
 			</Routes>
 		</AuthProvider>
+
 	);
 }
 

@@ -1,65 +1,107 @@
 
-import {VStack,Text } from '@chakra-ui/react';
-import { Input } from '@chakra-ui/react';
-import React, { useState} from 'react';
 import {
-	FormControl,
-	FormLabel,
-	HStack
+	Button,
+	FormControl, FormLabel, FormErrorMessage,
+	Input,
+	HStack, VStack,
+	Text,
+	useBoolean,
 } from '@chakra-ui/react';
-import { Button } from '@chakra-ui/react';
-import { DeleteIcon } from '@chakra-ui/icons';
-import { IconButton } from '@chakra-ui/react';
-
-
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import TypeMethodManager from '../components/TypeMethodManager';
+import { createType, fetchTypesList } from '../api';
+import useAuth from '../hooks/useAuth';
+import AttributeModal from '../components/AttributeModal';
+import SelectedAttributesList from '../components/SelectedAttributesList';
+import TypeSelection from '../components/TypeSelection';
+import AttributeSelection from '../components/AttributeSelection';
 
 const TypeAdder = () => {
-	const [inputFields, setInputFields] = useState([
-		{ attrName: 'programming language', attrType: 'text' },
-		{ attrName: 'country of origin', attrType: 'text' }
-	  ]);
-	const addAttribute = () => {
-		let newAttribute = { attrName: '', attrType: '' };
-		setInputFields([...inputFields, newAttribute]);
+
+	const { user } = useAuth();
+	let navigate = useNavigate();
+
+	useEffect(() => {
+		if (user && user.userRole !== 'ADMIN') {
+			navigate('../');
+		}
+	}, []);
+
+	const [load_attribute_trigger, set_load_attribute_trigger] = useBoolean();
+	const [typeName, set_typeName] = useState('');
+	const [new_typeName_errorMessage, set_new_typeName_errorMessage] = useState('');
+	const [selectedAttributes, set_selectedAttributes] = useState([]);
+	const [selectedAttributes_hasError, set_selectedAttributes_hasError] = useState(false);
+	const [selectedTypes, set_selectedTypes] = useState([]);
+
+	const get_typeName_errorMessage = (name_already_exists, name_is_empty) => {
+		let errorMessage = '';
+		if (name_is_empty) {
+			errorMessage = 'Please enter a name';
+		}
+		else if (name_already_exists) {
+			errorMessage = 'Type name in use';
+		}
+		return errorMessage;
 	};
-	const handleFormChange = (index, event) => {
-    	let data = [...inputFields];
-    	data[index][event.target.name] = event.target.value;
-		console.log(data);
-		setInputFields(data);
+
+	const saveType = () => {
+		fetchTypesList().then(data => {
+			let typeNames = data.data;
+			let name_already_exists = TypeMethodManager.isTypeNameIn(typeName, typeNames);
+			let nameError = get_typeName_errorMessage(name_already_exists, typeName === '');
+			set_new_typeName_errorMessage(nameError);
+
+			let min1_selected_attribute = selectedAttributes.length > 0;
+			set_selectedAttributes_hasError(!min1_selected_attribute);
+			if (nameError === '' && min1_selected_attribute) {
+				createType({
+					typeName: typeName,
+					metadata: selectedAttributes,
+					dependsOn: selectedTypes
+				});
+				navigate('/type');
+			}
+		});
 	};
-	const deleteAttribute = (index) => {
-		let data = [...inputFields];
-		data.splice(index,1);
-		setInputFields(data);
-	};
+
 	return (
-		<VStack minW="100vw">
+		<VStack width="90vw">
+
 			<Text>TypeAdder</Text>
-			<FormControl isRequired>
-  				<FormLabel>Name</FormLabel>
-  				<Input type='text' placeholder = 'Name'/>
+			<FormControl isRequired isInvalid={new_typeName_errorMessage !== ''}>
+				<FormLabel>Name</FormLabel>
+				<Input type='text'
+					placeholder='Name'
+					onChange={(e) => set_typeName(e.target.value)}
+				/>
+				<FormErrorMessage>{new_typeName_errorMessage}</FormErrorMessage>
 			</FormControl>
-			{inputFields.map((attr,index) => {return (
-				<HStack key={index}>
-					<FormControl>
-						<FormLabel>Attribute Name</FormLabel>
-						<Input type='text' placeholder = 'AttributeName' defaultValue = {attr.attrName} onChange={event => handleFormChange(index, event)} name='attrName'/>
-					</FormControl>
-					<FormControl>
-						<FormLabel>Data Type</FormLabel>
-						<Input type='text' placeholder = 'DataType' defaultValue = {attr.attrType} onChange={event => handleFormChange(index, event)} name='attrType'/>
-					</FormControl>
-					<IconButton
-						icon={<DeleteIcon />}
-						colorScheme='blue'
-						onClick={event => deleteAttribute(index)}
-					/>
-				</HStack>);})}
-			
-			<Button onClick={addAttribute}>Add</Button>
-			<Button>Save</Button>
-		</VStack>
+
+			<HStack minW='80%'>
+				<AttributeSelection
+					width='30%'
+					selectedAttributes_state={selectedAttributes}
+					set_selectedAttributes_state={set_selectedAttributes}
+					load_attribute_trigger={load_attribute_trigger}
+					isInvalid={selectedAttributes_hasError}
+					isRequired='true'
+				/>
+				<SelectedAttributesList selectedAttributes_state={selectedAttributes} />
+			</HStack>
+
+			<TypeSelection
+				selectedTypes_state={selectedTypes}
+				set_selectedTypes_state={set_selectedTypes}
+			/>
+
+			<AttributeModal
+				showModalButtonText="Add"
+				load_allAttributes_setter={set_load_attribute_trigger}
+			/>
+			<Button onClick={saveType}>Save</Button>
+		</VStack >
 	);
 };
 

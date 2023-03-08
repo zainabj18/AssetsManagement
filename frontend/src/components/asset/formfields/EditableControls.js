@@ -5,7 +5,8 @@ import {
 	useEditableState,
 	IconButton,
 } from '@chakra-ui/react';
-const EditableControls = () => {
+import { useEffect } from 'react';
+const EditableControls = (props) => {
 	const {
 		isEditing,
 		getSubmitButtonProps,
@@ -13,13 +14,16 @@ const EditableControls = () => {
 		getEditButtonProps,
 	} = useEditableControls();
 	const { isDisabled } = useEditableState();
+	useEffect(() => {
+	}, [props.error]);
+	
 	return isDisabled ? null : isEditing ? (
-		<ButtonGroup m={'2'}>
-			<IconButton icon={<CheckIcon />} {...getSubmitButtonProps()} />
+		<ButtonGroup m={'2'} justifyContent="end" w="100%">
+			{props.error==='' && <IconButton icon={<CheckIcon />} {...getSubmitButtonProps()} />}
 			<IconButton icon={<CloseIcon />} {...getCancelButtonProps()} />
 		</ButtonGroup>
 	) : (
-		<ButtonGroup m={'2'}>
+		<ButtonGroup m={'2'} justifyContent="end" w="100%">
 			<IconButton icon={<EditIcon />} {...getEditButtonProps()} />
 		</ButtonGroup>
 	);

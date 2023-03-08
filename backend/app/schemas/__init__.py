@@ -1,2 +1,2 @@
-from .asset import AssetBase, Attribute,AssetBaseInDB
+from .asset import *
 from .user import UserBase, UserCreate, UserInDB

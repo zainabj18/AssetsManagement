@@ -1,8 +1,7 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field, SecretStr, validator
-
 from app.db import DataAccess, UserRole
+from pydantic import BaseModel, Field, SecretStr, validator
 
 SPECIAL_CHARECTERS = list("$#@!*&")
 PASSWORD_MIN_LENGTH = 10
@@ -65,6 +64,3 @@ class UserCreate(UserBase):
             len(set(SPECIAL_CHARECTERS).intersection(set(pwd))) > 0
         ), f"password must contain a charecter from {SPECIAL_CHARECTERS}"
         return v
-
-
-# data=jwt.decode(token,current_app.config['SECRET_KEY'],algorithms=[current_app.config['JWT_ALGO']])

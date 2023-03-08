@@ -10,7 +10,7 @@ export const AuthContext = createContext({
 	loaded: false,
 	logout: () => null,
 });
-
+// holds global state on if user is logged in
 export const AuthProvider = ({children}) => {
 	let navigate = useNavigate();
 	const [user, setUser] = useState(null);
@@ -31,7 +31,7 @@ export const AuthProvider = ({children}) => {
 			setUser(res.data);
 			setLoggedIn(true);
 			setAuthError(null);
-			navigate('/');
+			navigate('/assets/');
 		}).catch(err=>{
 			setAuthError(err.response.data);
 		});

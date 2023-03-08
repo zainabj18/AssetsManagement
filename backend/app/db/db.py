@@ -24,6 +24,7 @@ class UserRole(Enum):
         return NotImplemented
 
 
+@total_ordering
 class DataAccess(Enum):
     PUBLIC = "PUBLIC", 1
     INTERNAL = "INTERNAL", 2
