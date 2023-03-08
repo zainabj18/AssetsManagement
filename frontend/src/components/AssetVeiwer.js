@@ -327,7 +327,14 @@ const AssetViewer = () => {
 									The following attributes will be removed:
 									<UnorderedList>
 										{upgradeData[1].map((value, key)=><ListItem key={key}>{value}</ListItem>)}
-									</UnorderedList></Fragment>}</AlertDescription>
+									</UnorderedList></Fragment>}
+								{upgradeData[0].length>0 && <Fragment>
+									The following attributes will be added:
+									<UnorderedList>
+										{upgradeData[0].map((value, key)=><ListItem key={key}>{value.attributeName}</ListItem>)}
+									</UnorderedList></Fragment>}
+							</AlertDescription>
+						
 							<Button>Upgrade</Button>
 						</Alert>}
 				
