@@ -31,16 +31,18 @@ import {
 import { Fragment } from 'react';
 import { useEffect, useState } from 'react';
 import { redirect, useNavigate, useParams } from 'react-router-dom';
-import FormField from './FormField';
+
 import axios from 'axios';
 import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset, updateAsset, fetchAssetLinks, fetchAssetSummary, fetchTypesNamesVersionList, fetchAssetUpgradeOptions } from '../api';
-import SearchSelect from './SearchSelect';
 import ProjectSelect from './ProjectSelect';
-import ListFormField from './ListFormField';
-import SelectFormField from './SelectFormField';
-import NumFormField from './NumFormField';
 import useAuth from '../hooks/useAuth';
 import AssetSelect from './AssetSelect';
+import NumFormField from './asset/formfields/NumFormField';
+import FormField from './asset/formfields/FormField';
+import SearchSelect from './asset/formfields/SearchSelect';
+import SelectFormField from './asset/formfields/SelectFormField';
+import ListFormField from './asset/formfields/ListFormField';
+
 const AssetViewer = () => {
 	const { id } = useParams();
 	const {user} = useAuth();
@@ -53,6 +55,7 @@ const AssetViewer = () => {
 	const [assets,setAssets] = useState([]);
 	const [assetsList,setAssetsList]=useState([]);
 	const [projectList,setProjectList]=useState([]);
+	const [dependencies,setDependencies]=useState([]);
 	const [errors,setErrors]=useState([]);
 	const [errorCount,setErrorCount]=useState(0);
 	const [trigger,setTrigger]=useBoolean();
@@ -117,14 +120,13 @@ const AssetViewer = () => {
 		e.preventDefault();
 		console.log(attribute_value);
 		fetchType(attribute_value).then(res=>{
-			console.log(res);
 			setAssetState((prevAssetState) => ({
 				...prevAssetState,
 				version_id: attribute_value,
 				metadata:res.metadata,
 			}));
+			setDependencies(res.depends);
 			setTrigger.toggle();
-			console.log(res);
 
 		});
 	
@@ -159,6 +161,13 @@ const AssetViewer = () => {
 			}
 			
 		}
+		console.log(assetSate.metadata);
+		for (const [key, value] of Object.entries(assetSate.metadata)){
+			if(!value.validation.isOptional && (!(value.hasOwnProperty('attributeValue'))) || (value.hasOwnProperty('attributeValue') && value.attributeValue.length===0)){
+				errs.push(value.attributeName);
+			}
+		}
+	
 		if (projects.length===0){
 			errs.push('project(s) is required');
 		}
@@ -197,7 +206,7 @@ const AssetViewer = () => {
 
 	useEffect(() => {
 		if (user===undefined){
-			navigate('/assets');
+			navigate('/');
 		}
 		fetchAssetClassifications().then((data)=>{
 			setClassifications(data.data);}).catch((err) => {console.log(err);});
@@ -375,6 +384,13 @@ const AssetViewer = () => {
 							))}
 							{!isDisabled &&   <AssetSelect setSelected={setAssets} assetsin={assetsList} />}
 						</Wrap>
+						{dependencies.length>0 && <Alert status='info' flexDirection='column' alignItems='right'>
+							<AlertIcon alignSelf='left'/>
+							<AlertTitle>The related assets must include assets of types: </AlertTitle>
+							<AlertDescription ><UnorderedList>
+								{dependencies.map((value, key)=><ListItem key={key}>{value.type_name}</ListItem>)}
+							</UnorderedList></AlertDescription>
+						</Alert>}
 					</FormControl>
 
 					
@@ -461,6 +477,7 @@ const AssetViewer = () => {
 									onSubmitHandler={handleMetadataChange}
 									trigger={trigger}
 									setErrorCount={setErrorCount}
+									validation={value.validation}
 								/>
 							</Fragment>);
 					  }

@@ -280,7 +280,7 @@ def delete_attribute(id):
     query = """SELECT COUNT(*) FROM attributes_in_types WHERE attribute_id = (%(id)s)"""
     with database.connection() as conn:
         res = conn.execute(query, {"id": id})
-        if (res.fetchone()[0] > 0):
+        if res.fetchone()[0] > 0:
             canDo = False
 
     if canDo:

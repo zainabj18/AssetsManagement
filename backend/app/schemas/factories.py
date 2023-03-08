@@ -7,13 +7,17 @@ from pydantic_factories import ModelFactory, PostGenerated, Use
 f=Faker()
 
 def add_validation_json(name: str, values: dict, *args, **kwds):
+
     if values["attribute_data_type"] == "num_lmt":
-        return {"min": 4, "max": 10}
-    if values["attribute_data_type"] == "list":
-        return {"type": "text"}
-    if values["attribute_data_type"] == "options":
-        return {"values": f.words(10), "isMulti": True}
-    return {}
+        validation={"min": 4, "max": 10}
+    elif values["attribute_data_type"] == "list":
+        validation={"type": "text"}
+    elif values["attribute_data_type"] == "options":
+        validation={"values": f.words(10), "isMulti": True}
+    else:
+        validation={}
+    validation["isOptional"]=False
+    return validation
 
 
 def add_value(name: str, values: dict, *args, **kwds):
@@ -51,7 +55,7 @@ class AssetFactory(ModelFactory):
     assets=[]
     tags = lambda: sample(range(1, 10), k=randint(1, 5))
     projects = lambda: sample(range(1, 10), k=randint(1, 5))
-    metadata = list(AttributeFactory.batch(size=5))
+    metadata = lambda: list(AttributeFactory.batch(size=5))+[(AttributeFactory.build(attribute_data_type="text",validation_data={"isOptional":True}))]
 
 
 class ProjectFactory(ModelFactory):

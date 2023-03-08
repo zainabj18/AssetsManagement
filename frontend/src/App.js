@@ -13,7 +13,6 @@ import SubLayout from './routes/assets/SubLayout';
 import CreateProject from './routes/CreateProject';
 import { Box, Button } from '@chakra-ui/react';
 import AdminManager from './routes/AdminManager';
-import RelatedAssetViewer from './components/RelatedAssetViewer';
 import Tags from './routes/Tags';
 import TagViewer from './routes/TagViewer';
 import AssetOverview from './components/AssetOverview';
@@ -48,7 +47,6 @@ function App() {
 							<Route path="outgoing" element={<RelatedFrom />} />	
 							<Route path="incomming" element={<RelatedTo />} />	
 						</Route>
-						<Route path="related" element={<RelatedAssetViewer canEdit={true} isNew={false}/>} />
 					</Route>
 					<Route path="projects/" element={<SubLayout name="Projects"/>}>
 						<Route index element={<ProjectViewer/>} />

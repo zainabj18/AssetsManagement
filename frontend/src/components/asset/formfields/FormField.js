@@ -25,6 +25,7 @@ const FormField = ({
 	onSubmitHandler,
 	clearOnSumbit,
 	trigger,
+	validation,
 	setErrorCount,
 	isTextarea
 }) => {
@@ -60,7 +61,7 @@ const FormField = ({
 
 
 	return (
-		<FormControl isRequired>
+		<FormControl isRequired={!(validation && validation.isOptional)}>
 			<FormLabel>{fieldName}</FormLabel>
 			{children}
 			{fieldType === 'checkbox' ? (
@@ -77,7 +78,7 @@ const FormField = ({
 					defaultValue={fieldDefaultValue}
 					startWithEditView={startWithEditView}
 					isDisabled={isDisabled}	
-					submitOnBlur={false}
+					submitOnBlur={true}
 					alignItems='left' 
 					alignContent='left'
 					onSubmit={(e) => {
@@ -89,8 +90,8 @@ const FormField = ({
 					<EditablePreview background={value.length?'blue.100':undefined} px={6} minW={'100%'} alignItems='left'
 						alignContent='left' textAlign='left' />
 				
-					{isTextarea ?<EditableTextarea   textAlign='left' /> :<Input type={fieldType} as={EditableInput} onChange={e=>{validate(e);}} required  textAlign='left' />}
-					
+					{isTextarea ? <EditableTextarea  onChange={e=>{setValue(e.target.value);}} textAlign='left' />:<Input type={fieldType} as={EditableInput} onChange={e=>{validate(e);}}  textAlign='left' />}
+			
 					<EditableControls error={error}/>
 	
 					
