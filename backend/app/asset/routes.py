@@ -133,10 +133,10 @@ def create():
     with db.connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                """SELECT type FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",
+                """SELECT version_id FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",
                 {"asset_ids":asset.assets})
             asset_types=set([x[0] for x in cur.fetchall()])
-            cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(type_id)s;""",{"type_id": asset.type})
+            cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(type_id)s;""",{"type_id": asset.version_id})
             dependents= set([x[0] for x in cur.fetchall()])
             if not asset_types.issuperset(dependents):
                 return (
@@ -151,12 +151,12 @@ def create():
                 )
             cur.execute("""SELECT attributes_in_types.attribute_id FROM attributes_in_types
 INNER JOIN attributes on attributes_in_types.attribute_id=attributes.attribute_id
-WHERE (attributes.validation_data->>'isOptional')::boolean is false AND attributes_in_types.type_id=%(type_id)s;""",{"type_id": asset.type})
+WHERE (attributes.validation_data->>'isOptional')::boolean is false AND attributes_in_types.type_version=%(type_id)s;""",{"type_id": asset.version_id})
             required_attributes=set([x[0] for x in cur.fetchall()])
             attribute_ids=set([attribute.attribute_id for attribute in asset.metadata])
             cur.execute("""SELECT attributes_in_types.attribute_id FROM attributes_in_types
 INNER JOIN attributes on attributes_in_types.attribute_id=attributes.attribute_id
-WHERE attributes_in_types.type_id=%(type_id)s;""",{"type_id": asset.type})
+WHERE attributes_in_types.type_version=%(type_id)s;""",{"type_id": asset.version_id})
             all_type_attributes=set([x[0] for x in cur.fetchall()])
             
             if not required_attributes.issubset(attribute_ids):
