@@ -328,7 +328,7 @@ const AssetViewer = () => {
 									);
 								})}
 						</Select>
-						{upgradeable && <Alert status='warning' flexDirection='column' alignItems='right'>
+						{!isDisabled && upgradeable && <Alert status='warning' flexDirection='column' alignItems='right'>
 							<AlertIcon alignSelf='center'/>
 							<AlertTitle>It looks like a newer version of type is availiable.Please upgrade to the latest version.</AlertTitle>
 							<AlertDescription>
