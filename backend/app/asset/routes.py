@@ -658,6 +658,7 @@ WHERE asset_id=%(asset_id)s);""",
                         {"asset_id":id},
                     )
             max_version=cur.fetchone()
+            print(max_version)
             cur.execute(
                         """SELECT type_version.version_id FROM type_version
 INNER JOIN assets ON assets.version_id=type_version.version_id
@@ -665,12 +666,23 @@ WHERE asset_id=%(asset_id)s;""",
                         {"asset_id":id},
                     )
             current_version=cur.fetchone()
-            print(max_version)
             if max_version==current_version:
                 return {"msg":"no upgrade needed","data":[],"canUpgrade":False}
         with db_conn.cursor(row_factory=class_row(Attribute_Model)) as cur:
             cur.execute("""SELECT attributes.* FROM attributes_in_types 
             INNER JOIN attributes ON attributes.attribute_id=attributes_in_types.attribute_id
             WHERE type_version=%(type_version)s;""",{"type_version":max_version["version_id"]})
-            print([row for row in cur.fetchall()])
-            return {"msg":"upgrade needed","data":[],"canUpgrade":True}
+            new_attributes=cur.fetchall()
+            cur.execute("""SELECT attributes.* FROM attributes_in_types 
+            INNER JOIN attributes ON attributes.attribute_id=attributes_in_types.attribute_id
+            WHERE type_version=%(type_version)s;""",{"type_version":current_version["version_id"]})
+            old_attributes=cur.fetchall()
+            added_attributes=[]
+            removed_attributes_names=[]
+            for attribute in new_attributes:
+                if not attribute in old_attributes:
+                    added_attributes.append(attribute.dict(by_alias=True))
+            for attribute in old_attributes:
+                if not attribute in new_attributes:
+                    removed_attributes_names.append(attribute.attribute_name)
+            return {"msg":"upgrade needed","data":[added_attributes,removed_attributes_names],"canUpgrade":True}
