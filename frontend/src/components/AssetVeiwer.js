@@ -113,6 +113,7 @@ const AssetViewer = () => {
 
 	const handleTypeChange = (e, attribute_value) => {
 		e.preventDefault();
+		console.log(attribute_value);
 		fetchType(attribute_value).then(res=>{
 			console.log(res);
 			setAssetState((prevAssetState) => ({
@@ -242,7 +243,7 @@ const AssetViewer = () => {
 			setAssetState({
 				name: '',
 				link: '',
-				type: '',
+				version_id: '',
 				description: '',
 				tags: [],
 				projects: [],
@@ -300,7 +301,7 @@ const AssetViewer = () => {
 								types.map((value, key) => {
 									return (
 								
-										<option key={key} value={value.type_id}>
+										<option key={key} value={value.version_id}>
 											{value.type_name}
 										</option>
 									);
