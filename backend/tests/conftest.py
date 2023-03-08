@@ -85,17 +85,24 @@ def new_assets(db_conn, request):
 def type_verions(db_conn,request):
     batch_size=request.param["size"]
     added_versions=[]
-    new_type=TypeFactory.build(type_id=1)
+    with db_conn.cursor() as cur:
+        cur.execute(
+                """SELECT type_id FROM types;""",
+        )
+        types_in_db=[row[0] for row in cur.fetchall()]
+    new_type_id=max(types_in_db)+1
+    new_type=TypeFactory.build(type_id=new_type_id,type_name=f'Test-{new_type_id}-{len(types_in_db)}')
     verion_ids=set()
     batch_size_counter=batch_size
     while len(added_versions)<batch_size:
-        batch_result = TypeVersionFactory.batch(size=batch_size_counter,type_id=1) 
+        batch_result = TypeVersionFactory.batch(size=batch_size_counter,type_id=new_type_id) 
         for type_verion in batch_result:
             if type_verion.version_id not in verion_ids:
                 verion_ids.add(type_verion.version_id)
                 added_versions.append(type_verion)
         batch_size_counter=batch_size-len(added_versions)
     with db_conn.cursor() as cur:
+      
         cur.execute(
                         """
                 INSERT INTO types (type_id,type_name)
