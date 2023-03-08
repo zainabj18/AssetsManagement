@@ -8,7 +8,8 @@ import {
 	Button,
 	Flex,
 	useBoolean,
-	HStack
+	HStack,
+	Table, Thead, Tbody, Tr, Th, Td, TableContainer, TableCaption
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { DeleteIcon } from '@chakra-ui/icons';
@@ -54,30 +55,45 @@ const ProjectViewer = () => {
 	};
 
 	return (
-		<VStack bg={'whiteAlpha.500'} h={'100%'} w={'100%'} p={2}>
-			{projects && projects.map((projects, index) => {
-				return (
-					<HStack key={index}>
-						<Text> {projects.projectName} </Text>
-						<Text> {projects.projectDescription} </Text>
-						{projects.accounts.map((account, index) => {
-							return(
-								<Text key = {index}>{account.username}</Text>
+		<div>
+			<TableContainer>
+				<Table variant='simple'>
+					<Thead>
+						<Tr>
+							<Th color='Black'>Name</Th>
+							<Th color='Black'>Description</Th>
+							<Th color='Black'>Accounts</Th>
+							<Th color='Black'>Delete</Th>
+						</Tr>
+					</Thead>
+					<Tbody>			
+						{projects && projects.map((projects, index) => {
+							return (
+								<Tr key={index}>
+									<Td>{projects.projectName} </Td>
+									<Td>{projects.projectDescription} </Td>
+									<Td>{projects.accounts.map((account, index) => {
+										return(
+											<Text key = {index}>{account.username}</Text>
+										);
+									})}</Td>
+									<Td><IconButton
+										left={20}
+										icon={<DeleteIcon />}
+										colorScheme="blue"
+										onClick={() => handleDelete(index)}
+									/>
+									</Td>
+								</Tr>
 							);
 						})}
-						<IconButton
-							left={20}
-							icon={<DeleteIcon />}
-							colorScheme="blue"
-							onClick={() => handleDelete(index)}
-						/>
-					</HStack>
-				);
-			})}
+					</Tbody>
+				</Table>
+			</TableContainer>
 			<NavLink to="./new"><Button>Create New Project</Button></NavLink>
-			{/* <ProjectPeopleTable people={people} setSelectedAccounts={setSelectedAccounts} />	 */}
-		</VStack>
+		</div>
 	);
+	
 };
 
 export default ProjectViewer;
