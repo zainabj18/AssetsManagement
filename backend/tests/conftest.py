@@ -126,7 +126,7 @@ def type_verions(db_conn,request):
                 cur.execute(
                     """
         INSERT INTO attributes (attribute_name,attribute_data_type,validation_data)
-    VALUES (%(attribute_name)s,%(attribute_type)s,%(validation_data)s) ON CONFLICT (attribute_name) DO UPDATE
+    VALUES (%(attribute_name)s,%(attribute_data_type)s,%(validation_data)s) ON CONFLICT (attribute_name) DO UPDATE
   SET attribute_name = attributes.attribute_name RETURNING attribute_id;""",
                     attribute_in,
                 )

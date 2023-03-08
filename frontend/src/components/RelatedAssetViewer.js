@@ -49,34 +49,34 @@ const RelatedAssetViewer = ({ canEdit, isNew }) => {
 		Framework: [
 			{
 				attribute_name: 'Programming language(s)',
-				attribute_type: 'text',
+				attribute_data_type: 'text',
 				attribute_value: 'React,JS,CSS',
 			},
 			{
 				attribute_name: 'no. of issues',
-				attribute_type: 'number',
+				attribute_data_type: 'number',
 				attribute_value: 2,
 			},
 			{
 				attribute_name: 'built On',
-				attribute_type: 'datetime-local',
+				attribute_data_type: 'datetime-local',
 				attribute_value: '2021-12-10T13:45',
 			},
 			{
 				attribute_name: 'version',
-				attribute_type: 'text',
+				attribute_data_type: 'text',
 				attribute_value: 'v1',
 			},
 		],
 		Document: [
 			{
 				attribute_name: 'draf',
-				attribute_type: 'checkbox',
+				attribute_data_type: 'checkbox',
 				attribute_value: false,
 			},
 			{
 				attribute_name: 'version',
-				attribute_type: 'text',
+				attribute_data_type: 'text',
 				attribute_value: 'v1',
 			},
 		],
@@ -209,7 +209,7 @@ const RelatedAssetViewer = ({ canEdit, isNew }) => {
 									<Fragment key={key}>
 										<FormField
 											fieldName={value.attribute_name}
-											fieldType={value.attribute_type}
+											fieldType={value.attribute_data_type}
 											fieldDefaultValue={value.attribute_value}
 											isDisabled={isDisabled}
 											startWithEditView={openEdit}

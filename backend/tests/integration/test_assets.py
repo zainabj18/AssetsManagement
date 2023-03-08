@@ -124,7 +124,7 @@ def test_new_assset_requires_metadata(client):
                     },
                     {
                         "attribute_name": "public",
-                        "attribute_type": "checkbox",
+                        "attribute_data_type": "checkbox",
                         "attribute_value": True,
                     },
                     {
@@ -205,7 +205,7 @@ def test_new_assset_metadata_incorrect_integer(client):
 def test_new_assset_metadata_incorrect_mixed_type(client):
     res = client.post(
         "/api/v1/asset/",
-        json={"metadata": [{"s": "s"}, {"attributeName": "s", "attribute_type": []}]},
+        json={"metadata": [{"s": "s"}, {"attributeName": "s", "attribute_data_type": []}]},
     )
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -422,6 +422,7 @@ def test_upgrade_availiable(db_conn,client,new_assets,type_verions):
 SET type_id = %(type_id)s""",
             {"type_id": type_id},
         )
+        print(sorted([row.version_number for row in type_verions[0]]))
         min_version_number=min([row.version_number for row in type_verions[0]])
         cur.execute(
             """UPDATE type_version

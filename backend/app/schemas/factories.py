@@ -7,17 +7,17 @@ from pydantic_factories import ModelFactory, PostGenerated, Use
 f=Faker()
 
 def add_validation_json(name: str, values: dict, *args, **kwds):
-    if values["attribute_type"] == "num_lmt":
+    if values["attribute_data_type"] == "num_lmt":
         return {"min": 4, "max": 10}
-    if values["attribute_type"] == "list":
+    if values["attribute_data_type"] == "list":
         return {"type": "text"}
-    if values["attribute_type"] == "options":
+    if values["attribute_data_type"] == "options":
         return {"values": f.words(10), "isMulti": True}
     return {}
 
 
 def add_value(name: str, values: dict, *args, **kwds):
-    match values["attribute_type"]:
+    match values["attribute_data_type"]:
         case "num_lmt":
             return randint(values["validation_data"]["min"],values["validation_data"]["max"])
         case "list":
@@ -31,13 +31,13 @@ def add_value(name: str, values: dict, *args, **kwds):
         case "datetime-local":
             return str(f.date_time().isoformat("T","minutes"))
         case _:
-            return values["attribute_type"] + "-" + values["attribute_name"]
+            return values["attribute_data_type"] + "-" + values["attribute_name"]
 
 
 class AttributeFactory(ModelFactory):
     __model__ = AttributeInDB
 
-    attribute_type = Use(
+    attribute_data_type = Use(
         choice,
         ["text", "number", "checkbox", "datetime-local", "num_lmt", "options", "list"],
     )

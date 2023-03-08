@@ -1,6 +1,6 @@
 from app.core.utils import protected
 from app.db import DataAccess, UserRole, get_db
-from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB
+from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,Attribute_Model
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
@@ -60,7 +60,7 @@ def fetch_asset(db,id,classification):
         # get related info for asset
         with db_conn.cursor(row_factory=class_row(AttributeInDB)) as cur:
             cur.execute(
-                """SELECT attributes.attribute_id,attribute_name, attribute_data_type as attribute_type, validation_data,value as attribute_value FROM attributes_values 
+                """SELECT attributes.attribute_id,attribute_name, attribute_data_type as attribute_data_type, validation_data,value as attribute_value FROM attributes_values 
 INNER JOIN attributes on attributes.attribute_id=attributes_values.attribute_id WHERE asset_id=%(id)s;""",
                 {"id": id},
             )
@@ -651,7 +651,7 @@ def get_upgrade(id):
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=dict_row) as cur:
             cur.execute(
-                        """SELECT MAX(version_number) AS version_number FROM type_version
+                        """SELECT MAX(version_id) AS version_id FROM type_version
 WHERE type_id in (SELECT type_id FROM type_version
 INNER JOIN assets ON assets.version_id=type_version.version_id
 WHERE asset_id=%(asset_id)s);""",
@@ -659,12 +659,18 @@ WHERE asset_id=%(asset_id)s);""",
                     )
             max_version=cur.fetchone()
             cur.execute(
-                        """            SELECT version_number FROM type_version
+                        """SELECT type_version.version_id FROM type_version
 INNER JOIN assets ON assets.version_id=type_version.version_id
 WHERE asset_id=%(asset_id)s;""",
                         {"asset_id":id},
                     )
             current_version=cur.fetchone()
+            print(max_version)
             if max_version==current_version:
                 return {"msg":"no upgrade needed","data":[],"canUpgrade":False}
+        with db_conn.cursor(row_factory=class_row(Attribute_Model)) as cur:
+            cur.execute("""SELECT attributes.* FROM attributes_in_types 
+            INNER JOIN attributes ON attributes.attribute_id=attributes_in_types.attribute_id
+            WHERE type_version=%(type_version)s;""",{"type_version":max_version["version_id"]})
+            print([row for row in cur.fetchall()])
             return {"msg":"upgrade needed","data":[],"canUpgrade":True}
