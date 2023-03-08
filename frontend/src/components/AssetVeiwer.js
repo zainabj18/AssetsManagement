@@ -33,7 +33,7 @@ import { useEffect, useState } from 'react';
 import { redirect, useNavigate, useParams } from 'react-router-dom';
 
 import axios from 'axios';
-import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset, updateAsset, fetchAssetLinks, fetchAssetSummary } from '../api';
+import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset, updateAsset, fetchAssetLinks, fetchAssetSummary, fetchTypesNamesVersionList, fetchAssetUpgradeOptions } from '../api';
 import ProjectSelect from './ProjectSelect';
 import useAuth from '../hooks/useAuth';
 import AssetSelect from './AssetSelect';
@@ -60,6 +60,8 @@ const AssetViewer = () => {
 	const [errorCount,setErrorCount]=useState(0);
 	const [trigger,setTrigger]=useBoolean();
 	const [types,setTypes]=useState([]);
+	const [upgradeable,setUpgradeable]=useState(false);
+	const [upgradeData,setUpgradeData]=useState(undefined);
 	
 	const handleChange = (attribute_name, attribute_value) => {
 		setAssetState((prevAssetState) => ({
@@ -116,10 +118,11 @@ const AssetViewer = () => {
 
 	const handleTypeChange = (e, attribute_value) => {
 		e.preventDefault();
+		console.log(attribute_value);
 		fetchType(attribute_value).then(res=>{
 			setAssetState((prevAssetState) => ({
 				...prevAssetState,
-				type: attribute_value,
+				version_id: attribute_value,
 				metadata:res.metadata,
 			}));
 			setDependencies(res.depends);
@@ -133,6 +136,17 @@ const AssetViewer = () => {
 		navigate('/assets');
 	};
 
+	const handleUpgrade = (e) => {
+		let newMetadata=assetSate.metadata.filter((attribute) => (attribute.attributeName in upgradeData[1]));
+		console.log(newMetadata);
+		newMetadata=[...newMetadata,...upgradeData[0]];
+		console.log(newMetadata);
+		setAssetState((prevAssetState) => ({
+			...prevAssetState,
+			metadata: newMetadata,
+		}));
+		setUpgradeable(false);
+	};
 
 	const createNewAsset = (e) => {
 		e.preventDefault();
@@ -197,8 +211,9 @@ const AssetViewer = () => {
 		fetchAssetClassifications().then((data)=>{
 			setClassifications(data.data);}).catch((err) => {console.log(err);});
 
-		fetchTypesList().then((data)=>{
-			setTypes(data.data);}).catch((err) => {console.log(err);});
+		fetchTypesNamesVersionList().then((data)=>{
+			console.log(data,'I am types');
+			setTypes(data.data);}).catch((err) => {console.log(err,'types eroro');});
 		if (id) {
 			fetchAsset(id).then((res)=>{
 				console.log(res.data);
@@ -229,6 +244,14 @@ const AssetViewer = () => {
 					setAssets(preSelected);
 				}
 			);
+
+			fetchAssetUpgradeOptions(id).then(
+				(res)=>{
+					setUpgradeable(res.canUpgrade);
+					setUpgradeData(res.data);
+					console.log(res.data);
+				}
+			);
 		} else {
 			if (!user||user.userRole==='VIEWER'){
 				navigate('/assets');
@@ -250,7 +273,7 @@ const AssetViewer = () => {
 			setAssetState({
 				name: '',
 				link: '',
-				type: '',
+				version_id: '',
 				description: '',
 				tags: [],
 				projects: [],
@@ -308,12 +331,33 @@ const AssetViewer = () => {
 								types.map((value, key) => {
 									return (
 								
-										<option key={key} value={value.type_id}>
+										<option key={key} value={value.version_id}>
 											{value.type_name}
 										</option>
 									);
 								})}
 						</Select>
+						{!isDisabled && upgradeable && <Alert status='warning' flexDirection='column' alignItems='right'>
+							<AlertIcon alignSelf='center'/>
+							<AlertTitle>It looks like a newer version of type is availiable.Please upgrade to the latest version.</AlertTitle>
+							<AlertDescription>
+								
+								
+								{upgradeData[1].length>0 && <Fragment>
+									The following attributes will be removed:
+									<UnorderedList>
+										{upgradeData[1].map((value, key)=><ListItem key={key}>{value}</ListItem>)}
+									</UnorderedList></Fragment>}
+								{upgradeData[0].length>0 && <Fragment>
+									The following attributes will be added:
+									<UnorderedList>
+										{upgradeData[0].map((value, key)=><ListItem key={key}>{value.attributeName}</ListItem>)}
+									</UnorderedList></Fragment>}
+							</AlertDescription>
+						
+							<Button onClick={handleUpgrade}>Upgrade</Button>
+						</Alert>}
+				
 					</FormControl>
 					<FormControl>
 						<FormLabel>Projects</FormLabel>

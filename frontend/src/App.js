@@ -25,6 +25,7 @@ import RelatedFrom from './routes/assets/RelatedFrom';
 import RelatedTo from './routes/assets/RelatedTo';
 import AttributeViewer from './routes/AttributeViewer';
 import ProjectViewer from './routes/ProjectViewer';
+import TypeEditor from './routes/TypeEditor';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -59,6 +60,7 @@ function App() {
 						<Route index element={<TypeViewer />} />
 						<Route path="adder" element={<TypeAdder />} />
 						<Route path="attributes" element={<AttributeViewer />} />
+						<Route path=":id" element={<TypeEditor />} />
 					</Route>
 					<Route path="accounts" element={<AdminManager />} />
 					<Route path="user" element={<User />} />

@@ -1,5 +1,3 @@
-import TypeAdderManager from './TypeAdderManager';
-
 /** Class to hold and use the input data for creating a new attribute */
 export default class AttributeMaker {
 
@@ -29,23 +27,23 @@ export default class AttributeMaker {
 	 * @returns An object containg a key between names and their errorMessages.
 	 * An empty string for an error message means that there was no error.
 	 */
-	checkForErrors = (allAttributes) => {
+	checkForErrors = (nameExists) => {
 		return {
-			attributeName: this.checkForNameError(allAttributes),
+			attributeName: this.checkForNameError(nameExists),
 			num_lmt: this.checkForMinMaxError(),
 			options: this.checkForOptionsError()
 		};
 	};
 
 	/** Checks for any errors in the name input
-	 * @param {Array.<{attributeName: string}>} allAttributes The list of attributes that already exist.
+	 * @param {boolean} nameExists Does the attribute name already exist.
 	 * @returns The error message. An empty string represents no error.
 	 */
-	checkForNameError = (allAttributes) => {
+	checkForNameError = (nameExists) => {
 		if (this.name === '') {
 			return 'Name is required';
 		}
-		if (TypeAdderManager.isAttributeNameIn(this.name, allAttributes)) {
+		if (nameExists) {
 			return 'Name already in use';
 		}
 		return '';

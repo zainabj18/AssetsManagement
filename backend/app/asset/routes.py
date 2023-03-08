@@ -1,6 +1,6 @@
 from app.core.utils import protected
 from app.db import DataAccess, UserRole, get_db
-from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB
+from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,Attribute_Model
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
@@ -60,7 +60,7 @@ def fetch_asset(db,id,classification):
         # get related info for asset
         with db_conn.cursor(row_factory=class_row(AttributeInDB)) as cur:
             cur.execute(
-                """SELECT attributes.attribute_id,attribute_name, attribute_data_type as attribute_type, validation_data,value as attribute_value FROM attributes_values 
+                """SELECT attributes.attribute_id,attribute_name, attribute_data_type as attribute_data_type, validation_data,value as attribute_value FROM attributes_values 
 INNER JOIN attributes on attributes.attribute_id=attributes_values.attribute_id WHERE asset_id=%(id)s;""",
                 {"id": id},
             )
@@ -85,15 +85,15 @@ INNER JOIN tags on tags.id=assets_in_tags.tag_id WHERE asset_id=%(id)s;""",
             )
             assets = list(cur.fetchall())
             cur.execute(
-                """SELECT type_name FROM types WHERE type_id=%(id)s;""",
-                {"id": asset.type},
+                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
+INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
+                {"version_id": asset.version_id},
             )
             type = cur.fetchone()["type_name"]
 
         asset = AssetOut(
-            **asset.dict(), metadata=metadata, projects=projects, tags=tags,assets=assets
+            **asset.dict(), metadata=metadata, projects=projects, tags=tags,assets=assets,type=type
         )
-        asset.type = type
     return asset
 
 @bp.route("/", methods=["POST"])
@@ -133,10 +133,10 @@ def create():
     with db.connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                """SELECT type FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",
+                """SELECT version_id FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",
                 {"asset_ids":asset.assets})
             asset_types=set([x[0] for x in cur.fetchall()])
-            cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(type_id)s;""",{"type_id": asset.type})
+            cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(type_id)s;""",{"type_id": asset.version_id})
             dependents= set([x[0] for x in cur.fetchall()])
             if not asset_types.issuperset(dependents):
                 return (
@@ -151,12 +151,12 @@ def create():
                 )
             cur.execute("""SELECT attributes_in_types.attribute_id FROM attributes_in_types
 INNER JOIN attributes on attributes_in_types.attribute_id=attributes.attribute_id
-WHERE (attributes.validation_data->>'isOptional')::boolean is false AND attributes_in_types.type_id=%(type_id)s;""",{"type_id": asset.type})
+WHERE (attributes.validation_data->>'isOptional')::boolean is false AND attributes_in_types.type_version=%(type_id)s;""",{"type_id": asset.version_id})
             required_attributes=set([x[0] for x in cur.fetchall()])
             attribute_ids=set([attribute.attribute_id for attribute in asset.metadata])
             cur.execute("""SELECT attributes_in_types.attribute_id FROM attributes_in_types
 INNER JOIN attributes on attributes_in_types.attribute_id=attributes.attribute_id
-WHERE attributes_in_types.type_id=%(type_id)s;""",{"type_id": asset.type})
+WHERE attributes_in_types.type_version=%(type_id)s;""",{"type_id": asset.version_id})
             all_type_attributes=set([x[0] for x in cur.fetchall()])
             
             if not required_attributes.issubset(attribute_ids):
@@ -184,8 +184,8 @@ WHERE attributes_in_types.type_id=%(type_id)s;""",{"type_id": asset.type})
 
             cur.execute(
                 """
-            INSERT INTO assets (name,link,type,description, classification)
-    VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(classification)s)  RETURNING asset_id;""",
+            INSERT INTO assets (name,link,version_id,description, classification)
+    VALUES (%(name)s,%(link)s,%(version_id)s,%(description)s,%(classification)s)  RETURNING asset_id;""",
                 db_asset,
             )
             asset_id = cur.fetchone()[0]
@@ -251,7 +251,6 @@ def list_asset_project(id):
                 {"id": id},
             )
             selected_projects = list(cur.fetchall())
-            print(selected_projects)
             for x in selected_projects:
                 x["isSelected"] = True
             cur.execute(
@@ -289,8 +288,9 @@ def list_asset_in_assets(id,user_id, access_level):
             for a in selected_assets:
                 if a.classification <= access_level:
                     cur.execute(
-                        """SELECT type_name FROM types WHERE type_id=%(id)s;""",
-                        {"id": a.type},
+                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
+INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
+                        {"version_id": a.version_id},
                     )
                     type = cur.fetchone()["type_name"]
                     aj = json.loads(a.json(by_alias=True))
@@ -315,7 +315,7 @@ def view(id, user_id, access_level):
 def delete(id):
     db = get_db()
     with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+        with db_conn.cursor() as cur:
             cur.execute(
                 """UPDATE assets SET soft_delete = %(del)s WHERE asset_id=%(id)s;""",
                 {"id": id, "del": 1},
@@ -340,8 +340,9 @@ def summary(user_id, access_level):
             for a in assets:
                 if a.classification <= access_level:
                     cur.execute(
-                        """SELECT type_name FROM types WHERE type_id=%(id)s;""",
-                        {"id": a.type},
+                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
+INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
+                        {"version_id": a.version_id},
                     )
                     type = cur.fetchone()["type_name"]
                     aj = json.loads(a.json(by_alias=True))
@@ -494,8 +495,9 @@ INNER JOIN assets_in_tags ON assets.asset_id=assets_in_tags.asset_id WHERE soft_
             for a in assets:
                 if a.classification <= access_level:
                     cur.execute(
-                        """SELECT type_name FROM types WHERE type_id=%(id)s;""",
-                        {"id": a.type},
+                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
+INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
+                        {"version_id": a.version_id},
                     )
                     type = cur.fetchone()["type_name"]
                     aj = json.loads(a.json(by_alias=True))
@@ -532,8 +534,9 @@ ORDER BY count DESC;""",
             for a in selected_assets:
                 if a.classification <= access_level:
                     cur.execute(
-                        """SELECT type_name FROM types WHERE type_id=%(id)s;""",
-                        {"id": a.type},
+                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
+INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
+                        {"version_id": a.version_id},
                     )
                     type = cur.fetchone()["type_name"]
                     aj = json.loads(a.json(by_alias=True))
@@ -571,8 +574,9 @@ ORDER BY count DESC;""",
             for a in selected_assets:
                 if a.classification <= access_level:
                     cur.execute(
-                        """SELECT type_name FROM types WHERE type_id=%(id)s;""",
-                        {"id": a.type},
+                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
+INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
+                        {"version_id": a.version_id},
                     )
                     type = cur.fetchone()["type_name"]
                     aj = json.loads(a.json(by_alias=True))
@@ -603,8 +607,9 @@ def related_classification(id,user_id, access_level):
             for a in selected_assets:
                 if a.classification <= access_level:
                     cur.execute(
-                        """SELECT type_name FROM types WHERE type_id=%(id)s;""",
-                        {"id": a.type},
+                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
+INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
+                        {"version_id": a.version_id},
                     )
                     type = cur.fetchone()["type_name"]
                     aj = json.loads(a.json(by_alias=True))
@@ -636,8 +641,9 @@ def related_type(id,user_id, access_level):
             for a in selected_assets:
                 if a.classification <= access_level:
                     cur.execute(
-                        """SELECT type_name FROM types WHERE type_id=%(id)s;""",
-                        {"id": a.type},
+                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
+INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
+                        {"version_id": a.version_id},
                     )
                     type = cur.fetchone()["type_name"]
                     aj = json.loads(a.json(by_alias=True))
@@ -669,8 +675,9 @@ def related_from(id,user_id, access_level):
             for a in selected_assets:
                 if a.classification <= access_level:
                     cur.execute(
-                        """SELECT type_name FROM types WHERE type_id=%(id)s;""",
-                        {"id": a.type},
+                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
+INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
+                        {"version_id": a.version_id},
                     )
                     type = cur.fetchone()["type_name"]
                     aj = json.loads(a.json(by_alias=True))
@@ -702,8 +709,9 @@ INNER JOIN assets on assets.asset_id=assets_in_assets.from_asset_id WHERE to_ass
             for a in selected_assets:
                 if a.classification <= access_level:
                     cur.execute(
-                        """SELECT type_name FROM types WHERE type_id=%(id)s;""",
-                        {"id": a.type},
+                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
+INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
+                        {"version_id": a.version_id},
                     )
                     type = cur.fetchone()["type_name"]
                     aj = json.loads(a.json(by_alias=True))
@@ -711,3 +719,47 @@ INNER JOIN assets on assets.asset_id=assets_in_assets.from_asset_id WHERE to_ass
                     assets_json.append(aj)
             res = jsonify({"data": assets_json})
     return res
+
+
+@bp.route("/upgrade/<id>", methods=["GET"])
+@protected(role=UserRole.VIEWER)
+def get_upgrade(id,user_id, access_level):
+    db = get_db()
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(
+                        """SELECT MAX(version_id) AS version_id FROM type_version
+WHERE type_id in (SELECT type_id FROM type_version
+INNER JOIN assets ON assets.version_id=type_version.version_id
+WHERE asset_id=%(asset_id)s);""",
+                        {"asset_id":id},
+                    )
+            max_version=cur.fetchone()
+            print(max_version)
+            cur.execute(
+                        """SELECT type_version.version_id FROM type_version
+INNER JOIN assets ON assets.version_id=type_version.version_id
+WHERE asset_id=%(asset_id)s;""",
+                        {"asset_id":id},
+                    )
+            current_version=cur.fetchone()
+            if max_version==current_version:
+                return {"msg":"no upgrade needed","data":[],"canUpgrade":False}
+        with db_conn.cursor(row_factory=class_row(Attribute_Model)) as cur:
+            cur.execute("""SELECT attributes.* FROM attributes_in_types 
+            INNER JOIN attributes ON attributes.attribute_id=attributes_in_types.attribute_id
+            WHERE type_version=%(type_version)s;""",{"type_version":max_version["version_id"]})
+            new_attributes=cur.fetchall()
+            cur.execute("""SELECT attributes.* FROM attributes_in_types 
+            INNER JOIN attributes ON attributes.attribute_id=attributes_in_types.attribute_id
+            WHERE type_version=%(type_version)s;""",{"type_version":current_version["version_id"]})
+            old_attributes=cur.fetchall()
+            added_attributes=[]
+            removed_attributes_names=[]
+            for attribute in new_attributes:
+                if not attribute in old_attributes:
+                    added_attributes.append(attribute.dict(by_alias=True))
+            for attribute in old_attributes:
+                if not attribute in new_attributes:
+                    removed_attributes_names.append(attribute.attribute_name)
+            return {"msg":"upgrade needed","data":[added_attributes,removed_attributes_names],"canUpgrade":True}

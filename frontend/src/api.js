@@ -61,6 +61,10 @@ export const createType = async (newType) => {
 export const fetchTypesList = async () => {
 	return await axios.get('/type/names').then(res => res.data);
 };
+export const fetchTypesNamesVersionList = async () => {
+	return await axios.get('/type/version/names').then(res => res.data);
+};
+
 
 export const fetchType = async (id) => {
 	return await axios.get(`/type/${id}`).then(res => res.data);
@@ -75,6 +79,10 @@ export const fetchAssetProjects = async (id) => {
 };
 export const fetchAssetLinks= async (id)=> {
 	return await axios.get(`/asset/links/${id}`).then(res=>res.data);
+};
+
+export const fetchAssetUpgradeOptions= async (id)=> {
+	return await axios.get(`/asset/upgrade/${id}`).then(res=>res.data);
 };
 
 export const fetchRelatedTags= async (id)=> {
@@ -133,4 +141,10 @@ export const deleteType = async (id) => {
 };
 export const deleteAttribute = async (id) => {
 	return await axios.post(`/type/attribute/delete/${id}`).then(res => res.data);
+};
+export const isAttributeNameIn = async (name) => {
+	return await axios.post('/type/adder/isAttrNameIn', name).then(res => res.data);
+};
+export const makeBackfill = async (data) => {
+	return await axios.post('type/backfill', data).then(res => res.data);
 };
