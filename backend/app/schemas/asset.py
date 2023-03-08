@@ -15,6 +15,7 @@ class TagInDB(TagBase):
 
 
 class Attribute_Model(BaseModel):
+    attribute_id: Any = Field(None, alias="attributeID")
     attribute_name: str = Field(..., alias="attributeName")
     attribute_data_type: str = Field(..., alias="attributeType")
     validation_data: Any = Field(None, alias="validation")
@@ -49,10 +50,7 @@ class Attribute(Attribute_Model):
 
 
 class AttributeInDB(Attribute):
-    attribute_id: Any = Field(None, alias="attributeID")
-
-    class Config:
-        allow_population_by_field_name = True
+    pass
 
 
 class Type(BaseModel):
@@ -130,3 +128,5 @@ class TypeVersion(BaseModel):
     version_id:int
     version_number:int
     type_id:int
+    class Config:
+        extra = Extra.allow
