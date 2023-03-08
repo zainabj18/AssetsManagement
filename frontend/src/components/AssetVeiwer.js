@@ -134,6 +134,17 @@ const AssetViewer = () => {
 		navigate('/assets');
 	};
 
+	const handleUpgrade = (e) => {
+		let newMetadata=assetSate.metadata.filter((attribute) => (attribute.attributeName in upgradeData[1]));
+		console.log(newMetadata);
+		newMetadata=[...newMetadata,...upgradeData[0]];
+		console.log(newMetadata);
+		setAssetState((prevAssetState) => ({
+			...prevAssetState,
+			metadata: newMetadata,
+		}));
+		setUpgradeable(false);
+	};
 
 	const createNewAsset = (e) => {
 		e.preventDefault();
@@ -335,7 +346,7 @@ const AssetViewer = () => {
 									</UnorderedList></Fragment>}
 							</AlertDescription>
 						
-							<Button>Upgrade</Button>
+							<Button onClick={handleUpgrade}>Upgrade</Button>
 						</Alert>}
 				
 					</FormControl>
