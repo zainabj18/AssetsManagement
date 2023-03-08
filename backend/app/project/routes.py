@@ -6,8 +6,6 @@ from psycopg import Error
 from psycopg.rows import dict_row
 from pydantic import ValidationError
 
-from backend.app.core.utils import decode_token
-
 bp = Blueprint("project", __name__, url_prefix="/project")
 
 
@@ -15,28 +13,29 @@ def get_projects(db):
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=dict_row) as cur:
             cur.execute("""SELECT * FROM projects;""")
-            pList = """SELECT project_id, name, description FROM PROJECTS"""
+            query = """SELECT id, name, description FROM projects"""
+            with db.connection() as conn:
+                res = conn.execute(query)
+                pList = res.fetchall()
             allProjects = []
             for project in pList:
-                query = """SELECT username, account_id
+                query = """SELECT username, accounts.account_id
                 FROM people_in_projects
                 INNER JOIN accounts ON accounts.account_id = people_in_projects.account_id
                 WHERE project_id = %(project_id)s;"""
-                key = {"project_id":project.project_id}
+                key = {"project_id":project[0]}
                 res = db_conn.execute(query, key)
                 people = res.fetchall()
                 accounts = []
                 for account in people:
-                    accounts.append({"accountName": account[0], "account_id": account[1]})
+                    accounts.append({"username": account[0], "account_id": account[1]})
                 allProjects.append({
                     "projectID": project[0],
-                    "projectname":project[1],
+                    "projectName":project[1],
                     "projectDescription":project[2],
-                    "accounts":{
-                        accounts
-                    }
+                    "accounts": accounts
                 })
-    return {"data": allProjects}
+    return allProjects
 
 def extract_people(people):
     allPeople_listed = []
@@ -80,22 +79,10 @@ def list_people(db):
 #             return cur.fetchall()
 
 @bp.route("/", methods=["GET"])
-def project_list():
-    try:
-        db = get_db()
-        projects = get_projects(db)
-    except Error as e:
-        return {"msg": str(e), "error": "Database Error"}, 500
-    return jsonify({"msg": "projects", "data": projects})
-
-@bp.route("/", methods=["GET"])
 def people_list():
-    try:
-        db = get_db()
-        people = list_people(db)
-    except Error as e:
-        return {"msg": str(e), "error": "Database Error"}, 500
-    return jsonify({"msg": "projects", "data": people})
+    db = get_db()
+    data = get_projects(db)
+    return {"msg": "projects", "data": data}
 
 @bp.route("/new", methods=["POST"])
 def create():
@@ -125,7 +112,6 @@ def create():
             ),
             400,
         )
-    print(project)
 
     
     db_project = project.dict()
@@ -135,7 +121,7 @@ def create():
                 db_project,
             )
             id = res.fetchone()[0]
-    for person in request.json["accountID"]:
+    for person in request.json["accounts"]:
         with db.connection() as conn:
             conn.execute(
         """INSERT INTO people_in_projects (project_id, account_id) VALUES (%(project_id)s, %(account_id)s)""",
