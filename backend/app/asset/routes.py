@@ -646,7 +646,8 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
 
 
 @bp.route("/upgrade/<id>", methods=["GET"])
-def get_upgrade(id):
+@protected(role=UserRole.VIEWER)
+def get_upgrade(id,user_id, access_level):
     db = get_db()
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=dict_row) as cur:

@@ -91,7 +91,10 @@ def type_verions(db_conn,request):
                 """SELECT type_id FROM types;""",
         )
         types_in_db=[row[0] for row in cur.fetchall()]
-    new_type_id=max(types_in_db)+1
+    if types_in_db !=[]:
+        new_type_id=max(types_in_db)+1
+    else:
+        new_type_id=1
     new_type=TypeFactory.build(type_id=new_type_id,type_name=f'Test-{new_type_id}-{len(types_in_db)}')
     verion_ids=set()
     batch_size_counter=batch_size

@@ -396,8 +396,8 @@ def test_assets_with_tags(valid_client, new_assets):
     [{"batch_size": 1,"add_to_db":True}],
     indirect=True,
 )
-def test_upgrade_not_availiable(client,new_assets):
-    res = client.get(f"/api/v1/asset/upgrade/{new_assets[0].asset_id}")
+def test_upgrade_not_availiable(valid_client,new_assets):
+    res = valid_client.get(f"/api/v1/asset/upgrade/{new_assets[0].asset_id}")
     assert res.status_code == 200
     assert res.json["msg"] == "no upgrade needed"
     assert res.json["data"] == []
@@ -413,7 +413,7 @@ def test_upgrade_not_availiable(client,new_assets):
     [{"size": 10,"add_to_db": True}],
     indirect=True,
 )
-def test_upgrade_availiable(db_conn,client,new_assets,type_verions):
+def test_upgrade_availiable(db_conn,valid_client,new_assets,type_verions):
     with db_conn.cursor() as cur:
         cur.execute("SELECT type_id FROM type_version WHERE version_id=%(version_id)s",{"version_id":new_assets[0].version_id})
         type_id=cur.fetchone()[0]
@@ -444,7 +444,7 @@ SET version_number = %(version_number)s WHERE version_id=%(version_id)s""",
             """SELECT attribute_id FROM attributes_in_types WHERE type_version=%(type_version)s ;""",{"type_version":new_assets[0].version_id})
         old_version_attributes_id=[row[0] for row in cur.fetchall()]
        
-        res = client.get(f"/api/v1/asset/upgrade/{new_assets[0].asset_id}")
+        res = valid_client.get(f"/api/v1/asset/upgrade/{new_assets[0].asset_id}")
         assert res.status_code == 200
         assert res.json["msg"] == "upgrade needed"
         assert res.json["canUpgrade"]==True
