@@ -16,20 +16,22 @@ import AssetsLayout from './routes/assets/AssetsLayout';
 function App() {
 	
 	return (
-		<Routes>
-			<Route path="/login" element={<Login />} />
-			<Route path="/" element={<Layout />}>
-				<Route path="assets/" element={<AssetsLayout />}>
-					<Route index element={<AssetsOverview />} />
-					<Route path="new" element={<CreateAsset />} />
-					<Route path="view/:id" element={<AssetViewer canEdit={true} isNew={false}/>} />
+		<AuthProvider>
+			<Routes>
+				<Route path="/login" element={<Login />} />
+				<Route path="/" element={<Layout />}>
+					<Route path="assets/" element={<AssetsLayout />}>
+						<Route index element={<AssetsOverview />} />
+						<Route path="new" element={<CreateAsset />} />
+						<Route path="view/:id" element={<AssetViewer canEdit={true} isNew={false}/>} />
+					</Route>
+					<Route path="filter" element={<FilterBasedSearch />} />
+					<Route path="user" element={<User />} />
+					<Route path="type/adder" element={<TypeAdder />} />
 				</Route>
-				<Route path="filter" element={<FilterBasedSearch />} />
-				<Route path="user" element={<User />} />
-				<Route path="type/adder" element={<TypeAdder />} />
-			</Route>
-			<Route path="*" element={<NoMatch />} />
-		</Routes>
+				<Route path="*" element={<NoMatch />} />
+			</Routes>
+		</AuthProvider>
 	);
 }
 
