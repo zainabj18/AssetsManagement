@@ -643,3 +643,32 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
                     assets_json.append(aj)
             res = jsonify({"data": assets_json})
     return res
+
+
+@bp.route("/upgrade/<id>", methods=["GET"])
+def get_upgrade(id):
+    db = get_db()
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(
+                        """SELECT MAX(version_number) AS version_number FROM type_version
+WHERE type_id in (SELECT type_id FROM type_version
+INNER JOIN assets ON assets.version_id=type_version.version_id
+WHERE asset_id=%(asset_id)s);""",
+                        {"asset_id":id},
+                    )
+            max_version=cur.fetchone()
+            cur.execute(
+                        """            SELECT version_number FROM type_version
+INNER JOIN assets ON assets.version_id=type_version.version_id
+WHERE asset_id=%(asset_id)s;""",
+                        {"asset_id":id},
+                    )
+            current_version=cur.fetchone()
+            if max_version==current_version:
+                return {"msg":"no upgrade needed","data":[],"canUpgrade":False}
+
+
+
+    
+    return {}

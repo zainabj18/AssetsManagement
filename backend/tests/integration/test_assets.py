@@ -389,3 +389,16 @@ def test_assets_with_tags(valid_client, new_assets):
         assert res.status_code == 200
         assert len(res.json["data"]["assets"]) == len(tags[tag])
         assert set(asset["asset_id"] for asset in res.json["data"]["assets"]) == set(tags[tag])
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1,"add_to_db":True}],
+    indirect=True,
+)
+def test_no_upgrade_availiable(client,new_assets):
+    res = client.get(f"/api/v1/asset/upgrade/{new_assets[0].asset_id}")
+    assert res.status_code == 200
+    assert res.json["msg"] == "no upgrade needed"
+    assert res.json["data"] == []
+    assert res.json["canUpgrade"]==False
