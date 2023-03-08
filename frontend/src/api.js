@@ -34,13 +34,38 @@ export const copyToTag = async (id, assets) => {
 export const deleteTag = async (id) => {
 	return await axios.delete(`/tag/${id}`).then(res => res.data);
 };
+
 export const fetchProjects = async () => {
 	return await axios.get('/project/').then(res => res.data);
 };
-
 export const fetchAllProjects = async () => {
 	return await axios.get('/project/allProjects').then(res => res.data);
 };
+export const fetchProjectClassifications= async (id)=> {
+	return await axios.get(`/project/related/classification/${id}`).then(res=>res.data);
+};
+export const fetchRelatedProjects= async (id)=> {
+	return await axios.get(`/asset/related/projects/${id}`).then(res=>res.data);
+};
+export const fetchAssetProjects = async (id) => {
+	return await axios.get(`/asset/projects/${id}`).then(res => res.data);
+};
+export const deleteProject = async (id) => {
+	console.log(id);
+	return await axios.post(`/project/delete/${id}`).then(res => res.data);
+};
+export const createProject = async (project) => {
+	console.log(project);
+	return await axios.post('/project/new', project).then(res => res.data);
+};
+export const fetchPeopleinProject = async (id) => {
+	console.log(id, 'hello');
+	return await axios.get(`/project/allPeople/${id}`).then(res => res.data);
+};export const fetchPeople = async () => {
+	console.log('hello');
+	return await axios.get('/project/allPeople').then(res => res.data);
+};
+
 
 export const fetchAllTypes = async () => {
 	return await axios.get('/type/allTypes').then(res => res.data);
@@ -70,9 +95,7 @@ export const createAsset = async (asset) => {
 	return await axios.post('/asset/', asset).then(res => res.data);
 };
 
-export const fetchAssetProjects = async (id) => {
-	return await axios.get(`/asset/projects/${id}`).then(res => res.data);
-};
+
 export const fetchAssetLinks= async (id)=> {
 	return await axios.get(`/asset/links/${id}`).then(res=>res.data);
 };
@@ -80,12 +103,11 @@ export const fetchAssetLinks= async (id)=> {
 export const fetchRelatedTags= async (id)=> {
 	return await axios.get(`/asset/related/tags/${id}`).then(res=>res.data);
 };
-export const fetchRelatedProjects= async (id)=> {
-	return await axios.get(`/asset/related/projects/${id}`).then(res=>res.data);
-};
+
 export const fetchRelatedClassification= async (id)=> {
 	return await axios.get(`/asset/related/classification/${id}`).then(res=>res.data);
 };
+
 
 export const fetchRelatedType= async (id)=> {
 	return await axios.get(`/asset/related/type/${id}`).then(res=>res.data);
@@ -100,11 +122,7 @@ export const deleteAsset = async (id) => {
 	return await axios.delete(`/asset/${id}`).then(res => res.data);
 };
 
-export const deleteProject = async (id) => {
 
-	console.log(id);
-	return await axios.post(`/project/delete/${id}`).then(res => res.data);
-};
 
 export const fetchAssetSummary = async () => {
 	return await axios.get('/asset/summary').then(res => res.data);
@@ -113,10 +131,7 @@ export const fetchAssetSummary = async () => {
 export const updateAsset = async (id, asset) => {
 	return await axios.patch(`/asset/${id}`, asset).then(res => res.data);
 };
-export const createProject = async (project) => {
-	console.log(project);
-	return await axios.post('/project/new', project).then(res => res.data);
-};
+
 
 export const updateTag = async (id, tag) => {
 	return await axios.patch(`/tag/${id}`, tag).then(res => res.data);
