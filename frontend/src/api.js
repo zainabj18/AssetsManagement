@@ -81,6 +81,10 @@ export const fetchAssetLinks= async (id)=> {
 	return await axios.get(`/asset/links/${id}`).then(res=>res.data);
 };
 
+export const fetchAssetUpgradeOptions= async (id)=> {
+	return await axios.get(`/asset/upgrade/${id}`).then(res=>res.data);
+};
+
 export const fetchRelatedTags= async (id)=> {
 	return await axios.get(`/asset/related/tags/${id}`).then(res=>res.data);
 };
