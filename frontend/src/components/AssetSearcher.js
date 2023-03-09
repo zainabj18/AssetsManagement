@@ -110,7 +110,6 @@ const AssetSearcher = () => {
 
 	return (
 		<Box p={30}>
-			<VStack> <p>This is the Filter Based Search Page !!</p></VStack>
 			<Accordion defaultIndex={[0]} allowMultiple>
 				<AccordionItem>
 
