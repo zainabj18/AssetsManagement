@@ -26,6 +26,7 @@ import RelatedTo from './routes/assets/RelatedTo';
 import AttributeViewer from './routes/AttributeViewer';
 import ProjectViewer from './routes/ProjectViewer';
 import TypeEditor from './routes/TypeEditor';
+import Logs from './routes/Logs';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -64,6 +65,7 @@ function App() {
 					</Route>
 					<Route path="accounts" element={<AdminManager />} />
 					<Route path="user" element={<User />} />
+					<Route path="logs" element={<Logs />} />
 				</Route>
 				<Route path="*" element={<NoMatch />} />
 			</Routes>
