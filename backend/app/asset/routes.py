@@ -1,5 +1,5 @@
 from app.core.utils import protected
-from app.db import DataAccess, UserRole, get_db
+from app.db import DataAccess, UserRole, get_db,Actions
 from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,Attribute_Model
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
@@ -373,16 +373,12 @@ def update(id, user_id, access_level):
     diff_dict=asset_differ(orgignal_asset,asset)
     with db.connection() as conn:
         with conn.cursor() as cur:
+            
             cur.execute(
-                """SELECT type FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",
-                {"asset_ids":assets_added})
+                """SELECT version_id FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",
+                {"asset_ids":asset["assets"]})
             asset_types=set([x[0] for x in cur.fetchall()])
-            cur.execute(
-                        """SELECT type_id FROM types WHERE type_name=%(name)s;""",
-                        {"name":asset["type"]},
-                    )
-            type_id=cur.fetchone()[0]
-            cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(type_id)s;""",{"type_id": type_id})
+            cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(type_id)s;""",{"type_id": asset["version_id"]})
             dependents= set([x[0] for x in cur.fetchall()])
             if not asset_types.issuperset(dependents):
                 return (
@@ -397,9 +393,9 @@ def update(id, user_id, access_level):
                 )
             cur.execute(
                     """
-                INSERT INTO asset_logs (account_id,asset_id,diff)
-        VALUES (%(account_id)s,%(asset_id)s,%(diff)s);""",
-                    {"account_id":user_id,"asset_id":asset["asset_id"],"diff":json.dumps(diff_dict)},
+                INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
+        VALUES (1,%(account_id)s,%(asset_id)s,%(diff)s,%(action)s);""",
+                    {"account_id":user_id,"asset_id":asset["asset_id"],"diff":json.dumps(diff_dict),"action":Actions.CHANGE},
                 )
             cur.execute(
                 """
@@ -456,12 +452,13 @@ def logs(id, user_id, access_level):
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=dict_row) as cur:
             cur.execute(
-                """SELECT * FROM asset_logs
-WHERE asset_id=%(asset_id)s
+                """SELECT * FROM audit_logs
+WHERE object_id=%(asset_id)s AND model_id=1
 ORDER BY date ASC;""",
                 {"asset_id": id},
             )
             logs = cur.fetchall()
+            print(logs)
             for log in logs:
                 if username := get_user_by_id(db,log["account_id"]):
                     username = username[0]

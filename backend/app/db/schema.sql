@@ -151,24 +151,7 @@ CREATE TABLE asset_logs
 	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
  );
 
- CREATE TABLE tracked_models(
-	model_id SERIAL,
-	model_name VARCHAR NOT NULL UNIQUE,
-	PRIMARY KEY (model_id)
-);
 
-CREATE TABLE audit_logs
- (
- 	log_id SERIAL,
-	account_id INTEGER,
- 	model_id INTEGER,
-	action actions,
-	diff JSON,
-	date timestamp NOT NULL DEFAULT now(),
- 	PRIMARY KEY (log_id),
-	FOREIGN KEY (model_id) REFERENCES tracked_models(model_id),
-	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
- );
  CREATE TABLE type_version_link
  (
 	type_version_from INTEGER,
@@ -187,3 +170,31 @@ CREATE TABLE people_in_projects
 	FOREIGN KEY (project_id) REFERENCES projects(id),
 	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
 );
+
+ CREATE TABLE tracked_models(
+	model_id SERIAL,
+	model_name VARCHAR NOT NULL UNIQUE,
+	PRIMARY KEY (model_id)
+);
+
+CREATE TABLE audit_logs
+ (
+ 	log_id SERIAL,
+	account_id INTEGER,
+	object_id INTEGER,
+ 	model_id INTEGER,
+	action actions,
+	diff JSON,
+	date timestamp NOT NULL DEFAULT now(),
+ 	PRIMARY KEY (log_id),
+	FOREIGN KEY (model_id) REFERENCES tracked_models(model_id),
+	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
+ );
+
+ INSERT INTO tracked_models(model_id,model_name) 
+ VALUES
+ (1,'assets'),
+ (2,'projects'),
+ (3,'types'),
+ (4,'tags'),
+ (5,'accounts');
