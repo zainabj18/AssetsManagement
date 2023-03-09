@@ -7,7 +7,7 @@ from enum import Enum
 
 class QueryOperation(Enum):
     EQUALS = "EQUALS"
-    LIKE = "EQUALS"
+    LIKE = "LIKE"
 
 class AttributeSearcher(BaseModel):
     attribute_id: Any = Field(..., alias="attributeID")

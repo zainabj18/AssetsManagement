@@ -690,7 +690,7 @@ SELECT * FROM attributes_values;
                     case QueryOperation.EQUALS:
                         cur.execute("SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values=%(value)s",{"attribute_id":searcher.attribute_id,"value":str(searcher.attribute_value)})
                     case _:
-                        cur.execute("SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values like %(value)s",{"attribute_id":searcher.attribute_id,"value":f"like %{str(searcher.attribute_value)}%"})
+                        cur.execute("SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values like %(value)s",{"attribute_id":searcher.attribute_id,"value":f"%{str(searcher.attribute_value)}%"})
                 filter_asset_ids.append(set([row["asset_id"] for row in cur.fetchall()]))
             asset_ids=set.intersection(*filter_asset_ids)
     return {"data": list(asset_ids)}
