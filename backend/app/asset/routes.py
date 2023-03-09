@@ -1,10 +1,11 @@
 from app.core.utils import protected
 from app.db import DataAccess, UserRole, get_db
-from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,Attribute_Model
+from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
 from app.auth.routes import get_user_by_id
+from itertools import chain
 bp = Blueprint("asset", __name__, url_prefix="/asset")
 import json
 def asset_differ(orginal,new):
@@ -721,6 +722,76 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
     return res
 
 
+def make_query(searcher):
+    match searcher.operation:
+        case QueryOperation.EQUALS:
+            query="SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values=%(value)s",{"attribute_id":searcher.attribute_id,"value":str(searcher.attribute_value)}
+        case _:
+            query="SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values like %(value)s",{"attribute_id":searcher.attribute_id,"value":f"like %{str(searcher.attribute_value)}%"}
+    return query
+@bp.route("/filter", methods=["POST"])
+def filter():
+    filter = FilterSearch(**request.json)
+    db = get_db()
+    filter_asset_ids=[]
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=dict_row) as cur:
+            if filter.tag_operation==QueryOperation.OR:
+                cur.execute("""
+                SELECT asset_id FROM assets_in_tags WHERE tag_id=ANY(%(tags)s);""",{"tags":filter.tags})
+            else:
+                cur.execute("""
+                SELECT asset_id FROM assets
+    WHERE %(tags)s::int[]<@ARRAY(SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=assets.asset_id);
+                """,{"tags":filter.tags})
+            tags_asset_ids = [row["asset_id"] for row in cur.fetchall()]
+            filter_asset_ids.append(set(tags_asset_ids))
+            if filter.project_operation==QueryOperation.OR:
+                cur.execute("""
+                SELECT asset_id FROM assets_in_projects WHERE project_id=ANY(%(projects)s);""",{"projects":filter.projects})
+            else:
+                cur.execute("""
+                SELECT asset_id FROM assets
+    WHERE %(projects)s::int[]<@ARRAY(SELECT project_id FROM assets_in_projects WHERE assets_in_projects.asset_id=assets.asset_id);
+                """,{"projects":filter.projects})
+            project_asset_ids = [row["asset_id"] for row in cur.fetchall()]
+            filter_asset_ids.append(set(project_asset_ids))
+            cur.execute("""
+            SELECT DISTINCT asset_id FROM assets WHERE classification=ANY(%(classification)s);
+            """,{"classification":filter.classifications})
+            classification_asset_ids = [row["asset_id"] for row in cur.fetchall()]
+            filter_asset_ids.append(set(classification_asset_ids))
+            cur.execute("""
+            SELECT DISTINCT asset_id FROM assets WHERE version_id=ANY(%(type)s);
+            """,{"type":filter.types})
+            type_asset_ids = [row["asset_id"] for row in cur.fetchall()]
+            filter_asset_ids.append(set(type_asset_ids))
+            cur.execute("""
+            CREATE or REPLACE view all_atributes as
+SELECT asset_id,
+   unnest(array[-1,-2,-3]) AS "attribute_id",
+   unnest(array[name, link, description]) AS "values"
+FROM assets
+UNION ALL 
+SELECT * FROM attributes_values;
+            """)
+            db_conn.commit()
+            print(filter.attributes)
+            for searcher in filter.attributes:
+                print(searcher)
+                match searcher.operation:
+                    case QueryOperation.EQUALS:
+                        cur.execute("SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values=%(value)s",{"attribute_id":searcher.attribute_id,"value":str(searcher.attribute_value)})
+                    case QueryOperation.HAS:
+                        cur.execute("SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s",{"attribute_id":searcher.attribute_id})
+                    case _:
+                        cur.execute("SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values like %(value)s",{"attribute_id":searcher.attribute_id,"value":f"%{str(searcher.attribute_value)}%"})
+                filter_asset_ids.append(set([row["asset_id"] for row in cur.fetchall()]))
+            if filter.operation==QueryOperation.AND:  
+                asset_ids=set.intersection(*filter_asset_ids)
+            else:
+                asset_ids=set(chain.from_iterable(filter_asset_ids))
+    return {"data": list(asset_ids)}
 @bp.route("/upgrade/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def get_upgrade(id,user_id, access_level):

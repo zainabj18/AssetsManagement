@@ -101,8 +101,8 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 		}
 		setSelected(preSelected);
 		setSelectedRows(projects);
-		setFilter({});
-		setQuery('');
+		//setFilter({});
+		//setQuery('');
 	}, [rows]);
 	
 
