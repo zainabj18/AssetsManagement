@@ -158,3 +158,6 @@ export const deleteUserAcc = async (id) => {
 export const getAccountPrivileges = async (id) => {
 	return await axios.get('auth/register', id).then(res => res.data);
 };
+export const getAccountTypes = async (id) => {
+	return await axios.get('auth/register', id).then(res => res.data);
+};
