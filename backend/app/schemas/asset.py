@@ -3,6 +3,10 @@ from typing import Any, List, Optional
 
 from app.db import DataAccess
 from pydantic import BaseModel, Field, ValidationError, root_validator, validator,Extra
+from enum import Enum
+
+class QueryOperation(Enum):
+    EQUALS = "EQUALS"
 
 class FilterSearch(BaseModel):
     tags:List[int]=[]
