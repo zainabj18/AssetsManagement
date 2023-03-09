@@ -1,13 +1,14 @@
-import { Radio, RadioGroup, Stack, VStack } from '@chakra-ui/react';
+import { Container, Radio, RadioGroup, Select, Stack, VStack } from '@chakra-ui/react';
 import { HStack } from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
 import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Input, Button } from '@chakra-ui/react';
 import { Checkbox } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { fetchTypesList } from '../api';
-import { fetchTags } from '../api';
+import { fetchAllAttributes,fetchTags } from '../api';
 import { fetchProjects } from '../api';
 import { fetchAssetClassifications} from '../api';
+import SearchSelect from './SearchSelect';
 
 const RadioButtons=({name,changeFunc})=>{
 	return (<RadioGroup defaultValue="OR" onChange={e=>changeFunc(name,e)}>
@@ -23,6 +24,8 @@ const AssetSearcher = ({filerFunc}) => {
 	const [classifications, setClassifications] = useState([]);
 	const [projects, setProjects] = useState([]);
 	const [tags, setTags] = useState([]);
+	const [attributes, setAttributes] = useState([]);
+	const [tag, setTag] = useState(null);
 	const [inputFields, setInputFields] = useState([
 		{ name: '', values: '' }
 	]);
@@ -65,10 +68,10 @@ const AssetSearcher = ({filerFunc}) => {
 	const addFields = () => {
 		let newfield = { name: '', values: '' };
 		setInputFields([...inputFields, newfield]);
+		console.log(inputFields);
 	};
 
 	const submit = (e) => {
-		e.preventDefault();
 		console.log(inputFields);
 	};
 
@@ -81,6 +84,8 @@ const AssetSearcher = ({filerFunc}) => {
 	const filter = () => {
 		filerFunc(searchData);
 	};
+
+
 
 	useEffect(() => {
 		console.log(filerFunc);
@@ -103,12 +108,17 @@ const AssetSearcher = ({filerFunc}) => {
 			setClassifications(res.data);
 		}
 
-		
 		);
+
+		fetchAllAttributes().then((res) => {
+			console.log(res);
+			setAttributes(res);
+			
+		});
 	}, []);
 
 	return (
-		<Box p={30}>
+		<Container>
 			<Accordion defaultIndex={[0]} allowMultiple>
 				<RadioButtons name="operation" changeFunc={handleToggle}/>
 				<AccordionItem>
@@ -179,41 +189,41 @@ const AssetSearcher = ({filerFunc}) => {
 									})}
 								</VStack>
 							</AccordionPanel>
-						</AccordionItem>
-				
+						</AccordionItem>	
 					</AccordionPanel>
 				</AccordionItem>
 			</Accordion>
-			<div className="App">
-				<form onSubmit={submit}>
-					{inputFields.map((input, index) => {
-						return (
-							<HStack key={index}>
-								<Input
-									name='name'
-									placeholder='Attribute name'
-									value={input.name}
-									onChange={event => handleFormChange(index, event)}
-									color='white'
-								/>
-								<Input
-									name='values'
-									placeholder='Attribute value'
-									value={input.values}
-									onChange={event => handleFormChange(index, event)}
-									color='white'
-									fontsize='20'
-								/>
-								<Button onClick={() => removeFields(index)}>Remove</Button>
-							</HStack>
-						);
-					})}
-					<Button onClick={addFields}>Add More</Button>
-					<Button onClick={submit}>Submit</Button>
-				</form>
-			</div>
+			<RadioButtons name="attributeOperation" changeFunc={handleToggle}/>
+			
+
+			<form onSubmit={submit}>
+				{inputFields.map((input, index) => {
+					return (
+						<HStack key={index}>
+							<Select  name='name' value={input.name} onChange={event => handleFormChange(index, event)}>
+								{attributes.map((attribute, index) => {
+								
+				
+									return <option value={attribute.attributeName}>{attribute.attributeName}</option>;})}
+								
+							</Select>
+							<Input
+								name='values'
+								placeholder='Attribute value'
+								value={input.values}
+								onChange={event => handleFormChange(index, event)}
+								color='white'
+								fontsize='20'
+							/>
+							<Button onClick={() => removeFields(index)}>Remove</Button>
+						</HStack>
+					);
+				})}
+				<Button onClick={addFields}>Add More</Button>
+				<Button onClick={submit}>Add Attributes</Button>
+			</form>
 			<Button onClick={filter}>Filter</Button>
-		</Box>
+		</Container>
 	);
 };
 export default AssetSearcher;
