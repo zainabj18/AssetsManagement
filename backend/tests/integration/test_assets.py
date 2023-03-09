@@ -503,3 +503,14 @@ def test_assets_filter_attribute_like_link(client, new_assets):
     res = client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-2,"attributeValue":new_assets[0].link,"operation":"LIKE"}]})
     assert res.status_code == 200
     assert set(res.json["data"]).issuperset(set([new_assets[0].asset_id]))  
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_assets_filter_attribute_like_description(client, new_assets):
+    res = client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-3,"attributeValue":new_assets[0].description,"operation":"LIKE"}]})
+    assert res.status_code == 200
+    assert set(res.json["data"]).issuperset(set([new_assets[0].asset_id]))  
