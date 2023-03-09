@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, ValidationError, root_validator, validato
 class FilterSearch(BaseModel):
     tags:List[int]=[]
     projects:List[int]=[]
+    classifications:List[DataAccess]=list(DataAccess)
 
 class TagBase(BaseModel):
     id: Optional[int]
