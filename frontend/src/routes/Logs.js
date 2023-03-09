@@ -1,4 +1,4 @@
-import { Outlet,redirect} from 'react-router-dom';
+import { Link, NavLink, Outlet,redirect} from 'react-router-dom';
 import { Container, Heading, VStack,Spinner } from '@chakra-ui/react';
 import { useEffect, useMemo, useState } from 'react';
 import Header from '../components/Header';
@@ -25,6 +25,11 @@ const Logs = () => {
 				header: 'Username',
 				canFilter:true
 			},
+			'object_id':{
+				header: 'Username',
+				canFilter:true,
+				Cell:(rowID,value)=><Link to={`/${rowID.model_name}/${value}`} as={NavLink}>{value}</Link>
+			}
 		};
 		return orginal;
 	}

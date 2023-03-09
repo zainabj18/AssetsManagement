@@ -55,7 +55,7 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 	};
 	const renderCell=(key,rowID,value)=>{
 		if (columns[key].hasOwnProperty('Cell')){
-			return columns[key].Cell(rowID,value);
+			return columns[key].Cell(data[rowID],value);
 		}else{
 			return <Box>{value}</Box>;
 		}
