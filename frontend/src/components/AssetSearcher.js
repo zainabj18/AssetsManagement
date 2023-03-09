@@ -1,4 +1,4 @@
-import { VStack } from '@chakra-ui/react';
+import { Radio, RadioGroup, Stack, VStack } from '@chakra-ui/react';
 import { HStack } from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
 import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Input, Button } from '@chakra-ui/react';
@@ -8,6 +8,15 @@ import { fetchTypesList } from '../api';
 import { fetchTags } from '../api';
 import { fetchProjects } from '../api';
 import { fetchAssetClassifications} from '../api';
+
+const RadioButtons=({name,changeFunc})=>{
+	return (<RadioGroup defaultValue="OR" onChange={e=>changeFunc(name,e)}>
+		<Stack spacing={5} direction='row'>
+			<Radio value="OR" defaultChecked>OR</Radio>
+			<Radio value="AND">AND</Radio>
+		</Stack>
+	</RadioGroup>);
+};
 
 const AssetSearcher = ({filerFunc}) => {
 	const [types, setTypes] = useState([]);
@@ -39,6 +48,13 @@ const AssetSearcher = ({filerFunc}) => {
 		}));
 		console.log(searchData);
 	};
+	const handleToggle = (name,value) => {
+		setSearchData((prevAssetState) => ({
+			...prevAssetState,
+			[name]: value,
+		}));
+		console.log(searchData);
+	};
 
 	const handleFormChange = (index, event) => {
 		let data = [...inputFields];
@@ -62,7 +78,7 @@ const AssetSearcher = ({filerFunc}) => {
 		setInputFields(data);
 	};
 
-	const test = () => {
+	const filter = () => {
 		filerFunc(searchData);
 	};
 
@@ -94,60 +110,11 @@ const AssetSearcher = ({filerFunc}) => {
 	return (
 		<Box p={30}>
 			<Accordion defaultIndex={[0]} allowMultiple>
-				<AccordionItem>
-
-					<AccordionButton>Asset Type
-						<AccordionIcon />
-					</AccordionButton>
-
-					<AccordionPanel pb={4}>
-						<VStack align={'left'}>
-							{types.map((type) => {
-								return ( 
-									<Checkbox  onChange={(e) => handleCheckBoxChange('types',type.type_id,e.target.checked)}>{type.type_name}</Checkbox>
-								);
-							})}
-						</VStack>
-					</AccordionPanel>
-				</AccordionItem>
+				<RadioButtons name="operation" changeFunc={handleToggle}/>
 				<AccordionItem>
 	
 					<AccordionButton>
-							Tags
-						<AccordionIcon />
-					</AccordionButton>
-	
-					<AccordionPanel pb={4}>
-						<VStack align={'left'}>
-							{tags.map((tag) => {
-								return ( 
-									<Checkbox  onChange={(e) => handleCheckBoxChange('tags',tag.id,e.target.checked)}>{tag.name}</Checkbox>
-								);
-							})}
-						</VStack>
-					</AccordionPanel>
-				</AccordionItem>
-				<AccordionItem>
-				
-					<AccordionButton>
-							Projects
-						<AccordionIcon />
-					</AccordionButton>
-
-					<AccordionPanel pb={4}>
-						<VStack align={'left'}>
-							{projects.map((project) => {
-								return ( 
-									<Checkbox  onChange={(e) => handleCheckBoxChange('projects',project.id,e.target.checked)}>{project.name}</Checkbox>
-								);
-							})}
-						</VStack>
-					</AccordionPanel>
-				</AccordionItem>
-				<AccordionItem>
-	
-					<AccordionButton>
-							Access Levels
+			Access Levels
 						<AccordionIcon />
 					</AccordionButton>
 
@@ -155,11 +122,65 @@ const AssetSearcher = ({filerFunc}) => {
 						<VStack align={'left'}>
 							{classifications.map((classification) => {
 								return ( 
-							
+			
 									<Checkbox  onChange={(e) => handleCheckBoxChange('classifications',classification,e.target.checked)}>{classification}</Checkbox>
 								); 
 							})}
 						</VStack>
+						<AccordionItem>
+
+							<AccordionButton>Asset Type
+								<AccordionIcon />
+							</AccordionButton>
+
+							<AccordionPanel pb={4}>
+								<VStack align={'left'}>
+									{types.map((type) => {
+										return ( 
+											<Checkbox  onChange={(e) => handleCheckBoxChange('types',type.type_id,e.target.checked)}>{type.type_name}</Checkbox>
+										);
+									})}
+								</VStack>
+							</AccordionPanel>
+						</AccordionItem>
+						<AccordionItem>
+	
+							<AccordionButton>
+							Tags
+								<AccordionIcon />
+							</AccordionButton>
+	
+							<AccordionPanel pb={4}>
+								<RadioButtons name="tagOperation" changeFunc={handleToggle}/>
+								<VStack align={'left'}>
+									{tags.map((tag) => {
+										return ( 
+											<Checkbox  onChange={(e) => handleCheckBoxChange('tags',tag.id,e.target.checked)}>{tag.name}</Checkbox>
+										);
+									})}
+								</VStack>
+							</AccordionPanel>
+						</AccordionItem>
+						<AccordionItem>
+							
+							<AccordionButton>
+							Projects
+								<AccordionIcon />
+							</AccordionButton>
+
+							<AccordionPanel pb={4}>
+								<RadioButtons name="projectOperation" changeFunc={handleToggle}/>
+								<VStack align={'left'}>
+									
+									{projects.map((project) => {
+										return ( 
+											<Checkbox  onChange={(e) => handleCheckBoxChange('projects',project.id,e.target.checked)}>{project.name}</Checkbox>
+										);
+									})}
+								</VStack>
+							</AccordionPanel>
+						</AccordionItem>
+				
 					</AccordionPanel>
 				</AccordionItem>
 			</Accordion>
@@ -191,7 +212,7 @@ const AssetSearcher = ({filerFunc}) => {
 					<Button onClick={submit}>Submit</Button>
 				</form>
 			</div>
-			<Button onClick={test}>Filter</Button>
+			<Button onClick={filter}>Filter</Button>
 		</Box>
 	);
 };
