@@ -75,7 +75,6 @@ const AssetSearcher = ({filerFunc}) => {
 
 		fetchTags().then((res) => {
 			setTags(res.data);
-
 		}
 		);
 
@@ -86,10 +85,6 @@ const AssetSearcher = ({filerFunc}) => {
 
 		fetchAssetClassifications().then((res) => {
 			setClassifications(res.data);
-			setSearchData((prevAssetState) => ({
-				...prevAssetState,
-				classifications: res.data,
-			}));
 		}
 
 		
