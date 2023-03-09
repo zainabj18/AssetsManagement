@@ -1,17 +1,15 @@
-import { Outlet, useNavigate } from 'react-router-dom';
-import { Heading, VStack, Text, HStack } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+import { VStack, Text} from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import { Input, Stack } from '@chakra-ui/react';
-import { Button, ButtonGroup } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 import {
 	Table,
 	Thead,
 	Tbody,
-	Tfoot,
 	Tr,
 	Th,
 	Td,
-	TableCaption,
 	TableContainer,
 } from '@chakra-ui/react';
 import {
