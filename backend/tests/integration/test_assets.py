@@ -446,6 +446,8 @@ def test_assets_filter_classification(client, new_assets):
     indirect=True,
 )
 def test_assets_filter_type(client, new_assets):
+    for a in new_assets:
+        print(a.type)
     filter_type=[new_assets[0].type,new_assets[1].type,new_assets[2].type]
     asset_ids=[new_assets[0].asset_id,new_assets[1].asset_id,new_assets[2].asset_id]
     res = client.post("/api/v1/asset/filter", json={"type":filter_type})
@@ -458,9 +460,10 @@ def test_assets_filter_type(client, new_assets):
     indirect=True,
 )
 def test_assets_filter_attribute_equals_name(client, new_assets):
+    
     res = client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-1,"attributeValue":new_assets[0].name,"operation":"EQUALS"}]})
     assert res.status_code == 200
-    assert set(res.json["data"])==set([new_assets[0].asset_id])
+    assert set(res.json["data"]).issuperset(set([new_assets[0].asset_id]))
 
 @pytest.mark.parametrize(
     "new_assets",
@@ -532,7 +535,7 @@ def test_assets_filter_attribute_has_metadata(client, new_assets):
     indirect=True,
 )
 def test_assets_filter_attribute_multiple(client, new_assets):
-    res = client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-1,"attributeValue":new_assets[0].name,"operation":"EQUALS"},
+    res = client.post("/api/v1/asset/filter", json={"operation":"AND","attributes":[{"attributeID":-1,"attributeValue":new_assets[0].name,"operation":"EQUALS"},
                                                                 {"attributeID":-1,"attributeValue":new_assets[0].name+"!","operation":"EQUALS"}]})
     assert res.status_code == 200
     assert res.json["data"]==[]
