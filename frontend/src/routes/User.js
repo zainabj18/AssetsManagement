@@ -8,6 +8,15 @@ const User = () => {
 
 	useEffect(() => {
 		console.log(user);
+
+		const fetchAccountPrivileges = async () => {
+			try {
+				const response = await getAccountPrivileges();
+				setAccountPrivileges(response.data);
+			} catch (error) {
+				console.error(error);
+			}
+		};
 	});
 
 	const [inputFields, setInputFields] = useState([{name: '', surname: '', username: '' }]);
