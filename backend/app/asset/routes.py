@@ -98,7 +98,8 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
     return asset
 
 @bp.route("/", methods=["POST"])
-def create():
+@protected(role=UserRole.USER)
+def create(user_id, access_level):
     # validate json
     try:
         try:
@@ -225,7 +226,12 @@ WHERE attributes_in_types.type_version=%(type_id)s;""",{"type_id": asset.version
                         "value": attribute.attribute_value,
                     },
                 )
-
+            cur.execute(
+                    """
+                INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
+        VALUES (1,%(account_id)s,%(asset_id)s,%(diff)s,%(action)s);""",
+                    {"account_id":user_id,"asset_id":asset_id,"diff":json.dumps({}),"action":Actions.ADD},
+                )
     return {"msg": "Added asset", "data": asset_id}, 200
 
 

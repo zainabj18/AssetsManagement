@@ -125,7 +125,8 @@ const AssetViewer = () => {
 				version_id: attribute_value,
 				metadata:res.metadata,
 			}));
-			setDependencies(res.depends);
+			console.log(res);
+			setDependencies(res.dependsOn);
 			setTrigger.toggle();
 
 		});
