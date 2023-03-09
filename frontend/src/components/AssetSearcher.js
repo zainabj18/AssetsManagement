@@ -17,12 +17,27 @@ const AssetSearcher = () => {
 	const [inputFields, setInputFields] = useState([
 		{ name: '', values: '' }
 	]);
-	const [searchData, setSearchData] = useState([
-		{ tag:[]}
-	]);
+	const [searchData, setSearchData] = useState(
+		{ tags:[],types:[]}
+	);
 
 	const handleCheckBoxChange = (name,id,value) => {
 		console.log(name,id,value);
+		let oldValues=searchData[name];
+		console.log(oldValues);
+		if (value){
+			oldValues.push(id);
+		}else{
+			let index = oldValues.indexOf(id);
+			if (index !== -1) {
+				oldValues.splice(index, 1);
+			}
+		}
+
+		setSearchData((prevAssetState) => ({
+			...prevAssetState,
+			[name]: oldValues,
+		}));
 	};
 
 	const handleFormChange = (index, event) => {
@@ -83,7 +98,7 @@ const AssetSearcher = () => {
 						<VStack align={'left'}>
 							{types.map((type) => {
 								return ( 
-									<Checkbox colorScheme='green' defaultChecked onChange={(e) => handleCheckBoxChange('type',type.type_id,e.target.checked)}>{type.type_name}</Checkbox>
+									<Checkbox colorScheme='green' defaultChecked onChange={(e) => handleCheckBoxChange('types',type.type_id,e.target.checked)}>{type.type_name}</Checkbox>
 								);
 							})}
 						</VStack>
