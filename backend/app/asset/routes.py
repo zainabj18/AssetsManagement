@@ -668,12 +668,11 @@ WHERE %(projects)s::int[]<@ARRAY(SELECT project_id FROM assets_in_projects WHERE
             """,{"classification":filter.classifications})
             classification_asset_ids = [row["asset_id"] for row in cur.fetchall()]
             filter_asset_ids.append(set(classification_asset_ids))
-            if filter.types!=[]:
-                cur.execute("""
-                SELECT DISTINCT asset_id FROM assets WHERE type=ANY(%(type)s);
-                """,{"type":filter.types})
-                type_asset_ids = [row["asset_id"] for row in cur.fetchall()]
-                filter_asset_ids.append(set(type_asset_ids))
+            cur.execute("""
+            SELECT DISTINCT asset_id FROM assets WHERE type=ANY(%(type)s);
+            """,{"type":filter.types})
+            type_asset_ids = [row["asset_id"] for row in cur.fetchall()]
+            filter_asset_ids.append(set(type_asset_ids))
             cur.execute("""
             CREATE or REPLACE view all_atributes as
 SELECT asset_id,
