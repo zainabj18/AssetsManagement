@@ -46,7 +46,7 @@ const User = () => {
 	const deleteUser = async (index) => {
 		const userIdToDelete = inputFields[index].id;
 		try {
-		  await deleteUser(userIdToDelete);
+		  await deleteUserAcc(userIdToDelete);
 		  let data = [...deleteuser];
 		  data.splice(index, 1);
 		  setDeleteUser(data);
