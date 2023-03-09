@@ -1,5 +1,6 @@
 DROP TYPE IF EXISTS account_role CASCADE;
 DROP TYPE IF EXISTS data_classification CASCADE;
+DROP TYPE IF EXISTS actions CASCADE;
 DROP TABLE IF EXISTS accounts CASCADE;
 DROP TABLE IF EXISTS assets CASCADE;
 DROP TABLE IF EXISTS tags CASCADE;
@@ -16,6 +17,9 @@ DROP TABLE IF EXISTS asset_logs CASCADE;
 DROP TABLE IF EXISTS assets_in_assets CASCADE;
 DROP TABLE IF EXISTS type_version_link CASCADE;
 DROP TABLE IF EXISTS type_version CASCADE;
+DROP TABLE IF EXISTS tracked_models CASCADE;
+DROP TABLE IF EXISTS audit_logs CASCADE;
+
 
 CREATE TYPE actions AS ENUM ('ADD', 'CHANGE', 'DELETE');
 CREATE TYPE account_role AS ENUM ('VIEWER', 'USER', 'ADMIN');
@@ -148,7 +152,7 @@ CREATE TABLE asset_logs
  );
 
  CREATE TABLE tracked_models(
-	model_id SERIAL
+	model_id SERIAL,
 	model_name VARCHAR NOT NULL UNIQUE,
 	PRIMARY KEY (model_id)
 );
