@@ -20,7 +20,7 @@ class FilterSearch(BaseModel):
     projects:List[int]=[]
     type:List[int]=[]
     classifications:List[DataAccess]=list(DataAccess)
-
+    attributes:List[AttributeSearcher]=[]
 
 class TagBase(BaseModel):
     id: Optional[int]
