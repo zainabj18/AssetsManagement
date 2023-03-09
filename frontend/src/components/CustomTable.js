@@ -38,6 +38,7 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 				}
 			}
 			return true;});
+			//TODO:FIX this to only search values 
 		return preFiltered.filter((obj)=>Object.values(obj).toString().toLowerCase().includes(query));
 	  }, [filters,query, data]);
 
