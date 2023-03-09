@@ -94,44 +94,41 @@ const CreateProject = () => {
 
 
 	return (<Flex w='100%' minH='80vh' alignItems={'stretch'} p={2} border>
-		{/* <Text fontSize='3xl'>Create Project</Text> */}
-		<Box w='30%' minH='100%' bg='gray.300' p={4} color='black' align={'top'}>
-			<FormControl isInvalid = {formError !== ''}>
-				<Input
-					type="text"
-					placeholder="Project Name"
+		
+		<Box w='100%' minH='100%' bg='white' alignItems='left'>
+			
+			<VStack p={3} >
+				<FormControl isInvalid = {formError !== ''}>
+					<Input
+						type="text"
+						placeholder="Project Name"
 
-					onChange={(event) => setNewName(event.target.value)}
-					name="name"
-				/>
-				<FormErrorMessage>{formError}</FormErrorMessage>
-			</FormControl>
-			<HStack>
+						onChange={(event) => setNewName(event.target.value)}
+						name="name"
+					/>
+					<FormErrorMessage>{formError}</FormErrorMessage>
+				</FormControl>
 				<Input
 					type="text"
 					placeholder="Description"
 					onChange={(event) => changeDescription(event.target.value)}
 					name="description"
 				/>
-			</HStack>
-		</Box>
-		<VStack p={2}>
-			{allPeople.map((person, index) => {
-				return (
-					<VStack key={person.accountID} align="left">
-						<Checkbox
-							onChange={(e) => adjustSelectedPeople(e.target.checked, person.accountID)}>
+				<Text>Add People To Project</Text>
+				<Box alignItems='left'>
+					{allPeople.map((person, index) => {
+						return (
+							<Checkbox
+								onChange={(e) => adjustSelectedPeople(e.target.checked, person.accountID)}>
 						    {person.username}
-						</Checkbox>
-					</VStack>
-				);
-			})}
-		</VStack>
-		<HStack>
-			<Button onClick={addProject}>Save Project</Button>
-		</HStack>
-		<Box w='70%' minH='100%' bg='white' alignItems='center'>
-			<Outlet/>
+							</Checkbox>
+						);
+					})}
+				</Box>
+			</VStack>
+			<HStack>
+				<Button onClick={addProject}>Save Project</Button>
+			</HStack>
 		</Box>		
 	</Flex>
 
