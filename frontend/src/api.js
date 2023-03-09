@@ -148,3 +148,7 @@ export const isAttributeNameIn = async (name) => {
 export const makeBackfill = async (data) => {
 	return await axios.post('type/backfill', data).then(res => res.data);
 };
+
+export const createUser = async (id) => {
+	return await axios.post('/auth/regiser', id).then(res => res.data);
+};
