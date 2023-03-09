@@ -117,7 +117,7 @@ const AdminManager = () => {
 														</AccordionButton>
 													</h2>
 													<AccordionPanel pb={4}>
-														<Button bg='transparent' color='white' onClick={accountDetails}>View Account Details</Button>
+														<Button bg='transparent' color='white' onClick={() => loadAccountDetails(user.account_id)}>View Account Details</Button>
 														<Link href='/login'> <Button bg='transparent' color='white' onClick={pass_func}>Change Password</Button></Link>
 														<Link href='/projects/'><Button bg='transparent' color='white' onClick={handleRelatedProjects}>View Related Projects</Button></Link>
 													</AccordionPanel>
