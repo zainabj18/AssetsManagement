@@ -45,7 +45,7 @@ const AdminManager = () => {
 	},[]);
 
 	const [inputField, setInputField] = useState([{ username: '' }]);
-	const [accountdetails] = useState([{ accdetails: '' }]);
+	const [accountdetails, setAccountDetails] = useState([{ accdetails: '' }]);
 	const [pass] = useState([{ pass: '' }]);
 	const [relatedprojects] = useState([{ relatedproj: '' }]);
 
