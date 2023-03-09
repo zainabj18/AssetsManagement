@@ -1,7 +1,7 @@
 import { Box, Button, Center, FormControl, FormLabel, HStack, Heading, Input, Select, Stack } from '@chakra-ui/react';
 import { React, useEffect, useState } from 'react';
 import useAuth from '../hooks/useAuth';
-import { createUser } from '../api';
+import { createUser, deleteUserAcc, getAccountPrivileges, getAccountTypes } from '../api';
 
 const User = () => {
 	const { user } = useAuth();
