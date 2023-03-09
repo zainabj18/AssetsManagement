@@ -78,7 +78,6 @@ const ProjectViewer = () => {
 										);
 									})}</Td>
 									<Td><IconButton
-										left={20}
 										icon={<DeleteIcon />}
 										colorScheme="blue"
 										onClick={() => handleDelete(index)}
