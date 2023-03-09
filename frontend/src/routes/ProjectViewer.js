@@ -8,19 +8,29 @@ import {
 	Button,
 	Flex,
 	useBoolean,
-	HStack
+	HStack,
+	Table, Thead, Tbody, Tr, Th, Td, TableContainer, TableCaption
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { DeleteIcon } from '@chakra-ui/icons';
 import { IconButton } from '@chakra-ui/react';
-import {createProject, deleteProject, fetchProjects } from '../api.js';
+import {deleteProject, fetchProjects, fetchPeopleinProject } from '../api.js';
 import { useEffect } from 'react';
-import {NavLink} from 'react-router-dom';
+//import ProjectPeopleTable from '../components/ProjectPeopleTable.js';
+import {NavLink, useParams} from 'react-router-dom';
 
 
 const ProjectViewer = () => {
 	const [projects, setProjects] = useState([]);
 	const [toggle, set_toggle] = useBoolean();
+	//const [selectedAccounts, setSelectedAccounts]=useState([]);
+	const { id } = useParams();
+
+	// const getAccountIDs=()=>{
+	// 	return selectedAccounts.map(
+	// 		(rowID)=>{return people[rowID].account_id;});
+	// };
+
 	useEffect(() => {
 		async function load_allProjects() {
 			let data = await fetchProjects();
@@ -29,6 +39,7 @@ const ProjectViewer = () => {
 		}
 		load_allProjects();
 	}, [toggle]);
+
 
 	const handleDelete = (index) => {
 		const projectToDelete = projects[index];
@@ -44,27 +55,45 @@ const ProjectViewer = () => {
 	};
 
 	return (
-		<VStack minW="100vw" spacing={3}>
-			<VStack>
-				{projects && projects.map((projects, index) => {
-					return (
-						<HStack key={index}>
-							<Text> {projects.name} </Text>
-							<Text> {projects.description} </Text>
-							<IconButton
-								left={20}
-								icon={<DeleteIcon />}
-								colorScheme="blue"
-								onClick={() => handleDelete(index)}
-							/>
-						</HStack>
-					);
-				})}
-			</VStack>
-			<NavLink to="./new">Create New Project</NavLink>	
-		</VStack>
-
+		<div>
+			<TableContainer>
+				<Table variant='simple'>
+					<Thead>
+						<Tr>
+							<Th color='Black'>Name</Th>
+							<Th color='Black'>Description</Th>
+							<Th color='Black'>Accounts</Th>
+							<Th color='Black'>Delete</Th>
+						</Tr>
+					</Thead>
+					<Tbody>			
+						{projects && projects.map((projects, index) => {
+							return (
+								<Tr key={index}>
+									<Td>{projects.projectName} </Td>
+									<Td>{projects.projectDescription} </Td>
+									<Td>{projects.accounts.map((account, index) => {
+										return(
+											<Text key = {index}>{account.username}</Text>
+										);
+									})}</Td>
+									<Td><IconButton
+										left={20}
+										icon={<DeleteIcon />}
+										colorScheme="blue"
+										onClick={() => handleDelete(index)}
+									/>
+									</Td>
+								</Tr>
+							);
+						})}
+					</Tbody>
+				</Table>
+			</TableContainer>
+			<NavLink to="./new"><Button>Create New Project</Button></NavLink>
+		</div>
 	);
+	
 };
 
 export default ProjectViewer;

@@ -47,7 +47,7 @@ CREATE TABLE tags
 CREATE TABLE projects
 (
 	id SERIAL,
-	name VARCHAR NOT NULL,
+	name VARCHAR NOT NULL UNIQUE,
 	description VARCHAR,
 	PRIMARY KEY (id)
 );
@@ -118,15 +118,6 @@ CREATE TABLE attributes
 	FOREIGN KEY (project_id) REFERENCES projects(id),
 	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
 	PRIMARY KEY (asset_id,project_id)
-);
-
- CREATE TABLE assets_in_assets
-(
-	from_asset_id INTEGER,
-	to_asset_id INTEGER,
-	FOREIGN KEY (from_asset_id) REFERENCES assets(asset_id),
-	FOREIGN KEY (to_asset_id) REFERENCES assets(asset_id),
-	PRIMARY KEY (from_asset_id,to_asset_id)
 );
 
 CREATE TABLE attributes_values

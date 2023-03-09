@@ -95,7 +95,11 @@ class Project(BaseModel):
     id: Optional[int]
     name: str
     description: str
+    accounts: List[int]
 
+class People(BaseModel):
+    account_id: Optional[int]
+    username: str
 
 class AssetBase(BaseModel):
     name: str
