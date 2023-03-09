@@ -195,6 +195,6 @@ CREATE TABLE audit_logs
  VALUES
  (1,'assets'),
  (2,'projects'),
- (3,'types'),
+ (3,'type'),
  (4,'tags'),
  (5,'accounts');

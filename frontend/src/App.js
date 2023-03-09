@@ -38,7 +38,7 @@ function App() {
 					<Route path="assets/" element={<SubLayout name="Assets"/>}>
 						<Route index element={<AssetsOverview />} />
 						<Route path="new" element={<CreateAsset />} />
-						<Route path="view/:id" element={<AssetOverview />}>
+						<Route path=":id" element={<AssetOverview />}>
 							<Route index element={<AssetViewer canEdit={true} isNew={false}/>} />	
 							<Route path="logs" element={<AssetLogs />} />	
 							<Route path="tags" element={<RelatedTags />} />	
