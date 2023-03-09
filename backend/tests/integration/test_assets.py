@@ -389,3 +389,23 @@ def test_assets_with_tags(valid_client, new_assets):
         assert res.status_code == 200
         assert len(res.json["data"]["assets"]) == len(tags[tag])
         assert set(asset["asset_id"] for asset in res.json["data"]["assets"]) == set(tags[tag])
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_assets_filter_tags(client, new_assets):
+    filter_tags=[1,2]
+    asset_ids=[]
+    for asset in new_assets:
+        if set(asset.tags).issuperset(set(filter_tags)):
+            asset_ids.append(asset.asset_id)
+    res = client.post("/api/v1/asset/filter", json={"tags":filter_tags})
+    assert res.status_code == 200
+    print(asset_ids)
+    assert set(res.json["data"])==set(asset_ids)
+
+    
+

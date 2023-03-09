@@ -1,6 +1,6 @@
 from app.core.utils import protected
 from app.db import DataAccess, UserRole, get_db
-from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB
+from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
@@ -635,3 +635,17 @@ INNER JOIN assets on assets.asset_id=assets_in_assets.from_asset_id WHERE to_ass
                     assets_json.append(aj)
             res = jsonify({"data": assets_json})
     return res
+
+@bp.route("/filter", methods=["POST"])
+def filter():
+    filter = FilterSearch(**request.json)
+    db = get_db()
+    print(filter.tags)
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=dict_row) as cur:
+            cur.execute("""
+            SELECT *,ARRAY(SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=assets.asset_id) FROM assets
+WHERE %(tags)s::int[]<@ARRAY(SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=assets.asset_id);
+            """,{"tags":filter.tags})
+            tags_asset_ids = [row["asset_id"] for row in cur.fetchall()]
+    return {"data": tags_asset_ids}
