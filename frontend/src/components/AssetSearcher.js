@@ -27,7 +27,7 @@ const AssetSearcher = ({filerFunc}) => {
 	const [attributes, setAttributes] = useState([]);
 	const [tag, setTag] = useState(null);
 	const [inputFields, setInputFields] = useState([
-		{ name: '', values: '' }
+		{ attributeID: -1, attributeValue: '' }
 	]);
 	const [searchData, setSearchData] = useState(
 		{ tags:[],types:[],projects:[],classifications:[],attributes:[]}
@@ -66,7 +66,7 @@ const AssetSearcher = ({filerFunc}) => {
 	};
 
 	const addFields = () => {
-		let newfield = { name: '', values: '' };
+		let newfield = { attributeID: -1, attributeValue: '' };
 		setInputFields([...inputFields, newfield]);
 		console.log(inputFields);
 	};
@@ -196,32 +196,35 @@ const AssetSearcher = ({filerFunc}) => {
 			<RadioButtons name="attributeOperation" changeFunc={handleToggle}/>
 			
 
-			<form onSubmit={submit}>
-				{inputFields.map((input, index) => {
-					return (
-						<HStack key={index}>
-							<Select  name='name' value={input.name} onChange={event => handleFormChange(index, event)}>
-								{attributes.map((attribute, index) => {
+	
+			{inputFields.map((input, index) => {
+				return (
+					<HStack key={index}>
+						<Select  name='attributeID' value={input.attributeID} onChange={event => handleFormChange(index, event)}>
+							{attributes.map((attribute, index) => {
 								
 				
-									return <option value={attribute.attributeName}>{attribute.attributeName}</option>;})}
+								return <option value={attribute.attributeID}>{attribute.attributeName}</option>;})}
 								
-							</Select>
-							<Input
-								name='values'
-								placeholder='Attribute value'
-								value={input.values}
-								onChange={event => handleFormChange(index, event)}
-								color='white'
-								fontsize='20'
-							/>
-							<Button onClick={() => removeFields(index)}>Remove</Button>
-						</HStack>
-					);
-				})}
-				<Button onClick={addFields}>Add More</Button>
-				<Button onClick={submit}>Add Attributes</Button>
-			</form>
+						</Select>
+						<Select  name='operation' value={input.operation} onChange={event => handleFormChange(index, event)}>
+								 <option value='EQUALS'>=</option>
+								 <option value='LIKE'>LIKE</option>
+								 <option value='HAS'>HAS</option>
+						</Select>
+						<Input
+							name='attributeValue'
+							placeholder='Attribute value'
+							value={input.attributeValue}
+							onChange={event => handleFormChange(index, event)}
+							color='white'
+							fontsize='20'
+						/>
+						<Button onClick={() => removeFields(index)}>Remove</Button>
+					</HStack>
+				);
+			})}
+			<Button onClick={addFields}>Add More</Button>
 			<Button onClick={filter}>Filter</Button>
 		</Container>
 	);
