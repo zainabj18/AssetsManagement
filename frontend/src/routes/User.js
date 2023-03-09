@@ -11,8 +11,8 @@ const User = () => {
 	});
 
 	const [inputFields, setInputFields] = useState([{name: '', surname: '', username: '' }]);
-	const [deleteobject, setDeleteObject] = useState([{delete: ''}]);
-	const [saveobject] = useState([{save: ''}]);
+	const [deleteuser, setDeleteUser] = useState([{delete: ''}]);
+	const [saveuser, setSaveUser] = useState([{save: ''}]);
 
 	const handleFormChange = (index, event) => {
 		let data = [...inputFields];
@@ -20,10 +20,10 @@ const User = () => {
 		setInputFields(data);
 	};
 
-	const deleteObject = (index) => {
-		let data = [...deleteobject];
+	const deleteUser = (index) => {
+		let data = [...deleteuser];
 		data.splice(index, 1);
-		setDeleteObject(data);
+		setDeleteUser(data);
 	};
 
 	const saveUser = async (e) => {
@@ -94,7 +94,7 @@ const User = () => {
 						<Button colorScheme='blue' variant='solid' size='md' onClick={saveUser}>
 				Save
 						</Button>
-						<Button colorScheme='red' variant='solid' size='md' onClick={deleteObject}>
+						<Button colorScheme='red' variant='solid' size='md' onClick={deleteUser}>
 				Delete
 						</Button>
 					</Stack>
