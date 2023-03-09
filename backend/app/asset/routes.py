@@ -640,7 +640,7 @@ INNER JOIN assets on assets.asset_id=assets_in_assets.from_asset_id WHERE to_ass
 def filter():
     filter = FilterSearch(**request.json)
     db = get_db()
-    print(filter.tags)
+
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=dict_row) as cur:
             cur.execute("""
@@ -648,4 +648,12 @@ def filter():
 WHERE %(tags)s::int[]<@ARRAY(SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=assets.asset_id);
             """,{"tags":filter.tags})
             tags_asset_ids = [row["asset_id"] for row in cur.fetchall()]
-    return {"data": tags_asset_ids}
+            print(filter.tags)
+            print(tags_asset_ids)
+            cur.execute("""
+            SELECT *,ARRAY(SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=assets.asset_id) FROM assets
+WHERE %(projects)s::int[]<@ARRAY(SELECT project_id FROM assets_in_projects WHERE assets_in_projects.asset_id=assets.asset_id);
+            """,{"projects":filter.projects})
+            project_asset_ids = [row["asset_id"] for row in cur.fetchall()]
+            asset_id=set(tags_asset_ids).intersection(set(project_asset_ids))
+    return {"data": list(asset_id)}
