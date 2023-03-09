@@ -1,6 +1,6 @@
 from app.core.utils import protected
 from app.db import DataAccess, UserRole, get_db
-from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch
+from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
@@ -636,6 +636,14 @@ INNER JOIN assets on assets.asset_id=assets_in_assets.from_asset_id WHERE to_ass
             res = jsonify({"data": assets_json})
     return res
 
+
+def make_query(searcher):
+    match searcher.operation:
+        case QueryOperation.EQUALS:
+            query="SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values=%(value)s",{"attribute_id":searcher.attribute_id,"value":str(searcher.attribute_value)}
+        case _:
+            query="SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values like %(value)s",{"attribute_id":searcher.attribute_id,"value":f"like %{str(searcher.attribute_value)}%"}
+    return query
 @bp.route("/filter", methods=["POST"])
 def filter():
     filter = FilterSearch(**request.json)
@@ -666,5 +674,15 @@ WHERE %(projects)s::int[]<@ARRAY(SELECT project_id FROM assets_in_projects WHERE
                 """,{"type":filter.type})
                 type_asset_ids = [row["asset_id"] for row in cur.fetchall()]
                 filter_asset_ids.append(set(type_asset_ids))
+            cur.execute("""
+            CREATE or REPLACE view all_atributes as
+SELECT asset_id,
+   unnest(array[-1,-2,-3]) AS "attribute_id",
+   unnest(array[name, link, description]) AS "values"
+FROM assets
+UNION ALL 
+SELECT * FROM attributes_values;
+            """)
+            db_conn.commit()
             asset_ids=set.intersection(*filter_asset_ids)
     return {"data": list(asset_ids)}
