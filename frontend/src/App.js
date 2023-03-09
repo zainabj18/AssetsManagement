@@ -13,7 +13,6 @@ import SubLayout from './routes/assets/SubLayout';
 import CreateProject from './routes/CreateProject';
 import { Box, Button } from '@chakra-ui/react';
 import AdminManager from './routes/AdminManager';
-import RelatedAssetViewer from './components/RelatedAssetViewer';
 import Tags from './routes/Tags';
 import TagViewer from './routes/TagViewer';
 import AssetOverview from './components/AssetOverview';
@@ -26,6 +25,7 @@ import RelatedFrom from './routes/assets/RelatedFrom';
 import RelatedTo from './routes/assets/RelatedTo';
 import AttributeViewer from './routes/AttributeViewer';
 import ProjectViewer from './routes/ProjectViewer';
+import TypeEditor from './routes/TypeEditor';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -47,7 +47,6 @@ function App() {
 							<Route path="outgoing" element={<RelatedFrom />} />	
 							<Route path="incomming" element={<RelatedTo />} />	
 						</Route>
-						<Route path="related" element={<RelatedAssetViewer canEdit={true} isNew={false}/>} />
 					</Route>
 					<Route path="projects/" element={<SubLayout name="Projects"/>}>
 						<Route index element={<ProjectViewer/>} />
@@ -61,6 +60,7 @@ function App() {
 						<Route index element={<TypeViewer />} />
 						<Route path="adder" element={<TypeAdder />} />
 						<Route path="attributes" element={<AttributeViewer />} />
+						<Route path=":id" element={<TypeEditor />} />
 					</Route>
 					<Route path="accounts" element={<AdminManager />} />
 					<Route path="user" element={<User />} />

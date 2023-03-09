@@ -14,11 +14,13 @@ DROP TABLE IF EXISTS attributes_values CASCADE;
 DROP TABLE IF EXISTS people_in_projects CASCADE;
 DROP TABLE IF EXISTS asset_logs CASCADE;
 DROP TABLE IF EXISTS assets_in_assets CASCADE;
-DROP TABLE IF EXISTS type_link CASCADE;
+DROP TABLE IF EXISTS type_version_link CASCADE;
+DROP TABLE IF EXISTS type_version CASCADE;
 
 CREATE TYPE actions AS ENUM ('ADD', 'CHANGE', 'DELETE');
 CREATE TYPE account_role AS ENUM ('VIEWER', 'USER', 'ADMIN');
 CREATE TYPE data_classification AS ENUM ('PUBLIC', 'INTERNAL','RESTRICTED','CONFIDENTIAL');
+
 CREATE TABLE accounts
 (
 	account_id SERIAL,
@@ -30,7 +32,6 @@ CREATE TABLE accounts
 	account_privileges data_classification NOT NULL DEFAULT 'PUBLIC',
 	PRIMARY KEY (account_id)
 );
-
 
 CREATE TABLE tags
 (
@@ -63,13 +64,23 @@ CREATE TABLE attributes
  	PRIMARY KEY (type_id)
  );
 
+ CREATE TABLE type_version
+(
+	version_id SERIAL,
+	version_number INTEGER NOT NULL,
+	type_id INTEGER,
+
+	PRIMARY KEY (version_id),
+	FOREIGN KEY (type_id) REFERENCES types(type_id)
+);
+
  CREATE TABLE attributes_in_types
  (
  	attribute_id INTEGER,
- 	type_id INTEGER,
- 	PRIMARY KEY (attribute_id, type_id),
+ 	type_version INTEGER,
+ 	PRIMARY KEY (attribute_id, type_version),
  	FOREIGN KEY (attribute_id) REFERENCES attributes(attribute_id),
- 	FOREIGN KEY (type_id) REFERENCES types(type_id)
+ 	FOREIGN KEY (type_version) REFERENCES type_version(version_id)
  );
  
  CREATE TABLE assets
@@ -77,13 +88,13 @@ CREATE TABLE attributes
 	asset_id SERIAL,
 	name VARCHAR NOT NULL UNIQUE,
 	link VARCHAR NOT NULL,
-    type INTEGER,
+    version_id INTEGER,
     description VARCHAR NOT NULL,
 	classification data_classification NOT NULL DEFAULT 'PUBLIC',
 	created_at timestamp NOT NULL DEFAULT now(),
 	last_modified_at timestamp NOT NULL DEFAULT now(),
 	soft_delete INTEGER DEFAULT 0,
-	FOREIGN KEY (type) REFERENCES types(type_id),
+	FOREIGN KEY (version_id) REFERENCES type_version(version_id),
 	PRIMARY KEY (asset_id)
 );
 
@@ -123,6 +134,7 @@ CREATE TABLE attributes_values
 	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
  	FOREIGN KEY (attribute_id) REFERENCES attributes(attribute_id)
  );
+
 CREATE TABLE asset_logs
  (
  	log_id SERIAL,
@@ -153,30 +165,14 @@ CREATE TABLE audit_logs
 	FOREIGN KEY (model_id) REFERENCES tracked_models(model_id),
 	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
  );
-
- CREATE TABLE type_link
+ CREATE TABLE type_version_link
  (
-	type_id_from INTEGER,
-	type_id_to INTEGER,
-	FOREIGN KEY (type_id_from) REFERENCES types(type_id),
-	FOREIGN KEY (type_id_to) REFERENCES types(type_id),
-	PRIMARY KEY (type_id_from, type_id_to)
+	type_version_from INTEGER,
+	type_version_to INTEGER,
+	FOREIGN KEY (type_version_from) REFERENCES type_version(version_id),
+	FOREIGN KEY (type_version_to) REFERENCES type_version(version_id),
+	PRIMARY KEY (type_version_from, type_version_to)
  );
-
-
--- CREATE TABLE assets
--- (
--- 	asset_id SERIAL,
--- 	asset_name VARCHAR NOT NULL,
--- 	link VARCHAR NOT NULL,
--- 	creation_date date NOT NULL,
--- 	acess_level INT NOT NULL,
--- 	project_id BIGINT UNSIGNED,
-	
--- 	PRIMARY KEY (asset_id),
--- 	FOREIGN KEY project_id REFERENCES projects(project_id)
--- );
-
 
 CREATE TABLE people_in_projects
 (
@@ -187,64 +183,3 @@ CREATE TABLE people_in_projects
 	FOREIGN KEY (project_id) REFERENCES projects(id),
 	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
 );
-
-
--- CREATE TABLE change_logs
--- (
--- 	log_id SERIAL,
--- 	date date NOT NULL,
--- 	action VARCHAR, /*the system's comment*/
--- 	comment VARCHAR, /*the user's comment*/
--- 	asset_id BIGINT UNSIGNED NOT NULL,
-	
--- 	PRIMARY KEY log_id,
--- 	FOREIGN KEY asset_id REFERENCES assets(asset_id)
--- );
-
--- CREATE TABLE type
--- (
--- 	type_id SERIAL,
--- 	type_name VARCHAR NOT NULL,
-	
--- 	PRIMARY KEY (type_id)
--- );
-
--- CREATE TABLE types_in_assets
--- (
--- 	asset_id BIGINT UNSIGNED,
--- 	type_id BIGINT UNSIGNED,
-	
--- 	PRIMARY KEY (asset_id, type_id),
--- 	FOREIGN KEY asset_id REFERENCES assets(asset_id),
--- 	FOREIGN KEY type_id REFERENCES types(type_id)
--- );
-
--- CREATE TABLE attributes
--- (
--- 	attribute_id SERIAL,
--- 	attribute_name VARCHAR NOT NULL,
--- 	attribute_dataType VARCHAR NOT NULL,
-	
--- 	PRIMARY KEY (attribute_id)
--- );
-
--- CREATE TABLE attribute_values
--- (
--- 	attribute_id BIGINT UNSIGNED,
--- 	asset_id BIGINT UNSIGNED,
--- 	value VARCHAR,
-	
--- 	PRIMARY KEY (attribute_id, asset_id),
--- 	FOREIGN KEY attribute_id REFERENCES attributes(attribute_id),
--- 	FOREIGN KEY asset_id REFERENCES assets(asset_id)
--- );
-
--- CREATE TABLE attributes_in_types
--- (
--- 	attribute_id BIGINT UNSIGNED,
--- 	type_id BIGINT UNSIGNED,
-	
--- 	PRIMARY KEY (attribute_id, type_id),
--- 	FOREIGN KEY attribute_id REFERENCES attributes(attribute_id),
--- 	FOREIGN KEY type_id REFERENCES types(type_id)
--- );
