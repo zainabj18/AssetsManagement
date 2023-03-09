@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchAssetSummary } from '../../api';
 import AssetList from '../../components/AssetList';
-import AssetSearcher from './../AssetSearcher';
+import AssetSearcher from '../../components/AssetSearcher';
 const AssetsOverview = () => {
 	const [assets, setAssets] = useState([]);
 	let naviagte=useNavigate();

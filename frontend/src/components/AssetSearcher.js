@@ -67,11 +67,11 @@ const FilterBasedSearch = () => {
 			<VStack> <p>This is the Filter Based Search Page !!</p></VStack>
 			<Accordion defaultIndex={[0]} allowMultiple>
 				<AccordionItem>
-					<h2>
-						<AccordionButton>Asset Type
-							<AccordionIcon />
-						</AccordionButton>
-					</h2>
+
+					<AccordionButton>Asset Type
+						<AccordionIcon />
+					</AccordionButton>
+
 					<AccordionPanel pb={4}>
 						<VStack align={'left'}>
 							{types.map((type) => {
@@ -83,12 +83,12 @@ const FilterBasedSearch = () => {
 					</AccordionPanel>
 				</AccordionItem>
 				<AccordionItem>
-					<h2>
-						<AccordionButton>
+	
+					<AccordionButton>
 							Tags
-							<AccordionIcon />
-						</AccordionButton>
-					</h2>
+						<AccordionIcon />
+					</AccordionButton>
+	
 					<AccordionPanel pb={4}>
 						<VStack align={'left'}>
 							{tags.map((tag) => {
@@ -100,12 +100,12 @@ const FilterBasedSearch = () => {
 					</AccordionPanel>
 				</AccordionItem>
 				<AccordionItem>
-					<h2>
-						<AccordionButton>
+				
+					<AccordionButton>
 							Projects
-							<AccordionIcon />
-						</AccordionButton>
-					</h2>
+						<AccordionIcon />
+					</AccordionButton>
+
 					<AccordionPanel pb={4}>
 						<VStack align={'left'}>
 							{projects.map((project) => {
@@ -117,12 +117,12 @@ const FilterBasedSearch = () => {
 					</AccordionPanel>
 				</AccordionItem>
 				<AccordionItem>
-					<h2>
-						<AccordionButton>
+	
+					<AccordionButton>
 							Access Levels
-							<AccordionIcon />
-						</AccordionButton>
-					</h2>
+						<AccordionIcon />
+					</AccordionButton>
+
 					<AccordionPanel pb={4}>
 						<VStack align={'left'}>
 							{classifications.map((classification) => {
