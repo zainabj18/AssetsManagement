@@ -17,7 +17,19 @@ const User = () => {
 				console.error(error);
 			}
 		};
-	});
+
+		const fetchAccountTypes = async () => {
+			try {
+				const response = await getAccountTypes();
+				setAccountTypes(response.data);
+			} catch (error) {
+				console.error(error);
+			}
+		};
+
+		fetchAccountPrivileges();
+		fetchAccountTypes();
+	}, []);
 
 	const [inputFields, setInputFields] = useState([{name: '', surname: '', username: '' }]);
 	const [deleteuser, setDeleteUser] = useState([{delete: ''}]);
