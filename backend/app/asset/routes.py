@@ -692,6 +692,7 @@ UNION ALL
 SELECT * FROM attributes_values;
             """)
             db_conn.commit()
+            print(filter.attributes)
             for searcher in filter.attributes:
                 print(searcher)
                 match searcher.operation:

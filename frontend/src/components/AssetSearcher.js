@@ -27,7 +27,7 @@ const AssetSearcher = ({filerFunc}) => {
 	const [attributes, setAttributes] = useState([]);
 	const [tag, setTag] = useState(null);
 	const [inputFields, setInputFields] = useState([
-		{ attributeID: -1, attributeValue: '' }
+		{ attributeID: -1, attributeValue: 'name' }
 	]);
 	const [searchData, setSearchData] = useState(
 		{ tags:[],types:[],projects:[],classifications:[],attributes:[]}
@@ -66,12 +66,8 @@ const AssetSearcher = ({filerFunc}) => {
 	};
 
 	const addFields = () => {
-		let newfield = { attributeID: -1, attributeValue: '' };
+		let newfield = { attributeID: -1, attributeValue: 'name' };
 		setInputFields([...inputFields, newfield]);
-		console.log(inputFields);
-	};
-
-	const submit = (e) => {
 		console.log(inputFields);
 	};
 
@@ -82,6 +78,13 @@ const AssetSearcher = ({filerFunc}) => {
 	};
 
 	const filter = () => {
+		console.log(inputFields);
+		setSearchData((prevAssetState) => ({
+			...prevAssetState,
+			attributes: inputFields,
+		}));
+
+
 		filerFunc(searchData);
 	};
 
@@ -111,8 +114,11 @@ const AssetSearcher = ({filerFunc}) => {
 		);
 
 		fetchAllAttributes().then((res) => {
-			console.log(res);
-			setAttributes(res);
+			let intial=[
+				{attributeID: -1, attributeName: 'name', attributeType: 'text', validation: null},
+				{attributeID: -2, attributeName: 'link', attributeType: 'text', validation: null},
+				{attributeID: -3, attributeName: 'description', attributeType: 'text', validation: null}];
+			setAttributes([...intial,...res]);
 			
 		});
 	}, []);
@@ -212,6 +218,7 @@ const AssetSearcher = ({filerFunc}) => {
 								 <option value='LIKE'>LIKE</option>
 								 <option value='HAS'>HAS</option>
 						</Select>
+						{input.operation !=='HAS' && 
 						<Input
 							name='attributeValue'
 							placeholder='Attribute value'
@@ -219,7 +226,7 @@ const AssetSearcher = ({filerFunc}) => {
 							onChange={event => handleFormChange(index, event)}
 							color='white'
 							fontsize='20'
-						/>
+						/>}
 						<Button onClick={() => removeFields(index)}>Remove</Button>
 					</HStack>
 				);
