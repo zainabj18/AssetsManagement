@@ -67,6 +67,10 @@ export const fetchTypesNamesVersionList = async () => {
 	return await axios.get('/type/version/names').then(res => res.data);
 };
 
+export const fetchLogs = async () => {
+	return await axios.get('/logs').then(res => res.data);
+};
+
 
 export const fetchType = async (id) => {
 	return await axios.get(`/type/${id}`).then(res => res.data);
