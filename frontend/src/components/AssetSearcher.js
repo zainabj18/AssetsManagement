@@ -9,7 +9,7 @@ import { fetchTags } from '../api';
 import { fetchProjects } from '../api';
 import { fetchAssetClassifications} from '../api';
 
-const AssetSearcher = () => {
+const AssetSearcher = ({filerFunc}) => {
 	const [types, setTypes] = useState([]);
 	const [classifications, setClassifications] = useState([]);
 	const [projects, setProjects] = useState([]);
@@ -62,7 +62,12 @@ const AssetSearcher = () => {
 		setInputFields(data);
 	};
 
+	const test = () => {
+		filerFunc(searchData);
+	};
+
 	useEffect(() => {
+		console.log(filerFunc);
 		fetchTypesList().then((res) => {
 			let type_ids=res.data.map((type)=>type.type_id);
 			setSearchData((prevAssetState) => ({
@@ -208,6 +213,7 @@ const AssetSearcher = () => {
 					<Button onClick={submit}>Submit</Button>
 				</form>
 			</div>
+			<Button onClick={test}>Filter</Button>
 		</Box>
 	);
 };
