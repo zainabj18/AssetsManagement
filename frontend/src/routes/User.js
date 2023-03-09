@@ -26,9 +26,29 @@ const User = () => {
 		setDeleteObject(data);
 	};
 
-	const saveUser = (e) => {
+	const saveUser = async (e) => {
 		e.preventDefault();
-		console.log(saveobject);
+	  
+		const isFormValid = inputFields.every((field) => {
+		  return field.name !== '' && field.surname !== '' && field.username !== '';
+		});
+	  
+		if (isFormValid) {
+			const userData = {
+				name: inputFields[0].name,
+				surname: inputFields[0].surname,
+				username: inputFields[0].username,
+				account_privileges: inputFields[0].account_privileges,
+				account_type: inputFields[0].account_type
+			};
+	  
+			try {
+				const response = await createUser(userData);
+				console.log(response.data);
+			} catch (error) {
+				console.error(error);
+			}
+		}
 	};
 
 	return (
