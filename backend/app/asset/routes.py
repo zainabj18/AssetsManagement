@@ -1,6 +1,6 @@
 from app.core.utils import protected
 from app.db import DataAccess, UserRole, get_db,Actions
-from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model
+from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model,Project
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
@@ -72,7 +72,8 @@ INNER JOIN attributes on attributes.attribute_id=attributes_values.attribute_id 
 INNER JOIN projects on projects.id=assets_in_projects.project_id WHERE asset_id=%(id)s;""",
                 {"id": id},
             )
-            projects = cur.fetchall()
+            projects = [Project(**row).dict(by_alias=True) for row in cur.fetchall()]
+            print(projects)
             cur.execute(
                 """SELECT tags.id,name FROM assets_in_tags 
 INNER JOIN tags on tags.id=assets_in_tags.tag_id WHERE asset_id=%(id)s;""",
@@ -257,14 +258,15 @@ def list_asset_project(id):
     INNER JOIN projects on projects.id=assets_in_projects.project_id WHERE asset_id=%(id)s;""",
                 {"id": id},
             )
-            selected_projects = list(cur.fetchall())
+            selected_projects = [Project(**row).dict(by_alias=True) for row in cur.fetchall()]
+            
             for x in selected_projects:
                 x["isSelected"] = True
             cur.execute(
                 """SELECT * FROM projects WHERE id not in (SELECT project_id FROM assets_in_projects WHERE asset_id=%(id)s);""",
                 {"id": id},
             )
-            projects = list(cur.fetchall())
+            projects = [Project(**row).dict(by_alias=True) for row in cur.fetchall()]
             selected_projects.extend(projects)
     return {"data": selected_projects}, 200
 
@@ -369,7 +371,7 @@ def update(id, user_id, access_level):
     orgignal_asset=fetch_asset(db,id,access_level)
     orgignal_asset=json.loads(orgignal_asset.json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     orgignal_asset["tags"]=[tag["id"]for tag in orgignal_asset["tags"]]
-    orgignal_asset["projects"]=[project["id"]for project in orgignal_asset["projects"]]
+    orgignal_asset["projects"]=[project["projectID"]for project in orgignal_asset["projects"]]
     orgignal_asset["assets"]=[a["asset_id"]for a in orgignal_asset["assets"]]
     projects_removed=list(set(orgignal_asset["projects"])-set(asset["projects"]))
     projects_added=list(set(asset["projects"])-set(orgignal_asset["projects"]))
