@@ -152,3 +152,6 @@ export const makeBackfill = async (data) => {
 export const createUser = async (id) => {
 	return await axios.post('/auth/regiser', id).then(res => res.data);
 };
+export const deleteUserAcc = async (id) => {
+	return await axios.post('/auth/regiser', id).then(res => res.data);
+};
