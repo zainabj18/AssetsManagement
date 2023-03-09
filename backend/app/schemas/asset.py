@@ -23,7 +23,7 @@ class FilterSearch(BaseModel):
     tags:List[int]=[]
     projects:List[int]=[]
     types:List[int]=[]
-    classifications:List[DataAccess]=list(DataAccess)
+    classifications:List[DataAccess]=[]
     attributes:List[AttributeSearcher]=[]
     operation: QueryOperation = Field(QueryOperation.OR, alias="operation")
     tag_operation: QueryOperation = Field(QueryOperation.OR, alias="tagOperation")
