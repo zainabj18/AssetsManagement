@@ -450,5 +450,14 @@ def test_assets_filter_type(client, new_assets):
     asset_ids=[new_assets[0].asset_id,new_assets[1].asset_id,new_assets[2].asset_id]
     res = client.post("/api/v1/asset/filter", json={"type":filter_type})
     assert res.status_code == 200
-    print(asset_ids)
     assert set(res.json["data"])==set(asset_ids)
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_assets_filter_attribute_equals_name(client, new_assets):
+    res = client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-1,"attributeValue":new_assets[0].name,"operation":"EQUALS"}]})
+    assert res.status_code == 200
+    assert set(res.json["data"])==set([new_assets[0].asset_id])
