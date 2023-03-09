@@ -9,7 +9,7 @@ import { fetchTags } from '../api';
 import { fetchProjects } from '../api';
 import { fetchAssetClassifications} from '../api';
 
-const FilterBasedSearch = () => {
+const AssetSearcher = () => {
 	const [types, setTypes] = useState([]);
 	const [classifications, setClassifications] = useState([]);
 	const [projects, setProjects] = useState([]);
@@ -17,6 +17,13 @@ const FilterBasedSearch = () => {
 	const [inputFields, setInputFields] = useState([
 		{ name: '', values: '' }
 	]);
+	const [searchData, setSearchData] = useState([
+		{ tag:[]}
+	]);
+
+	const handleCheckBoxChange = (name,id,value) => {
+		console.log(name,id,value);
+	};
 
 	const handleFormChange = (index, event) => {
 		let data = [...inputFields];
@@ -76,7 +83,7 @@ const FilterBasedSearch = () => {
 						<VStack align={'left'}>
 							{types.map((type) => {
 								return ( 
-									<Checkbox colorScheme='green' defaultChecked>{type.type_name}</Checkbox>
+									<Checkbox colorScheme='green' defaultChecked onChange={(e) => handleCheckBoxChange('type',type.type_id,e.target.checked)}>{type.type_name}</Checkbox>
 								);
 							})}
 						</VStack>
@@ -165,4 +172,4 @@ const FilterBasedSearch = () => {
 		</Box>
 	);
 };
-export default FilterBasedSearch;
+export default AssetSearcher;
