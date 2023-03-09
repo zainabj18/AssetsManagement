@@ -25,7 +25,7 @@ const User = () => {
 		setDeleteObject(data);
 	};
 
-	const saveObject = (e) => {
+	const saveUser = (e) => {
 		e.preventDefault();
 		console.log(saveobject);
 	};
@@ -70,7 +70,7 @@ const User = () => {
 
 				{inputFields.map((index) => {return (
 					<Stack direction='row' align='center' mt={8}>
-						<Button colorScheme='blue' variant='solid' size='md' onClick={saveObject}>
+						<Button colorScheme='blue' variant='solid' size='md' onClick={saveUser}>
 				Save
 						</Button>
 						<Button colorScheme='red' variant='solid' size='md' onClick={deleteObject}>
