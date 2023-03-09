@@ -8,7 +8,6 @@ import { fetchTypesList } from '../api';
 import { fetchAllAttributes,fetchTags } from '../api';
 import { fetchProjects } from '../api';
 import { fetchAssetClassifications} from '../api';
-import SearchSelect from './SearchSelect';
 
 const RadioButtons=({name,changeFunc})=>{
 	return (<RadioGroup defaultValue="OR" onChange={e=>changeFunc(name,e)}>

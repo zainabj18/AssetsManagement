@@ -92,10 +92,18 @@ class TypeBase(BaseModel):
 
 
 class Project(BaseModel):
-    id: Optional[int]
-    name: str
-    description: str
+    id: Optional[int]=Field(None, alias="projectID")
+    name: str=Field(..., alias="projectName")
+    description: Optional[str]=Field(..., alias="projectDescription")
+    accounts: Optional[List[int]]
 
+    class Config:
+        allow_population_by_field_name = True
+        extra = Extra.allow
+
+class People(BaseModel):
+    account_id: Optional[int]
+    username: str
 
 class AssetBase(BaseModel):
     name: str

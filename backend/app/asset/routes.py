@@ -1,6 +1,6 @@
 from app.core.utils import protected
-from app.db import DataAccess, UserRole, get_db
-from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model
+from app.db import DataAccess, UserRole, get_db,Actions
+from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model,Project
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
@@ -72,7 +72,8 @@ INNER JOIN attributes on attributes.attribute_id=attributes_values.attribute_id 
 INNER JOIN projects on projects.id=assets_in_projects.project_id WHERE asset_id=%(id)s;""",
                 {"id": id},
             )
-            projects = cur.fetchall()
+            projects = [Project(**row).dict(by_alias=True) for row in cur.fetchall()]
+            print(projects)
             cur.execute(
                 """SELECT tags.id,name FROM assets_in_tags 
 INNER JOIN tags on tags.id=assets_in_tags.tag_id WHERE asset_id=%(id)s;""",
@@ -98,7 +99,8 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
     return asset
 
 @bp.route("/", methods=["POST"])
-def create():
+@protected(role=UserRole.USER)
+def create(user_id, access_level):
     # validate json
     try:
         try:
@@ -225,7 +227,12 @@ WHERE attributes_in_types.type_version=%(type_id)s;""",{"type_id": asset.version
                         "value": attribute.attribute_value,
                     },
                 )
-
+            cur.execute(
+                    """
+                INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
+        VALUES (1,%(account_id)s,%(asset_id)s,%(diff)s,%(action)s);""",
+                    {"account_id":user_id,"asset_id":asset_id,"diff":json.dumps({}),"action":Actions.ADD},
+                )
     return {"msg": "Added asset", "data": asset_id}, 200
 
 
@@ -251,14 +258,15 @@ def list_asset_project(id):
     INNER JOIN projects on projects.id=assets_in_projects.project_id WHERE asset_id=%(id)s;""",
                 {"id": id},
             )
-            selected_projects = list(cur.fetchall())
+            selected_projects = [Project(**row).dict(by_alias=True) for row in cur.fetchall()]
+            
             for x in selected_projects:
                 x["isSelected"] = True
             cur.execute(
                 """SELECT * FROM projects WHERE id not in (SELECT project_id FROM assets_in_projects WHERE asset_id=%(id)s);""",
                 {"id": id},
             )
-            projects = list(cur.fetchall())
+            projects = [Project(**row).dict(by_alias=True) for row in cur.fetchall()]
             selected_projects.extend(projects)
     return {"data": selected_projects}, 200
 
@@ -363,7 +371,7 @@ def update(id, user_id, access_level):
     orgignal_asset=fetch_asset(db,id,access_level)
     orgignal_asset=json.loads(orgignal_asset.json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     orgignal_asset["tags"]=[tag["id"]for tag in orgignal_asset["tags"]]
-    orgignal_asset["projects"]=[project["id"]for project in orgignal_asset["projects"]]
+    orgignal_asset["projects"]=[project["projectID"]for project in orgignal_asset["projects"]]
     orgignal_asset["assets"]=[a["asset_id"]for a in orgignal_asset["assets"]]
     projects_removed=list(set(orgignal_asset["projects"])-set(asset["projects"]))
     projects_added=list(set(asset["projects"])-set(orgignal_asset["projects"]))
@@ -374,16 +382,12 @@ def update(id, user_id, access_level):
     diff_dict=asset_differ(orgignal_asset,asset)
     with db.connection() as conn:
         with conn.cursor() as cur:
+            
             cur.execute(
-                """SELECT type FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",
-                {"asset_ids":assets_added})
+                """SELECT version_id FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",
+                {"asset_ids":asset["assets"]})
             asset_types=set([x[0] for x in cur.fetchall()])
-            cur.execute(
-                        """SELECT type_id FROM types WHERE type_name=%(name)s;""",
-                        {"name":asset["type"]},
-                    )
-            type_id=cur.fetchone()[0]
-            cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(type_id)s;""",{"type_id": type_id})
+            cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(type_id)s;""",{"type_id": asset["version_id"]})
             dependents= set([x[0] for x in cur.fetchall()])
             if not asset_types.issuperset(dependents):
                 return (
@@ -398,9 +402,9 @@ def update(id, user_id, access_level):
                 )
             cur.execute(
                     """
-                INSERT INTO asset_logs (account_id,asset_id,diff)
-        VALUES (%(account_id)s,%(asset_id)s,%(diff)s);""",
-                    {"account_id":user_id,"asset_id":asset["asset_id"],"diff":json.dumps(diff_dict)},
+                INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
+        VALUES (1,%(account_id)s,%(asset_id)s,%(diff)s,%(action)s);""",
+                    {"account_id":user_id,"asset_id":asset["asset_id"],"diff":json.dumps(diff_dict),"action":Actions.CHANGE},
                 )
             cur.execute(
                 """
@@ -440,12 +444,23 @@ def update(id, user_id, access_level):
                     {"asset_id": asset["asset_id"], "project_id": project},
                 )
             # updates metadatat values
+            print(asset["metadata"],"hello")
             for attribute in asset["metadata"]:
+                # cur.execute(
+                #     """
+                # UPDATE attributes_values 
+                # SET value=%(attributeValue)s WHERE asset_id=%(asset_id)s AND attribute_id=%(attributeID)s;""",
+                #     {"asset_id": id, **attribute},
+                # )
                 cur.execute(
                     """
-                UPDATE attributes_values 
-                SET value=%(attributeValue)s WHERE asset_id=%(asset_id)s AND attribute_id=%(attributeID)s;""",
-                    {"asset_id": id, **attribute},
+                INSERT INTO attributes_values (asset_id,attribute_id,value)
+        VALUES (%(asset_id)s,%(attributeID)s,%(attributeValue)s) ON CONFLICT (asset_id,attribute_id) DO UPDATE
+SET value = EXCLUDED.value""",
+                    {
+                        "asset_id": id,
+                        **attribute
+                    },
                 )
             
     return {}, 200
@@ -457,12 +472,13 @@ def logs(id, user_id, access_level):
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=dict_row) as cur:
             cur.execute(
-                """SELECT * FROM asset_logs
-WHERE asset_id=%(asset_id)s
+                """SELECT * FROM audit_logs
+WHERE object_id=%(asset_id)s AND model_id=1
 ORDER BY date ASC;""",
                 {"asset_id": id},
             )
             logs = cur.fetchall()
+            print(logs)
             for log in logs:
                 if username := get_user_by_id(db,log["account_id"]):
                     username = username[0]

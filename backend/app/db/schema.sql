@@ -1,5 +1,6 @@
 DROP TYPE IF EXISTS account_role CASCADE;
 DROP TYPE IF EXISTS data_classification CASCADE;
+DROP TYPE IF EXISTS actions CASCADE;
 DROP TABLE IF EXISTS accounts CASCADE;
 DROP TABLE IF EXISTS assets CASCADE;
 DROP TABLE IF EXISTS tags CASCADE;
@@ -16,7 +17,11 @@ DROP TABLE IF EXISTS asset_logs CASCADE;
 DROP TABLE IF EXISTS assets_in_assets CASCADE;
 DROP TABLE IF EXISTS type_version_link CASCADE;
 DROP TABLE IF EXISTS type_version CASCADE;
+DROP TABLE IF EXISTS tracked_models CASCADE;
+DROP TABLE IF EXISTS audit_logs CASCADE;
 
+
+CREATE TYPE actions AS ENUM ('ADD', 'CHANGE', 'DELETE');
 CREATE TYPE account_role AS ENUM ('VIEWER', 'USER', 'ADMIN');
 CREATE TYPE data_classification AS ENUM ('PUBLIC', 'INTERNAL','RESTRICTED','CONFIDENTIAL');
 
@@ -42,7 +47,7 @@ CREATE TABLE tags
 CREATE TABLE projects
 (
 	id SERIAL,
-	name VARCHAR NOT NULL,
+	name VARCHAR NOT NULL UNIQUE,
 	description VARCHAR,
 	PRIMARY KEY (id)
 );
@@ -115,15 +120,6 @@ CREATE TABLE attributes
 	PRIMARY KEY (asset_id,project_id)
 );
 
- CREATE TABLE assets_in_assets
-(
-	from_asset_id INTEGER,
-	to_asset_id INTEGER,
-	FOREIGN KEY (from_asset_id) REFERENCES assets(asset_id),
-	FOREIGN KEY (to_asset_id) REFERENCES assets(asset_id),
-	PRIMARY KEY (from_asset_id,to_asset_id)
-);
-
 CREATE TABLE attributes_values
  (
  	attribute_id INTEGER,
@@ -146,6 +142,7 @@ CREATE TABLE asset_logs
 	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
  );
 
+
  CREATE TABLE type_version_link
  (
 	type_version_from INTEGER,
@@ -164,3 +161,40 @@ CREATE TABLE people_in_projects
 	FOREIGN KEY (project_id) REFERENCES projects(id),
 	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
 );
+
+ CREATE TABLE assets_in_assets
+(
+	from_asset_id INTEGER,
+	to_asset_id INTEGER,
+	FOREIGN KEY (from_asset_id) REFERENCES assets(asset_id),
+	FOREIGN KEY (to_asset_id) REFERENCES assets(asset_id),
+	PRIMARY KEY (from_asset_id,to_asset_id)
+);
+
+ CREATE TABLE tracked_models(
+	model_id SERIAL,
+	model_name VARCHAR NOT NULL UNIQUE,
+	PRIMARY KEY (model_id)
+);
+
+CREATE TABLE audit_logs
+ (
+ 	log_id SERIAL,
+	account_id INTEGER,
+	object_id INTEGER,
+ 	model_id INTEGER,
+	action actions,
+	diff JSON,
+	date timestamp NOT NULL DEFAULT now(),
+ 	PRIMARY KEY (log_id),
+	FOREIGN KEY (model_id) REFERENCES tracked_models(model_id),
+	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
+ );
+
+ INSERT INTO tracked_models(model_id,model_name) 
+ VALUES
+ (1,'assets'),
+ (2,'projects'),
+ (3,'type'),
+ (4,'tags'),
+ (5,'accounts');

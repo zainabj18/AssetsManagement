@@ -1,10 +1,13 @@
-from enum import Enum
+from enum import Enum,auto
 from functools import total_ordering
 
 from flask import current_app, g
 from psycopg.types.enum import EnumInfo, register_enum
 from psycopg_pool import ConnectionPool
-
+class Actions(Enum):
+    ADD = auto()
+    CHANGE =auto()
+    DELETE =auto()
 
 @total_ordering
 class UserRole(Enum):

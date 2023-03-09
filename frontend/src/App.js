@@ -26,6 +26,7 @@ import RelatedTo from './routes/assets/RelatedTo';
 import AttributeViewer from './routes/AttributeViewer';
 import ProjectViewer from './routes/ProjectViewer';
 import TypeEditor from './routes/TypeEditor';
+import Logs from './routes/Logs';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -37,7 +38,7 @@ function App() {
 					<Route path="assets/" element={<SubLayout name="Assets"/>}>
 						<Route index element={<AssetsOverview />} />
 						<Route path="new" element={<CreateAsset />} />
-						<Route path="view/:id" element={<AssetOverview />}>
+						<Route path=":id" element={<AssetOverview />}>
 							<Route index element={<AssetViewer canEdit={true} isNew={false}/>} />	
 							<Route path="logs" element={<AssetLogs />} />	
 							<Route path="tags" element={<RelatedTags />} />	
@@ -64,6 +65,7 @@ function App() {
 					</Route>
 					<Route path="accounts" element={<AdminManager />} />
 					<Route path="user" element={<User />} />
+					<Route path="logs" element={<Logs />} />
 				</Route>
 				<Route path="*" element={<NoMatch />} />
 			</Routes>

@@ -49,6 +49,7 @@ const TagViewer = () => {
 
 	const handleRename=(t)=>{
 		updateTag(id,{id:id,name:t});
+		navigate(0);
 	};
 	useEffect(() => {
 		fetchAssetsinTag(id).then((res)=>{setAssets(res.data.assets);
@@ -59,7 +60,6 @@ const TagViewer = () => {
 	return ( <VStack bg={'whiteAlpha.500'} h={'100%'} w={'100%'} p={2}>
 		{tag &&<Editable
 			textAlign="center"
-			defaultValue={tag}
 			startWithEditView={false}
 			submitOnBlur={false}
 			isDisabled={!(user && user.userRole === 'ADMIN')}
@@ -70,11 +70,12 @@ const TagViewer = () => {
 			}}
 			width="full"
 			fontSize='6xl'
+			value={tag}
 		>
 			<Tooltip label={(user && user.userRole === 'ADMIN') ? 'Click to edit name':''}>
 				<EditablePreview px={6} minW={'100%'}  bgSize={'400px'} />
 			</Tooltip>
-			<Input type='text' as={EditableInput}/>	
+			<Input type='text' as={EditableInput} onChange={e=>{setTag(e.target.value);}}/>	
 			<SaveControl />
 		</Editable>}
 		<AssetTable assets={assetsin} setSelectedAssets={setSelectedAssets} preSelIDs={[]}/>

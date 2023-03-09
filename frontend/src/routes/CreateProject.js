@@ -6,62 +6,131 @@ import {
 	Box,
 	VStack,
 	Button,
-	Flex
+	Flex,
+	Checkbox, useBoolean,
+	HStack,
+	FormErrorMessage
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
-import {createProject} from '../api.js';
+import {createProject, fetchPeople, fetchProjects} from '../api.js';
+import NewTag from '../components/NewTag';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
 
 
 const CreateProject = () => {
 	const[newName, setNewName] = useState('');
 	const[newDescription, setNewDescription] = useState('');
+	const [toggle, set_toggle] = useBoolean();
+	const [selectedPeople, setSelectedPeople] = useState([]);
+	const [allPeople, setAllPeople] = useState([]);
+	const [projects, setProjects] = useState([]);
+	const [formError, setFormError] = useState('');
+
 	let navigate=useNavigate();
 
-	const changeName = (name) => {
-		setNewName(name);
-	};
 
 	const changeDescription = (description) => {
 		setNewDescription(description);
 	};
 
-	const addProject = () => {
-		createProject({ name: newName, description: newDescription }).then(_ => {
-			navigate('../');
-		});
+	//projectName
+
+	const isProjectNameIn = (projectName, list) => {
+		let index;
+		for (index = 0; index < list.length; index++) {
+			if (list[index].projectName === projectName) {
+				return true;
+			}
+		}
+		return false;
 	};
 
-	return (
-		<VStack minW="100vw" spacing={3}>
-			<Text fontSize='3xl'>Create Project</Text>
-			<Box bg='white' w='100%' p={7} color='black'>
-				<FormControl isRequired>
-					<FormLabel color={'black'}>Project Name</FormLabel>
+	const addProject = () => {
+		console.log(newName);
+		console.log(projects);
+		if (isProjectNameIn(newName, projects)) {
+			setFormError('This project name is already used');
+		}else{
+			createProject({ name: newName, description: newDescription, accounts: selectedPeople }).then(_ => {
+				navigate('../');
+			});
+		}
+
+	};
+ 
+
+	
+	const adjustSelectedPeople = (checked, value) => {
+		let list = selectedPeople;
+		if (checked){
+			list.push(value);
+		}
+		if(!checked){
+			let index = list.indexOf(value);
+			list.splice(index,1);
+		}
+		setSelectedPeople(list);
+	};
+	
+	
+	  useEffect(() => {
+		async function load_allPeople() {
+			let data = await fetchPeople();
+			console.log(data);
+			setAllPeople(data.data);
+		}
+		load_allPeople();
+
+		async function load_allProjects() {
+			let data = await fetchProjects();
+			setProjects(data.data);
+			
+		}
+		load_allProjects();
+	}, [toggle]);
+
+
+	return (<Flex w='100%' minH='80vh' alignItems={'stretch'} p={2} border>
+		
+		<Box w='100%' minH='100%' bg='white' alignItems='left'>
+			
+			<VStack p={3} >
+				<FormControl isInvalid = {formError !== ''}>
 					<Input
 						type="text"
 						placeholder="Project Name"
 
-						onChange={(event) => changeName(event.target.value)}
+						onChange={(event) => setNewName(event.target.value)}
 						name="name"
 					/>
+					<FormErrorMessage>{formError}</FormErrorMessage>
 				</FormControl>
-				<FormControl isRequired>
-					<FormLabel color={'black'}>Description</FormLabel>
-					<Input
-						type="text"
-						placeholder="Description"
-						onChange={(event) => changeDescription(event.target.value)}
-						name="description"
-					/>
-				</FormControl>
-			</Box>
-			<Flex minWidth='max-content' alignItems='center' gap='4'>
+				<Input
+					type="text"
+					placeholder="Description"
+					onChange={(event) => changeDescription(event.target.value)}
+					name="description"
+				/>
+				<Text>Add People To Project</Text>
+				<Box alignItems='left'>
+					{allPeople.map((person, index) => {
+						return (
+							<Checkbox
+								onChange={(e) => adjustSelectedPeople(e.target.checked, person.accountID)}>
+						    {person.username}
+							</Checkbox>
+						);
+					})}
+				</Box>
+			</VStack>
+			<HStack>
 				<Button onClick={addProject}>Save Project</Button>
-			</Flex>
-			
-		</VStack>
+			</HStack>
+		</Box>		
+	</Flex>
 
 	);
 };

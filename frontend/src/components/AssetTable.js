@@ -13,7 +13,7 @@ const AssetTable = ({assets,setSelectedAssets,preSelIDs,cols}) => {
 			'asset_id':{
 				header: 'Asset ID',
 				canFilter:true,
-				Cell:(rowID,value)=><Link to={`/assets/view/${value}`} as={NavLink}>{value}</Link>
+				Cell:(rowID,value)=><Link to={`/assets/${value}`} as={NavLink}>{value}</Link>
 			},
 			'name':{
 				header: 'Asset Name',
