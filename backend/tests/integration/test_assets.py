@@ -462,7 +462,7 @@ SET version_number = %(version_number)s WHERE version_id=%(version_id)s""",
         assert res.status_code == 200
         assert res.json["msg"] == "upgrade needed"
         assert res.json["canUpgrade"]==True
-        assert len(res.json["data"])==2
+        assert len(res.json["data"])==3
         new_attributes_counter=0
         for a in max_version_attributes:
             if a.attribute_id not in old_version_attributes_id:
@@ -479,6 +479,7 @@ SET version_number = %(version_number)s WHERE version_id=%(version_id)s""",
 
         print(removed_names)
         assert set(res.json["data"][1])==set(removed_names)
+        assert res.json["data"][2]==max_version_id
 @pytest.mark.parametrize(
     "new_assets",
     [{"batch_size": 1}],

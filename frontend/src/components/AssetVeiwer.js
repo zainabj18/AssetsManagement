@@ -145,6 +145,7 @@ const AssetViewer = () => {
 		console.log(newMetadata);
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
+			version_id:upgradeData[2],
 			metadata: newMetadata,
 		}));
 		setUpgradeable(false);

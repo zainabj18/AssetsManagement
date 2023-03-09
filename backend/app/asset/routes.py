@@ -406,10 +406,11 @@ def update(id, user_id, access_level):
         VALUES (1,%(account_id)s,%(asset_id)s,%(diff)s,%(action)s);""",
                     {"account_id":user_id,"asset_id":asset["asset_id"],"diff":json.dumps(diff_dict),"action":Actions.CHANGE},
                 )
+            print(asset)
             cur.execute(
                 """
             UPDATE assets 
-            SET name=%(name)s,link=%(link)s,description=%(description)s,classification=%(classification)s,last_modified_at=now() WHERE asset_id=%(asset_id)s ;""",
+            SET name=%(name)s,link=%(link)s,description=%(description)s,version_id=%(version_id)s,classification=%(classification)s,last_modified_at=now() WHERE asset_id=%(asset_id)s ;""",
                 asset,
             )
             cur.execute("""
@@ -849,4 +850,4 @@ WHERE asset_id=%(asset_id)s;""",
             for attribute in old_attributes:
                 if not attribute in new_attributes:
                     removed_attributes_names.append(attribute.attribute_name)
-            return {"msg":"upgrade needed","data":[added_attributes,removed_attributes_names],"canUpgrade":True}
+            return {"msg":"upgrade needed","data":[added_attributes,removed_attributes_names,max_version["version_id"]],"canUpgrade":True}
