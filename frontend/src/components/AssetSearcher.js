@@ -18,9 +18,8 @@ const AssetSearcher = () => {
 		{ name: '', values: '' }
 	]);
 	const [searchData, setSearchData] = useState(
-		{ tags:[],types:[]}
+		{ tags:[],types:[],projects:[],classifications:[],attributes:[]}
 	);
-
 	const handleCheckBoxChange = (name,id,value) => {
 		console.log(name,id,value);
 		let oldValues=searchData[name];
@@ -38,6 +37,7 @@ const AssetSearcher = () => {
 			...prevAssetState,
 			[name]: oldValues,
 		}));
+		console.log(searchData);
 	};
 
 	const handleFormChange = (index, event) => {
@@ -98,7 +98,7 @@ const AssetSearcher = () => {
 						<VStack align={'left'}>
 							{types.map((type) => {
 								return ( 
-									<Checkbox colorScheme='green' defaultChecked onChange={(e) => handleCheckBoxChange('types',type.type_id,e.target.checked)}>{type.type_name}</Checkbox>
+									<Checkbox defaultChecked onChange={(e) => handleCheckBoxChange('types',type.type_id,e.target.checked)}>{type.type_name}</Checkbox>
 								);
 							})}
 						</VStack>
@@ -115,7 +115,7 @@ const AssetSearcher = () => {
 						<VStack align={'left'}>
 							{tags.map((tag) => {
 								return ( 
-									<Checkbox colorScheme='green' defaultChecked>{tag.name}</Checkbox>
+									<Checkbox defaultChecked onChange={(e) => handleCheckBoxChange('tags',tag.id,e.target.checked)}>{tag.name}</Checkbox>
 								);
 							})}
 						</VStack>
@@ -132,7 +132,7 @@ const AssetSearcher = () => {
 						<VStack align={'left'}>
 							{projects.map((project) => {
 								return ( 
-									<Checkbox colorScheme='green' defaultChecked>{project.name}</Checkbox>
+									<Checkbox defaultChecked onChange={(e) => handleCheckBoxChange('projects',project.id,e.target.checked)}>{project.name}</Checkbox>
 								);
 							})}
 						</VStack>
@@ -149,7 +149,8 @@ const AssetSearcher = () => {
 						<VStack align={'left'}>
 							{classifications.map((classification) => {
 								return ( 
-									<Checkbox colorScheme='green' defaultChecked>{classification}</Checkbox>
+							
+									<Checkbox defaultChecked onChange={(e) => handleCheckBoxChange('classifications',classification,e.target.checked)}>{classification}</Checkbox>
 								); 
 							})}
 						</VStack>

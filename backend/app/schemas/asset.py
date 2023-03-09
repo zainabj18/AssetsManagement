@@ -20,7 +20,7 @@ class AttributeSearcher(BaseModel):
 class FilterSearch(BaseModel):
     tags:List[int]=[]
     projects:List[int]=[]
-    type:List[int]=[]
+    types:List[int]=[]
     classifications:List[DataAccess]=list(DataAccess)
     attributes:List[AttributeSearcher]=[]
 
