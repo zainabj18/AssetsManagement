@@ -9,6 +9,8 @@ class QueryOperation(Enum):
     EQUALS = "EQUALS"
     LIKE = "LIKE"
     HAS="HAS"
+    AND="AND"
+    OR="OR"
 
 class AttributeSearcher(BaseModel):
     attribute_id: Any = Field(..., alias="attributeID")
@@ -23,6 +25,12 @@ class FilterSearch(BaseModel):
     types:List[int]=[]
     classifications:List[DataAccess]=list(DataAccess)
     attributes:List[AttributeSearcher]=[]
+    operation: QueryOperation = Field(QueryOperation.OR, alias="operation")
+    tag_operation: QueryOperation = Field(QueryOperation.OR, alias="tagOperation")
+    project_operation: QueryOperation = Field(QueryOperation.OR, alias="projectOperation")
+    class Config:
+        allow_population_by_field_name = True
+    
 
 class TagBase(BaseModel):
     id: Optional[int]
