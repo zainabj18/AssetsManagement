@@ -4,6 +4,8 @@ from typing import Any, List, Optional
 from app.db import DataAccess
 from pydantic import BaseModel, Field, ValidationError, root_validator, validator,Extra
 
+class FilterSearch(BaseModel):
+    tags:List[int]
 
 class TagBase(BaseModel):
     id: Optional[int]
