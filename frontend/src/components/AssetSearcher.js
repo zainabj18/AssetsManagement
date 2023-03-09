@@ -69,34 +69,17 @@ const AssetSearcher = ({filerFunc}) => {
 	useEffect(() => {
 		console.log(filerFunc);
 		fetchTypesList().then((res) => {
-			let type_ids=res.data.map((type)=>type.type_id);
-			setSearchData((prevAssetState) => ({
-				...prevAssetState,
-				types: type_ids,
-			}));
 			setTypes(res.data);
 		}
 		);
 
 		fetchTags().then((res) => {
-			let tag_ids=res.data.map((tag)=>tag.id);
-			console.log(tag_ids);
-			setSearchData((prevAssetState) => ({
-				...prevAssetState,
-				tags: tag_ids,
-			}));
 			setTags(res.data);
 
 		}
 		);
 
 		fetchProjects().then((res) => {
-			let project_ids=res.data.map((project)=>project.id);
-			console.log(project_ids);
-			setSearchData((prevAssetState) => ({
-				...prevAssetState,
-				projects: project_ids,
-			}));
 			setProjects(res.data);
 		}
 		);
@@ -126,7 +109,7 @@ const AssetSearcher = ({filerFunc}) => {
 						<VStack align={'left'}>
 							{types.map((type) => {
 								return ( 
-									<Checkbox defaultChecked onChange={(e) => handleCheckBoxChange('types',type.type_id,e.target.checked)}>{type.type_name}</Checkbox>
+									<Checkbox  onChange={(e) => handleCheckBoxChange('types',type.type_id,e.target.checked)}>{type.type_name}</Checkbox>
 								);
 							})}
 						</VStack>
@@ -143,7 +126,7 @@ const AssetSearcher = ({filerFunc}) => {
 						<VStack align={'left'}>
 							{tags.map((tag) => {
 								return ( 
-									<Checkbox defaultChecked onChange={(e) => handleCheckBoxChange('tags',tag.id,e.target.checked)}>{tag.name}</Checkbox>
+									<Checkbox  onChange={(e) => handleCheckBoxChange('tags',tag.id,e.target.checked)}>{tag.name}</Checkbox>
 								);
 							})}
 						</VStack>
@@ -160,7 +143,7 @@ const AssetSearcher = ({filerFunc}) => {
 						<VStack align={'left'}>
 							{projects.map((project) => {
 								return ( 
-									<Checkbox defaultChecked onChange={(e) => handleCheckBoxChange('projects',project.id,e.target.checked)}>{project.name}</Checkbox>
+									<Checkbox  onChange={(e) => handleCheckBoxChange('projects',project.id,e.target.checked)}>{project.name}</Checkbox>
 								);
 							})}
 						</VStack>
@@ -178,7 +161,7 @@ const AssetSearcher = ({filerFunc}) => {
 							{classifications.map((classification) => {
 								return ( 
 							
-									<Checkbox defaultChecked onChange={(e) => handleCheckBoxChange('classifications',classification,e.target.checked)}>{classification}</Checkbox>
+									<Checkbox  onChange={(e) => handleCheckBoxChange('classifications',classification,e.target.checked)}>{classification}</Checkbox>
 								); 
 							})}
 						</VStack>
