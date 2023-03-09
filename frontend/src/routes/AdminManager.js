@@ -56,9 +56,15 @@ const AdminManager = () => {
 		setInputField(data);
 	};
 
-	const accountDetails = (e) => {
-		e.preventDefault();
-		console.log(accountdetails);
+	const loadAccountDetails = async (account_id) => {
+		try {
+			const res = await getAccountDetails(account_id);
+			setAccountDetails(res.data);
+			console.log(accountdetails);
+			navigate('/user');
+		} catch (e) {
+			console.error(e);
+		}
 	};
 
 	const pass_func = (e) => {
