@@ -125,7 +125,9 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
                     db_conn.commit()
     if (add_to_db):
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
-            cur.execute("""SELECT * FROM assets WHERE soft_delete=0;""")
+            cur.execute("""SELECT *,
+ARRAY(SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=assets.asset_id) as tags
+FROM assets;""")
             assets = cur.fetchall()
             return assets
     return batch_result
