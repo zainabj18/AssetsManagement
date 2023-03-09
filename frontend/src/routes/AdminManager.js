@@ -25,6 +25,7 @@ import {
 import useAuth from '../hooks/useAuth';
 import { Link } from '@chakra-ui/react';
 import { getUsers } from '../api';
+import { getAccountDetails } from '../api';
 
 const AdminManager = () => {
 
