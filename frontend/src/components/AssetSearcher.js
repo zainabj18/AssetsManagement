@@ -64,23 +64,47 @@ const AssetSearcher = () => {
 
 	useEffect(() => {
 		fetchTypesList().then((res) => {
+			let type_ids=res.data.map((type)=>type.type_id);
+			setSearchData((prevAssetState) => ({
+				...prevAssetState,
+				types: type_ids,
+			}));
 			setTypes(res.data);
 		}
 		);
 
 		fetchTags().then((res) => {
+			let tag_ids=res.data.map((tag)=>tag.id);
+			console.log(tag_ids);
+			setSearchData((prevAssetState) => ({
+				...prevAssetState,
+				tags: tag_ids,
+			}));
 			setTags(res.data);
+
 		}
 		);
 
 		fetchProjects().then((res) => {
+			let project_ids=res.data.map((project)=>project.id);
+			console.log(project_ids);
+			setSearchData((prevAssetState) => ({
+				...prevAssetState,
+				projects: project_ids,
+			}));
 			setProjects(res.data);
 		}
 		);
 
 		fetchAssetClassifications().then((res) => {
 			setClassifications(res.data);
+			setSearchData((prevAssetState) => ({
+				...prevAssetState,
+				classifications: res.data,
+			}));
 		}
+
+		
 		);
 	}, []);
 
