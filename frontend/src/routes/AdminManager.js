@@ -1,29 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { VStack, Text} from '@chakra-ui/react';
+import { VStack, Text, Input, Stack, Button, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Accordion, AccordionItem, 
+	AccordionButton, AccordionPanel, AccordionIcon, Box, Link} from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
-import { Input, Stack } from '@chakra-ui/react';
-import { Button } from '@chakra-ui/react';
-import {
-	Table,
-	Thead,
-	Tbody,
-	Tr,
-	Th,
-	Td,
-	TableContainer,
-} from '@chakra-ui/react';
-import {
-	Accordion,
-	AccordionItem,
-	AccordionButton,
-	AccordionPanel,
-	AccordionIcon,
-	Box
-} from '@chakra-ui/react';
 import useAuth from '../hooks/useAuth';
-import { Link } from '@chakra-ui/react';
-import { getUsers } from '../api';
-import { getAccountDetails } from '../api';
+import { getUsers, getAccountDetails } from '../api';
 
 const AdminManager = () => {
 
