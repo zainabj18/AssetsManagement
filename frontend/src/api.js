@@ -17,7 +17,9 @@ export const fetchAsset = async (id) => {
 export const fetchAssetClassifications = async () => {
 	return await axios.get('/asset/classifications').then(res => res.data);
 };
-
+export const filterAssets = async (query) => {
+	return await axios.post('/asset/filter',query).then(res => res.data);
+};
 export const fetchTags = async () => {
 	return await axios.get('/tag/').then(res => res.data);
 };
