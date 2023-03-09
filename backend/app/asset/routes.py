@@ -689,6 +689,8 @@ SELECT * FROM attributes_values;
                 match searcher.operation:
                     case QueryOperation.EQUALS:
                         cur.execute("SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values=%(value)s",{"attribute_id":searcher.attribute_id,"value":str(searcher.attribute_value)})
+                    case QueryOperation.HAS:
+                        cur.execute("SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s",{"attribute_id":searcher.attribute_id})
                     case _:
                         cur.execute("SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values like %(value)s",{"attribute_id":searcher.attribute_id,"value":f"%{str(searcher.attribute_value)}%"})
                 filter_asset_ids.append(set([row["asset_id"] for row in cur.fetchall()]))
