@@ -138,7 +138,8 @@ const AssetViewer = () => {
 	};
 
 	const handleUpgrade = (e) => {
-		let newMetadata=assetSate.metadata.filter((attribute) => (attribute.attributeName in upgradeData[1]));
+		console.log(upgradeData);
+		let newMetadata=assetSate.metadata.filter((attribute) => !(attribute.attributeName in upgradeData[1]));
 		console.log(newMetadata);
 		newMetadata=[...newMetadata,...upgradeData[0]];
 		console.log(newMetadata);
