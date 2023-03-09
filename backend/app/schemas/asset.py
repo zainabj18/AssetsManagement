@@ -3,7 +3,34 @@ from typing import Any, List, Optional
 
 from app.db import DataAccess
 from pydantic import BaseModel, Field, ValidationError, root_validator, validator,Extra
+from enum import Enum
 
+class QueryOperation(Enum):
+    EQUALS = "EQUALS"
+    LIKE = "LIKE"
+    HAS="HAS"
+    AND="AND"
+    OR="OR"
+
+class AttributeSearcher(BaseModel):
+    attribute_id: Any = Field(..., alias="attributeID")
+    attribute_value: Any = Field(..., alias="attributeValue")
+    operation:QueryOperation
+
+    class Config:
+        allow_population_by_field_name = True
+class FilterSearch(BaseModel):
+    tags:List[int]=[]
+    projects:List[int]=[]
+    types:List[int]=[]
+    classifications:List[DataAccess]=[]
+    attributes:List[AttributeSearcher]=[]
+    operation: QueryOperation = Field(QueryOperation.OR, alias="operation")
+    tag_operation: QueryOperation = Field(QueryOperation.OR, alias="tagOperation")
+    project_operation: QueryOperation = Field(QueryOperation.OR, alias="projectOperation")
+    class Config:
+        allow_population_by_field_name = True
+    
 
 class TagBase(BaseModel):
     id: Optional[int]
