@@ -429,12 +429,26 @@ def test_assets_filter_projects(client, new_assets):
     indirect=True,
 )
 def test_assets_filter_classification(client, new_assets):
-    filter_classification=["PUBLIC"]
+    filter_classification=["PUBLIC","RESTRICTED"]
     asset_ids=[]
     for asset in new_assets:
         if asset.classification.value in filter_classification:
             asset_ids.append(asset.asset_id)
     res = client.post("/api/v1/asset/filter", json={"classifications":filter_classification})
+    assert res.status_code == 200
+    print(asset_ids)
+    assert set(res.json["data"])==set(asset_ids)
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_assets_filter_type(client, new_assets):
+    filter_type=[new_assets[0].type,new_assets[1].type,new_assets[2].type]
+    asset_ids=[new_assets[0].asset_id,new_assets[1].asset_id,new_assets[2].asset_id]
+    res = client.post("/api/v1/asset/filter", json={"type":filter_type})
     assert res.status_code == 200
     print(asset_ids)
     assert set(res.json["data"])==set(asset_ids)

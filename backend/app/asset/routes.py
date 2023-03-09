@@ -640,7 +640,7 @@ INNER JOIN assets on assets.asset_id=assets_in_assets.from_asset_id WHERE to_ass
 def filter():
     filter = FilterSearch(**request.json)
     db = get_db()
-
+    filter_asset_ids=[]
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=dict_row) as cur:
             cur.execute("""
@@ -648,15 +648,23 @@ def filter():
 WHERE %(tags)s::int[]<@ARRAY(SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=assets.asset_id);
             """,{"tags":filter.tags})
             tags_asset_ids = [row["asset_id"] for row in cur.fetchall()]
+            filter_asset_ids.append(set(tags_asset_ids))
             cur.execute("""
             SELECT asset_id FROM assets
 WHERE %(projects)s::int[]<@ARRAY(SELECT project_id FROM assets_in_projects WHERE assets_in_projects.asset_id=assets.asset_id);
             """,{"projects":filter.projects})
             project_asset_ids = [row["asset_id"] for row in cur.fetchall()]
+            filter_asset_ids.append(set(project_asset_ids))
             cur.execute("""
             SELECT DISTINCT asset_id FROM assets WHERE classification=ANY(%(classification)s);
             """,{"classification":filter.classifications})
             classification_asset_ids = [row["asset_id"] for row in cur.fetchall()]
-            print(classification_asset_ids)
-            asset_id=set.intersection(set(project_asset_ids),set(tags_asset_ids),set(classification_asset_ids))
-    return {"data": list(asset_id)}
+            filter_asset_ids.append(set(classification_asset_ids))
+            if filter.type!=[]:
+                cur.execute("""
+                SELECT DISTINCT asset_id FROM assets WHERE type=ANY(%(type)s);
+                """,{"type":filter.type})
+                type_asset_ids = [row["asset_id"] for row in cur.fetchall()]
+                filter_asset_ids.append(set(type_asset_ids))
+            asset_ids=set.intersection(*filter_asset_ids)
+    return {"data": list(asset_ids)}
