@@ -14,6 +14,7 @@ const User = () => {
 	const [deleteuser, setDeleteUser] = useState([{delete: ''}]);
 	const [saveuser, setSaveUser] = useState([{save: ''}]);
 	const [accountPrivileges, setAccountPrivileges] = useState([]);
+	const [accountTypes, setAccountTypes] = useState([]);
 
 	const handleFormChange = (index, event) => {
 		let data = [...inputFields];
