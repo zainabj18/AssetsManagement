@@ -444,12 +444,23 @@ def update(id, user_id, access_level):
                     {"asset_id": asset["asset_id"], "project_id": project},
                 )
             # updates metadatat values
+            print(asset["metadata"],"hello")
             for attribute in asset["metadata"]:
+                # cur.execute(
+                #     """
+                # UPDATE attributes_values 
+                # SET value=%(attributeValue)s WHERE asset_id=%(asset_id)s AND attribute_id=%(attributeID)s;""",
+                #     {"asset_id": id, **attribute},
+                # )
                 cur.execute(
                     """
-                UPDATE attributes_values 
-                SET value=%(attributeValue)s WHERE asset_id=%(asset_id)s AND attribute_id=%(attributeID)s;""",
-                    {"asset_id": id, **attribute},
+                INSERT INTO attributes_values (asset_id,attribute_id,value)
+        VALUES (%(asset_id)s,%(attributeID)s,%(attributeValue)s) ON CONFLICT (asset_id,attribute_id) DO UPDATE
+SET value = EXCLUDED.value""",
+                    {
+                        "asset_id": id,
+                        **attribute
+                    },
                 )
             
     return {}, 200
