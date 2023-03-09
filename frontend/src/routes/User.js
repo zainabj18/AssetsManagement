@@ -5,25 +5,9 @@ import useAuth from '../hooks/useAuth';
 const User = () => {
 	const { user } = useAuth();
 
-const User = () => {
-	return (
-		<Center height={'100vh'}>
-			<Box bg={'white'} color={'black'} p={10} borderRadius={10} w={'1000px'} mx={'auto'} mb={'100px'}>
-				<Heading mb={'25px'}>Your Profile</Heading>
-				<HStack spacing={'25px'}>
-					<FormControl>
-						<FormLabel>First Name</FormLabel>
-						<Input type='text' placeholder="Name" />
-					</FormControl>
-					<FormControl>
-						<FormLabel>Last Name</FormLabel>
-						<Input type='text' placeholder="Surname" />
-					</FormControl>
-					<FormControl>
-						<FormLabel>Username</FormLabel>
-						<Input type='text' placeholder="Username" />
-					</FormControl>
-				</HStack>
+	useEffect(() => {
+		console.log(user);
+	});
 
 	const [inputFields, setInputFields] = useState([{name: '', surname: '', username: '' }]);
 	const [deleteobject, setDeleteObject] = useState([{delete: ''}]);
@@ -100,4 +84,5 @@ const User = () => {
 };
 
 export default User;
+
 
