@@ -7,8 +7,8 @@ from psycopg.rows import dict_row
 from collections import defaultdict
 from app.schemas.factories import AttributeFactory
 
-def test_new_assset_requires_name(client):
-    res = client.post("/api/v1/asset/", json={})
+def test_new_assset_requires_name(valid_client):
+    res = valid_client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -19,8 +19,8 @@ def test_new_assset_requires_name(client):
     } in res.json["data"]
 
 
-def test_new_assset_requires_link(client):
-    res = client.post("/api/v1/asset/", json={})
+def test_new_assset_requires_link(valid_client):
+    res = valid_client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -31,8 +31,8 @@ def test_new_assset_requires_link(client):
     } in res.json["data"]
 
 
-def test_new_assset_requires_version_id(client):
-    res = client.post("/api/v1/asset/", json={})
+def test_new_assset_requires_version_id(valid_client):
+    res = valid_client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -43,8 +43,8 @@ def test_new_assset_requires_version_id(client):
     } in res.json["data"]
 
 
-def test_new_assset_requires_description(client):
-    res = client.post("/api/v1/asset/", json={})
+def test_new_assset_requires_description(valid_client):
+    res = valid_client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -55,8 +55,8 @@ def test_new_assset_requires_description(client):
     } in res.json["data"]
 
 
-def test_new_assset_requires_tag(client):
-    res = client.post("/api/v1/asset/", json={})
+def test_new_assset_requires_tag(valid_client):
+    res = valid_client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -67,8 +67,8 @@ def test_new_assset_requires_tag(client):
     } in res.json["data"]
 
 
-def test_new_assset_requires_tag(client):
-    res = client.post("/api/v1/asset/", json={})
+def test_new_assset_requires_tag(valid_client):
+    res = valid_client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -79,8 +79,8 @@ def test_new_assset_requires_tag(client):
     } in res.json["data"]
 
 
-def test_new_assset_requires_classification(client):
-    res = client.post("/api/v1/asset/", json={})
+def test_new_assset_requires_classification(valid_client):
+    res = valid_client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -91,8 +91,8 @@ def test_new_assset_requires_classification(client):
     } in res.json["data"]
 
 
-def test_new_assset_requires_metadata(client):
-    res = client.post("/api/v1/asset/", json={})
+def test_new_assset_requires_metadata(valid_client):
+    res = valid_client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -137,8 +137,8 @@ def test_new_assset_requires_metadata(client):
         ),
     ],
 )
-def test_new_assset_tyes_correct(client, attribute, json):
-    res = client.post("/api/v1/asset/", json=json)
+def test_new_assset_tyes_correct(valid_client, attribute, json):
+    res = valid_client.post("/api/v1/asset/", json=json)
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -157,8 +157,8 @@ def test_new_assset_tyes_correct(client, attribute, json):
         ("description", {"description": []}),
     ],
 )
-def test_new_assset_string_types_incorect(client, attribute, json):
-    res = client.post("/api/v1/asset/", json=json)
+def test_new_assset_string_types_incorect(valid_client, attribute, json):
+    res = valid_client.post("/api/v1/asset/", json=json)
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -169,8 +169,8 @@ def test_new_assset_string_types_incorect(client, attribute, json):
     } in res.json["data"]
 
 
-def test_new_assset_tags_list_incorect(client):
-    res = client.post("/api/v1/asset/", json={"tags": ["1", []]})
+def test_new_assset_tags_list_incorect(valid_client):
+    res = valid_client.post("/api/v1/asset/", json={"tags": ["1", []]})
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
     assert {
@@ -180,8 +180,8 @@ def test_new_assset_tags_list_incorect(client):
     } in res.json["data"]
 
 
-def test_new_assset_project_list_incorect(client):
-    res = client.post("/api/v1/asset/", json={"projects": ["1", []]})
+def test_new_assset_project_list_incorect(valid_client):
+    res = valid_client.post("/api/v1/asset/", json={"projects": ["1", []]})
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
     assert {
@@ -191,8 +191,8 @@ def test_new_assset_project_list_incorect(client):
     } in res.json["data"]
 
 
-def test_new_assset_metadata_incorrect_integer(client):
-    res = client.post("/api/v1/asset/", json={"metadata": 1})
+def test_new_assset_metadata_incorrect_integer(valid_client):
+    res = valid_client.post("/api/v1/asset/", json={"metadata": 1})
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
     assert {
@@ -202,8 +202,8 @@ def test_new_assset_metadata_incorrect_integer(client):
     } in res.json["data"]
 
 
-def test_new_assset_metadata_incorrect_mixed_type(client):
-    res = client.post(
+def test_new_assset_metadata_incorrect_mixed_type(valid_client):
+    res = valid_client.post(
         "/api/v1/asset/",
         json={"metadata": [{"s": "s"}, {"attributeName": "s", "attribute_data_type": []}]},
     )
@@ -236,8 +236,8 @@ def test_new_assset_metadata_incorrect_mixed_type(client):
     # } in res.json["data"]
 
 
-def test_new_assset_requires_project(client):
-    res = client.post("/api/v1/asset/", json={})
+def test_new_assset_requires_project(valid_client):
+    res = valid_client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -248,8 +248,8 @@ def test_new_assset_requires_project(client):
     } in res.json["data"]
 
 
-def test_new_assset_incorrect_classification(client):
-    res = client.post("/api/v1/asset/", json={"classification": []})
+def test_new_assset_incorrect_classification(valid_client):
+    res = valid_client.post("/api/v1/asset/", json={"classification": []})
     assert res.status_code == 400
     assert res.json["error"] == "Failed to create asset from the data provided"
     assert res.json["msg"] == "Data provided is invalid"
@@ -267,9 +267,9 @@ def test_get_access_levels(valid_client):
     [{"batch_size": 1}],
     indirect=True,
 )
-def test_new_assets_tags(client, new_assets, db_conn):
+def test_new_assets_tags(valid_client, new_assets, db_conn):
     data = json.loads(new_assets[0].json())
-    res = client.post("/api/v1/asset/", json=data)
+    res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 200
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
@@ -287,9 +287,9 @@ def test_new_assets_tags(client, new_assets, db_conn):
     [{"batch_size": 1}],
     indirect=True,
 )
-def test_new_assets_projects(client, new_assets, db_conn):
+def test_new_assets_projects(valid_client, new_assets, db_conn):
     data = json.loads(new_assets[0].json())
-    res = client.post("/api/v1/asset/", json=data)
+    res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 200
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
@@ -307,9 +307,9 @@ def test_new_assets_projects(client, new_assets, db_conn):
     [{"batch_size": 1}],
     indirect=True,
 )
-def test_new_assets_in_db(client, new_assets, db_conn):
+def test_new_assets_in_db(valid_client, new_assets, db_conn):
     data = json.loads(new_assets[0].json())
-    res = client.post("/api/v1/asset/", json=data)
+    res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 200
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
@@ -330,9 +330,9 @@ def test_new_assets_in_db(client, new_assets, db_conn):
     [{"batch_size": 1}],
     indirect=True,
 )
-def test_new_assets_values(client, new_assets, db_conn):
+def test_new_assets_values(valid_client, new_assets, db_conn):
     data = json.loads(new_assets[0].json())
-    res = client.post("/api/v1/asset/", json=data)
+    res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 200
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
@@ -396,13 +396,13 @@ def test_assets_with_tags(valid_client, new_assets):
     [{"batch_size": 100,"add_to_db":True}],
     indirect=True,
 )
-def test_assets_filter_tags(client, new_assets):
+def test_assets_filter_tags(valid_client, new_assets):
     filter_tags=[1,2]
     asset_ids=[]
     for asset in new_assets:
         if set(asset.tags).issuperset(set(filter_tags)):
             asset_ids.append(asset.asset_id)
-    res = client.post("/api/v1/asset/filter", json={"tags":filter_tags,"tag_operation":"AND"})
+    res = valid_client.post("/api/v1/asset/filter", json={"tags":filter_tags,"tag_operation":"AND"})
     assert res.status_code == 200
     assert set(res.json["data"])==set(asset_ids)
 @pytest.mark.parametrize(
@@ -501,13 +501,13 @@ def test_new_assets_non_optional_attributes(valid_client, new_assets):
     [{"batch_size": 100,"add_to_db":True}],
     indirect=True,
 )
-def test_assets_filter_projects(client, new_assets):
+def test_assets_filter_projects(valid_client, new_assets):
     filter_project=[1,2]
     asset_ids=[]
     for asset in new_assets:
         if set(asset.projects).issuperset(set(filter_project)):
             asset_ids.append(asset.asset_id)
-    res = client.post("/api/v1/asset/filter", json={"projects":filter_project,"project_operation":"AND"})
+    res = valid_client.post("/api/v1/asset/filter", json={"projects":filter_project,"project_operation":"AND"})
     assert res.status_code == 200
     assert set(res.json["data"])==set(asset_ids)
 
@@ -531,13 +531,13 @@ def test_new_assets_with_required_attributes(valid_client, new_assets):
     [{"batch_size": 100,"add_to_db":True}],
     indirect=True,
 )
-def test_assets_filter_classification(client, new_assets):
+def test_assets_filter_classification(valid_client, new_assets):
     filter_classification=["PUBLIC","RESTRICTED"]
     asset_ids=[]
     for asset in new_assets:
         if asset.classification.value in filter_classification:
             asset_ids.append(asset.asset_id)
-    res = client.post("/api/v1/asset/filter", json={"classifications":filter_classification})
+    res = valid_client.post("/api/v1/asset/filter", json={"classifications":filter_classification})
     assert res.status_code == 200
     print(asset_ids)
     assert set(res.json["data"])==set(asset_ids)
@@ -548,10 +548,10 @@ def test_assets_filter_classification(client, new_assets):
     [{"batch_size": 100,"add_to_db":True}],
     indirect=True,
 )
-def test_assets_filter_type(client, new_assets):
+def test_assets_filter_type(valid_client, new_assets):
     filter_type=[new_assets[0].version_id,new_assets[1].version_id,new_assets[2].version_id]
     asset_ids=[new_assets[0].asset_id,new_assets[1].asset_id,new_assets[2].asset_id]
-    res = client.post("/api/v1/asset/filter", json={"types":filter_type})
+    res = valid_client.post("/api/v1/asset/filter", json={"types":filter_type})
     assert res.status_code == 200
     assert set(res.json["data"])==set(asset_ids)
 
@@ -560,9 +560,9 @@ def test_assets_filter_type(client, new_assets):
     [{"batch_size": 100,"add_to_db":True}],
     indirect=True,
 )
-def test_assets_filter_attribute_equals_name(client, new_assets):
+def test_assets_filter_attribute_equals_name(valid_client, new_assets):
     
-    res = client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-1,"attributeValue":new_assets[0].name,"operation":"EQUALS"}]})
+    res = valid_client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-1,"attributeValue":new_assets[0].name,"operation":"EQUALS"}]})
     assert res.status_code == 200
     assert set(res.json["data"]).issuperset(set([new_assets[0].asset_id]))
 
@@ -571,61 +571,8 @@ def test_assets_filter_attribute_equals_name(client, new_assets):
     [{"batch_size": 100,"add_to_db":True}],
     indirect=True,
 )
-def test_assets_filter_attribute_equals_link(client, new_assets):
-    res = client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-2,"attributeValue":new_assets[0].link,"operation":"EQUALS"}]})
-    assert res.status_code == 200
-    assert set(res.json["data"]).issuperset(set([new_assets[0].asset_id]))
-
-
-@pytest.mark.parametrize(
-    "new_assets",
-    [{"batch_size": 100,"add_to_db":True}],
-    indirect=True,
-)
-def test_assets_filter_attribute_equals_description(client, new_assets):
-    res = client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-3,"attributeValue":new_assets[0].description,"operation":"EQUALS"}]})
-    assert res.status_code == 200
-    assert set(res.json["data"]).issuperset(set([new_assets[0].asset_id]))  
-
-
-@pytest.mark.parametrize(
-    "new_assets",
-    [{"batch_size": 100,"add_to_db":True}],
-    indirect=True,
-)
-def test_assets_filter_attribute_like_name(client, new_assets):
-    res = client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-1,"attributeValue":new_assets[0].name,"operation":"LIKE"}]})
-    assert res.status_code == 200
-    assert set(res.json["data"]).issuperset(set([new_assets[0].asset_id]))  
-
-@pytest.mark.parametrize(
-    "new_assets",
-    [{"batch_size": 100,"add_to_db":True}],
-    indirect=True,
-)
-def test_assets_filter_attribute_like_link(client, new_assets):
-    res = client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-2,"attributeValue":new_assets[0].link,"operation":"LIKE"}]})
-    assert res.status_code == 200
-    assert set(res.json["data"]).issuperset(set([new_assets[0].asset_id]))  
-
-
-@pytest.mark.parametrize(
-    "new_assets",
-    [{"batch_size": 100,"add_to_db":True}],
-    indirect=True,
-)
-def test_assets_filter_attribute_like_description(client, new_assets):
-    res = client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-3,"attributeValue":new_assets[0].description,"operation":"LIKE"}]})
-    assert res.status_code == 200
-    assert set(res.json["data"]).issuperset(set([new_assets[0].asset_id]))  
-
-@pytest.mark.parametrize(
-    "new_assets",
-    [{"batch_size": 100,"add_to_db":True}],
-    indirect=True,
-)
-def test_assets_filter_attribute_has_metadata(client, new_assets):
-    res = client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":new_assets[0].metadata[0]["attribute_id"],"attributeValue":None,"operation":"HAS"}]})
+def test_assets_filter_attribute_equals_link(valid_client, new_assets):
+    res = valid_client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-2,"attributeValue":new_assets[0].link,"operation":"EQUALS"}]})
     assert res.status_code == 200
     assert set(res.json["data"]).issuperset(set([new_assets[0].asset_id]))
 
@@ -635,8 +582,61 @@ def test_assets_filter_attribute_has_metadata(client, new_assets):
     [{"batch_size": 100,"add_to_db":True}],
     indirect=True,
 )
-def test_assets_filter_attribute_multiple(client, new_assets):
-    res = client.post("/api/v1/asset/filter", json={"operation":"AND","attributes":[{"attributeID":-1,"attributeValue":new_assets[0].name,"operation":"EQUALS"},
+def test_assets_filter_attribute_equals_description(valid_client, new_assets):
+    res = valid_client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-3,"attributeValue":new_assets[0].description,"operation":"EQUALS"}]})
+    assert res.status_code == 200
+    assert set(res.json["data"]).issuperset(set([new_assets[0].asset_id]))  
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_assets_filter_attribute_like_name(valid_client, new_assets):
+    res = valid_client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-1,"attributeValue":new_assets[0].name,"operation":"LIKE"}]})
+    assert res.status_code == 200
+    assert set(res.json["data"]).issuperset(set([new_assets[0].asset_id]))  
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_assets_filter_attribute_like_link(valid_client, new_assets):
+    res = valid_client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-2,"attributeValue":new_assets[0].link,"operation":"LIKE"}]})
+    assert res.status_code == 200
+    assert set(res.json["data"]).issuperset(set([new_assets[0].asset_id]))  
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_assets_filter_attribute_like_description(valid_client, new_assets):
+    res = valid_client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-3,"attributeValue":new_assets[0].description,"operation":"LIKE"}]})
+    assert res.status_code == 200
+    assert set(res.json["data"]).issuperset(set([new_assets[0].asset_id]))  
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_assets_filter_attribute_has_metadata(valid_client, new_assets):
+    res = valid_client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":new_assets[0].metadata[0]["attribute_id"],"attributeValue":None,"operation":"HAS"}]})
+    assert res.status_code == 200
+    assert set(res.json["data"]).issuperset(set([new_assets[0].asset_id]))
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_assets_filter_attribute_multiple(valid_client, new_assets):
+    res = valid_client.post("/api/v1/asset/filter", json={"operation":"AND","attributes":[{"attributeID":-1,"attributeValue":new_assets[0].name,"operation":"EQUALS"},
                                                                 {"attributeID":-1,"attributeValue":new_assets[0].name+"!","operation":"EQUALS"}]})
     assert res.status_code == 200
     assert res.json["data"]==[]

@@ -162,6 +162,15 @@ CREATE TABLE people_in_projects
 	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
 );
 
+ CREATE TABLE assets_in_assets
+(
+	from_asset_id INTEGER,
+	to_asset_id INTEGER,
+	FOREIGN KEY (from_asset_id) REFERENCES assets(asset_id),
+	FOREIGN KEY (to_asset_id) REFERENCES assets(asset_id),
+	PRIMARY KEY (from_asset_id,to_asset_id)
+);
+
  CREATE TABLE tracked_models(
 	model_id SERIAL,
 	model_name VARCHAR NOT NULL UNIQUE,
