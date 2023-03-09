@@ -8,11 +8,19 @@ from enum import Enum
 class QueryOperation(Enum):
     EQUALS = "EQUALS"
 
+class AttributeSearcher(BaseModel):
+    attribute_id: Any = Field(..., alias="attributeID")
+    attribute_value: Any = Field(..., alias="attributeValue")
+    operation:QueryOperation
+
+    class Config:
+        allow_population_by_field_name = True
 class FilterSearch(BaseModel):
     tags:List[int]=[]
     projects:List[int]=[]
     type:List[int]=[]
     classifications:List[DataAccess]=list(DataAccess)
+
 
 class TagBase(BaseModel):
     id: Optional[int]
