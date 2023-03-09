@@ -5,7 +5,7 @@ from psycopg.rows import class_row
 from app.db import close_db, get_db
 from flask import current_app
 from werkzeug.security import generate_password_hash
-from app.schemas.factories import AssetFactory,TypeFactory,ProjectFactory,TagFactory
+from app.schemas.factories import AssetFactory,TypeVersionFactory,ProjectFactory,TagFactory,TypeFactory
 from app.schemas import AssetBaseInDB
 def init_db():
     db = get_db(new=True)
@@ -29,27 +29,52 @@ VALUES (%(username)s,%(password)s,'ADMIN','CONFIDENTIAL');""",
     # closes db so when next need a new pool will be created to map enums
     close_db()
 
-def create_assets(db_conn,batch_size=10,add_to_db=False):
-    batch_result = AssetFactory.batch(size=batch_size)
-    with db_conn.cursor() as cur:
+def generate_assets(existing_version_ids,db_conn,batch_result,added_assets):
+       with db_conn.cursor() as cur:
         for asset in batch_result:
 
             attribute_ids = []
-            new_type = TypeFactory.build(type_id=asset.type)
+            cur.execute(
+                """SELECT * FROM type_version WHERE version_id=%(version_id)s;""",
+                {"version_id":asset.version_id},
+                )
+            # if no type_version already exists
+            if cur.fetchall() != []:
+                continue
+            existing_version_ids.add(asset.version_id)
+            new_type_version = TypeVersionFactory.build(version_id=asset.version_id) 
+            new_type=TypeFactory.build(type_id=new_type_version.type_id)
+            # check if type already exists with id
+            cur.execute(
+                """SELECT * FROM types WHERE type_id=%(type_id)s;""",
+                new_type.dict(),
+                )
+            # if no type already exists
+            if cur.fetchall() != []:
+                continue
             cur.execute(
                 """
         INSERT INTO types (type_id,type_name)
-    VALUES (%(type_id)s,%(type_name)s) ON CONFLICT (type_id) DO NOTHING;""",
+    VALUES (%(type_id)s,%(type_name)s) ON CONFLICT (type_name) DO NOTHING;""",
                 new_type.dict(),
             )
-
+            cur.execute(
+                """SELECT version_id FROM type_version;""",
+                new_type.dict(),
+                )
+            cur.execute(
+                    """
+            INSERT INTO type_version (version_id,version_number,type_id)
+        VALUES (%(version_id)s,%(version_number)s,%(type_id)s);""",
+                    new_type_version.dict(),
+                )
             for attribute in asset.metadata:
                 db_attribute = attribute.dict(exclude={"validation_data"})
                 db_attribute["validation_data"] = json.dumps(attribute.validation_data)
                 cur.execute(
                     """
         INSERT INTO attributes (attribute_name,attribute_data_type,validation_data)
-    VALUES (%(attribute_name)s,%(attribute_type)s,%(validation_data)s) ON CONFLICT (attribute_name) DO UPDATE
+    VALUES (%(attribute_name)s,%(attribute_data_type)s,%(validation_data)s) ON CONFLICT (attribute_name) DO UPDATE
   SET attribute_name = excluded.attribute_name RETURNING attribute_id;""",
                     db_attribute,
                 )
@@ -59,9 +84,9 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
             for id in attribute_ids:
                 cur.execute(
                     """
-        INSERT INTO attributes_in_types (attribute_id,type_id)
-    VALUES (%(attribute_id)s,%(type_id)s) ON CONFLICT (attribute_id,type_id) DO NOTHING;""",
-                    {"attribute_id": id, "type_id": asset.type},
+        INSERT INTO attributes_in_types (attribute_id,type_version)
+    VALUES (%(attribute_id)s,%(type_version)s) ON CONFLICT (attribute_id,type_version) DO NOTHING;""",
+                    {"attribute_id": id, "type_version": asset.version_id},
                 )
             for project in asset.projects:
                 p = ProjectFactory.build(id=project)
@@ -76,7 +101,7 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
                 cur.execute(
                 """SELECT * FROM tags WHERE id=%(id)s;""",
                 {"id": tag},
-            )
+                )
                 if cur.fetchall() == []:
                     cur.execute(
                         """
@@ -84,47 +109,57 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
         VALUES (%(id)s,%(name)s) ON CONFLICT (name) DO UPDATE SET name = excluded.name;""",
                         t.dict(),
                     )
+            added_assets.append(asset)
             db_conn.commit()
-    
-        if (add_to_db):
-            with db_conn.cursor() as cur:
-                for asset in batch_result:
+
+def create_assets(db_conn,batch_size=10,add_to_db=False):
+    added_assets=[]
+    existing_version_ids=set()
+    batch_size_counter=batch_size
+    while len(added_assets)<batch_size:
+        batch_result = AssetFactory.batch(size=batch_size_counter)
+        generate_assets(existing_version_ids,db_conn,batch_result,added_assets)
+        batch_size_counter=batch_size-len(added_assets)
+    if (add_to_db):
+        with db_conn.cursor() as cur:
+            for asset in added_assets:
+                cur.execute(
+                    """
+                INSERT INTO assets (name,link,version_id,description, classification)
+        VALUES (%(name)s,%(link)s,%(version_id)s,%(description)s,%(classification)s) RETURNING asset_id;""",
+                    asset.dict(),
+                )
+                asset_id = cur.fetchone()[0]
+                for tag in asset.tags:
                     cur.execute(
                         """
-                    INSERT INTO assets (name,link,type,description, classification)
-            VALUES (%(name)s,%(link)s,%(type)s,%(description)s,%(classification)s) RETURNING asset_id;""",
-                        asset.dict(),
+                    INSERT INTO assets_in_tags (asset_id,tag_id)
+            VALUES (%(asset_id)s,%(tag_id)s);""",
+                        {"asset_id": asset_id, "tag_id": tag},
                     )
-                    asset_id = cur.fetchone()[0]
-                    for tag in asset.tags:
-                        cur.execute(
-                            """
-                        INSERT INTO assets_in_tags (asset_id,tag_id)
-                VALUES (%(asset_id)s,%(tag_id)s);""",
-                            {"asset_id": asset_id, "tag_id": tag},
-                        )
-                    # add asset to projects to db
-                    for project in asset.projects:
-                        cur.execute(
-                            """
-                        INSERT INTO assets_in_projects (asset_id,project_id)
-                VALUES (%(asset_id)s,%(project_id)s);""",
-                            {"asset_id": asset_id, "project_id": project},
-                        )
-                    # add attribute values to db
-                    for attribute in asset.metadata:
-        
-                        cur.execute(
-                            """
-                        INSERT INTO attributes_values (asset_id,attribute_id,value)
-                VALUES (%(asset_id)s,%(attribute_id)s,%(value)s);""",
-                            {
-                                "asset_id": asset_id,
-                                "attribute_id": attribute.attribute_id,
-                                "value": attribute.attribute_value,
-                            },
-                        )
-                    db_conn.commit()
+                # add asset to projects to db
+                for project in asset.projects:
+                    cur.execute(
+                        """
+                    INSERT INTO assets_in_projects (asset_id,project_id)
+            VALUES (%(asset_id)s,%(project_id)s);""",
+                        {"asset_id": asset_id, "project_id": project},
+                    )
+                # add attribute values to db
+                for attribute in asset.metadata:
+                    cur.execute(
+                        """
+                    INSERT INTO attributes_values (asset_id,attribute_id,value)
+            VALUES (%(asset_id)s,%(attribute_id)s,%(value)s);""",
+                        {
+                            "asset_id": asset_id,
+                            "attribute_id": attribute.attribute_id,
+                            "value": attribute.attribute_value,
+                        },
+                    )
+                db_conn.commit()
+    
+ 
     if (add_to_db):
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
             cur.execute("""SELECT *,
