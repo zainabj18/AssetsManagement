@@ -5,7 +5,6 @@ const RadialGraph = ({ data }) => {
 	const center = radius;
 	const textSize = 10;
 	const angleSplit = Math.PI * 2 / data.length;
-	const halfPI = Math.PI / 2;
 
 	const getY = (index) => {
 		return -radius * Math.cos(index * angleSplit) + center;
