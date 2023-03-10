@@ -27,6 +27,7 @@ import AttributeViewer from './routes/AttributeViewer';
 import ProjectViewer from './routes/ProjectViewer';
 import TypeEditor from './routes/TypeEditor';
 import Logs from './routes/Logs';
+import GraphView from './routes/GraphView';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -35,6 +36,7 @@ function App() {
 			<Routes>
 				<Route path="/login" element={<Login />} />
 				<Route path="/" element={<Layout />}>
+					<Route path="graph" element={<GraphView />} />
 					<Route path="assets/" element={<SubLayout name="Assets"/>}>
 						<Route index element={<AssetsOverview />} />
 						<Route path="new" element={<CreateAsset />} />
