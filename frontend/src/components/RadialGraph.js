@@ -1,6 +1,10 @@
-const RadialGraph = (data) => {
+const RadialGraph = ({ data }) => {
 	return (
-		<h1>I am graph</h1>
+		data.map((dataPoint, index) => {
+			return (
+				<h1 key={index}>{dataPoint.from + '->' + dataPoint.to}</h1>
+			);
+		})
 	);
 };
 
