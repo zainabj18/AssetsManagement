@@ -4,6 +4,7 @@ const RadialGraph = ({ data }) => {
 	const radius = size / 2;
 	const center = radius;
 	const textSize = 10;
+	const curveOffset = 1;
 	const angleSplit = Math.PI * 2 / data.length;
 
 	const getY = (index) => {
@@ -21,9 +22,8 @@ const RadialGraph = ({ data }) => {
 	};
 
 	const setCurve = (line) => {
-		let offset = 1;
-		let offx = ((offset * center) + ((line.x2 + line.x1) * 0.5)) / (offset + 1);
-		let offy = ((offset * center) + ((line.y2 + line.y1) * 0.5)) / (offset + 1);
+		let offx = ((curveOffset * center) + ((line.x2 + line.x1) * 0.5)) / (curveOffset + 1);
+		let offy = ((curveOffset * center) + ((line.y2 + line.y1) * 0.5)) / (curveOffset + 1);
 		return 'M' + line.x1 + ' ' + line.y1 + ' Q ' + offx + ' ' + offy + ' ' + line.x2 + ' ' + line.y2;
 	};
 
