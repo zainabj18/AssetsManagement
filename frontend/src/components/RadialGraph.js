@@ -1,4 +1,4 @@
-const RadialGraph = () => {
+const RadialGraph = (data) => {
 	return (
 		<h1>I am graph</h1>
 	);
