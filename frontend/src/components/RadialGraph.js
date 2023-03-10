@@ -72,7 +72,7 @@ const RadialGraph = ({ data }) => {
 						<path
 							key={index}
 							d={setCurve(line)}
-							stroke='red'
+							stroke='black'
 							strokeWidth='1'
 							strokeLinecap="round"
 							fill="transparent">
