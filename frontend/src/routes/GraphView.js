@@ -5,35 +5,23 @@ const GraphView = () => {
 	let test_data = [
 		{
 			from: 'a',
-			to: 'b'
+			to: ['b', 'c', 'd']
 		},
 		{
 			from: 'b',
-			to: 'a'
-		},
-		{
-			from: 'a',
-			to: 'c'
+			to: ['a', 'c', 'd']
 		},
 		{
 			from: 'c',
-			to: 'a'
-		},
-		{
-			from: 'b',
-			to: 'c'
-		},
-		{
-			from: 'a',
-			to: 'd'
-		},
-		{
-			from: 'b',
-			to: 'd'
+			to: ['a', 'b']
 		},
 		{
 			from: 'd',
-			to: 'c'
+			to: ['c']
+		},
+		{
+			from: 'e',
+			to: []
 		}
 	];
 
