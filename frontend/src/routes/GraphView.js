@@ -1,6 +1,8 @@
+import RadialGraph from '../components/RadialGraph';
+
 const GraphView = () => {
 	return (
-		<h1>hi</h1>
+		<RadialGraph />
 	);
 };
 
