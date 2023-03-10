@@ -2,18 +2,20 @@ import { useEffect, useState } from 'react';
 import Line from './Line';
 import Point from './Point';
 
-const RadialGraph = ({ data }) => {
+const RadialGraph = ({
+	data,
+	size = 400,
+	textSize = 15,
+	curveOffset = 1,
+	defaultColour = 'black',
+	outboundColour = 'red',
+	inboundColour = 'blue',
+	twoWayColour = 'purple'
+}) => {
 
-	const size = 400;
 	const radius = size / 2;
 	const center = radius;
-	const textSize = 10;
-	const curveOffset = 1;
 	const angleSplit = Math.PI * 2 / data.points.length;
-	const defaultColour = 'black';
-	const outboundColour = 'red';
-	const inboundColour = 'blue';
-	const twoWayColour = 'purple';
 
 	useEffect(() => {
 		onLoad();
@@ -76,7 +78,6 @@ const RadialGraph = ({ data }) => {
 			points.push(new Point(point.id, point.name, getX(index), getY(index), outbounds[point.id], inbounds[point.id]));
 		});
 
-		console.log(lines, points);
 		setPoints(points);
 		setLines(lines);
 	};
@@ -125,7 +126,8 @@ const RadialGraph = ({ data }) => {
 						key={index}
 						style={{
 							position: 'absolute',
-							transform: point.getTransform()
+							transform: point.getTransform(),
+							fontSize: textSize
 						}}
 						onMouseOver={() => highightLines(point, true)}
 						onMouseLeave={() => highightLines(point, false)}
