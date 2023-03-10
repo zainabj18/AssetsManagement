@@ -1,5 +1,3 @@
-import { Fragment } from 'react';
-
 const RadialGraph = ({ data }) => {
 
 	const size = 400;
