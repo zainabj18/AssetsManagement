@@ -33,9 +33,9 @@ const RadialGraph = ({ data }) => {
 			points[dataPoint.from] = index;
 		});
 		let coords = [];
-		data.forEach((dataPoint, indexFrom) => {
+		data.forEach((dataPoint, index) => {
 			dataPoint.to.forEach((to) => {
-				coords.push({ x1: getX(indexFrom), y1: getY(indexFrom), x2: getX(points[to]), y2: getY(points[to]) });
+				coords.push({ x1: getX(index), y1: getY(index), x2: getX(points[to]), y2: getY(points[to]) });
 			});
 		});
 		return coords;
