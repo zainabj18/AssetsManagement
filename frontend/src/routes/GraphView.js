@@ -3,7 +3,28 @@ import RadialGraph from '../components/Graph/RadialGraph';
 const GraphView = () => {
 
 	let test_data = {
-		points: [1, 2, 3, 4, 5],
+		points: [
+			{
+				id: 1,
+				name: 'a'
+			},
+			{
+				id: 2,
+				name: 'b'
+			},
+			{
+				id: 3,
+				name: 'c'
+			},
+			{
+				id: 4,
+				name: 'd'
+			},
+			{
+				id: 5,
+				name: 'e'
+			}
+		],
 		joins: [
 			{
 				from: 1,

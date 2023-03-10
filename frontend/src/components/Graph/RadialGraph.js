@@ -51,9 +51,9 @@ const RadialGraph = ({ data }) => {
 		let inbounds = {};
 		let outbounds = {};
 		data.points.forEach((point, index) => {
-			pointIndexes[point] = index;
-			inbounds[point] = [];
-			outbounds[point] = [];
+			pointIndexes[point.id] = index;
+			inbounds[point.id] = [];
+			outbounds[point.id] = [];
 		});
 
 		let lines = [];
@@ -73,7 +73,7 @@ const RadialGraph = ({ data }) => {
 
 		let points = [];
 		data.points.forEach((point, index) => {
-			points.push(new Point(point, point, getX(index), getY(index), outbounds[point], inbounds[point]));
+			points.push(new Point(point.id, point.name, getX(index), getY(index), outbounds[point.id], inbounds[point.id]));
 		});
 
 		console.log(lines, points);
