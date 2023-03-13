@@ -10,7 +10,9 @@ const RadialGraph = ({
 	defaultColour = 'black',
 	outboundColour = 'red',
 	inboundColour = 'blue',
-	twoWayColour = 'purple'
+	twoWayColour = 'purple',
+	defaultLineWidth = '1',
+	highlightedLineWidth = '2'
 }) => {
 
 	const radius = size / 2;
@@ -63,7 +65,7 @@ const RadialGraph = ({
 		data.joins.forEach((join, index) => {
 			let out = [];
 			join.to.forEach((to) => {
-				let line = new Line(getX(index), getY(index), getX(pointIndexes[to]), getY(pointIndexes[to]), defaultColour);
+				let line = new Line(getX(index), getY(index), getX(pointIndexes[to]), getY(pointIndexes[to]), defaultColour, defaultLineWidth);
 				if (getIndex(line, lines) === -1) {
 					lines.push(line);
 				}
@@ -87,6 +89,7 @@ const RadialGraph = ({
 		let l = [...lines];
 		point.outbound.forEach(lineIndex => {
 			l[lineIndex].colour = ((hovered) ? outboundColour : defaultColour);
+			l[lineIndex].width = ((hovered) ? highlightedLineWidth : defaultLineWidth);
 		});
 		point.inbound.forEach(lineIndex => {
 			if (l[lineIndex].colour === outboundColour) {
@@ -94,6 +97,7 @@ const RadialGraph = ({
 			}
 			else {
 				l[lineIndex].colour = ((hovered) ? inboundColour : defaultColour);
+				l[lineIndex].width = ((hovered) ? highlightedLineWidth : defaultLineWidth);
 			}
 		});
 		setLines(l);
@@ -119,7 +123,7 @@ const RadialGraph = ({
 							key={index}
 							d={setCurve(line)}
 							stroke={line.colour}
-							strokeWidth='1'
+							strokeWidth={line.width}
 							strokeLinecap="round"
 							fill="transparent">
 						</path>
