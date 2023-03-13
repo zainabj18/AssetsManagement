@@ -1,4 +1,4 @@
-import RadialGraph from '../components/Graph/RadialGraph';
+import RadialGraph from '../components/graph/RadialGraph';
 
 const GraphView = () => {
 
