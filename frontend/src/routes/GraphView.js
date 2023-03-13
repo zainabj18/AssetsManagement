@@ -10,19 +10,19 @@ const GraphView = () => {
 			},
 			{
 				id: 2,
-				name: 'b'
+				name: 'asset b'
 			},
 			{
 				id: 3,
-				name: 'c'
+				name: 'long name asset c'
 			},
 			{
 				id: 4,
-				name: 'd'
+				name: 'long name asset d'
 			},
 			{
 				id: 5,
-				name: 'e'
+				name: 'long name asset e'
 			}
 		],
 		joins: [
@@ -41,6 +41,10 @@ const GraphView = () => {
 			{
 				from: 4,
 				to: [3]
+			},
+			{
+				from: 5,
+				to: [1]
 			}
 		]
 	};
