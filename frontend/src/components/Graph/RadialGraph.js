@@ -19,6 +19,7 @@ const RadialGraph = ({
 
 	useEffect(() => {
 		onLoad();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const getY = (index) => {
@@ -99,7 +100,12 @@ const RadialGraph = ({
 	};
 
 	return (
-		<div style={{ display: 'inline-block', height: size + 'px', width: size + 'px', backgroundColor: 'yellow' }}>
+		<div style={{
+			display: 'inline-block',
+			height: size + 'px',
+			width: size + 'px',
+			backgroundColor: 'yellow'
+		}}>
 			<svg
 				style={{
 					position: 'absolute',
