@@ -3,7 +3,7 @@ import Line from './Line';
 import Point from './Point';
 
 const RadialGraph = ({
-	data,
+	data = {points: [], joins: []},
 	size = 400,
 	textSize = 15,
 	curveOffset = 1,
