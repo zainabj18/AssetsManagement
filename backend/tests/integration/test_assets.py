@@ -658,3 +658,20 @@ def test_new_assets_with_addtional_attributes(valid_client, new_assets):
     assert res.json["msg"]=="Addtional attributes"
     assert res.json["error"]=="Failed to create asset from the data provided"
     assert res.json["data"]== f"Must only inlcude the following attrubutes with ids {list(attribute_ids)}"
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1,"add_to_db":True}],
+    indirect=True,
+)
+def test_comment_add_requires_comment(valid_client, new_assets):
+    res = valid_client.post(f"/api/v1/asset/comment/{new_assets[0].asset_id}",json={})
+    assert res.status_code == 400
+    assert res.json["msg"]=="Failed to add comment from the data provided"
+    assert res.json["error"]=="Invalid data"
+    assert {
+        "loc": ["comment"],
+        "msg": "field required",
+        "type": "value_error.missing",
+    } in res.json["data"]

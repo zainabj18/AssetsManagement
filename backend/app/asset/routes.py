@@ -1,6 +1,6 @@
 from app.core.utils import protected
 from app.db import DataAccess, UserRole, get_db,Actions
-from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model,Project
+from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model,Project,Comment
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
@@ -851,3 +851,15 @@ WHERE asset_id=%(asset_id)s;""",
                 if not attribute in new_attributes:
                     removed_attributes_names.append(attribute.attribute_name)
             return {"msg":"upgrade needed","data":[added_attributes,removed_attributes_names,max_version["version_id"]],"canUpgrade":True}
+
+
+@bp.route("/comment/<id>", methods=["POST"])
+def add_comment(id):
+    try:
+        comment = Comment(**request.json)
+    except ValidationError as e:
+        return {
+                "msg": "Failed to add comment from the data provided",
+                "data": e.errors(),
+                "error": "Invalid data",
+            },400
