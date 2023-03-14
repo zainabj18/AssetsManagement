@@ -108,6 +108,7 @@ CREATE TABLE attributes
 	asset_id INTEGER NOT NULL,
 	account_id INTEGER NOT NULL,
 	comment VARCHAR NOT NULL,
+	datetime timestamp NOT NULL DEFAULT now(),
 	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
 	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
 );
