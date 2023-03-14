@@ -51,7 +51,7 @@ class Attribute_Model(BaseModel):
         allow_population_by_field_name = True
 
 class Comment(BaseModel):
-    comment: str
+    comment: str=Field(...,min_length=1)
     user_id:int= Field(..., alias="userID")
     class Config:
         allow_population_by_field_name = True
