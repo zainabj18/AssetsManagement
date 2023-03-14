@@ -53,7 +53,7 @@ def valid_token(request):
 def valid_client(flask_app, request):
     token = jwt.encode(
         {
-            "account_id": None,
+            "account_id": 1,
             "account_type": request.param["account_type"].value,
             "account_privileges": request.param["account_privileges"].value,
             "exp": datetime.utcnow() + timedelta(minutes=30),
