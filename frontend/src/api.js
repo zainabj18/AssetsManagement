@@ -79,7 +79,7 @@ export const createProject = async (project)=> {
 };
 
 export const getUsers = async () => {
-	return await axios.get('/admin/accountmanager/').then(res => res.data);
+	return await axios.get('/admin/accountmanager').then(res => res.data);
 };
 
 export const getAccountDetails = async () => {

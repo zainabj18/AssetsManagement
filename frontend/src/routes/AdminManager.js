@@ -16,8 +16,8 @@ const AdminManager = () => {
 		}
 		async function loadUsers() {
 			let data = await getUsers(res => res.data);
-			console.log(data);
-			setUsers(data);
+			console.log(data.data);
+			setUsers(data.data);
 		}
 		loadUsers();
 	},[]);
@@ -79,9 +79,9 @@ const AdminManager = () => {
 						<Tbody>
 							{users.map((user) => {
 								return (
-									<Tr key={user.account_id}>
-										<Td>{user.first_name}</Td>
-										<Td>{user.last_name}</Td>
+									<Tr key={user.accountID}>
+										<Td>{user.firstName}</Td>
+										<Td>{user.lastName}</Td>
 										<Td>{user.username}</Td>
 										<Td>
 											<Accordion allowToggle>

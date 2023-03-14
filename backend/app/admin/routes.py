@@ -1,15 +1,8 @@
-from datetime import datetime, timedelta
 import json
 
-import jwt
-from app.core.utils import protected
-from app.db import UserRole, get_db
-from app.schemas import UserCreate, UserInDB
-from flask import Blueprint, current_app, jsonify, request
-from psycopg import Error
-from psycopg.rows import class_row
-from pydantic.error_wrappers import ValidationError
-from werkzeug.security import check_password_hash, generate_password_hash
+from app.db import get_db
+from flask import Blueprint
+
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -17,15 +10,23 @@ bp = Blueprint("admin", __name__, url_prefix="/admin")
 @bp.route("/accountmanager", methods=["GET"])
 def getUsers():
     database = get_db()
-    query = """SELECT * FROM accounts;"""
+    query = """SELECT account_id,first_name,last_name,username FROM accounts;"""
     with database.connection() as conn:
         result = conn.execute(query)
         usersfetched = result.fetchall()
-    return json.dumps(usersfetched), 200
+        usersfetched_listed = extract_people(usersfetched)
+    return {"data":usersfetched_listed}, 200
 
-def insertUsers():
-    database = get_db()
-    query = """INSERT INTO accounts 
-                VALUES (1,'John','Smith','John_Smith123','hello12345','VIEWER','PUBLIC');"""
-    with database.connection() as conn:
-        result = conn.execute(query)
+def extract_people(people):
+    allPeople_listed = []
+    for person in people:
+        allPeople_listed.append(
+                { 
+                    "accountID": person[0],
+                    "firstName": person[1],
+                    "lastName": person[2],
+                    "username": person[3]
+                }
+        )
+    return allPeople_listed
+
