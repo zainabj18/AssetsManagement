@@ -52,7 +52,7 @@ class Attribute_Model(BaseModel):
 
 class Comment(BaseModel):
     comment: str
-    user_id= Field(..., alias="userID")
+    user_id:int= Field(..., alias="userID")
     class Config:
         allow_population_by_field_name = True
 
