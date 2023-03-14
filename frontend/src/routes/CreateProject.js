@@ -7,85 +7,133 @@ import {
 	VStack,
 	Button,
 	Flex,
-	Spacer,
-	Center,
+	Checkbox, useBoolean,
+	HStack,
+	FormErrorMessage
 } from '@chakra-ui/react';
-//import axios from 'axios';
 import React, { useState } from 'react';
-import { DeleteIcon } from '@chakra-ui/icons';
-import { IconButton } from '@chakra-ui/react';
-import {createProject} from '../api.js';
-const CreateProject = () => {
-	const [projects, setProjects] = useState([{ name: '', description: '' }]);
+import {createProject, fetchPeople, fetchProjects} from '../api.js';
+import NewTag from '../components/NewTag';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
-	const handleCreate = (index, event) => {
-		let data = [...projects];
-		data[index][event.target.name] = event.target.value;
-		setProjects(data);
+
+
+const CreateProject = () => {
+	const[newName, setNewName] = useState('');
+	const[newDescription, setNewDescription] = useState('');
+	const [toggle, set_toggle] = useBoolean();
+	const [selectedPeople, setSelectedPeople] = useState([]);
+	const [allPeople, setAllPeople] = useState([]);
+	const [projects, setProjects] = useState([]);
+	const [formError, setFormError] = useState('');
+
+	let navigate=useNavigate();
+
+
+	const changeDescription = (description) => {
+		setNewDescription(description);
+	};
+
+	//projectName
+
+	const isProjectNameIn = (projectName, list) => {
+		let index;
+		for (index = 0; index < list.length; index++) {
+			if (list[index].projectName === projectName) {
+				return true;
+			}
+		}
+		return false;
 	};
 
 	const addProject = () => {
-		setProjects([...projects, { name: '', description: '' }]);
-	};
-	const submitProject = () => {
+		console.log(newName);
 		console.log(projects);
-		projects.forEach((val, i) => createProject(val));
-		
-	};
+		if (isProjectNameIn(newName, projects)) {
+			setFormError('This project name is already used');
+		}else{
+			createProject({ name: newName, description: newDescription, accounts: selectedPeople }).then(_ => {
+				navigate('../');
+			});
+		}
 
-	const deleteProject = (index) => {
-		let data = [...projects];
-		data.splice(index, 1);
-		setProjects(data);
 	};
+ 
 
-	return (
-		<VStack minW="100vw" spacing={3}>
-			<Text fontSize='3xl'>Create Project</Text>
-  
-			{projects.map((project, index) => {
-				return (
-					<VStack key={index}>
-						<Box bg='white' w='100%' p={7} color='black'>
-							<FormControl isRequired>
-								<FormLabel color={'black'}>Project Name</FormLabel>
-								<Input
-									type="text"
-									placeholder="Project Name"
-									defaultValue={project.name}
-									onChange={(event) => handleCreate(index, event)}
-									name="name"
-								/>
-							</FormControl>
-							<FormControl isRequired>
-								<FormLabel color={'black'}>Description</FormLabel>
-								<Input
-									type="text"
-									placeholder="Description"
-									defaultValue={project.description}
-									onChange={(event) => handleCreate(index, event)}
-									name="description"
-								/>
-							</FormControl>
-							
-							<IconButton
-								left={20}
-								icon={<DeleteIcon />}
-								colorScheme="blue"
-								onClick={() => deleteProject(index)}
-							/>
-						</Box>
-					</VStack>
-				);
-			})}
-			<Flex minWidth='max-content' alignItems='center' gap='4'>
-				<Button onClick={addProject}>Add Project</Button>
-				<Button onClick={submitProject}> Submit</Button>
-			</Flex>
+	
+	const adjustSelectedPeople = (checked, value) => {
+		let list = selectedPeople;
+		if (checked){
+			list.push(value);
+		}
+		if(!checked){
+			let index = list.indexOf(value);
+			list.splice(index,1);
+		}
+		setSelectedPeople(list);
+	};
+	
+	
+	  useEffect(() => {
+		async function load_allPeople() {
+			let data = await fetchPeople();
+			console.log(data);
+			setAllPeople(data.data);
+		}
+		load_allPeople();
+
+		async function load_allProjects() {
+			let data = await fetchProjects();
+			setProjects(data.data);
 			
-		</VStack>
+		}
+		load_allProjects();
+	}, [toggle]);
+
+
+	return (<Flex w='100%' minH='80vh' alignItems={'stretch'} p={2} border>
+		
+		<Box w='100%' minH='100%' bg='white' alignItems='left'>
+			
+			<VStack p={3} >
+				<FormControl isInvalid = {formError !== ''}>
+					<Input
+						type="text"
+						placeholder="Project Name"
+
+						onChange={(event) => setNewName(event.target.value)}
+						name="name"
+					/>
+					<FormErrorMessage>{formError}</FormErrorMessage>
+				</FormControl>
+				<Input
+					type="text"
+					placeholder="Description"
+					onChange={(event) => changeDescription(event.target.value)}
+					name="description"
+				/>
+				<Text>Add People To Project</Text>
+				<Box alignItems='left'>
+					{allPeople.map((person, index) => {
+						return (
+							<Checkbox
+								onChange={(e) => adjustSelectedPeople(e.target.checked, person.accountID)}>
+						    {person.username}
+							</Checkbox>
+						);
+					})}
+				</Box>
+			</VStack>
+			<HStack>
+				<Button onClick={addProject}>Save Project</Button>
+			</HStack>
+		</Box>		
+	</Flex>
 
 	);
 };
 
 export default CreateProject;
+

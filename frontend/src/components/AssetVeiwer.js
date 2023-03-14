@@ -31,15 +31,18 @@ import {
 import { Fragment } from 'react';
 import { useEffect, useState } from 'react';
 import { redirect, useNavigate, useParams } from 'react-router-dom';
-import FormField from './FormField';
+
 import axios from 'axios';
-import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset, updateAsset } from '../api';
-import SearchSelect from './SearchSelect';
+import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset, updateAsset, fetchAssetLinks, fetchAssetSummary, fetchTypesNamesVersionList, fetchAssetUpgradeOptions } from '../api';
 import ProjectSelect from './ProjectSelect';
-import ListFormField from './ListFormField';
-import SelectFormField from './SelectFormField';
-import NumFormField from './NumFormField';
 import useAuth from '../hooks/useAuth';
+import AssetSelect from './AssetSelect';
+import NumFormField from './asset/formfields/NumFormField';
+import FormField from './asset/formfields/FormField';
+import SearchSelect from './asset/formfields/SearchSelect';
+import SelectFormField from './asset/formfields/SelectFormField';
+import ListFormField from './asset/formfields/ListFormField';
+
 const AssetViewer = () => {
 	const { id } = useParams();
 	const {user} = useAuth();
@@ -49,11 +52,16 @@ const AssetViewer = () => {
 	const [tag, setTag] = useState('');
 	const [classifications,setClassifications] = useState([]);
 	const [projects,setProjects] = useState([]);
+	const [assets,setAssets] = useState([]);
+	const [assetsList,setAssetsList]=useState([]);
 	const [projectList,setProjectList]=useState([]);
+	const [dependencies,setDependencies]=useState([]);
 	const [errors,setErrors]=useState([]);
 	const [errorCount,setErrorCount]=useState(0);
 	const [trigger,setTrigger]=useBoolean();
 	const [types,setTypes]=useState([]);
+	const [upgradeable,setUpgradeable]=useState(false);
+	const [upgradeData,setUpgradeData]=useState(undefined);
 	
 	const handleChange = (attribute_name, attribute_value) => {
 		setAssetState((prevAssetState) => ({
@@ -110,15 +118,16 @@ const AssetViewer = () => {
 
 	const handleTypeChange = (e, attribute_value) => {
 		e.preventDefault();
+		console.log(attribute_value);
 		fetchType(attribute_value).then(res=>{
-			console.log(res);
 			setAssetState((prevAssetState) => ({
 				...prevAssetState,
-				type: attribute_value,
+				version_id: attribute_value,
 				metadata:res.metadata,
 			}));
-			setTrigger.toggle();
 			console.log(res);
+			setDependencies(res.dependsOn);
+			setTrigger.toggle();
 
 		});
 	
@@ -128,6 +137,19 @@ const AssetViewer = () => {
 		navigate('/assets');
 	};
 
+	const handleUpgrade = (e) => {
+		console.log(upgradeData);
+		let newMetadata=assetSate.metadata.filter((attribute) => !(attribute.attributeName in upgradeData[1]));
+		console.log(newMetadata);
+		newMetadata=[...newMetadata,...upgradeData[0]];
+		console.log(newMetadata);
+		setAssetState((prevAssetState) => ({
+			...prevAssetState,
+			version_id:upgradeData[2],
+			metadata: newMetadata,
+		}));
+		setUpgradeable(false);
+	};
 
 	const createNewAsset = (e) => {
 		e.preventDefault();
@@ -137,23 +159,32 @@ const AssetViewer = () => {
 		setErrors([]);
 		let errs=[];
 		for (const [key, value] of Object.entries(assetSate)) {
-			if(value.length===0 && key!=='projects'){
+			if(value.length===0 && key!=='projects' && key!=='assets'){
 				errs.push(key+' is required');
 			}
 			
 		}
+		console.log(assetSate.metadata);
+		for (const [key, value] of Object.entries(assetSate.metadata)){
+			if(!value.validation.isOptional && (!(value.hasOwnProperty('attributeValue'))) || (value.hasOwnProperty('attributeValue') && value.attributeValue.length===0)){
+				errs.push(value.attributeName);
+			}
+		}
+	
 		if (projects.length===0){
 			errs.push('project(s) is required');
 		}
 		if (errs.length===0){
 			console.log('Sending data');
 			
-			let project_ids=projects.map(p=>p.id);
+			let project_ids=projects.map(p=>p.projectID);
 			let tag_ids=assetSate.tags.map(t=>t.id);
+			let asset_ids=assets.map(a=>assetsList[a].asset_id);
 			let assetObj={
 				asset_id:id,
 				...assetSate,
 				projects: project_ids,
+				assets:asset_ids,
 				tags:tag_ids
 			};
 			console.log(assetObj);
@@ -167,7 +198,7 @@ const AssetViewer = () => {
 			}else{
 				createAsset(assetObj).then(
 				
-					res=>navigate(`../view/${res.data}`)).catch(err=>console.log(err));
+					res=>navigate(`../${res.data}`)).catch(err=>console.log(err));
 			}
 			
 		}else{
@@ -178,13 +209,14 @@ const AssetViewer = () => {
 
 	useEffect(() => {
 		if (user===undefined){
-			navigate('/assets');
+			navigate('/');
 		}
 		fetchAssetClassifications().then((data)=>{
 			setClassifications(data.data);}).catch((err) => {console.log(err);});
 
-		fetchTypesList().then((data)=>{
-			setTypes(data.data);}).catch((err) => {console.log(err);});
+		fetchTypesNamesVersionList().then((data)=>{
+			console.log(data,'I am types');
+			setTypes(data.data);}).catch((err) => {console.log(err,'types eroro');});
 		if (id) {
 			fetchAsset(id).then((res)=>{
 				console.log(res.data);
@@ -200,6 +232,29 @@ const AssetViewer = () => {
 					setProjectList(res.data);
 				}
 			);
+			fetchAssetLinks(id).then(
+				(res)=>{
+					console.log(res.data,'I am assets');
+					setAssetsList(res.data);
+					let preSelected=[];
+					for (let i = 0; i < res.data.length; i++) {
+						let obj=res.data[i];
+						if (obj.hasOwnProperty('isSelected')&obj.isSelected){
+							preSelected.push(i);
+						}
+					}
+					console.log(preSelected,'pre selected');
+					setAssets(preSelected);
+				}
+			);
+
+			fetchAssetUpgradeOptions(id).then(
+				(res)=>{
+					setUpgradeable(res.canUpgrade);
+					setUpgradeData(res.data);
+					console.log(res.data);
+				}
+			);
 		} else {
 			if (!user||user.userRole==='VIEWER'){
 				navigate('/assets');
@@ -209,13 +264,23 @@ const AssetViewer = () => {
 					setProjectList(res.data);
 				}
 			);
+
+			fetchAssetSummary().then(
+				(res)=>{
+			
+					setAssetsList(res.data);
+
+				}
+
+			);
 			setAssetState({
 				name: '',
 				link: '',
-				type: '',
+				version_id: '',
 				description: '',
 				tags: [],
 				projects: [],
+				assets: [],
 				classification: '',
 				metadata: [],
 			});
@@ -224,7 +289,7 @@ const AssetViewer = () => {
 	
 
 	return assetSate ? (
-		<Container>
+		<Container p={4} maxW='100%'>
 			{assetSate && <VStack maxW='100%'>
 				{errors.length && <Alert status='error' flexDirection='column' alignItems='right'>
 					<AlertIcon alignSelf='center'/>
@@ -269,12 +334,33 @@ const AssetViewer = () => {
 								types.map((value, key) => {
 									return (
 								
-										<option key={key} value={value.type_id}>
+										<option key={key} value={value.version_id}>
 											{value.type_name}
 										</option>
 									);
 								})}
 						</Select>
+						{!isDisabled && upgradeable && <Alert status='warning' flexDirection='column' alignItems='right'>
+							<AlertIcon alignSelf='center'/>
+							<AlertTitle>It looks like a newer version of type is availiable.Please upgrade to the latest version.</AlertTitle>
+							<AlertDescription>
+								
+								
+								{upgradeData[1].length>0 && <Fragment>
+									The following attributes will be removed:
+									<UnorderedList>
+										{upgradeData[1].map((value, key)=><ListItem key={key}>{value}</ListItem>)}
+									</UnorderedList></Fragment>}
+								{upgradeData[0].length>0 && <Fragment>
+									The following attributes will be added:
+									<UnorderedList>
+										{upgradeData[0].map((value, key)=><ListItem key={key}>{value.attributeName}</ListItem>)}
+									</UnorderedList></Fragment>}
+							</AlertDescription>
+						
+							<Button onClick={handleUpgrade}>Upgrade</Button>
+						</Alert>}
+				
 					</FormControl>
 					<FormControl>
 						<FormLabel>Projects</FormLabel>
@@ -282,19 +368,41 @@ const AssetViewer = () => {
 							{projects.map((value, key) => (
 								<WrapItem key={key}>
 									<Tag key={key} variant='brand'>
-										<TagLabel>{value.name}</TagLabel>
+										<TagLabel>{value.projectName}</TagLabel>
 									</Tag>
 								</WrapItem>
 							))}
-							{(!isDisabled||id) && <ProjectSelect setSelectedProjects={setProjects}  projects={projectList} />}
+							{!isDisabled && <ProjectSelect setSelectedProjects={setProjects}  projects={projectList} />}
 						</Wrap>
 					</FormControl>
+					<FormControl>
+						<FormLabel>Related Assets</FormLabel>
+						<Wrap spacing={4}>
+							{assets.map((value, key) => (
+								<WrapItem key={key}>
+									<Tag key={key} variant='brand'>
+										<TagLabel>{assetsList[value].name}</TagLabel>
+									</Tag>
+								</WrapItem>
+							))}
+							{!isDisabled &&   <AssetSelect setSelected={setAssets} assetsin={assetsList} />}
+						</Wrap>
+						{dependencies.length>0 && <Alert status='info' flexDirection='column' alignItems='right'>
+							<AlertIcon alignSelf='left'/>
+							<AlertTitle>The related assets must include assets of types: </AlertTitle>
+							<AlertDescription ><UnorderedList>
+								{dependencies.map((value, key)=><ListItem key={key}>{value.type_name}</ListItem>)}
+							</UnorderedList></AlertDescription>
+						</Alert>}
+					</FormControl>
+
+					
 					<FormControl  >
 						<FormLabel>classification</FormLabel>
 						<Select
 							isRequired
 							bg='blue.100'
-							isDisabled={isDisabled||id}
+							isDisabled={isDisabled}
 							onChange={(e) => {
 								handleChange('classification', e.target.value);
 							}}
@@ -318,6 +426,7 @@ const AssetViewer = () => {
 						isDisabled={isDisabled}
 						onSubmitHandler={handleChange}
 						setErrorCount={setErrorCount}
+						isTextarea={true}
 					/>
 					<FormControl >
 						<FormLabel>Tags</FormLabel>
@@ -326,11 +435,11 @@ const AssetViewer = () => {
 								<WrapItem key={key}>
 									<Tag key={key}>
 										<TagLabel>{value.name}</TagLabel>
-										{(tag || !id) && <TagCloseButton onClick={(e) => onTagClick(e, value)} />}
+										{(!isDisabled) && <TagCloseButton onClick={(e) => onTagClick(e, value)} />}
 									</Tag>
 								</WrapItem>
 							))}
-							{(tag || !id) && (<>
+							{(tag ||!isDisabled) && (<>
 								<SearchSelect dataFunc={fetchTags} selectedValue={tag} setSelectedValue={setTag} createFunc={createTag}/>
 								<Button onClick={onNewTag} isDisabled={isDisabled}>Add Tag</Button></>)}
 						</Wrap>
@@ -349,17 +458,17 @@ const AssetViewer = () => {
 							console.log('I am here');
 							return (
 								<Fragment key={key}> 
-									<ListFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:[]} validation={value.validation} onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount}/>
+									<ListFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:[]} validation={value.validation} onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount} isDisabled={isDisabled}/>
 								</Fragment>);
 						case 'num_lmt':
 							return (
 								<Fragment key={key}> 
-									<NumFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:value.validation.min} validation={value.validation}  onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount}/>
+									<NumFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:value.validation.min} validation={value.validation}  onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount} isDisabled={isDisabled}/>
 								</Fragment>);
 						case 'options':
 							return (
 								<Fragment key={key}> 
-									<SelectFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:[]} validation={value.validation} onChangeHandler={handleMetadataChange}/>
+									<SelectFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:[]} validation={value.validation} onChangeHandler={handleMetadataChange} isDisabled={isDisabled}/>
 								</Fragment>);
 						default:
 							return (<Fragment key={key}>
@@ -371,6 +480,7 @@ const AssetViewer = () => {
 									onSubmitHandler={handleMetadataChange}
 									trigger={trigger}
 									setErrorCount={setErrorCount}
+									validation={value.validation}
 								/>
 							</Fragment>);
 					  }
@@ -390,7 +500,7 @@ const AssetViewer = () => {
 			</StatGroup>)}
 			
 			{!isDisabled  && <Button onClick={createNewAsset}>Sumbit</Button>}
-			{id && <Button onClick={handleDelete}>Delete</Button>}
+			{id && !isDisabled && <Button onClick={handleDelete}>Delete</Button>}
 		</Container>
 	) : null;
 };

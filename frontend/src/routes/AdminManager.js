@@ -60,20 +60,20 @@ const AdminManager = () => {
 			<Text>AdminManager</Text>
 			{inputField.map((search, index) => {
 				return (
-					<Stack spacing={3} color={'black'} key = {index}>
-						<Input bg='white' placeholder='search' size='lg' type='text' width={800} top={25} defaultValue={search.username} onChange={event => handleFormChange(index, event)} name="username" />
+					<Stack spacing={3} key = {index}>
+						<Input  placeholder='search' size='lg' type='text' width={800} top={25} defaultValue={search.username} onChange={event => handleFormChange(index, event)} name="username" />
 					</Stack>
 				);
 			})}
 			<Stack pt={35}>
-				<TableContainer color='white'>
+				<TableContainer>
 					<Table variant='simple' size={'lg'}>
 						<Thead>
 							<Tr>
-								<Th color={'white'}>First Name</Th>
-								<Th color={'white'}>Last Name</Th>
-								<Th color={'white'}>Username</Th>
-								<Th color={'white'}></Th>
+								<Th>First Name</Th>
+								<Th>Last Name</Th>
+								<Th>Username</Th>
+								<Th></Th>
 							</Tr>
 						</Thead>
 						<Tbody>
@@ -95,9 +95,9 @@ const AdminManager = () => {
 														</AccordionButton>
 													</h2>
 													<AccordionPanel pb={4}>
-														<Button bg='transparent' color='white' onClick={() => loadAccountDetails(user.account_id)}>View Account Details</Button>
-														<Link href='/login'> <Button bg='transparent' color='white' onClick={pass_func}>Change Password</Button></Link>
-														<Link href='/projects/'><Button bg='transparent' color='white' onClick={handleRelatedProjects}>View Related Projects</Button></Link>
+														<Button onClick={() => loadAccountDetails(user.account_id)}>View Account Details</Button>
+														<Link href='/login'> <Button onClick={pass_func}>Change Password</Button></Link>
+														<Link href='/projects/'><Button onClick={handleRelatedProjects}>View Related Projects</Button></Link>
 													</AccordionPanel>
 												</AccordionItem>
 											</Accordion>
@@ -118,3 +118,4 @@ const AdminManager = () => {
 };
 
 export default AdminManager;
+

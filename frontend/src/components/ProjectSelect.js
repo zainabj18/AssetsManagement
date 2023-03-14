@@ -37,21 +37,21 @@ function ProjectSelect({setSelectedProjects,projects}) {
 
 	const columns = useMemo(
 		() => {return {
-			'id':{
+			'projectID':{
 				header: 'Project ID',
 				Filter:p=>{return <Input type='number' onChange={(e)=>{setFilter((prev)=>({
 					...prev,
 					'id':e.target.value
 				}));}} />;}
 			},
-			'name':{
+			'projectName':{
 				header: 'Project Name',
 				Filter:p=>{return <Input onChange={(e)=>{setFilter((prev)=>({
 					...prev,
 					'name':e.target.value
 				}));}} />;}
 			},
-			'description':{
+			'projectDescription':{
 				header: 'Project Decription',
 				Filter:p=>{return <Input onChange={(e)=>{setFilter((prev)=>({
 					...prev,
@@ -125,9 +125,10 @@ function ProjectSelect({setSelectedProjects,projects}) {
 				projects.push(obj);
 			}
 		}
+		console.log(data,preSelected,'I am in projects');
 		setSelected(preSelected);
 		setSelectedProjects(projects);
-	}, []);
+	}, [projects]);
 	
 
 	

@@ -70,13 +70,14 @@ function AssetList({assets}) {
 				globalFilter={state.globalFilter}
 				setGlobalFilter={setGlobalFilter}
 			/>
-			<Table {...getTableProps()} variant='striped'>
-				<Thead>
+			<Table {...getTableProps()} color={'white'}>
+				<Thead >
 					{headerGroups.map(headerGroup => (
 						<Tr {...headerGroup.getHeaderGroupProps()}>
 							{headerGroup.headers.map(column => (
 								<Th
 									{...column.getHeaderProps()}
+									color={'white'}
 								>
 									{column.render('Header')}
 								</Th>
