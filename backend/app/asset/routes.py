@@ -870,10 +870,13 @@ def abort_asset_not_exists(db,id):
 
 
 @bp.route("/comment/<id>", methods=["POST"])
-def add_comment(id):
+@protected(role=UserRole.USER)
+def add_comment(id,user_id, access_level):
+    print(user_id)
     try:
-        comment = Comment(**request.json)
+        comment = Comment(**request.json,user_id=user_id)
     except ValidationError as e:
+        print(e.errors())
         return {
                 "msg": "Failed to add comment from the data provided",
                 "data": e.errors(),
@@ -881,3 +884,11 @@ def add_comment(id):
             },400
     db = get_db()
     abort_asset_not_exists(db,id)
+    with db.connection() as db_conn:
+        with db_conn.cursor() as cur:
+            cur.execute(
+                """INSERT INTO comments(asset_id,account_id,comment)
+                 VALUES(%(asset_id)s,%(account_id)s,%(comment)s);""",
+                {"asset_id": id,"account_id":comment.user_id,"comment":comment.comment},
+            )
+    return {"msg": "Comment added"},200

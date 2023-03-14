@@ -6,7 +6,7 @@ from app.schemas import Attribute
 from psycopg.rows import dict_row
 from collections import defaultdict
 from app.schemas.factories import AttributeFactory
-
+from datetime import datetime,timedelta
 def test_new_assset_requires_name(valid_client):
     res = valid_client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
@@ -676,27 +676,31 @@ def test_comment_add_requires_comment(valid_client, new_assets):
         "type": "value_error.missing",
     } in res.json["data"]
 
+def test_comment_add_requires_asset_in_db(valid_client):
+    res = valid_client.post(f"/api/v1/asset/comment/{1}",json={"comment":"Hello World!"})
+    assert res.status_code == 400
+    assert res.json["msg"]=="Asset doesn't exist"
+    assert res.json["data"]==[]
 
 @pytest.mark.parametrize(
     "new_assets",
     [{"batch_size": 1,"add_to_db":True}],
     indirect=True,
 )
-def test_comment_add_requires_user_id(valid_client, new_assets):
-    res = valid_client.post(f"/api/v1/asset/comment/{new_assets[0].asset_id}",json={})
-    assert res.status_code == 400
-    assert res.json["msg"]=="Failed to add comment from the data provided"
-    assert res.json["error"]=="Invalid data"
-    assert {
-        "loc": ["userID"],
-        "msg": "field required",
-        "type": "value_error.missing",
-    } in res.json["data"]
-
-def test_comment_add_requires_asset_in_db(valid_client):
-    res = valid_client.post(f"/api/v1/asset/comment/{1}",json={"userID":1,"comment":"Hello World!"})
-    assert res.status_code == 400
-    assert res.json["msg"]=="Asset doesn't exist"
-    assert res.json["data"]==[]
-
-
+def test_comment_add_to_db(db_conn,valid_client, new_assets):
+    comment="Hello World!"
+    res = valid_client.post(f"/api/v1/asset/comment/{new_assets[0].asset_id}",json={"comment":"Hello World!"})
+    assert res.status_code == 200
+    assert res.json["msg"]=="Comment added"
+    with db_conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(
+                """
+            SELECT * FROM comments WHERE asset_id=%(id)s""",
+                {"id":new_assets[0].asset_id}
+            )
+            added_comment=cur.fetchone()
+            assert added_comment["account_id"]==1
+            assert added_comment["asset_id"]==new_assets[0].asset_id
+            assert added_comment["comment"]==comment
+            assert added_comment["date"]<datetime.utcnow()
+            assert added_comment["date"]>(datetime.utcnow()-timedelta(minutes=2))
