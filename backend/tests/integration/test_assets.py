@@ -676,6 +676,7 @@ def test_comment_add_requires_comment(valid_client, new_assets):
         "type": "value_error.missing",
     } in res.json["data"]
 
+
 @pytest.mark.parametrize(
     "new_assets",
     [{"batch_size": 1,"add_to_db":True}],
@@ -691,3 +692,11 @@ def test_comment_add_requires_user_id(valid_client, new_assets):
         "msg": "field required",
         "type": "value_error.missing",
     } in res.json["data"]
+
+def test_comment_add_requires_asset_in_db(valid_client):
+    res = valid_client.post(f"/api/v1/asset/comment/{1}",json={"userID":1,"comment":"Hello World!"})
+    assert res.status_code == 400
+    assert res.json["msg"]=="Asset doesn't exist"
+    assert res.json["data"]==[]
+
+

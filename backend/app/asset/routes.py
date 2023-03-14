@@ -6,6 +6,7 @@ from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
 from app.auth.routes import get_user_by_id
 from itertools import chain
+from flask import abort
 bp = Blueprint("asset", __name__, url_prefix="/asset")
 import json
 def asset_differ(orginal,new):
@@ -314,6 +315,7 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
 @bp.route("/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def view(id, user_id, access_level):
+    #TODO view if none
     db = get_db()
     asset=fetch_asset(db,id,access_level)
     
@@ -851,6 +853,20 @@ WHERE asset_id=%(asset_id)s;""",
                 if not attribute in new_attributes:
                     removed_attributes_names.append(attribute.attribute_name)
             return {"msg":"upgrade needed","data":[added_attributes,removed_attributes_names,max_version["version_id"]],"canUpgrade":True}
+def abort_asset_not_exists(db,id):
+    with db.connection() as db_conn:
+        with db_conn.cursor() as cur:
+            cur.execute(
+                """SELECT asset_id FROM assets WHERE asset_id=%(id)s AND soft_delete=0;""",
+                {"id": id},
+            )
+            if cur.fetchone() is None:
+                res=jsonify({"msg": "Asset doesn't exist",
+      
+                "data": []
+            })
+                res.status_code=400
+                abort(res)
 
 
 @bp.route("/comment/<id>", methods=["POST"])
@@ -863,3 +879,5 @@ def add_comment(id):
                 "data": e.errors(),
                 "error": "Invalid data",
             },400
+    db = get_db()
+    abort_asset_not_exists(db,id)
