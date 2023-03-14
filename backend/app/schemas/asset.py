@@ -50,7 +50,11 @@ class Attribute_Model(BaseModel):
     class Config:
         allow_population_by_field_name = True
 
-
+class Comment(BaseModel):
+    comment: str
+    user_id= Field(..., alias="userID")
+    class Config:
+        allow_population_by_field_name = True
 
 class Attribute(Attribute_Model):
     attribute_value: Any = Field(None, alias="attributeValue")
