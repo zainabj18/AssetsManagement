@@ -2,7 +2,7 @@ import os
 import json
 import click
 from psycopg.rows import class_row
-from app.db import close_db, get_db,Models
+from app.db import close_db, get_db,Models,UserRole,DataAccess
 from flask import current_app
 from werkzeug.security import generate_password_hash
 from app.schemas.factories import AssetFactory,TypeVersionFactory,ProjectFactory,TagFactory,TypeFactory
@@ -18,12 +18,15 @@ def init_db():
         conn.execute(
             """
         INSERT INTO accounts (username, hashed_password, account_type,account_privileges)
-VALUES (%(username)s,%(password)s,'ADMIN','CONFIDENTIAL');""",
+VALUES (%(username)s,%(password)s,%(account_type)s,%(account_privileges)s);""",
             {
                 "username": current_app.config["DEFAULT_SUPERUSER_USERNAME"],
                 "password": generate_password_hash(
                     current_app.config["DEFAULT_SUPERUSER_USERNAME"]
                 ),
+                "account_type":max(UserRole),
+                "account_privileges":max(DataAccess)
+
             },
         )
         for model in Models:
