@@ -105,12 +105,14 @@ CREATE TABLE attributes
  
  CREATE TABLE comments
 (
+	comment_id SERIAL,
 	asset_id INTEGER NOT NULL,
 	account_id INTEGER NOT NULL,
 	comment VARCHAR NOT NULL,
 	datetime timestamp NOT NULL DEFAULT now(),
 	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
-	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
+	FOREIGN KEY (account_id) REFERENCES accounts(account_id),
+	PRIMARY KEY (comment_id)
 );
 
  CREATE TABLE assets_in_tags
