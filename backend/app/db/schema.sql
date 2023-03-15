@@ -203,11 +203,3 @@ CREATE TABLE audit_logs
 	FOREIGN KEY (model_id) REFERENCES tracked_models(model_id),
 	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
  );
-
- INSERT INTO tracked_models(model_id,model_name) 
- VALUES
- (1,'assets'),
- (2,'projects'),
- (3,'type'),
- (4,'tags'),
- (5,'accounts');
