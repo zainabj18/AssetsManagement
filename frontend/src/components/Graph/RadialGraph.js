@@ -11,6 +11,8 @@ const RadialGraph = ({
 	textSize = 15,
 	backgroundColour = null,
 	curveOffset = 1,
+	fontColour = 'black',
+	highightColour = 'grey',
 	defaultColour = 'black',
 	outboundColour = 'red',
 	inboundColour = 'blue',
@@ -21,7 +23,7 @@ const RadialGraph = ({
 }) => {
 
 	const radius = size * radiusPercent / 2;
-	const center =  radius / radiusPercent;
+	const center = radius / radiusPercent;
 	const angleSplit = Math.PI * 2 / data.points.length;
 
 	useEffect(() => {
@@ -92,7 +94,7 @@ const RadialGraph = ({
 
 		let points = [];
 		data.points.forEach((point, index) => {
-			points.push(new Point(point.id, point.name, getX(index), getY(index), outbounds[point.id], inbounds[point.id]));
+			points.push(new Point(point.id, point.name, getX(index), getY(index), outbounds[point.id], inbounds[point.id], fontColour));
 		});
 
 		setPoints(points);
@@ -100,6 +102,8 @@ const RadialGraph = ({
 	};
 
 	const highightLines = (point, hovered) => {
+		point.fontColour = (hovered) ? highightColour : fontColour;
+
 		let l = [...lines];
 		point.outbound.forEach(lineIndex => {
 			l[lineIndex].colour = ((hovered) ? outboundColour : defaultColour);

@@ -40,7 +40,8 @@ class PointElement extends Component {
 						+ (this.point.y - this.state.height / 2 + this.getOffSetY())
 						+ 'px)'
 						+ 'rotate(' + this.rotation.angle + 'rad)',
-					fontSize: this.textSize
+					fontSize: this.textSize,
+					color: this.point.fontColour
 				}}
 				onMouseOver={this.mouseOver}
 				onMouseLeave={this.mouseLeave}
