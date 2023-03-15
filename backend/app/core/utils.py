@@ -2,9 +2,9 @@ from functools import wraps
 
 import jwt
 from app.db import DataAccess, UserRole
-from flask import abort, current_app, request
-
-
+from flask import abort, current_app, request,jsonify
+from psycopg import Error
+from psycopg.rows import dict_row
 def decode_token(request):
     token = request.cookies.get("access-token")
     if not token:
@@ -27,7 +27,6 @@ def decode_token(request):
     except jwt.InvalidSignatureError as e:
         abort(401, {"msg": str(e), "error": "Invalid Token"})
 
-
 def protected(role=UserRole.VIEWER):
     def decorated_route(func):
         @wraps(func)
@@ -47,3 +46,17 @@ def protected(role=UserRole.VIEWER):
         return wrapper
 
     return decorated_route
+
+def run_query(db, query, params=None,row_factory=dict_row):
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=row_factory) as cur:    
+            try:
+                if params == None:
+                    return cur.execute(query)
+                return cur.execute(query, params)
+            except Error as e:
+                res=jsonify(
+                    {"msg": "Database Error","data":[str(e)]}
+                )
+                res.status_code=500
+                abort(res)
