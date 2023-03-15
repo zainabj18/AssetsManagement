@@ -89,7 +89,7 @@ const SearchSelect = ({dataFunc,selectedValue,setSelectedValue,createFunc}) => {
 				<HStack>
 					
 					<PopoverAnchor>
-						{isEditing ?(<Input type='text' color='red' value={searchQuery} onChange={e => {
+						{isEditing ?(<Input type='text' color='red'  value={searchQuery} onChange={e => {
 							handleQuery(e.target.value);}}/>):(<Box>{selectedValue&&selectedValue.name}</Box>)}
 					</PopoverAnchor>
 					<PopoverTrigger>
@@ -101,9 +101,9 @@ const SearchSelect = ({dataFunc,selectedValue,setSelectedValue,createFunc}) => {
 					</PopoverTrigger>
 				</HStack>
 				
-				<PopoverContent color={'white'}>
+				<PopoverContent color={'black'} border={1}>
 					<PopoverBody overflowY={'scroll'} maxHeight={'xs'} onScroll={handleScroll}>
-						{selectedValue && <Box fontWeight='bold' color='teal.600' background='grey'
+						{selectedValue && <Box fontWeight='bold' color='#ed7966's
                     	key={selectedValue.id}
                     	onClick={e=>{
                     		handleClick(selectedValue);
@@ -112,7 +112,7 @@ const SearchSelect = ({dataFunc,selectedValue,setSelectedValue,createFunc}) => {
 						{results.length>0 &&
                     results.slice(0,maxVisible).map((d)=>{return (<Box
                     	_hover={{ fontWeight: 'semibold',background: 'white',
-                    		color: 'teal.500', }}
+                    		color: '#ed796', }}
                     	key={d.id}
                     	onClick={e=>{
                     		handleClick(d);
