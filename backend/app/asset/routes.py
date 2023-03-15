@@ -871,7 +871,7 @@ def abort_asset_not_exists(db,id):
 
 def insert_comment_to_db(db,comment:Comment,user_id):
     return run_query(db,"""INSERT INTO comments(asset_id,account_id,comment)
-                 VALUES(%(asset_id)s,%(account_id)s,%(comment)s);""",{"asset_id": user_id,"account_id":comment.user_id,"comment":comment.comment})
+                 VALUES(%(asset_id)s,%(account_id)s,%(comment)s);""",{"asset_id": user_id,"account_id":user_id,"comment":comment.comment})
 
 
 

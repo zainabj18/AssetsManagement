@@ -52,9 +52,11 @@ class Attribute_Model(BaseModel):
 
 class Comment(BaseModel):
     comment: str=Field(...,min_length=1)
-    user_id:int= Field(..., alias="userID")
     class Config:
         allow_population_by_field_name = True
+
+class CommentOut(Comment):
+    user_id:int= Field(..., alias="userID")
 
 class Attribute(Attribute_Model):
     attribute_value: Any = Field(None, alias="attributeValue")

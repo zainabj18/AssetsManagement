@@ -7,7 +7,7 @@ from app.db import DataAccess, UserRole
 from app.schemas import Attribute
 from psycopg.rows import dict_row
 from collections import defaultdict
-from app.schemas.factories import AttributeFactory
+from app.schemas.factories import AttributeFactory,CommentFactory
 from datetime import datetime,timedelta
 def test_new_assset_requires_name(valid_client):
     res = valid_client.post("/api/v1/asset/", json={})
@@ -724,6 +724,35 @@ def test_comment_add_to_db(db_conn,valid_client, new_assets):
             assert added_comment["datetime"]<datetime.utcnow()
             assert added_comment["datetime"]>(datetime.utcnow()-timedelta(minutes=2))
 
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1,"add_to_db":True}],
+    indirect=True,
+)
+def test_comment_multiple(db_conn,valid_client, new_assets):
+    comments=CommentFactory.batch(size=100)
+    comment_values=[]
+    for comment in comments:
+        comment_values.append(comment.comment)
+        res = valid_client.post(f"/api/v1/asset/comment/{new_assets[0].asset_id}",json=comment.dict())
+        assert res.status_code == 200
+        assert res.json["msg"]=="Comment added"
+    
+    with db_conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(
+                """
+            SELECT * FROM comments WHERE asset_id=%(id)s""",
+                {"id":new_assets[0].asset_id}
+            )
+            added_comments=cur.fetchall()
+            assert len(added_comments)==len(comments)
+            for db_comment in added_comments:
+                assert db_comment["account_id"]==1
+                assert db_comment["asset_id"]==new_assets[0].asset_id
+                comment_values.remove(db_comment["comment"])
+                assert db_comment["datetime"]<datetime.utcnow()
+                assert db_comment["datetime"]>(datetime.utcnow()-timedelta(minutes=2))
+            assert len(comment_values)==0
 # @pytest.mark.parametrize(
 #     "new_assets",
 #     [{"batch_size": 1,"add_to_db":True}],
