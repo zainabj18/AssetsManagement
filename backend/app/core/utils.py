@@ -63,7 +63,7 @@ def run_query(db, query, params=None,row_factory=dict_row,return_type=None):
                     cur.execute(query, params)
                 match return_type:
                     case QueryResult.ONE:
-                        return cur.fetchone()[0]
+                        return cur.fetchone()
                     case QueryResult.ALL:
                         return cur.fetchall()
                     case _:

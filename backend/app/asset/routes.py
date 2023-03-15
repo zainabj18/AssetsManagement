@@ -1,5 +1,5 @@
 from app.core.utils import protected,run_query,model_creator,QueryResult
-from app.db import DataAccess, UserRole, get_db,Actions
+from app.db import DataAccess, UserRole, get_db,Actions,Models
 from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model,Project,Comment,CommentOut
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
@@ -876,6 +876,12 @@ def insert_comment_to_db(db,comment:Comment,user_id):
 def fetch_asset_comments(db,asset_id):
     return run_query(db,"""SELECT * FROM comments WHERE asset_id=%(asset_id)s ORDER BY datetime;""",{"asset_id": asset_id},return_type=QueryResult.ALL,row_factory=class_row(CommentOut))
 
+def audit_log_event(db,model_id,account_id,object_id,diff_dict,action):
+    return run_query(db,"""
+                INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
+        VALUES (%(model_id)s,%(account_id)s,%(object_id)s,%(diff)s,%(action)s);""",
+        {"model_id":model_id,"account_id":account_id,"object_id":object_id,"diff":json.dumps(diff_dict),"action":action})
+
 @bp.route("/comment/<id>", methods=["POST"])
 @protected(role=UserRole.USER)
 def add_comment(id,user_id, access_level):
@@ -884,16 +890,13 @@ def add_comment(id,user_id, access_level):
     #TODO:Keep db open
     abort_asset_not_exists(db,id)
     insert_comment_to_db(db,comment,user_id)
+    audit_log_event(db,Models.ASSETS,user_id,id,{"added":["comment"]},Actions.ADD)
     return {"msg": "Comment added"},200
 
 @bp.route("/comment/<id>", methods=["GET"])
 @protected(role=UserRole.USER)
 def fetch_comments(id,user_id, access_level):
     db = get_db()
-    print("hello")
     abort_asset_not_exists(db,id)
-    print("bye")
-    abort_asset_not_exists(db,id)
-    print("fish")
     comments=[json.loads(c.json(by_alias=True)) for c in fetch_asset_comments(db,id)]
     return {"msg": "Comments","data":comments},200
