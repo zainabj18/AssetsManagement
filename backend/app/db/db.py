@@ -9,7 +9,7 @@ class Actions(Enum):
     CHANGE =auto()
     DELETE =auto()
 
-class Models(Enum):
+class Models(IntEnum):
     ACCOUNTS=auto()
     ASSETS = auto()
     PROJECTS =auto()
