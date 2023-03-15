@@ -18,7 +18,7 @@ const OperationTo = ({actionFunc,actionName}) => {
 			<Button onClick={onOpen}>{actionName} To</Button>
 			<Modal isOpen={isOpen} onClose={onClose} variant="popup">
 				<ModalOverlay />
-				<ModalContent>
+				<ModalContent bg="white">
 					<ModalHeader>{actionName} Selected Asset(s)</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>

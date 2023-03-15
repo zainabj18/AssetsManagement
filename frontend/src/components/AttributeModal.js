@@ -71,7 +71,7 @@ const AttributeModal = ({ showModalButtonText, load_allAttributes_setter }) => {
 				variant="popup"
 			>
 				<ModalOverlay />
-				<ModalContent>
+				<ModalContent bg="white">
 					<ModalHeader>Create New Attribute</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>
@@ -80,6 +80,8 @@ const AttributeModal = ({ showModalButtonText, load_allAttributes_setter }) => {
 							<Input type='text'
 								name='new_attributeName'
 								placeholder='Name'
+								bg={'white'}
+								border={'1px solid black'}
 								onChange={(e) => {
 									creationData.name = e.target.value;
 									set_creationData(creationData);
@@ -123,7 +125,8 @@ const AttributeModal = ({ showModalButtonText, load_allAttributes_setter }) => {
 									<Input
 										placeholder='Min'
 										type='number'
-
+										bg={'white'}
+										border={'1px solid black'}
 										onChange={(e) => {
 											creationData.min = e.target.value;
 											set_creationData(creationData);
@@ -132,7 +135,8 @@ const AttributeModal = ({ showModalButtonText, load_allAttributes_setter }) => {
 									<Input
 										placeholder='Max'
 										type='number'
-
+										bg={'white'}
+										border={'1px solid black'}
 										onChange={(e) => {
 											creationData.max = e.target.value;
 											set_creationData(creationData);
@@ -152,6 +156,8 @@ const AttributeModal = ({ showModalButtonText, load_allAttributes_setter }) => {
 										<Input
 											placeholder='options'
 											type='text'
+											bg={'white'}
+											border={'1px solid black'}
 
 											onChange={(e) => {
 												creationData.choices = e.target.value;
@@ -185,7 +191,7 @@ const AttributeModal = ({ showModalButtonText, load_allAttributes_setter }) => {
 							</FormControl>}
 
 					</ModalBody>
-					<ModalFooter>
+					<ModalFooter display={'flex'} justifyContent="space-between" marginX={3}>
 						<Button onClick={tryCreate_attribute}>Save</Button>
 						<Button onClick={onClose}>Cancel</Button>
 					</ModalFooter>

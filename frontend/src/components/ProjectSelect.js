@@ -39,21 +39,21 @@ function ProjectSelect({setSelectedProjects,projects}) {
 		() => {return {
 			'projectID':{
 				header: 'Project ID',
-				Filter:p=>{return <Input type='number' onChange={(e)=>{setFilter((prev)=>({
+				Filter:p=>{return <Input  bg="white" sx={{border:"1px solid black"}}  type='number' onChange={(e)=>{setFilter((prev)=>({
 					...prev,
 					'id':e.target.value
 				}));}} />;}
 			},
 			'projectName':{
 				header: 'Project Name',
-				Filter:p=>{return <Input onChange={(e)=>{setFilter((prev)=>({
+				Filter:p=>{return <Input  bg="white" sx={{border:"1px solid black"}}  onChange={(e)=>{setFilter((prev)=>({
 					...prev,
 					'name':e.target.value
 				}));}} />;}
 			},
 			'projectDescription':{
 				header: 'Project Decription',
-				Filter:p=>{return <Input onChange={(e)=>{setFilter((prev)=>({
+				Filter:p=>{return <Input bg="white" sx={{border:"1px solid black"}} onChange={(e)=>{setFilter((prev)=>({
 					...prev,
 					'description':e.target.value
 				}));}} />;}
@@ -100,7 +100,7 @@ function ProjectSelect({setSelectedProjects,projects}) {
 	};
 	const renderHeader=(key)=>{
 		return (<VStack>
-			<Th>{columns[key].header}</Th>
+			<Th bg={'white'}>{columns[key].header}</Th>
 			{columns[key].hasOwnProperty('Filter')&& columns[key].Filter()}
 		</VStack>);
 		
@@ -143,8 +143,8 @@ function ProjectSelect({setSelectedProjects,projects}) {
 					{projects && <TableContainer>
 						<Input onChange={(e)=>{setQuery(e.target.value);}} background="white" paddingY="5px" placeholder='Enter here...'/>
 						<Table variant='stripped'>
-		  <Thead alignContent={'center'} alignItems="center" width="90vw" rounded={10}>
-								<Tr key={'header'} border={"1px solid"} background="white" marginY={5}> 
+		  <Thead alignContent={'center'} alignItems="center" width="90vw" rounded={10} bg="#ed7966">
+								<Tr key={'header'} border={"1px solid"} background="#ed7966" marginY={5}> 
 									<Th><Checkbox isChecked={data.length===selected.length}
 										isIndeterminate={selected.length>0 && selected.length<data.length}
 										onChange={(e)=>{onIntermediateCheckboxChange(e.target.checked);}}
@@ -157,7 +157,23 @@ function ProjectSelect({setSelectedProjects,projects}) {
 		  )}
 		  </Tr>
 		  </Thead>
-		  <Tbody>
+		  <Tbody bg={'white'} sx={{
+		tr: {
+			border:'none',
+			'&:nth-of-type(odd)': {
+				td:{
+					bg:'white',
+					color:'blue.900'
+				}
+			},
+			'&:nth-of-type(even)': {
+				td: {
+					bg:'blue.100',
+					color:'blue.900'
+				}
+			}
+		
+	}}}>
 		  {filteredRows.map((row,index)=> (
 									<Tr key={index}>
 										<Td><Checkbox defaultChecked={selected.includes(row.rowID)} isChecked={selected.includes(row.rowID)} onChange={(e) => handleCheck(row.rowID,e.target.checked)} /></Td>

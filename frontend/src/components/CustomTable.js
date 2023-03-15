@@ -12,7 +12,8 @@ import {
 	Input,
 	VStack,
 	Alert,
-	AlertIcon
+	AlertIcon,
+	border
 } from '@chakra-ui/react';
 
 
@@ -114,9 +115,12 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 			<Table>
 		  <Thead border={'1px solid red'}>
 					<Tr key={'header'}  >
-						<Th bg= '#ed7966'><Checkbox isChecked={data.length===selected.length}
+						<Th bg= '#ed7966'>
+							<Checkbox isChecked={data.length===selected.length}
 							isIndeterminate={selected.length>0 && selected.length<data.length}
-							onChange={(e)=>{onIntermediateCheckboxChange(e.target.checked);}}
+							onChange={(e)=>{onIntermediateCheckboxChange(e.target.checked)  }}
+							border="1px solid white"
+							marginTop={3}
 									
 						/></Th>
 		  {Object.keys(columns).map(key => (
