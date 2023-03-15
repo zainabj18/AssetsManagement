@@ -874,7 +874,10 @@ def insert_comment_to_db(db,comment:Comment,user_id):
                  VALUES(%(asset_id)s,%(account_id)s,%(comment)s);""",{"asset_id": user_id,"account_id":user_id,"comment":comment.comment})
 
 def fetch_asset_comments(db,asset_id):
-    return run_query(db,"""SELECT * FROM comments WHERE asset_id=%(asset_id)s ORDER BY datetime;""",{"asset_id": asset_id},return_type=QueryResult.ALL,row_factory=class_row(CommentOut))
+    return run_query(db,"""
+    SELECT comments.*,username FROM comments
+INNER JOIN accounts ON accounts.account_id=comments.account_id
+    WHERE asset_id=%(asset_id)s ORDER BY datetime;""",{"asset_id": asset_id},return_type=QueryResult.ALL,row_factory=class_row(CommentOut))
 
 def audit_log_event(db,model_id,account_id,object_id,diff_dict,action):
     return run_query(db,"""
