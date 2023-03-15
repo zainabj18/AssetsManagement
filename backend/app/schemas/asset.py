@@ -70,6 +70,7 @@ class Comment(BaseModel):
 class CommentOut(Comment):
     comment_id:int
     asset_id:int= Field(..., alias="assetID")
+    account_id:int= Field(..., alias="accountID")
     datetime:datetime
     username:Optional[str]
     class Config:

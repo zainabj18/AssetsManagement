@@ -46,6 +46,7 @@ const Comments = () => {
 	return (
 		<Box>
 			<VStack display="flex" flexDirection='column' bg="tomato" spacing={4} padding={4} overflowY='scroll' maxH="70vh">
+				<Text as="em">This is the start of the dicussion</Text>
 				{comments.map((comment, index) => {return (
 					<Box 
 						key={index}
@@ -53,7 +54,7 @@ const Comments = () => {
 						borderRadius='md' 
 						padding={2}
 						maxWidth="80%"
-						alignSelf={index >1?'flex-start':'flex-end'}>
+						alignSelf={comment.accountID===user.userID?'flex-start':'flex-end'}>
 						<Link to={`/profile/${comment.accountID}`} as={NavLink}><Text as='b'>{comment.username}</Text></Link>
 
 						<Text>{comment.comment}</Text>
