@@ -141,7 +141,7 @@ def login():
         value=token,
         secure=True,
         httponly=True,
-        expires=datetime.utcnow() + timedelta(minutes=30),
+        expires=datetime.utcnow() + timedelta(minutes=600),
     )
     return resp
 
