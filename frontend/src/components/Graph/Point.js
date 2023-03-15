@@ -11,8 +11,4 @@ export default class Point {
 	equals(point) {
 		return this.id = point.id;
 	}
-
-	getTransform() {
-		return 'translate(' + this.x + 'px, ' + this.y + 'px)';
-	}
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Line from './Line';
 import Point from './Point';
+import PointElement from './PointElement';
 
 const RadialGraph = ({
 	data = { points: [], joins: [] },
@@ -23,38 +24,20 @@ const RadialGraph = ({
 		onLoad();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
-
-	const getOffsetX = (index) => {
-		return radius * Math.sin(index * angleSplit);
+	
+	const getX = (index) => {
+		return center + radius * Math.sin(index * angleSplit);
 	};
 
-	const getOffsetY = (index) => {
-		return -radius * Math.cos(index * angleSplit);
-	};
-
-	const getLineX = (index) => {
-		return center + getOffsetX(index);
-	};
-
-	const getLineY = (index) => {
-		return center + getOffsetY(index);
-	};
-
-	const getPointX = (index) => {
-		let basePos = getOffsetX(index);
-		return center + basePos;
-	};
-
-	const getPointY = (index) => {
-		let basePos = getOffsetY(index);
-		return center + basePos;
+	const getY = (index) => {
+		return center - radius * Math.cos(index * angleSplit);
 	};
 
 	const getRotation = (index) => {
 		let rotation = index * angleSplit;
 		if (rotation > Math.PI) {
 			rotation += Math.PI;
-		}	
+		}
 		return 'rotate(' + (rotation - Math.PI / 2) + 'rad)';
 	};
 
@@ -91,7 +74,7 @@ const RadialGraph = ({
 		data.joins.forEach((join, index) => {
 			let out = [];
 			join.to.forEach((to) => {
-				let line = new Line(getLineX(index), getLineY(index), getLineX(pointIndexes[to]), getLineY(pointIndexes[to]), defaultColour, defaultLineWidth);
+				let line = new Line(getX(index), getY(index), getX(pointIndexes[to]), getY(pointIndexes[to]), defaultColour, defaultLineWidth);
 				if (getIndex(line, lines) === -1) {
 					lines.push(line);
 				}
@@ -104,7 +87,7 @@ const RadialGraph = ({
 
 		let points = [];
 		data.points.forEach((point, index) => {
-			points.push(new Point(point.id, point.name, getPointX(index), getPointY(index), outbounds[point.id], inbounds[point.id]));
+			points.push(new Point(point.id, point.name, getX(index), getY(index), outbounds[point.id], inbounds[point.id]));
 		});
 
 		setPoints(points);
@@ -151,25 +134,22 @@ const RadialGraph = ({
 							stroke={line.colour}
 							strokeWidth={line.width}
 							strokeLinecap="round"
-							fill="transparent">
+							fill="transparent"
+						>
 						</path>
 					);
 				})}
 			</svg>
 			{points.map((point, index) => {
 				return (
-					<h1
+					<PointElement
+						point={point}
 						key={index}
-						style={{
-							position: 'absolute',
-							transform: point.getTransform() + getRotation(index),
-							fontSize: textSize
-						}}
 						onMouseOver={() => highightLines(point, true)}
 						onMouseLeave={() => highightLines(point, false)}
-					>
-						{point.name}
-					</h1>
+						rotation={getRotation(index)}
+						textSize={textSize}
+					/>
 				);
 			})}
 		</div>
