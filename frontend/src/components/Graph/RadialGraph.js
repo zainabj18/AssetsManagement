@@ -3,6 +3,7 @@ import Line from './Line';
 import Point from './Point';
 import Rotation from './Rotation';
 import PointElement from './PointElement';
+import { HStack, VStack, Text } from '@chakra-ui/react';
 
 const RadialGraph = ({
 	data = { points: [], joins: [] },
@@ -19,7 +20,8 @@ const RadialGraph = ({
 	twoWayColour = 'purple',
 	defaultLineWidth = 1,
 	highlightedLineWidth = 2,
-	graphClearanceSpace = 15
+	graphClearanceSpace = 15,
+	show2WayInKey = true
 }) => {
 
 	const radius = size * radiusPercent / 2;
@@ -122,47 +124,54 @@ const RadialGraph = ({
 	};
 
 	return (
-		<div style={{
-			display: 'inline-block',
-			height: size + 'px',
-			width: size + 'px',
-			backgroundColor: backgroundColour
-		}}>
-			<svg
-				style={{
-					position: 'absolute',
-					height: size + 'px',
-					width: size + 'px'
-				}}
-			>
-				{lines.map((line, index) => {
+		<VStack>
+			<HStack>
+				<Text style={{ backgroundColor: outboundColour, height: '20px', width: '20px' }}>{' '}</Text><Text>Outbound</Text>
+				<Text style={{ backgroundColor: inboundColour, height: '20px', width: '20px' }}>{' '}</Text><Text>Inbound</Text>
+				{show2WayInKey && <><Text style={{ backgroundColor: twoWayColour, height: '20px', width: '20px' }}>{' '}</Text><Text>2 Way</Text></>}
+			</HStack>
+			<div style={{
+				display: 'inline-block',
+				height: size + 'px',
+				width: size + 'px',
+				backgroundColor: backgroundColour
+			}}>
+				<svg
+					style={{
+						position: 'absolute',
+						height: size + 'px',
+						width: size + 'px'
+					}}
+				>
+					{lines.map((line, index) => {
+						return (
+							<path
+								key={index}
+								d={setCurve(line)}
+								stroke={line.colour}
+								strokeWidth={line.width}
+								strokeLinecap="round"
+								fill="transparent"
+							>
+							</path>
+						);
+					})}
+				</svg>
+				{points.map((point, index) => {
 					return (
-						<path
+						<PointElement
+							point={point}
 							key={index}
-							d={setCurve(line)}
-							stroke={line.colour}
-							strokeWidth={line.width}
-							strokeLinecap="round"
-							fill="transparent"
-						>
-						</path>
+							onMouseOver={() => highightLines(point, true)}
+							onMouseLeave={() => highightLines(point, false)}
+							rotation={getRotation(index)}
+							textSize={textSize}
+							spacing={graphClearanceSpace}
+						/>
 					);
 				})}
-			</svg>
-			{points.map((point, index) => {
-				return (
-					<PointElement
-						point={point}
-						key={index}
-						onMouseOver={() => highightLines(point, true)}
-						onMouseLeave={() => highightLines(point, false)}
-						rotation={getRotation(index)}
-						textSize={textSize}
-						spacing={graphClearanceSpace}
-					/>
-				);
-			})}
-		</div>
+			</div>
+		</VStack>
 	);
 };
 
