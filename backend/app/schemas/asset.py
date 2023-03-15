@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, List, Optional
 
-from app.db import DataAccess
+from app.db import DataAccess,Actions
 from pydantic import BaseModel, Field, ValidationError, root_validator, validator,Extra
 from enum import Enum
 
@@ -11,6 +11,18 @@ class QueryOperation(Enum):
     HAS="HAS"
     AND="AND"
     OR="OR"
+
+class Log(BaseModel):
+    log_id: int = Field(..., alias="logID")
+    account_id: int = Field(..., alias="accountID")
+    object_id:int = Field(..., alias="objectID")
+    model_id:int = Field(..., alias="modelID")
+    action:Actions
+    date:datetime
+
+    class Config:
+        allow_population_by_field_name = True
+
 
 class AttributeSearcher(BaseModel):
     attribute_id: Any = Field(..., alias="attributeID")
