@@ -1,6 +1,6 @@
-from app.core.utils import protected,run_query,model_creator
+from app.core.utils import protected,run_query,model_creator,QueryResult
 from app.db import DataAccess, UserRole, get_db,Actions
-from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model,Project,Comment
+from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model,Project,Comment,CommentOut
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
@@ -873,13 +873,27 @@ def insert_comment_to_db(db,comment:Comment,user_id):
     return run_query(db,"""INSERT INTO comments(asset_id,account_id,comment)
                  VALUES(%(asset_id)s,%(account_id)s,%(comment)s);""",{"asset_id": user_id,"account_id":user_id,"comment":comment.comment})
 
-
+def fetch_asset_comments(db,asset_id):
+    return run_query(db,"""SELECT * FROM comments WHERE asset_id=%(asset_id)s ORDER BY datetime;""",{"asset_id": asset_id},return_type=QueryResult.ALL,row_factory=class_row(CommentOut))
 
 @bp.route("/comment/<id>", methods=["POST"])
 @protected(role=UserRole.USER)
 def add_comment(id,user_id, access_level):
     comment=model_creator(Comment,"Failed to add comment from the data provided",**request.json,user_id=user_id)
     db = get_db()
+    #TODO:Keep db open
     abort_asset_not_exists(db,id)
     insert_comment_to_db(db,comment,user_id)
     return {"msg": "Comment added"},200
+
+@bp.route("/comment/<id>", methods=["GET"])
+@protected(role=UserRole.USER)
+def fetch_comments(id,user_id, access_level):
+    db = get_db()
+    print("hello")
+    abort_asset_not_exists(db,id)
+    print("bye")
+    abort_asset_not_exists(db,id)
+    print("fish")
+    comments=[json.loads(c.json(by_alias=True)) for c in fetch_asset_comments(db,id)]
+    return {"msg": "Comments","data":comments},200

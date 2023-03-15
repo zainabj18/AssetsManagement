@@ -56,8 +56,12 @@ class Comment(BaseModel):
         allow_population_by_field_name = True
 
 class CommentOut(Comment):
-    user_id:int= Field(..., alias="userID")
-
+    comment_id:int
+    asset_id:int= Field(..., alias="assetID")
+    account_id:int= Field(..., alias="accountID")
+    datetime:datetime
+    class Config:
+        allow_population_by_field_name = True
 class Attribute(Attribute_Model):
     attribute_value: Any = Field(None, alias="attributeValue")
     # cast string to correct type based on attribute type

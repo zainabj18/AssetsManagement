@@ -48,13 +48,27 @@ def protected(role=UserRole.VIEWER):
 
     return decorated_route
 
-def run_query(db, query, params=None,row_factory=dict_row):
+from enum import Enum,auto
+class QueryResult(Enum):
+    ONE = auto()
+    ALL =auto()
+
+def run_query(db, query, params=None,row_factory=dict_row,return_type=None):
     try:
         with db.connection() as db_conn:
             with db_conn.cursor(row_factory=row_factory) as cur:    
                 if params == None:
-                    return cur.execute(query)
-                return cur.execute(query, params)
+                    cur.execute(query)
+                else:
+                    cur.execute(query, params)
+                match return_type:
+                    case QueryResult.ONE:
+                        return cur.fetchone()[0]
+                    case QueryResult.ALL:
+                        return cur.fetchall()
+                    case _:
+                        return
+                
     except Error as e:
         res=jsonify(
             {"msg": "Database Error","data":[str(e)]}

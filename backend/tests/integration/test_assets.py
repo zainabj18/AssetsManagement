@@ -753,6 +753,36 @@ def test_comment_multiple(db_conn,valid_client, new_assets):
                 assert db_comment["datetime"]<datetime.utcnow()
                 assert db_comment["datetime"]>(datetime.utcnow()-timedelta(minutes=2))
             assert len(comment_values)==0
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1,"add_to_db":True}],
+    indirect=True,
+)
+def test_comment_get(db_conn,valid_client, new_assets):
+    comments=CommentFactory.batch(size=100)
+    comment_values=[]
+    for comment in comments:
+        comment_values.append(comment.comment)
+        res = valid_client.post(f"/api/v1/asset/comment/{new_assets[0].asset_id}",json=comment.dict())
+        assert res.status_code == 200
+        assert res.json["msg"]=="Comment added"
+    res = valid_client.get(f"/api/v1/asset/comment/{new_assets[0].asset_id}")
+    #print(res.json)
+    assert res.status_code == 200
+    assert res.json["msg"]=="Comments"
+    #print(res.json["data"])
+    assert len(res.json["data"])==len(comments)
+    print(res.json["data"])
+    for index,comment in enumerate(comments):
+        db_comment=res.json["data"][index]
+        assert db_comment["accountID"]==1
+        assert db_comment["assetID"]==new_assets[0].asset_id
+        comment_values.remove(db_comment["comment"])
+    assert len(comment_values)==0  
+
+
+
 # @pytest.mark.parametrize(
 #     "new_assets",
 #     [{"batch_size": 1,"add_to_db":True}],
