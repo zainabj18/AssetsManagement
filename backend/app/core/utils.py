@@ -3,6 +3,7 @@ from functools import wraps
 import jwt
 from app.db import DataAccess, UserRole
 from flask import abort, current_app, request,jsonify
+from pydantic import ValidationError
 from psycopg import Error
 from psycopg.rows import dict_row
 def decode_token(request):
@@ -60,3 +61,14 @@ def run_query(db, query, params=None,row_factory=dict_row):
         )
         res.status_code=500
         abort(res)
+
+def model_creator(model,err_msg,*args, **kwargs):
+    try:
+        obj = model(*args, **kwargs)
+    except ValidationError as e:
+        res=jsonify({"msg": err_msg,
+                "data": e.errors()
+            })
+        res.status_code=400
+        abort(res)
+    return obj

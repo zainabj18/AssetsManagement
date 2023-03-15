@@ -1,4 +1,4 @@
-from app.core.utils import protected,run_query
+from app.core.utils import protected,run_query,model_creator
 from app.db import DataAccess, UserRole, get_db,Actions
 from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model,Project,Comment
 from flask import Blueprint, jsonify, request
@@ -873,16 +873,7 @@ def insert_comment_to_db(db,comment:Comment,user_id):
     return run_query(db,"""INSERT INTO comments(asset_id,account_id,comment)
                  VALUES(%(asset_id)s,%(account_id)s,%(comment)s);""",{"asset_id": user_id,"account_id":comment.user_id,"comment":comment.comment})
 
-def model_creator(model,err_msg,*args, **kwargs):
-    try:
-        obj = model(*args, **kwargs)
-    except ValidationError as e:
-        res=jsonify({"msg": err_msg,
-                "data": e.errors()
-            })
-        res.status_code=400
-        abort(res)
-    return obj
+
 
 @bp.route("/comment/<id>", methods=["POST"])
 @protected(role=UserRole.USER)
