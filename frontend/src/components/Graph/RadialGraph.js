@@ -6,8 +6,10 @@ import PointElement from './PointElement';
 
 const RadialGraph = ({
 	data = { points: [], joins: [] },
-	size = 400,
+	size = 600,
+	radiusPercent = 0.6,
 	textSize = 15,
+	backgroundColour = null,
 	curveOffset = 1,
 	defaultColour = 'black',
 	outboundColour = 'red',
@@ -18,8 +20,8 @@ const RadialGraph = ({
 	graphClearanceSpace = 15
 }) => {
 
-	const radius = size / 2;
-	const center = radius;
+	const radius = size * radiusPercent / 2;
+	const center =  radius / radiusPercent;
 	const angleSplit = Math.PI * 2 / data.points.length;
 
 	useEffect(() => {
@@ -120,7 +122,7 @@ const RadialGraph = ({
 			display: 'inline-block',
 			height: size + 'px',
 			width: size + 'px',
-			backgroundColor: 'yellow'
+			backgroundColor: backgroundColour
 		}}>
 			<svg
 				style={{
