@@ -177,6 +177,7 @@ export const makeBackfill = async (data) => {
 export const fetchComments = async (id) => {
 	return await axios.get(`/asset/comment/${id}`).then(res => res.data);
 };
-export const addComment = async ({ id,comment}) => {
-	return await axios.post(`/asset/comment/${id}`,{comment}).then(res => res.data);
+export const addComment = async (id,comment) => {
+	console.log(comment);
+	return await axios.post(`/asset/comment/${id}`,comment).then(res => res.data);
 };

@@ -869,9 +869,9 @@ def abort_asset_not_exists(db,id):
                 res.status_code=400
                 abort(res)
 
-def insert_comment_to_db(db,comment:Comment,user_id):
+def insert_comment_to_db(db,comment:Comment,user_id,asset_id):
     return run_query(db,"""INSERT INTO comments(asset_id,account_id,comment)
-                 VALUES(%(asset_id)s,%(account_id)s,%(comment)s);""",{"asset_id": user_id,"account_id":user_id,"comment":comment.comment})
+                 VALUES(%(asset_id)s,%(account_id)s,%(comment)s);""",{"asset_id": asset_id,"account_id":user_id,"comment":comment.comment})
 
 def fetch_asset_comments(db,asset_id):
     return run_query(db,"""
@@ -888,11 +888,14 @@ def audit_log_event(db,model_id,account_id,object_id,diff_dict,action):
 @bp.route("/comment/<id>", methods=["POST"])
 @protected(role=UserRole.USER)
 def add_comment(id,user_id, access_level):
-    comment=model_creator(Comment,"Failed to add comment from the data provided",**request.json,user_id=user_id)
+    print(request.json)
+    comment=model_creator(Comment,"Failed to add comment from the data provided",**request.json)
+    print(type(comment))
     db = get_db()
     #TODO:Keep db open
     abort_asset_not_exists(db,id)
-    insert_comment_to_db(db,comment,user_id)
+    print(db,comment,user_id,id)
+    insert_comment_to_db(db,comment,user_id,id)
     audit_log_event(db,Models.ASSETS,user_id,id,{"added":["comment"]},Actions.ADD)
     return {"msg": "Comment added"},200
 
