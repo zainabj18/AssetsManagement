@@ -9,7 +9,18 @@ class PointElement extends Component {
 		this.textSize = props.textSize;
 		this.mouseOver = props.onMouseOver;
 		this.mouseLeave = props.onMouseLeave;
+		this.spacing = props.spacing;
 		this.state = { height: 0, width: 0 };
+	}
+
+	getOffSetX() {
+		let translation = (this.state.width + this.spacing) / 2 * Math.cos(this.rotation.angle);
+		return ((this.rotation.flipped) ? -translation : translation);
+	}
+
+	getOffSetY() {
+		let translation = (this.state.width + this.spacing) / 2 * Math.sin(this.rotation.angle);
+		return ((this.rotation.flipped) ? -translation : translation);
 	}
 
 	componentDidMount() {
@@ -24,11 +35,11 @@ class PointElement extends Component {
 					position: 'absolute',
 					transform:
 						'translate('
-						+ (this.point.x - this.state.width / 2)
+						+ (this.point.x - this.state.width / 2 + this.getOffSetX())
 						+ 'px, '
-						+ (this.point.y - this.state.height / 2)
+						+ (this.point.y - this.state.height / 2 + this.getOffSetY())
 						+ 'px)'
-						+ this.rotation,
+						+ 'rotate(' + this.rotation.angle + 'rad)',
 					fontSize: this.textSize
 				}}
 				onMouseOver={this.mouseOver}

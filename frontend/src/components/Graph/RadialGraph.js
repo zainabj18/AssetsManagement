@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Line from './Line';
 import Point from './Point';
+import Rotation from './Rotation';
 import PointElement from './PointElement';
 
 const RadialGraph = ({
@@ -12,8 +13,9 @@ const RadialGraph = ({
 	outboundColour = 'red',
 	inboundColour = 'blue',
 	twoWayColour = 'purple',
-	defaultLineWidth = '1',
-	highlightedLineWidth = '2'
+	defaultLineWidth = 1,
+	highlightedLineWidth = 2,
+	graphClearanceSpace = 15
 }) => {
 
 	const radius = size / 2;
@@ -24,7 +26,7 @@ const RadialGraph = ({
 		onLoad();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
-	
+
 	const getX = (index) => {
 		return center + radius * Math.sin(index * angleSplit);
 	};
@@ -35,10 +37,11 @@ const RadialGraph = ({
 
 	const getRotation = (index) => {
 		let rotation = index * angleSplit;
-		if (rotation > Math.PI) {
-			rotation += Math.PI;
+		let flipped = rotation > Math.PI;
+		if (!flipped) {
+			rotation -= Math.PI;
 		}
-		return 'rotate(' + (rotation - Math.PI / 2) + 'rad)';
+		return new Rotation(rotation + Math.PI / 2, flipped);
 	};
 
 	const setCurve = (line) => {
@@ -149,6 +152,7 @@ const RadialGraph = ({
 						onMouseLeave={() => highightLines(point, false)}
 						rotation={getRotation(index)}
 						textSize={textSize}
+						spacing={graphClearanceSpace}
 					/>
 				);
 			})}
