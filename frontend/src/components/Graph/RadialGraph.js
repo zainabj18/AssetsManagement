@@ -83,7 +83,11 @@ const RadialGraph = ({
 		data.joins.forEach((join, index) => {
 			let out = [];
 			join.to.forEach((to) => {
-				let line = new Line(getX(index), getY(index), getX(pointIndexes[to]), getY(pointIndexes[to]), defaultColour, defaultLineWidth);
+				let line = new Line(
+					getX(index), getY(index),
+					getX(pointIndexes[to]), getY(pointIndexes[to]),
+					defaultColour, defaultLineWidth
+				);
 				if (getIndex(line, lines) === -1) {
 					lines.push(line);
 				}
@@ -96,7 +100,12 @@ const RadialGraph = ({
 
 		let points = [];
 		data.points.forEach((point, index) => {
-			points.push(new Point(point.id, point.name, getX(index), getY(index), outbounds[point.id], inbounds[point.id], fontColour));
+			points.push(new Point(
+				point.id, point.name,
+				getX(index), getY(index),
+				outbounds[point.id], inbounds[point.id],
+				fontColour
+			));
 		});
 
 		setPoints(points);
@@ -126,9 +135,14 @@ const RadialGraph = ({
 	return (
 		<VStack>
 			<HStack>
-				<Text style={{ backgroundColor: outboundColour, height: '20px', width: '20px' }}>{' '}</Text><Text>Outbound</Text>
-				<Text style={{ backgroundColor: inboundColour, height: '20px', width: '20px' }}>{' '}</Text><Text>Inbound</Text>
-				{show2WayInKey && <><Text style={{ backgroundColor: twoWayColour, height: '20px', width: '20px' }}>{' '}</Text><Text>2 Way</Text></>}
+				<Text style={{ backgroundColor: outboundColour, height: '20px', width: '20px' }}>{' '}</Text>
+				<Text>Outbound</Text>
+				<Text style={{ backgroundColor: inboundColour, height: '20px', width: '20px' }}>{' '}</Text>
+				<Text>Inbound</Text>
+				{show2WayInKey && <>
+					<Text style={{ backgroundColor: twoWayColour, height: '20px', width: '20px' }}>{' '}</Text>
+					<Text>2 Way</Text>
+				</>}
 			</HStack>
 			<div style={{
 				display: 'inline-block',
