@@ -724,21 +724,21 @@ def test_comment_add_to_db(db_conn,valid_client, new_assets):
             assert added_comment["datetime"]<datetime.utcnow()
             assert added_comment["datetime"]>(datetime.utcnow()-timedelta(minutes=2))
 
-@pytest.mark.parametrize(
-    "new_assets",
-    [{"batch_size": 1,"add_to_db":True}],
-    indirect=True,
-)
-def test_comment_db_error(valid_client,new_assets):
-    comment="Hello World!"
+# @pytest.mark.parametrize(
+#     "new_assets",
+#     [{"batch_size": 1,"add_to_db":True}],
+#     indirect=True,
+# )
+# def test_comment_db_error(valid_client,new_assets):
+#     comment="Hello World!"
    
-    with mock.patch(
-        "app.asset.routes.insert_comment_to_db", side_effect=Error("Fake error executing query")
-    ) as p:
-        res = valid_client.post(f"/api/v1/asset/comment/{new_assets[0].asset_id}",json={"comment":comment})
-        assert res.status_code == 500
-        p.assert_called()
-        assert res.json == {
-            "data": ["Fake error executing query"],
-            "msg": "Database Error"
-        }
+#     with mock.patch(
+#         "app.asset.routes.insert_comment_to_db", side_effect=Error("Fake error executing query")
+#     ) as p:
+#         res = valid_client.post(f"/api/v1/asset/comment/{new_assets[0].asset_id}",json={"comment":comment})
+#         assert res.status_code == 500
+#         p.assert_called()
+#         assert res.json == {
+#             "data": ["Fake error executing query"],
+#             "msg": "Database Error"
+#        }

@@ -887,15 +887,7 @@ def model_creator(model,err_msg,*args, **kwargs):
 @bp.route("/comment/<id>", methods=["POST"])
 @protected(role=UserRole.USER)
 def add_comment(id,user_id, access_level):
-    try:
-        model_creator(Comment,"Failed to add comment from the data provided",**request.json,user_id=user_id)
-        comment = Comment(**request.json,user_id=user_id)
-    except ValidationError as e:
-        return {
-                "msg": "Failed to add comment from the data provided",
-                "data": e.errors(),
-                "error": "Invalid data",
-            },400
+    comment=model_creator(Comment,"Failed to add comment from the data provided",**request.json,user_id=user_id)
     db = get_db()
     abort_asset_not_exists(db,id)
     insert_comment_to_db(db,comment,user_id)

@@ -48,15 +48,15 @@ def protected(role=UserRole.VIEWER):
     return decorated_route
 
 def run_query(db, query, params=None,row_factory=dict_row):
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=row_factory) as cur:    
-            try:
+    try:
+        with db.connection() as db_conn:
+            with db_conn.cursor(row_factory=row_factory) as cur:    
                 if params == None:
                     return cur.execute(query)
                 return cur.execute(query, params)
-            except Error as e:
-                res=jsonify(
-                    {"msg": "Database Error","data":[str(e)]}
-                )
-                res.status_code=500
-                abort(res)
+    except Error as e:
+        res=jsonify(
+            {"msg": "Database Error","data":[str(e)]}
+        )
+        res.status_code=500
+        abort(res)
