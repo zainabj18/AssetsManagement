@@ -132,19 +132,19 @@ function ProjectSelect({setSelectedProjects,projects}) {
 	
 
 	
-	return (<>
+	return (<Box >
 		<Button onClick={onOpen}>Select Projects</Button>
 		<Modal isOpen={isOpen} onClose={onClose} size={'full'}>
 			<ModalOverlay />
-			<ModalContent>
-				<ModalHeader>Project Select</ModalHeader>
+			<ModalContent  background='#e3e3e3'>
+				<ModalHeader textAlign="center" paddingY={5}>Project Select</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody >
 					{projects && <TableContainer>
-						<Input onChange={(e)=>{setQuery(e.target.value);}}/>
+						<Input onChange={(e)=>{setQuery(e.target.value);}} background="white" paddingY="5px" placeholder='Enter here...'/>
 						<Table variant='stripped'>
-		  <Thead>
-								<Tr key={'header'}>
+		  <Thead alignContent={'center'} alignItems="center" width="90vw" rounded={10}>
+								<Tr key={'header'} border={"1px solid"} background="white" marginY={5}> 
 									<Th><Checkbox isChecked={data.length===selected.length}
 										isIndeterminate={selected.length>0 && selected.length<data.length}
 										onChange={(e)=>{onIntermediateCheckboxChange(e.target.checked);}}
@@ -180,7 +180,7 @@ function ProjectSelect({setSelectedProjects,projects}) {
 			</ModalContent>
 			
 		</Modal>
-	</>
+	</Box>
 	);
 }
 

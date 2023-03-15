@@ -55,9 +55,9 @@ const ProjectViewer = () => {
 	};
 
 	return (
-		<div>
-			<TableContainer>
-				<Table variant='simple'>
+	<div style={{borderColor:"#fff"}}>
+			<Box background="white"  boxShadow="0 3px 6px #00000029" width={'60vw'} p={0} m={0} rounded="2xl" borderColor={'white'}  >
+				<Table variant='simple'  bg="white"  >
 					<Thead>
 						<Tr>
 							<Th color='Black'>Name</Th>
@@ -69,7 +69,18 @@ const ProjectViewer = () => {
 					<Tbody>			
 						{projects && projects.map((projects, index) => {
 							return (
-								<Tr key={index}>
+								<Tr key={index} sx={{border:'none',
+								'&:nth-of-type(odd)': {
+									td:{
+										bg:'white',
+										color:'blue.900'
+									}
+								},
+								'&:nth-of-type(even)': {
+									td: {
+										bg:'blue.100',
+										color:'blue.900'
+									}}}}>
 									<Td>{projects.projectName} </Td>
 									<Td>{projects.projectDescription} </Td>
 									<Td>{projects.accounts.map((account, index) => {
@@ -88,8 +99,8 @@ const ProjectViewer = () => {
 						})}
 					</Tbody>
 				</Table>
-			</TableContainer>
-			<NavLink to="./new"><Button>Create New Project</Button></NavLink>
+			</Box>
+			<NavLink to="./new" ><Button marginY={5}>Create New Project</Button></NavLink>
 		</div>
 	);
 	

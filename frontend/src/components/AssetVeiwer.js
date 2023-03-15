@@ -289,7 +289,7 @@ const AssetViewer = () => {
 	
 
 	return assetSate ? (
-		<Container p={4} maxW='100%'>
+		<Box p={4} width={'60vw'}>
 			{assetSate && <VStack maxW='100%'>
 				{errors.length && <Alert status='error' flexDirection='column' alignItems='right'>
 					<AlertIcon alignSelf='center'/>
@@ -302,12 +302,14 @@ const AssetViewer = () => {
 					alignContent='left' p={6} borderRadius={6}>
 					<Heading size={'2xl'} >Asset Attributes</Heading>
 					<FormField
+					   border={'1px solid'}
 						fieldName="name"
 						fieldType="text"
 						fieldDefaultValue={assetSate.name}
 						isDisabled={isDisabled}
 						onSubmitHandler={handleChange}
 						setErrorCount={setErrorCount}
+						
 					/>
 					<FormField
 						fieldName="link"
@@ -321,7 +323,7 @@ const AssetViewer = () => {
 						<FormLabel>Type</FormLabel>
 						<Select
 							isRequired
-							bg='blue.100'
+							bg='white'
 							isDisabled={isDisabled ||id}
 							onChange={(e) => {
 								handleTypeChange(e, e.target.value);
@@ -401,7 +403,7 @@ const AssetViewer = () => {
 						<FormLabel>classification</FormLabel>
 						<Select
 							isRequired
-							bg='blue.100'
+							bg='white'
 							isDisabled={isDisabled}
 							onChange={(e) => {
 								handleChange('classification', e.target.value);
@@ -447,7 +449,7 @@ const AssetViewer = () => {
 				</VStack>
 
 				<Divider size='xl'/>
-				<VStack minW='100%' bg="gray.400" color="blue.800"alignItems='left' 
+				<VStack minW='100%' bg="white" color="blue.800"alignItems='left' marginY={5}
 					alignContent='left' p={6} borderRadius={6}>
 					<Heading size={'md'}>Type Attributes:</Heading>
 		
@@ -499,9 +501,9 @@ const AssetViewer = () => {
 				</Stat>
 			</StatGroup>)}
 			
-			{!isDisabled  && <Button onClick={createNewAsset}>Sumbit</Button>}
+			{!isDisabled  && <Button onClick={createNewAsset} marginY={5}>Sumbit</Button>}
 			{id && !isDisabled && <Button onClick={handleDelete}>Delete</Button>}
-		</Container>
+		</Box>
 	) : null;
 };
 

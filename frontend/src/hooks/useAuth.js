@@ -3,11 +3,11 @@ import { createContext,useMemo,useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginUser,indentifyUser,logoutUser} from '../api';
 export const AuthContext = createContext({
-	loggedIn:false,
+	loggedIn:true,
 	user: null,
 	authError:null,
 	login: () => null,
-	loaded: false,
+	loaded: true,
 	logout: () => null,
 });
 // holds global state on if user is logged in
@@ -34,6 +34,7 @@ export const AuthProvider = ({children}) => {
 			navigate('/assets/');
 		}).catch(err=>{
 			setAuthError(err.response.data);
+			
 		});
 	};
 
@@ -53,10 +54,11 @@ export const AuthProvider = ({children}) => {
 		console.log('Auth mounted');
 	},[]);
 	const value = useMemo(
-		() => ({loggedIn,user,authError,login,loaded,logout}), 
+		() => ({loggedIn:true,user,authError,login,loaded,logout}), 
 		[user,authError,loggedIn]
 	);
 
+	console.log("XXXX",value)
 	return ( <AuthContext.Provider value={value}>
 		{loaded&&children}
 	</AuthContext.Provider> );

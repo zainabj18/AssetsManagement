@@ -57,13 +57,14 @@ const AttributeSelection = ({ selectedAttributes_state, set_selectedAttributes_s
 
 
 	return (
-		<FormControl isRequired={isRequired} isInvalid={isInvalid} width={width}>
+		<FormControl isRequired={isRequired} isInvalid={isInvalid} width={width} bg='gray.300' paddingX={3}>
 			<FormLabel>Select Attributes</FormLabel>
 			<FormErrorMessage>At least 1 attribute must be selected</FormErrorMessage>
 			{allAttributes.map((attribute, index) => {
 				return (
 					<VStack key={attribute.attributeName} align="left">
 						<Checkbox
+						marginY={2}
 							isChecked={checkChecked(attribute.attributeName)}
 							value={attribute.attributeName}
 							onChange={(e) => ajustSelectedAttributes(e.target.checked, index)}

@@ -2,7 +2,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { Heading, VStack,Text, HStack } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import { Input, Stack } from '@chakra-ui/react';
-import { Button, ButtonGroup } from '@chakra-ui/react';
+import { Button, ButtonGroup} from '@chakra-ui/react';
 import {
 	Table,
 	Thead,
@@ -68,11 +68,12 @@ const AdminManager = () => {
 	};
 
 	return (
-		<VStack minW="100vw">
-			<Text>AdminManager</Text>
+		<VStack display={"flex"} width="70vw" justifyContent={"flex-start"} alignItems="flex-start" overflow={"hidden"}>
+			<Box  width={'72vw'} alignSelf="center" bg="white" marginY={5}>
+			<Heading fontWeight={"bold"}  textAlign="center" paddingY="5px">AdminManager</Heading>
 			{inputField.map((search, index) => {return (
 				<Stack spacing={3} color={'black'}>
-					<Input bg='white' placeholder='search' size='lg' type='text' width={800} top={25} defaultValue={search.username} onChange={event => handleFormChange(index, event)} name="username"/>
+					<Input bg='white' placeholder='search' alignSelf={'center'} width={"90%"}type='text' border={"1px solid"}  top={25} defaultValue={search.username} onChange={event => handleFormChange(index, event)} name="username"/>
 				</Stack>
 			);})}
 			<Stack pt={35}>
@@ -102,10 +103,10 @@ const AdminManager = () => {
 													<AccordionIcon />
 												</AccordionButton>
 											</h2>
-											<AccordionPanel pb={4}>
-												<Button bg='transparent' color='white' onClick={accountDetails}>View Account Details</Button>
-												<Button bg='transparent' color='white' onClick={pass_func}>Change Password</Button>
-												<Button bg='transparent' color='white' onClick={handleRelatedProjects}>View Related Projects</Button>
+											<AccordionPanel pb={4} borderTop={'1px solid black'} >
+												<Button bg='#80aaff' color='#000' marginRight={1} onClick={accountDetails}>View Account Details</Button>
+												<Button bg='#80aaff' color='#000'  marginX={2} onClick={pass_func}>Change Password</Button>
+												<Button bg='#80aaff' color='#000'  onClick={handleRelatedProjects}>View Related Projects</Button>
 											</AccordionPanel>
 										</AccordionItem>
 									</Accordion>
@@ -126,10 +127,10 @@ const AdminManager = () => {
 													<AccordionIcon />
 												</AccordionButton>
 											</h2>
-											<AccordionPanel pb={4}>
-												<Button bg='transparent' color='white' onClick={accountDetails}>View Account Details</Button>
-												<Button bg='transparent' color='white' onClick={pass_func}>Change Password</Button>
-												<Button bg='transparent' color='white' onClick={handleRelatedProjects}>View Related Projects</Button>
+											<AccordionPanel pb={4} borderTop={'1px solid black'}>
+												<Button bg='#80aaff' color='#000'  marginRight={1} onClick={accountDetails}>View Account Details</Button>
+												<Button bg='#80aaff' color='#000'  marginRight={2} onClick={pass_func}>Change Password</Button>
+												<Button bg='#80aaff' color='#000' onClick={handleRelatedProjects}>View Related Projects</Button>
 											</AccordionPanel>
 										</AccordionItem>
 									</Accordion>
@@ -150,10 +151,10 @@ const AdminManager = () => {
 													<AccordionIcon />
 												</AccordionButton>
 											</h2>
-											<AccordionPanel pb={4}>
-												<Button bg='transparent' color='white' onClick={accountDetails}>View Account Details</Button>
-												<Button bg='transparent' color='white' onClick={pass_func}>Change Password</Button>
-												<Button bg='transparent' color='white' onClick={handleRelatedProjects}>View Related Projects</Button>
+											<AccordionPanel pb={4} borderTop={'1px solid black'}>
+												<Button bg='#80aaff' color='#000'  marginRight={1} onClick={accountDetails}>View Account Details</Button>
+												<Button bg='#80aaff' color='#000'  marginRight={2} onClick={pass_func}>Change Password</Button>
+												<Button bg='#80aaff' color='#000' onClick={handleRelatedProjects}>View Related Projects</Button>
 											</AccordionPanel>
 										</AccordionItem>
 									</Accordion>
@@ -168,16 +169,16 @@ const AdminManager = () => {
 										<AccordionItem>
 											<h2>
 												<AccordionButton>
-													<Box as="span" flex='1' textAlign='left'>
+													<Box as="span" flex='1' textAlign='left' >
 													Edit Details
 													</Box>
 													<AccordionIcon />
 												</AccordionButton>
 											</h2>
-											<AccordionPanel pb={4}>
-												<Button bg='transparent' color='white' onClick={accountDetails}>View Account Details</Button>
-												<Button bg='transparent' color='white' onClick={pass_func}>Change Password</Button>
-												<Button bg='transparent' color='white' onClick={handleRelatedProjects}>View Related Projects</Button>
+											<AccordionPanel pb={4} borderTop={'1px solid black'} >
+												<Button bg='#80aaff' color='#000'  marginRight={1} onClick={accountDetails}>View Account Details</Button>
+												<Button bg='#80aaff' color='#000'  marginRight={2} onClick={pass_func}>Change Password</Button>
+												<Button bg='#80aaff' color='#000' onClick={handleRelatedProjects}>View Related Projects</Button>
 											</AccordionPanel>
 										</AccordionItem>
 									</Accordion>
@@ -190,6 +191,7 @@ const AdminManager = () => {
 			<Stack>
 				<Link href='/user'><Button right={370} colorScheme={'blue'} size={'lg'}>New</Button></Link>
 			</Stack>	
+			</Box>
 		</VStack>
     
 	);

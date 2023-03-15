@@ -63,12 +63,12 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 	};
 	const renderHeader=(key)=>{
 		return (<VStack>
-			<Th>{columns[key].header}</Th>
+			<Th color="white">{columns[key].header}</Th>
 			{(columns[key].hasOwnProperty('canFilter')&& columns[key].canFilter)&& (<Input type='text' onChange={
 				(e)=>{setFilter((prev)=>({
 					...prev,
 					[key]:e.target.value
-				}));}} placeholder={'Search '+columns[key].header}/>)
+				}));}} placeholder={'Search '+columns[key].header} bg="white" border="1px solid"/>)
 			}
 		</VStack>);
 		
@@ -109,18 +109,18 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 
 	
 	return (<>
-		{rows.length>0 ?( <TableContainer maxW={'100%'} p={4}>
-			<Input onChange={(e)=>{setQuery(e.target.value);}} placeholder="Search table"/>
+		{rows.length>0 ?( <TableContainer maxW={'100%'} p={4} >
+			<Input onChange={(e)=>{setQuery(e.target.value);}} placeholder="Search table" bg="white" border="1px solid"/>
 			<Table>
-		  <Thead>
-					<Tr key={'header'} >
-						<Th ><Checkbox isChecked={data.length===selected.length}
+		  <Thead border={'1px solid red'}>
+					<Tr key={'header'}  >
+						<Th bg= '#ed7966'><Checkbox isChecked={data.length===selected.length}
 							isIndeterminate={selected.length>0 && selected.length<data.length}
 							onChange={(e)=>{onIntermediateCheckboxChange(e.target.checked);}}
 									
 						/></Th>
 		  {Object.keys(columns).map(key => (
-							<Th key={key} >
+							<Th key={key} bg='#ed7966' >
 								{renderHeader(key)}	
 							</Th>)
 		  )}
@@ -128,17 +128,18 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 		  </Thead>
 		  <Tbody>
 		  {filteredRows.map((row,index)=> (
-						<Tr key={index}>
-							<Td ><Checkbox defaultChecked={selected.includes(row.rowID)} isChecked={selected.includes(row.rowID)} onChange={(e) => handleCheck(row.rowID,e.target.checked)} /></Td>
+						<Tr key={index} bg="white">
+							<Td bg="white"><Checkbox defaultChecked={selected.includes(row.rowID)} isChecked={selected.includes(row.rowID)} onChange={(e) => handleCheck(row.rowID,e.target.checked)} /></Td>
 							{Object.keys(columns).map((key)=>{
 
-	 return <Td key={index+key} >{renderCell(key,row.rowID,row[key])}</Td>;
+	 return <Td key={index+key} bg="white" >{renderCell(key,row.rowID,row[key])}</Td>;
 							})}</Tr>)
 					)}
 		 
 		  </Tbody>
 			</Table>
-		</TableContainer>):(<Alert status='info'>
+		</TableContainer>):(
+		<Alert status='info' background={"rgb(74 74 74 / 19%)"} paddingY={5} borderRadius={10} margin={5} >
 			<AlertIcon />
    No data to view
 		</Alert>)}

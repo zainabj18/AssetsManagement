@@ -67,7 +67,7 @@ const TypeAdder = () => {
 	};
 
 	return (
-		<VStack width="90vw">
+		<VStack width="90vw" >
 
 			<Text>TypeAdder</Text>
 			<FormControl isRequired isInvalid={new_typeName_errorMessage !== ''}>
@@ -79,7 +79,7 @@ const TypeAdder = () => {
 				<FormErrorMessage>{new_typeName_errorMessage}</FormErrorMessage>
 			</FormControl>
 
-			<HStack minW='80%'>
+			<HStack width='80vw' display={'flex'} flexDirection="row" alignItems={'flex-start'} justifyContent='flex-start' padding={5}>
 				<AttributeSelection
 					width='30%'
 					selectedAttributes_state={selectedAttributes}

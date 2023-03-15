@@ -8,7 +8,7 @@ const Header = () => {
 	return ( 
 		<Flex w={'70%'}>
 			<HStack>
-				<CustomNavLink to="assets/">
+				<CustomNavLink to="assets/" >
 				Assets
 				</CustomNavLink>
 				<CustomNavLink to="type/">
@@ -28,10 +28,7 @@ const Header = () => {
 				</CustomNavLink>}
 			</HStack>
 			<Spacer />
-			<HStack>
-				<Text>Hello</Text>
-				<UserMenuButton />
-			</HStack>
+			
 		
 
 			

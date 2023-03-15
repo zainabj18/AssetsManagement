@@ -16,7 +16,11 @@ const RelatedProjects = () => {
 			setAssets(data.data);});
 	}, [])
 	;
-	return (<AssetTable assets={assetsin} setSelectedAssets={()=>{}} preSelIDs={[]} cols={link_col}/>);
+	return (
+		<div>
+	<AssetTable assets={assetsin} setSelectedAssets={()=>{}} preSelIDs={[]} cols={link_col}/>
+	</div>
+	);
 };
  
 export default RelatedProjects;

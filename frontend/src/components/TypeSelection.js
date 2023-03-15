@@ -52,10 +52,12 @@ const TypeSelection = ({ selectedTypes_state, set_selectedTypes_state, excludeId
 
 	return (
 		<FormControl>
-			<FormLabel>Depends On</FormLabel>
+			<FormLabel fontSize={22} textAlign="center" alignSelf={'center'}>Depends On</FormLabel>
 			{allTypes.map((type) => {
 				return (
 					<Checkbox
+					marginX={2}
+					marfinY={1}
 						key={type.type_id}
 						isChecked={checkChecked(type.type_id)}
 						onChange={(e) => {

@@ -25,7 +25,7 @@ const brandPrimary = definePartsStyle({
 			border:'none',
 			'&:nth-of-type(odd)': {
 				td:{
-					bg:'blue.200',
+					bg:'white',
 					color:'blue.900'
 				}
 			},

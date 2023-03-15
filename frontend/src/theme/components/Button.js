@@ -1,8 +1,10 @@
 const Button = {
 	variants: {
 		'deep': {
-			bg: 'blue.400',
-			color: 'white'
+			bg: '#ed7966 ',
+			color: 'white',
+			paddingY:5,
+			paddingX:5
 		}
 	},
 	defaultProps: {

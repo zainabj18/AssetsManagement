@@ -10,10 +10,10 @@ import { fetchProjects } from '../api';
 import { fetchAssetClassifications} from '../api';
 
 const RadioButtons=({name,changeFunc})=>{
-	return (<RadioGroup defaultValue="OR" onChange={e=>changeFunc(name,e)}>
+	return (<RadioGroup defaultValue="OR" onChange={e=>changeFunc(name,e)} marginY={4}>
 		<Stack spacing={5} direction='row'>
-			<Radio value="OR" defaultChecked>OR</Radio>
-			<Radio value="AND">AND</Radio>
+			<Radio value="OR" defaultChecked borderColor={"#ed7966 "}>OR</Radio>
+			<Radio value="AND" borderColor={"#ed7966 "}>AND</Radio>
 		</Stack>
 	</RadioGroup>);
 };
@@ -123,13 +123,12 @@ const AssetSearcher = ({filerFunc}) => {
 	}, []);
 
 	return (
-		<Container>
+		<Box display={'flex'} flexDirection="column"  width={"100%"} >
 			<Accordion defaultIndex={[0]} allowMultiple>
-				<RadioButtons name="operation" changeFunc={handleToggle}/>
+				<RadioButtons name="operation" changeFunc={handleToggle} />
 				<AccordionItem>
 	
-					<AccordionButton>
-			Access Levels
+					<AccordionButton>Access Levels
 						<AccordionIcon />
 					</AccordionButton>
 
@@ -204,35 +203,40 @@ const AssetSearcher = ({filerFunc}) => {
 	
 			{inputFields.map((input, index) => {
 				return (
-					<HStack key={index}>
-						<Select  name='attributeID' value={input.attributeID} onChange={event => handleFormChange(index, event)}>
+					<HStack key={index} marginY={5}  paddingY={5} justifyContent="space-evenly" display={'flex'} >
+						<Select  name='attributeID' value={input.attributeID} onChange={event => handleFormChange(index, event)} border={'1px solid'} width={"25%"}>
 							{attributes.map((attribute, index) => {
 								
 				
 								return <option value={attribute.attributeID}>{attribute.attributeName}</option>;})}
 								
 						</Select>
-						<Select  name='operation' value={input.operation} onChange={event => handleFormChange(index, event)}>
+						<Select  name='operation' value={input.operation} onChange={event => handleFormChange(index, event)} border={'1px solid'} width={"25%"}>
 								 <option value='EQUALS'>=</option>
 								 <option value='LIKE'>LIKE</option>
 								 <option value='HAS'>HAS</option>
 						</Select>
 						{input.operation !=='HAS' && 
 						<Input
+						width={"25%"}
 							name='attributeValue'
 							placeholder='Attribute value'
 							value={input.attributeValue}
 							onChange={event => handleFormChange(index, event)}
-							color='white'
-							fontsize='20'
+							color='#000'
+							fontsize={'16'}
+							bgColor={'white'}
+							border={'1px solid'}
 						/>}
-						<Button onClick={() => removeFields(index)}>Remove</Button>
+						<Button onClick={() => removeFields(index)} paddingY={5} paddingx={20} width={"25%"}>Remove</Button>
 					</HStack>
 				);
 			})}
+			<HStack display={'flex'} justifyContent="space-between">
 			<Button onClick={addFields}>Add More</Button>
 			<Button onClick={filter}>Filter</Button>
-		</Container>
+			</HStack>
+		</Box>
 	);
 };
 export default AssetSearcher;

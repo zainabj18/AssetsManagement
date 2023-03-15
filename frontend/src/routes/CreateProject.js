@@ -95,7 +95,7 @@ const CreateProject = () => {
 
 	return (<Flex w='100%' minH='80vh' alignItems={'stretch'} p={2} border>
 		
-		<Box w='100%' minH='100%' bg='white' alignItems='left'>
+		<Box w='100%' minH='100%' bg='white' alignItems='left' marginX={3}>
 			
 			<VStack p={3} >
 				<FormControl isInvalid = {formError !== ''}>
@@ -125,9 +125,10 @@ const CreateProject = () => {
 						);
 					})}
 				</Box>
+				<Button onClick={addProject} >Save Project</Button>
 			</VStack>
 			<HStack>
-				<Button onClick={addProject}>Save Project</Button>
+				
 			</HStack>
 		</Box>		
 	</Flex>

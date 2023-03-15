@@ -45,7 +45,7 @@ function AssetSelect({setSelected,assetsin}) {
 		<Button onClick={onOpen}>Select Assets</Button>
 		<Modal isOpen={isOpen} onClose={onClose} size={'full'}>
 			<ModalOverlay />
-			<ModalContent>
+			<ModalContent background='#e3e3e3'>
 				<ModalHeader>Asset Select</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody >

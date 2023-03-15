@@ -5,6 +5,7 @@ import {
 
 const SelectedAttributesList = ({ selectedAttributes_state }) => {
 	return (
+		<div >
 		<TableContainer>
 			<Heading placement='top' size="md">Selected Attributes</Heading>
 			<Table varient='simple'>
@@ -26,6 +27,7 @@ const SelectedAttributesList = ({ selectedAttributes_state }) => {
 				</Tbody>
 			</Table>
 		</TableContainer>
+		</div>
 	);
 };
 
