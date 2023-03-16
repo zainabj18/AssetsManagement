@@ -22,17 +22,25 @@ const AdminManager = () => {
 		loadUsers();
 	},[]);
 
-	const [inputField, setInputField] = useState([{ username: '' }]);
+	const [information, setInformation] = useState([]);
+	const [inputField, setInputField] = useState([]);
 	const [accountdetails, setAccountDetails] = useState([{ accdetails: '' }]);
 	const [pass] = useState([{ pass: '' }]);
 	const [relatedprojects] = useState([{ relatedproj: '' }]);
 
 	const [users, setUsers] = useState([]);
-	const handleFormChange = (index, event) => {
-		let data = [...inputField];
-		data[index][event.target.name] = event.target.value;
-		setInputField(data);
+
+	const search_users = (value) => {
+		console.log(value);
+		if (value === '') {
+			setInputField(users);
+		}else {
+			let searched_user = users.filter((u)=>u.name.toLowerCase().includes(value));
+			setInputField(searched_user);
+		}
+
 	};
+
 
 	const loadAccountDetails = async (account_id) => {
 		try {
@@ -61,7 +69,7 @@ const AdminManager = () => {
 			{inputField.map((search, index) => {
 				return (
 					<Stack spacing={3} key = {index}>
-						<Input  placeholder='search' size='lg' type='text' width={800} top={25} defaultValue={search.username} onChange={event => handleFormChange(index, event)} name="username" />
+						<Input  placeholder='search' size='lg' type='text' width={800} top={25} onChange={(e)=>{search_users(e.target.value);}} name="username" />
 					</Stack>
 				);
 			})}
