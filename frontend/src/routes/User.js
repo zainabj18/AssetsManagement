@@ -107,6 +107,10 @@ const User = () => {
 							<FormLabel>Password</FormLabel>
 							<Input type='text' placeholder="Password" defaultValue={attr.password} onChange={event => handleFormChange(index, event)} name="password"/>
 						</FormControl>
+						<FormControl>
+							<FormLabel>Confirm Password</FormLabel>
+							<Input type='text' placeholder="Confirm Password" defaultValue={attr.confirm_Password} onChange={event => handleFormChange(index, event)} name="confirm_Password"/>
+						</FormControl>
 					</HStack>
 				);})}
 
