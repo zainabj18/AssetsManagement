@@ -100,6 +100,15 @@ const User = () => {
 						</FormControl>
 					</HStack>
 				);})}
+				
+				{inputFields.map((attr, index) => {return (
+					<HStack spacing={'25px'} mt={'25px'} key={index}>
+						<FormControl>
+							<FormLabel>Password</FormLabel>
+							<Input type='text' placeholder="Password" defaultValue={attr.password} onChange={event => handleFormChange(index, event)} name="password"/>
+						</FormControl>
+					</HStack>
+				);})}
 
 				{inputFields.map((user) => {return (
 					<HStack spacing={'25px'} mt={'25px'} key={user.account_id}>
