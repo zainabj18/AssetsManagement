@@ -873,6 +873,10 @@ def insert_comment_to_db(db,comment:Comment,user_id,asset_id):
     return run_query(db,"""INSERT INTO comments(asset_id,account_id,comment)
                  VALUES(%(asset_id)s,%(account_id)s,%(comment)s);""",{"asset_id": asset_id,"account_id":user_id,"comment":comment.comment})
 
+
+def delete_comment_db(db,comment_id):
+    return run_query(db,"""DELETE FROM comments WHERE comment_id = %(comment_id)s;""",{"comment_id": comment_id})
+
 def fetch_asset_comments(db,asset_id):
     return run_query(db,"""
     SELECT comments.*,username FROM comments
@@ -906,3 +910,16 @@ def fetch_comments(id,user_id, access_level):
     abort_asset_not_exists(db,id)
     comments=[json.loads(c.json(by_alias=True)) for c in fetch_asset_comments(db,id)]
     return {"msg": "Comments","data":comments},200
+
+@bp.route("/comment/<id>", methods=["DELETE"])
+@protected(role=UserRole.ADMIN)
+def delete_comment(id,user_id, access_level):
+    db = get_db()
+    if not "comment_id" in request.json:
+        return {"msg":"Failed to delete comment from the data provided","data":{
+        "loc": ["comment_id"],
+        "msg": "field required",
+        "type": "value_error.missing",
+    }},400
+    delete_comment_db(db,request.json["comment_id"])
+    return {"msg": "Comment deleted"},200
