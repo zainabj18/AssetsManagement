@@ -1,4 +1,4 @@
-import { Box, Button, Center, FormControl, FormLabel, HStack, Heading, Input, Select, Stack } from '@chakra-ui/react';
+import { Box, Button, Center, FormControl, FormLabel, HStack, Heading, Input, Select, Stack, InputGroup, InputRightElement } from '@chakra-ui/react';
 import { React, useEffect, useState } from 'react';
 import useAuth from '../hooks/useAuth';
 import { createUser, deleteUserAcc, getAccountPrivileges, getAccountTypes } from '../api';
@@ -37,6 +37,8 @@ const User = () => {
 	const [accountPrivileges, setAccountPrivileges] = useState([]);
 	const [accountTypes, setAccountTypes] = useState([]);
 	const [show, setShow] = useState(false);
+
+	const handleClick = () => setShow(!show);
 
 	const handleFormChange = (index, event) => {
 		let data = [...inputFields];
@@ -106,11 +108,25 @@ const User = () => {
 					<HStack spacing={'25px'} mt={'25px'} key={index}>
 						<FormControl>
 							<FormLabel>Password</FormLabel>
-							<Input type={show ? 'text' : 'password'} placeholder="Password" defaultValue={attr.password} onChange={event => handleFormChange(index, event)} name="password"/>
+							<InputGroup>
+								<Input type={show ? 'text' : 'password'} placeholder="Password" defaultValue={attr.password} onChange={event => handleFormChange(index, event)} name="password"/>
+								<InputRightElement width='4.5rem'>
+									<Button h='1.75rem' size='sm' onClick={handleClick}>
+										{show ? 'Hide' : 'Show'}
+									</Button>
+								</InputRightElement>
+							</InputGroup>
 						</FormControl>
 						<FormControl>
 							<FormLabel>Confirm Password</FormLabel>
-							<Input type={show ? 'text' : 'password'} placeholder="Confirm Password" defaultValue={attr.confirm_Password} onChange={event => handleFormChange(index, event)} name="confirm_Password"/>
+							<InputGroup>
+								<Input type={show ? 'text' : 'password'} placeholder="Confirm Password" defaultValue={attr.confirm_Password} onChange={event => handleFormChange(index, event)} name="confirm_Password"/>
+								<InputRightElement width='4.5rem'>
+									<Button h='1.75rem' size='sm' onClick={handleClick}>
+										{show ? 'Hide' : 'Show'}
+									</Button>
+								</InputRightElement>
+							</InputGroup>
 						</FormControl>
 					</HStack>
 				);})}
