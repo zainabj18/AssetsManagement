@@ -62,7 +62,7 @@ const User = () => {
 		e.preventDefault();
 	  
 		const isFormValid = inputFields.every((field) => {
-		  return field.name !== '' && field.surname !== '' && field.username !== '';
+		  return field.name !== '' && field.surname !== '' && field.username !== '' && field.password !== '' && field.confirm_password !== '';
 		});
 	  
 		if (isFormValid) {
@@ -70,6 +70,7 @@ const User = () => {
 				name: inputFields[0].name,
 				surname: inputFields[0].surname,
 				username: inputFields[0].username,
+				password: inputFields[0].password,
 				account_privileges: inputFields[0].account_privileges,
 				account_type: inputFields[0].account_type
 			};
