@@ -36,6 +36,7 @@ const User = () => {
 	const [saveuser, setSaveUser] = useState([{save: ''}]);
 	const [accountPrivileges, setAccountPrivileges] = useState([]);
 	const [accountTypes, setAccountTypes] = useState([]);
+	const [show, setShow] = useState(false);
 
 	const handleFormChange = (index, event) => {
 		let data = [...inputFields];
@@ -105,11 +106,11 @@ const User = () => {
 					<HStack spacing={'25px'} mt={'25px'} key={index}>
 						<FormControl>
 							<FormLabel>Password</FormLabel>
-							<Input type='text' placeholder="Password" defaultValue={attr.password} onChange={event => handleFormChange(index, event)} name="password"/>
+							<Input type={show ? 'text' : 'password'} placeholder="Password" defaultValue={attr.password} onChange={event => handleFormChange(index, event)} name="password"/>
 						</FormControl>
 						<FormControl>
 							<FormLabel>Confirm Password</FormLabel>
-							<Input type='text' placeholder="Confirm Password" defaultValue={attr.confirm_Password} onChange={event => handleFormChange(index, event)} name="confirm_Password"/>
+							<Input type={show ? 'text' : 'password'} placeholder="Confirm Password" defaultValue={attr.confirm_Password} onChange={event => handleFormChange(index, event)} name="confirm_Password"/>
 						</FormControl>
 					</HStack>
 				);})}
