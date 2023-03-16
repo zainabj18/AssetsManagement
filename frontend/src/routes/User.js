@@ -62,13 +62,8 @@ const User = () => {
 		e.preventDefault();
 	  
 		const isFormValid = inputFields.every((field) => {
-		  return field.name !== '' && field.surname !== '' && field.username !== '' && field.password !== '' && field.confirm_password !== '';
+		  	return field.name !== '' && field.surname !== '' && field.username !== '' && field.password !== '' && field.confirm_password !== '';
 		});
-
-		if (password !== confirm_password) {
-			console.error('Passwords do not match');
-			return;
-		  }
 	  
 		if (isFormValid) {
 			const userData = {
