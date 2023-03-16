@@ -81,7 +81,7 @@ const User = () => {
 	};
 
 	return (
-		<Center height={'100vh'}>
+		<Center height={'90vh'}>
 			<Box bg={'white'} color={'black'} p={10} borderRadius={10} w={'1000px'} mx={'auto'} mb={'100px'}>
 				<Heading mb={'25px'}>Your Profile</Heading>
 				{inputFields.map((attr, index) => {return (
