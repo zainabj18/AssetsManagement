@@ -31,7 +31,7 @@ const User = () => {
 		fetchAccountTypes();
 	}, []);
 
-	const [inputFields, setInputFields] = useState([{name: '', surname: '', username: '', password: '', confirm_Password: '' }]);
+	const [inputFields, setInputFields] = useState([{name: '', surname: '', username: '', password: '', confirmPassword: '' }]);
 	const [deleteuser, setDeleteUser] = useState([{delete: ''}]);
 	const [saveuser, setSaveUser] = useState([{save: ''}]);
 	const [accountPrivileges, setAccountPrivileges] = useState([]);
@@ -62,7 +62,7 @@ const User = () => {
 		e.preventDefault();
 	  
 		const isFormValid = inputFields.every((field) => {
-		  	return field.name !== '' && field.surname !== '' && field.username !== '' && field.password !== '' && field.confirm_password !== '';
+		  	return field.name !== '' && field.surname !== '' && field.username !== '' && field.password !== '' && field.confirmPassword !== '';
 		});
 	  
 		if (isFormValid) {
@@ -71,6 +71,7 @@ const User = () => {
 				surname: inputFields[0].surname,
 				username: inputFields[0].username,
 				password: inputFields[0].password,
+				confirmPassword: inputFields[0].confirmPassword,
 				account_privileges: inputFields[0].account_privileges,
 				account_type: inputFields[0].account_type
 			};
@@ -121,7 +122,7 @@ const User = () => {
 						<FormControl>
 							<FormLabel>Confirm Password</FormLabel>
 							<InputGroup>
-								<Input type={show ? 'text' : 'password'} placeholder="Confirm Password" defaultValue={attr.confirm_Password} onChange={event => handleFormChange(index, event)} name="confirm_Password"/>
+								<Input type={show ? 'text' : 'password'} placeholder="Confirm Password" defaultValue={attr.confirmPassword} onChange={event => handleFormChange(index, event)} name="confirmPassword"/>
 								<InputRightElement width='4.5rem'>
 									<Button h='1.75rem' size='sm' onClick={handleClick}>
 										{show ? 'Hide' : 'Show'}
