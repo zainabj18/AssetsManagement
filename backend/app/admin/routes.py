@@ -1,5 +1,3 @@
-import json
-
 from app.db import get_db
 from flask import Blueprint
 
@@ -30,3 +28,26 @@ def extract_people(people):
         )
     return allPeople_listed
 
+@bp.route("/accountmanager", methods=["GET"])
+def user_search(searched):
+    database = get_db()
+    query = """SELECT account_id,first_name,last_name,username FROM accounts WHERE username LIKE %(searched)%;"""
+    with database.connection() as conn:
+        result = conn.execute(query)
+        searched_users = result.fetchall()
+        searched_users_listed = extract_searched_users(searched_users)
+    return {"data":searched_users_listed}, 200
+
+def extract_searched_users(users):
+    listed_users = []
+    for user in users:
+        listed_users.append(
+            {
+                "accountID": user[0],
+                "firstName": user[1],
+                "lastName": user[2],
+                "username": user[3]
+            }
+        )
+    return listed_users
+        
