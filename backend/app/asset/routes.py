@@ -1,6 +1,6 @@
 from app.core.utils import protected,run_query,model_creator,QueryResult
 from app.db import DataAccess, UserRole, get_db,Actions,Models
-from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model,Project,Comment,CommentOut
+from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model,Project,Comment,CommentOut,Log
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
@@ -469,24 +469,20 @@ SET value = EXCLUDED.value""",
             
     return {}, 200
 
+
+def get_asset_logs(db,asset_id):
+    return run_query(db,"""SELECT audit_logs.*, username FROM audit_logs
+                INNER JOIN accounts ON accounts.account_id=audit_logs.account_id
+WHERE object_id=%(asset_id)s AND model_id=%(model_id)s
+ORDER BY date DESC;""",
+                {"asset_id": asset_id,"model_id":int(Models.ASSETS)},return_type=QueryResult.ALL,row_factory=class_row(Log))
+
+
 @bp.route("/logs/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def logs(id, user_id, access_level):
     db = get_db()
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=dict_row) as cur:
-            cur.execute(
-                """SELECT * FROM audit_logs
-WHERE object_id=%(asset_id)s AND model_id=1
-ORDER BY date ASC;""",
-                {"asset_id": id},
-            )
-            logs = cur.fetchall()
-            print(logs)
-            for log in logs:
-                if username := get_user_by_id(db,log["account_id"]):
-                    username = username[0]
-                log["username"]=username
+    logs =[json.loads(c.json(by_alias=True)) for c in get_asset_logs(db,id)]
     return {"data":logs}
 
 @bp.route("/tags/summary/<id>", methods=["GET"])
@@ -911,15 +907,10 @@ def fetch_comments(id,user_id, access_level):
     comments=[json.loads(c.json(by_alias=True)) for c in fetch_asset_comments(db,id)]
     return {"msg": "Comments","data":comments},200
 
-@bp.route("/comment/<id>", methods=["DELETE"])
+@bp.route("/comment/<id>/remove/<comment_id>", methods=["DELETE"])
 @protected(role=UserRole.ADMIN)
-def delete_comment(id,user_id, access_level):
+def delete_comment(id,comment_id,user_id, access_level):
     db = get_db()
-    if not "comment_id" in request.json:
-        return {"msg":"Failed to delete comment from the data provided","data":{
-        "loc": ["comment_id"],
-        "msg": "field required",
-        "type": "value_error.missing",
-    }},400
-    delete_comment_db(db,request.json["comment_id"])
+    delete_comment_db(db,comment_id)
+    audit_log_event(db,Models.ASSETS,user_id,id,{"removed":[f"comment-{comment_id}"]},Actions.ADD)
     return {"msg": "Comment deleted"},200

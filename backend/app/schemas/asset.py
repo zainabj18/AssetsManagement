@@ -22,6 +22,10 @@ class Log(BaseModel):
 
     class Config:
         allow_population_by_field_name = True
+        extra = Extra.allow
+        json_encoders = {
+            Actions: lambda a: str(a.value),
+        }
 
 
 class AttributeSearcher(BaseModel):

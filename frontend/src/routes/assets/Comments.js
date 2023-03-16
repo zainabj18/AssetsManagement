@@ -1,9 +1,9 @@
-import { Box, VStack,Text, Flex, StackDivider, HStack, Input, Button, Textarea,IconButton,useToast, Alert, AlertTitle, useBoolean } from '@chakra-ui/react';
+import { Box, VStack,Text, Flex, StackDivider, HStack, Input, Button, Textarea,IconButton,useToast, Alert, AlertTitle, useBoolean, Spacer } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useParams } from 'react-router-dom';
-import { fetchComments,addComment } from '../../api';
+import { fetchComments,addComment, deleteComment } from '../../api';
 import useAuth from '../../hooks/useAuth';
-import {TimeIcon,PlusSquareIcon} from '@chakra-ui/icons';
+import {TimeIcon,DeleteIcon} from '@chakra-ui/icons';
 import { MdMessage } from 'react-icons/md';
 
 const ScrollToBottom = () => {
@@ -30,8 +30,12 @@ const Comments = () => {
 		}
 		);
 	};
-
-
+	const removeComment=(comment_id)=>{
+		deleteComment(id,comment_id).then(res=>{
+			setToggle.toggle();
+		}
+		);
+	};
 
 	useEffect(() => {
 
@@ -55,7 +59,13 @@ const Comments = () => {
 						padding={2}
 						maxWidth="80%"
 						alignSelf={comment.accountID===user.userID?'flex-start':'flex-end'}>
-						<Link to={`/profile/${comment.accountID}`} as={NavLink}><Text as='b'>{comment.username}</Text></Link>
+						<Flex>
+							<Link to={`/profile/${comment.accountID}`} as={NavLink}><Text as='b'>{comment.username}</Text></Link>
+							<Spacer />
+
+							{user.userRole==='ADMIN' && <IconButton icon={<DeleteIcon />} boxSize={6} onClick={()=>removeComment(comment.comment_id)}/>}
+						</Flex>
+						
 
 						<Text>{comment.comment}</Text>
 						<HStack>
