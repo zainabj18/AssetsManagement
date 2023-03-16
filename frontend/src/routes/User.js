@@ -31,7 +31,7 @@ const User = () => {
 		fetchAccountTypes();
 	}, []);
 
-	const [inputFields, setInputFields] = useState([{name: '', surname: '', username: '' }]);
+	const [inputFields, setInputFields] = useState([{name: '', surname: '', username: '', password: '', confirm_Password: '' }]);
 	const [deleteuser, setDeleteUser] = useState([{delete: ''}]);
 	const [saveuser, setSaveUser] = useState([{save: ''}]);
 	const [accountPrivileges, setAccountPrivileges] = useState([]);
