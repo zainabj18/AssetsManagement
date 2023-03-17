@@ -16,8 +16,8 @@ const brandPrimary = definePartsStyle({
 	},
 	thead:{
 		tr:{
-			bg:'blue.900',
-			color:'blue.100'
+			bg:'#05386B',
+			color:'white'
 		}
 	},
 	tbody:{
@@ -25,14 +25,14 @@ const brandPrimary = definePartsStyle({
 			border:'none',
 			'&:nth-of-type(odd)': {
 				td:{
-					bg:'blue.200',
-					color:'blue.900'
+					bg:'#379683',
+					color:'#05386B'
 				}
 			},
 			'&:nth-of-type(even)': {
 				td: {
-					bg:'blue.100',
-					color:'blue.900'
+					bg:'#EDF5E1',
+					color:'#05386B'
 				}
 			}
 		}
