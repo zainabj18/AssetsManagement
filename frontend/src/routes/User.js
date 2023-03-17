@@ -1,34 +1,13 @@
 import { Box, Button, Center, FormControl, FormLabel, HStack, Heading, Input, Select, Stack, InputGroup, InputRightElement } from '@chakra-ui/react';
 import { React, useEffect, useState } from 'react';
 import useAuth from '../hooks/useAuth';
-import { createUser, deleteUserAcc, getAccountPrivileges, getAccountTypes } from '../api';
+import { createUser, deleteUserAcc } from '../api';
 
 const User = () => {
 	const { user } = useAuth();
 
 	useEffect(() => {
 		console.log(user);
-
-		const fetchAccountPrivileges = async () => {
-			try {
-				const response = await getAccountPrivileges();
-				setAccountPrivileges(response.data);
-			} catch (error) {
-				console.error(error);
-			}
-		};
-
-		const fetchAccountTypes = async () => {
-			try {
-				const response = await getAccountTypes();
-				setAccountTypes(response.data);
-			} catch (error) {
-				console.error(error);
-			}
-		};
-
-		fetchAccountPrivileges();
-		fetchAccountTypes();
 	}, []);
 
 	const [inputFields, setInputFields] = useState([{name: '', surname: '', username: '', password: '', confirmPassword: '' }]);
