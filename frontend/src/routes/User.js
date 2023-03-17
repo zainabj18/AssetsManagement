@@ -10,7 +10,7 @@ const User = () => {
 		console.log(user);
 	}, []);
 
-	const [inputFields, setInputFields] = useState([{name: '', surname: '', username: '', password: '', confirmPassword: '' }]);
+	const [inputFields, setInputFields] = useState([{name: '', surname: '', username: '', password: '', confirmPassword: '', account_privileges: '', account_type: '' }]);
 	const [deleteuser, setDeleteUser] = useState([{delete: ''}]);
 	const [saveuser, setSaveUser] = useState([{save: ''}]);
 	const [accountPrivileges, setAccountPrivileges] = useState([]);
