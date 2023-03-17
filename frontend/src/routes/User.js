@@ -112,11 +112,11 @@ const User = () => {
 					</HStack>
 				);})}
 
-				{inputFields.map((user) => {return (
-					<HStack spacing={'25px'} mt={'25px'} key={user.account_id}>
+				{inputFields.map((attr, index) => {return (
+					<HStack spacing={'25px'} mt={'25px'} key={index}>
 						<FormControl>
 							<FormLabel>Access Level</FormLabel>
-							<Select placeholder='Select Access Level' color='black' bg='white'>
+							<Select placeholder='Select Access Level' color='black' bg='white' defaultValue={attr.account_privileges} onChange={event => handleFormChange(index, event)} name = 'account_privileges'>
 								<option value='option1'>PUBLIC</option>
 								<option value='option2'>INTERNAL</option>
 								<option value='option3'>RESTRICTED</option>
@@ -125,7 +125,7 @@ const User = () => {
 						</FormControl>
 						<FormControl>
 							<FormLabel>Role</FormLabel>
-							<Select placeholder='Select Role' color='black' bg='white'>
+							<Select placeholder='Select Role' color='black' bg='white' defaultValue={attr.account_type} onChange={event => handleFormChange(index, event)} name = 'account_type'>
 								<option value='option1'>VIEWER</option>
 								<option value='option2'>USER</option>
 								<option value='option3'>ADMIN</option>
