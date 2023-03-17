@@ -117,13 +117,18 @@ const User = () => {
 						<FormControl>
 							<FormLabel>Access Level</FormLabel>
 							<Select placeholder='Select Access Level' color='black' bg='white'>
-								<option value='option1'>{user.account_privileges}</option>
+								<option value='option1'>PUBLIC</option>
+								<option value='option2'>INTERNAL</option>
+								<option value='option3'>RESTRICTED</option>
+								<option value='option4'>CONFIDENTIAL</option>
 							</Select>
 						</FormControl>
 						<FormControl>
 							<FormLabel>Role</FormLabel>
 							<Select placeholder='Select Role' color='black' bg='white'>
-								<option value='option1'>{user.account_type}</option>
+								<option value='option1'>VIEWER</option>
+								<option value='option2'>USER</option>
+								<option value='option3'>ADMIN</option>
 							</Select>
 						</FormControl>
 					</HStack>
