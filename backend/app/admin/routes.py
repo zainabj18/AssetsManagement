@@ -48,4 +48,3 @@ def fetchUsers(searched):
             }
         )
     return listed_users"""
-        

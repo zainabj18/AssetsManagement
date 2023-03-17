@@ -24,9 +24,10 @@ const AdminManager = () => {
 		loadUsers();
 	},[]);
 
+	let user_Role = user.userRole;
+	let user_Privileges = user.userPrivileges;
 	const [searchText, setSearchText] = useState('');
 	const [inputField, setInputField] = useState([{ username: ''}]);
-	const [accountdetails, setAccountDetails] = useState([]);
 	const [pass] = useState([{ pass: '' }]);
 	const [relatedprojects] = useState([{ relatedproj: '' }]);
 
@@ -101,20 +102,26 @@ const AdminManager = () => {
 														</AccordionButton>
 													</h2>
 													<AccordionPanel pb={4}>
-														<Button onClick={onOpen}>View Account Details</Button>
+														<Button onClick={onOpen} variant='ghost'>View Account Details</Button>
 														<Modal isOpen={isOpen} onClose={onClose} size='xl' isCentered>
 															<ModalOverlay />
-															<ModalContent>
+															<ModalContent bg={'white'}>
 																<ModalHeader>Account Details</ModalHeader>
 																<ModalCloseButton />
-																<ModalBody></ModalBody>
+																<ModalBody>
+																	<Text>User Name: {user.username}</Text>
+																	<Text>First Name: {user.firstName}</Text>
+																	<Text>Last Name: {user.lastName}</Text>
+																	<Text>User Role: {user_Role.toLowerCase()}</Text>
+																	<Text>User Privileges: {user_Privileges.toLowerCase()}</Text>
+																</ModalBody>
 																<ModalFooter>
 																	<Button mr={3} onClick={onClose}>Close</Button>
 																</ModalFooter>
 															</ModalContent>
 														</Modal>
-														<Link href='/login'> <Button onClick={pass_func}>Change Password</Button></Link>
-														<Link href='/projects/'><Button onClick={handleRelatedProjects}>View Related Projects</Button></Link>
+														<Button onClick={pass_func} variant='ghost'>Change Password</Button>
+														<Button onClick={handleRelatedProjects} variant='ghost'>View Related Projects</Button>
 													</AccordionPanel>
 												</AccordionItem>
 											</Accordion>
@@ -135,4 +142,5 @@ const AdminManager = () => {
 };
 
 export default AdminManager;
+
 
