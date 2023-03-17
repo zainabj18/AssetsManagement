@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { VStack, Text, Input, Stack, Button, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Accordion, AccordionItem, 
-	AccordionButton, AccordionPanel, AccordionIcon, Box, Link} from '@chakra-ui/react';
+	AccordionButton, AccordionPanel, AccordionIcon, Box, Link, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure,}
+	from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import useAuth from '../hooks/useAuth';
 import { getUsers, getAccountDetails } from '../api';
@@ -9,49 +10,46 @@ const AdminManager = () => {
 
 	const { user } = useAuth();
 	let navigate = useNavigate();
+	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	useEffect(() => {
 		if (user && user.userRole !== 'ADMIN') {
 			navigate('../');
 		}
+		
 		async function loadUsers() {
 			let data = await getUsers(res => res.data);
-			console.log(data.data);
 			setUsers(data.data);
 		}
 		loadUsers();
 	},[]);
 
-	const [information, setInformation] = useState([]);
-	const [inputField, setInputField] = useState([]);
-	const [accountdetails, setAccountDetails] = useState([{ accdetails: '' }]);
+	const [searchText, setSearchText] = useState('');
+	const [inputField, setInputField] = useState([{ username: ''}]);
+	const [accountdetails, setAccountDetails] = useState([]);
 	const [pass] = useState([{ pass: '' }]);
 	const [relatedprojects] = useState([{ relatedproj: '' }]);
 
 	const [users, setUsers] = useState([]);
 
-	const search_users = (value) => {
-		console.log(value);
-		if (value === '') {
-			setInputField(users);
-		}else {
-			let searched_user = users.filter((u)=>u.name.toLowerCase().includes(value));
-			setInputField(searched_user);
-		}
-
+	const handleFormChange =  (index, event) => {
+		let data = [...inputField];
+		data[index][event.target.name] = event.target.value;
+		setInputField(data);
+		setSearchText(data[0].username);
 	};
 
+	
 
-	const loadAccountDetails = async (account_id) => {
+	/*const loadAccountDetails = async (account_id) => {
 		try {
 			const res = await getAccountDetails(account_id);
 			setAccountDetails(res.data);
 			console.log(accountdetails);
-			navigate('/user');
 		} catch (e) {
 			console.error(e);
 		}
-	};
+	};*/
 
 	const pass_func = (e) => {
 		e.preventDefault();
@@ -69,7 +67,7 @@ const AdminManager = () => {
 			{inputField.map((search, index) => {
 				return (
 					<Stack spacing={3} key = {index}>
-						<Input  placeholder='search' size='lg' type='text' width={800} top={25} onChange={(e)=>{search_users(e.target.value);}} name="username" />
+						<Input  placeholder='search' size='lg' type='text' width={800} top={25} onChange={event => handleFormChange(index, event)} name="username" />
 					</Stack>
 				);
 			})}
@@ -85,7 +83,7 @@ const AdminManager = () => {
 							</Tr>
 						</Thead>
 						<Tbody>
-							{users.map((user) => {
+							{users.filter(user => user.username.toLowerCase().includes(searchText.toLowerCase())).map((user) => {
 								return (
 									<Tr key={user.accountID}>
 										<Td>{user.firstName}</Td>
@@ -103,7 +101,18 @@ const AdminManager = () => {
 														</AccordionButton>
 													</h2>
 													<AccordionPanel pb={4}>
-														<Button onClick={() => loadAccountDetails(user.account_id)}>View Account Details</Button>
+														<Button onClick={onOpen}>View Account Details</Button>
+														<Modal isOpen={isOpen} onClose={onClose} size='xl' isCentered>
+															<ModalOverlay />
+															<ModalContent>
+																<ModalHeader>Account Details</ModalHeader>
+																<ModalCloseButton />
+																<ModalBody></ModalBody>
+																<ModalFooter>
+																	<Button mr={3} onClick={onClose}>Close</Button>
+																</ModalFooter>
+															</ModalContent>
+														</Modal>
 														<Link href='/login'> <Button onClick={pass_func}>Change Password</Button></Link>
 														<Link href='/projects/'><Button onClick={handleRelatedProjects}>View Related Projects</Button></Link>
 													</AccordionPanel>
