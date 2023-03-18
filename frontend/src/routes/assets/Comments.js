@@ -78,11 +78,11 @@ const Comments = () => {
 			
 			
 	  </VStack>
-	  <HStack minW={'100%'} bg="gray.700" padding={4}>
+	  <HStack minW={'100%'} bg="gray.700" padding={4} align='center'>
 	  <Textarea resize="none" bg="gray.300" placeholder='New Comment'
 	  value={newComment}
 	  onChange={handleCommentChange}/>
-	  {newComment.length>0 && <IconButton icon={<MdMessage />} boxSize={6} onClick={addNewComment}/>}
+	  {newComment.length>0 && <IconButton icon={<MdMessage />} minH={'100%'} onClick={addNewComment}/>}
 			</HStack>
 		</Box>
 
