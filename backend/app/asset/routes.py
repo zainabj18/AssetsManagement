@@ -10,8 +10,11 @@ from itertools import chain
 from flask import abort
 import json
 from .comments import bp as comment_bp
+from .related import bp as related_bp
 bp = Blueprint("asset", __name__, url_prefix="/asset")
 bp.register_blueprint(comment_bp)
+bp.register_blueprint(related_bp)
+
 
 def asset_differ(orginal,new):
     removed=list(set(orginal.keys())-set(new.keys()))
@@ -488,6 +491,7 @@ def logs(id, user_id, access_level):
     logs =[json.loads(c.json(by_alias=True)) for c in get_asset_logs(db,id)]
     return {"data":logs}
 
+#TODO:Moves to tags
 @bp.route("/tags/summary/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def tags_summary(id, user_id, access_level):
@@ -526,221 +530,6 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
             res = jsonify({"data": {"tag": tag, "assets": assets_json}})
     return res
 
-
-@bp.route("/related/tags/<id>", methods=["GET"])
-@protected(role=UserRole.VIEWER)
-def related_tags(id,user_id, access_level):
-    db = get_db()
-    # get related assets for  an asset and set them to be selected for easy rendering on UI
-    assets_json = []
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
-            cur.execute(
-                """
-                WITH related_asset_tags as (SELECT COUNT(asset_id),asset_id FROM assets_in_tags WHERE tag_id in (SELECT tag_id FROM assets_in_tags WHERE asset_id=%(id)s) and asset_id !=%(id)s
-GROUP BY asset_id
-HAVING COUNT(asset_id)>0)
-SELECT assets.*,related_asset_tags.count FROM assets
-INNER JOIN related_asset_tags on assets.asset_id=related_asset_tags.asset_id
-ORDER BY count DESC;""",
-                {"id": id},
-            )
-            selected_assets = list(cur.fetchall())
- 
-            assets = list(cur.fetchall())
-            selected_assets.extend(assets)
-        # gets the type name for each assset
-        with db_conn.cursor(row_factory=dict_row) as cur:
-            for a in selected_assets:
-                if a.classification <= access_level:
-                    cur.execute(
-                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
-INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
-                        {"version_id": a.version_id},
-                    )
-                    type = cur.fetchone()["type_name"]
-                    aj = json.loads(a.json(by_alias=True))
-                    aj["type"] = type
-                    assets_json.append(aj)
-            res = jsonify({"data": assets_json})
-    return res
-
-
-
-@bp.route("/related/projects/<id>", methods=["GET"])
-@protected(role=UserRole.VIEWER)
-def related_projects(id,user_id, access_level):
-    #get all the assets that belong to the same project as an asset
-    db = get_db()
-    assets_json = []
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
-            cur.execute(
-                """
-                WITH related_asset_projects as (SELECT COUNT(asset_id),asset_id FROM assets_in_projects WHERE project_id in (SELECT project_id FROM assets_in_projects WHERE asset_id=%(id)s) and asset_id !=%(id)s
-GROUP BY asset_id
-HAVING COUNT(asset_id)>0)
-SELECT assets.*,related_asset_projects.count FROM assets
-INNER JOIN related_asset_projects on assets.asset_id=related_asset_projects.asset_id
-ORDER BY count DESC;""",
-                {"id": id},
-            )
-            selected_assets = list(cur.fetchall())
- 
-            assets = list(cur.fetchall())
-            selected_assets.extend(assets)
-        # gets the type name for each assset
-        with db_conn.cursor(row_factory=dict_row) as cur:
-            for a in selected_assets:
-                if a.classification <= access_level:
-                    cur.execute(
-                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
-INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
-                        {"version_id": a.version_id},
-                    )
-                    type = cur.fetchone()["type_name"]
-                    aj = json.loads(a.json(by_alias=True))
-                    aj["type"] = type
-                    assets_json.append(aj)
-            res = jsonify({"data": assets_json})
-    return res
-
-@bp.route("/related/classification/<id>", methods=["GET"])
-@protected(role=UserRole.VIEWER)
-def related_classification(id,user_id, access_level):
-    #get all the assets that belong to the same project as an asset
-    db = get_db()
-    assets_json = []
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
-            cur.execute(
-                """
-                SELECT * FROM assets WHERE classification=(SELECT classification FROM assets WHERE asset_id=%(id)s) AND asset_id!=%(id)s ORDER BY asset_id;""",
-                {"id": id},
-            )
-            selected_assets = list(cur.fetchall())
- 
-            assets = list(cur.fetchall())
-            selected_assets.extend(assets)
-        # gets the type name for each assset
-        with db_conn.cursor(row_factory=dict_row) as cur:
-            for a in selected_assets:
-                if a.classification <= access_level:
-                    cur.execute(
-                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
-INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
-                        {"version_id": a.version_id},
-                    )
-                    type = cur.fetchone()["type_name"]
-                    aj = json.loads(a.json(by_alias=True))
-                    aj["type"] = type
-                    assets_json.append(aj)
-            res = jsonify({"data": assets_json})
-    return res
-
-
-@bp.route("/related/type/<id>", methods=["GET"])
-@protected(role=UserRole.VIEWER)
-def related_type(id,user_id, access_level):
-    #get all the assets that belong to the same project as an asset
-    db = get_db()
-    assets_json = []
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
-            cur.execute(
-                """
-                SELECT * FROM assets WHERE type=(SELECT type FROM assets WHERE asset_id=%(id)s) AND asset_id!=%(id)s ORDER BY asset_id;""",
-                {"id": id},
-            )
-            selected_assets = list(cur.fetchall())
- 
-            assets = list(cur.fetchall())
-            selected_assets.extend(assets)
-        # gets the type name for each assset
-        with db_conn.cursor(row_factory=dict_row) as cur:
-            for a in selected_assets:
-                if a.classification <= access_level:
-                    cur.execute(
-                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
-INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
-                        {"version_id": a.version_id},
-                    )
-                    type = cur.fetchone()["type_name"]
-                    aj = json.loads(a.json(by_alias=True))
-                    aj["type"] = type
-                    assets_json.append(aj)
-            res = jsonify({"data": assets_json})
-    return res
-
-
-@bp.route("/related/from/<id>", methods=["GET"])
-@protected(role=UserRole.VIEWER)
-def related_from(id,user_id, access_level):
-    #get all the assets that belong to the same project as an asset
-    db = get_db()
-    assets_json = []
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
-            cur.execute(
-"""SELECT assets.* FROM assets_in_assets
-    INNER JOIN assets on assets.asset_id=assets_in_assets.to_asset_id WHERE from_asset_id=%(id)s ORDER BY assets_in_assets.to_asset_id;""",
-                {"id": id},
-            )
-            selected_assets = list(cur.fetchall())
- 
-            assets = list(cur.fetchall())
-            selected_assets.extend(assets)
-        # gets the type name for each assset
-        with db_conn.cursor(row_factory=dict_row) as cur:
-            for a in selected_assets:
-                if a.classification <= access_level:
-                    cur.execute(
-                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
-INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
-                        {"version_id": a.version_id},
-                    )
-                    type = cur.fetchone()["type_name"]
-                    aj = json.loads(a.json(by_alias=True))
-                    aj["type"] = type
-                    assets_json.append(aj)
-            res = jsonify({"data": assets_json})
-    return res
-
-
-@bp.route("/related/to/<id>", methods=["GET"])
-@protected(role=UserRole.VIEWER)
-def related_to(id,user_id, access_level):
-    #get all the assets that belong to the same project as an asset
-    db = get_db()
-    assets_json = []
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
-            cur.execute(
-"""SELECT assets.* FROM assets_in_assets
-INNER JOIN assets on assets.asset_id=assets_in_assets.from_asset_id WHERE to_asset_id=%(id)s ORDER BY assets_in_assets.to_asset_id;""",
-                {"id": id},
-            )
-            selected_assets = list(cur.fetchall())
- 
-            assets = list(cur.fetchall())
-            selected_assets.extend(assets)
-        # gets the type name for each assset
-        with db_conn.cursor(row_factory=dict_row) as cur:
-            for a in selected_assets:
-                if a.classification <= access_level:
-                    cur.execute(
-                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
-INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
-                        {"version_id": a.version_id},
-                    )
-                    type = cur.fetchone()["type_name"]
-                    aj = json.loads(a.json(by_alias=True))
-                    aj["type"] = type
-                    assets_json.append(aj)
-            res = jsonify({"data": assets_json})
-    return res
-
-
 def make_query(searcher):
     match searcher.operation:
         case QueryOperation.EQUALS:
@@ -748,6 +537,7 @@ def make_query(searcher):
         case _:
             query="SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values like %(value)s",{"attribute_id":searcher.attribute_id,"value":f"like %{str(searcher.attribute_value)}%"}
     return query
+
 @bp.route("/filter", methods=["POST"])
 def filter():
     filter = FilterSearch(**request.json)
@@ -811,6 +601,8 @@ SELECT * FROM attributes_values;
             else:
                 asset_ids=set(chain.from_iterable(filter_asset_ids))
     return {"data": list(asset_ids)}
+
+
 @bp.route("/upgrade/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def get_upgrade(id,user_id, access_level):
@@ -853,17 +645,3 @@ WHERE asset_id=%(asset_id)s;""",
                 if not attribute in new_attributes:
                     removed_attributes_names.append(attribute.attribute_name)
             return {"msg":"upgrade needed","data":[added_attributes,removed_attributes_names,max_version["version_id"]],"canUpgrade":True}
-def abort_asset_not_exists(db,id):
-    with db.connection() as db_conn:
-        with db_conn.cursor() as cur:
-            cur.execute(
-                """SELECT asset_id FROM assets WHERE asset_id=%(id)s AND soft_delete=0;""",
-                {"id": id},
-            )
-            if cur.fetchone() is None:
-                res=jsonify({"msg": "Asset doesn't exist",
-      
-                "data": []
-            })
-                res.status_code=400
-                abort(res)

@@ -147,7 +147,7 @@ class AssetBase(BaseModel):
 
 
 class AssetBaseInDB(AssetBase):
-    asset_id: Optional[int]
+    asset_id: Optional[int]=Field(None, alias="assetID")
     created_at: datetime
     last_modified_at: datetime
     class Config:
@@ -173,11 +173,11 @@ class Asset(AssetBase):
 
 
 class AssetOut(AssetBaseInDB):
-    type: str
-    projects: List[Any]
-    tags: List[Any]
+    type: Optional[str]
+    projects: Optional[List[Any]]
+    tags: Optional[List[Any]]
     assets: Optional[Any]
-    metadata: List[AttributeInDB]
+    metadata: Optional[List[AttributeInDB]]
 
 
 class TagBulkRequest(BaseModel):

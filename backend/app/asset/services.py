@@ -1,6 +1,7 @@
 from flask import abort,jsonify
 from app.core.utils import run_query,QueryResult
-from app.schemas import Comment,CommentOut
+from app.schemas import Comment,CommentOut,AssetOut
+from app.db import DataAccess
 from psycopg.rows import class_row
 from psycopg_pool import ConnectionPool
 
@@ -59,4 +60,27 @@ def fetch_asset_comments(db,asset_id):
     SELECT comments.*,username FROM comments
 INNER JOIN accounts ON accounts.account_id=comments.account_id
     WHERE asset_id=%(asset_id)s ORDER BY datetime;""",{"asset_id": asset_id},return_type=QueryResult.ALL_JSON,row_factory=class_row(CommentOut))
+
+
+
+def fetch_assets_by_tag_count(db:ConnectionPool,asset_id:int,access_level:DataAccess):
+    """Find all asset related to a tag and count tag in common with other assets.
+
+    Args:
+      db: A object for managing connections to the db.
+      asset_id: The id of the asset to compare with.
+      access_level: The classification of assets the account it premited to view.
+
+    Returns:
+      A list of comments as dicts for an asset.
+    """
+    return run_query(db,"""WITH related_asset_tags as (SELECT COUNT(asset_id),asset_id FROM assets_in_tags WHERE tag_id in (SELECT tag_id FROM assets_in_tags WHERE asset_id=%(asset_id)s) and asset_id !=%(asset_id)s
+GROUP BY asset_id
+HAVING COUNT(asset_id)>0)
+SELECT assets.*,related_asset_tags.count,CONCAT(type_name,'-',version_number) AS type FROM assets
+INNER JOIN related_asset_tags ON assets.asset_id=related_asset_tags.asset_id
+INNER JOIN type_version ON type_version.version_id=assets.version_id
+INNER JOIN types ON types.type_id=type_version.type_id
+WHERE assets.classification<=%(access_level)s
+ORDER BY count DESC;""",{"asset_id": asset_id,"access_level":access_level},return_type=QueryResult.ALL_JSON,row_factory=class_row(AssetOut))
 
