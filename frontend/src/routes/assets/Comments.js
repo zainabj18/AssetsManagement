@@ -58,7 +58,7 @@ const Comments = () => {
 						borderRadius='md' 
 						padding={2}
 						maxWidth="80%"
-						alignSelf={comment.accountID===user.userID?'flex-start':'flex-end'}>
+						alignSelf={comment.accountID===user.userID?'flex-end':'flex-start'}>
 						<Flex>
 							<Link to={`/profile/${comment.accountID}`} as={NavLink}><Text as='b'>{comment.username}</Text></Link>
 							<Spacer />
