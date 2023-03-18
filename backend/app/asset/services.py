@@ -2,12 +2,20 @@ from flask import abort,jsonify
 from app.core.utils import run_query,QueryResult
 from app.schemas import Comment,CommentOut
 from psycopg.rows import class_row
-def abort_asset_not_exists(db,id):
+from psycopg_pool import ConnectionPool
+
+def abort_asset_not_exists(db,asset_id):
+    """Checks that an asset exist if not aborts.
+
+    Args:
+      db: A object for managing connections to the db.
+      asset_id:The asset_id that need checking in the db.
+    """
     with db.connection() as db_conn:
         with db_conn.cursor() as cur:
             cur.execute(
                 """SELECT asset_id FROM assets WHERE asset_id=%(id)s AND soft_delete=0;""",
-                {"id": id},
+                {"id": asset_id},
             )
             if cur.fetchone() is None:
                 res=jsonify({"msg": "Asset doesn't exist",
@@ -17,13 +25,36 @@ def abort_asset_not_exists(db,id):
                 res.status_code=400
                 abort(res)
 
-def insert_comment_to_db(db,comment:Comment,account_id,asset_id):
+def insert_comment_to_db(db:ConnectionPool,comment:Comment,account_id:int,asset_id:int):
+    """Add a new comment to db.
+
+    Args:
+      db: A object for managing connections to the db.
+      comment: An object represnetation of the comment
+      account_id: The account_id for who is making the comment.
+      asset_id:The asset_id for the asset that a comment is being made against.
+    """
     return run_query(db,"""INSERT INTO comments(asset_id,account_id,comment)
                  VALUES(%(asset_id)s,%(account_id)s,%(comment)s);""",{"asset_id": asset_id,"account_id":account_id,"comment":comment.comment})
 def delete_comment_db(db,comment_id):
-    return run_query(db,"""DELETE FROM comments WHERE comment_id = %(comment_id)s;""",{"comment_id": comment_id})
+    """Delete a comment from the db.
+
+    Args:
+      db: A object for managing connections to the db.
+      comment_id: The id of the comment to be deleted.
+    """
+    run_query(db,"""DELETE FROM comments WHERE comment_id = %(comment_id)s;""",{"comment_id": comment_id})
 
 def fetch_asset_comments(db,asset_id):
+    """Find all comments related to an asset.
+
+    Args:
+      db: A object for managing connections to the db.
+      asset_id: The id of the asset whoses comments are needed.
+    
+    Returns:
+      A list of comments as dicts for an asset.
+    """
     return run_query(db,"""
     SELECT comments.*,username FROM comments
 INNER JOIN accounts ON accounts.account_id=comments.account_id
