@@ -8,8 +8,11 @@ from psycopg import Error
 from app.auth.routes import get_user_by_id
 from itertools import chain
 from flask import abort
-bp = Blueprint("asset", __name__, url_prefix="/asset")
 import json
+from .comments import bp as comment_bp
+bp = Blueprint("asset", __name__, url_prefix="/asset")
+bp.register_blueprint(comment_bp)
+
 def asset_differ(orginal,new):
     removed=list(set(orginal.keys())-set(new.keys()))
     changed=[]
@@ -864,53 +867,3 @@ def abort_asset_not_exists(db,id):
             })
                 res.status_code=400
                 abort(res)
-
-def insert_comment_to_db(db,comment:Comment,user_id,asset_id):
-    return run_query(db,"""INSERT INTO comments(asset_id,account_id,comment)
-                 VALUES(%(asset_id)s,%(account_id)s,%(comment)s);""",{"asset_id": asset_id,"account_id":user_id,"comment":comment.comment})
-
-
-def delete_comment_db(db,comment_id):
-    return run_query(db,"""DELETE FROM comments WHERE comment_id = %(comment_id)s;""",{"comment_id": comment_id})
-
-def fetch_asset_comments(db,asset_id):
-    return run_query(db,"""
-    SELECT comments.*,username FROM comments
-INNER JOIN accounts ON accounts.account_id=comments.account_id
-    WHERE asset_id=%(asset_id)s ORDER BY datetime;""",{"asset_id": asset_id},return_type=QueryResult.ALL,row_factory=class_row(CommentOut))
-
-def audit_log_event(db,model_id,account_id,object_id,diff_dict,action):
-    return run_query(db,"""
-                INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
-        VALUES (%(model_id)s,%(account_id)s,%(object_id)s,%(diff)s,%(action)s);""",
-        {"model_id":model_id,"account_id":account_id,"object_id":object_id,"diff":json.dumps(diff_dict),"action":action})
-
-@bp.route("/comment/<id>", methods=["POST"])
-@protected(role=UserRole.USER)
-def add_comment(id,user_id, access_level):
-    print(request.json)
-    comment=model_creator(Comment,"Failed to add comment from the data provided",**request.json)
-    print(type(comment))
-    db = get_db()
-    #TODO:Keep db open
-    abort_asset_not_exists(db,id)
-    print(db,comment,user_id,id)
-    insert_comment_to_db(db,comment,user_id,id)
-    audit_log_event(db,Models.ASSETS,user_id,id,{"added":["comment"]},Actions.ADD)
-    return {"msg": "Comment added"},200
-
-@bp.route("/comment/<id>", methods=["GET"])
-@protected(role=UserRole.USER)
-def fetch_comments(id,user_id, access_level):
-    db = get_db()
-    abort_asset_not_exists(db,id)
-    comments=[json.loads(c.json(by_alias=True)) for c in fetch_asset_comments(db,id)]
-    return {"msg": "Comments","data":comments},200
-
-@bp.route("/comment/<id>/remove/<comment_id>", methods=["DELETE"])
-@protected(role=UserRole.ADMIN)
-def delete_comment(id,comment_id,user_id, access_level):
-    db = get_db()
-    delete_comment_db(db,comment_id)
-    audit_log_event(db,Models.ASSETS,user_id,id,{"removed":[f"comment-{comment_id}"]},Actions.ADD)
-    return {"msg": "Comment deleted"},200

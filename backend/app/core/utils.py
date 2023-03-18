@@ -7,6 +7,7 @@ from flask import abort, current_app, request,jsonify
 from pydantic import ValidationError
 from psycopg import Error
 from psycopg.rows import dict_row
+from enum import Enum,auto
 def decode_token(request):
     token = request.cookies.get("access-token")
     if not token:
@@ -49,11 +50,17 @@ def protected(role=UserRole.VIEWER):
 
     return decorated_route
 
-from enum import Enum,auto
+
 class QueryResult(Enum):
     ONE = auto()
     ALL =auto()
     ALL_JSON =auto()
+
+def audit_log_event(db,model_id,account_id,object_id,diff_dict,action):
+    return run_query(db,"""
+                INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
+        VALUES (%(model_id)s,%(account_id)s,%(object_id)s,%(diff)s,%(action)s);""",
+        {"model_id":model_id,"account_id":account_id,"object_id":object_id,"diff":json.dumps(diff_dict),"action":action})
 
 def run_query(db, query, params=None,row_factory=dict_row,return_type=None):
     try:

@@ -830,27 +830,11 @@ def test_comment_add_logged(db_conn,valid_client, new_assets):
     [{"batch_size": 1,"add_to_db":True}],
     indirect=True,
 )
-def test_comment_delete_no_comment_id(db_conn,valid_client, new_assets):
-    res = valid_client.delete(f"/api/v1/asset/comment/{new_assets[0].asset_id}",json={})
-    assert res.status_code == 400
-    assert res.json["msg"]=="Failed to delete comment from the data provided"
-    assert res.json["data"]=={
-        "loc": ["comment_id"],
-        "msg": "field required",
-        "type": "value_error.missing",
-    }
-
-
-@pytest.mark.parametrize(
-    "new_assets",
-    [{"batch_size": 1,"add_to_db":True}],
-    indirect=True,
-)
 def test_comment_delete(db_conn,valid_client, new_assets):
     comment="Hello World!"
     res = valid_client.post(f"/api/v1/asset/comment/{new_assets[0].asset_id}",json={"comment":comment})
     assert res.status_code == 200
-    res = valid_client.delete(f"/api/v1/asset/comment/{new_assets[0].asset_id}",json={"comment_id":1})
+    res = valid_client.delete(f"/api/v1/asset/comment/{new_assets[0].asset_id}/remove/{1}")
     assert res.status_code == 200
     assert res.json["msg"]=="Comment deleted"
     with db_conn.cursor() as cur:
