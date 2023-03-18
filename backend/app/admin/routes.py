@@ -1,18 +1,26 @@
+import json
 from app.db import get_db
 from flask import Blueprint
+from enum import Enum
 
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
+def enum_converter(o):
+    if isinstance(o, Enum):
+        return o.name
+    return o
+
 @bp.route("/accountmanager", methods=["GET"])
 def getUsers():
     database = get_db()
-    query = """SELECT account_id,first_name,last_name,username FROM accounts;"""
+    query = """SELECT account_id,first_name,last_name,username,account_type,account_privileges FROM accounts;"""
     with database.connection() as conn:
         result = conn.execute(query)
         usersfetched = result.fetchall()
         usersfetched_listed = extract_people(usersfetched)
+        usersfetched_listed = json.loads(json.dumps(usersfetched_listed, default=enum_converter))
     return {"data":usersfetched_listed}, 200
 
 def extract_people(people):
@@ -23,28 +31,9 @@ def extract_people(people):
                     "accountID": person[0],
                     "firstName": person[1],
                     "lastName": person[2],
-                    "username": person[3]
+                    "username": person[3],
+                    "userRole": person[4],
+                    "userPrivileges": person[5]
                 }
         )
     return allPeople_listed
-
-"""@bp.route("/accountmanager", methods=["GET"])
-def fetchUsers(searched):
-    database = get_db()
-    query = ""SELECT username FROM accounts WHERE username LIKE %(searched)s 
-            OR username LIKE %(wildcard)s;"",{"searched":f"%{searched}%","wildcard":f"_{searched}%"}
-    with database.connection() as conn:
-        result = conn.execute(query)
-        searched_users = result.fetchall()
-        searched_users_listed = extract_searched_users(searched_users)
-    return {"data":searched_users_listed}, 200"""
-
-"""def extract_searched_users(users):
-    listed_users = []
-    for user in users:
-        listed_users.append(
-            {
-                "username": user[0]
-            }
-        )
-    return listed_users"""

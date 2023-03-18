@@ -1,16 +1,15 @@
 import { useNavigate } from 'react-router-dom';
 import { VStack, Text, Input, Stack, Button, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Accordion, AccordionItem, 
-	AccordionButton, AccordionPanel, AccordionIcon, Box, Link, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure,}
+	AccordionButton, AccordionPanel, AccordionIcon, Box, Link,}
 	from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import useAuth from '../hooks/useAuth';
-import { getUsers, getAccountDetails } from '../api';
+import { getUsers} from '../api';
 
 const AdminManager = () => {
 
 	const { user } = useAuth();
 	let navigate = useNavigate();
-	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	useEffect(() => {
 		if (user && user.userRole !== 'ADMIN') {
@@ -24,8 +23,6 @@ const AdminManager = () => {
 		loadUsers();
 	},[]);
 
-	let user_Role = user.userRole;
-	let user_Privileges = user.userPrivileges;
 	const [searchText, setSearchText] = useState('');
 	const [inputField, setInputField] = useState([{ username: ''}]);
 	const [pass] = useState([{ pass: '' }]);
@@ -39,18 +36,6 @@ const AdminManager = () => {
 		setInputField(data);
 		setSearchText(data[0].username);
 	};
-
-	
-
-	/*const loadAccountDetails = async (account_id) => {
-		try {
-			const res = await getAccountDetails(account_id);
-			setAccountDetails(res.data);
-			console.log(accountdetails);
-		} catch (e) {
-			console.error(e);
-		}
-	};*/
 
 	const pass_func = (e) => {
 		e.preventDefault();
@@ -80,6 +65,8 @@ const AdminManager = () => {
 								<Th>First Name</Th>
 								<Th>Last Name</Th>
 								<Th>Username</Th>
+								<Th>Account Type</Th>
+								<Th>Account Privileges</Th>
 								<Th></Th>
 							</Tr>
 						</Thead>
@@ -90,6 +77,8 @@ const AdminManager = () => {
 										<Td>{user.firstName}</Td>
 										<Td>{user.lastName}</Td>
 										<Td>{user.username}</Td>
+										<Td>{user.userRole}</Td>
+										<Td>{user.userPrivileges}</Td>
 										<Td>
 											<Accordion allowToggle>
 												<AccordionItem>
@@ -102,24 +91,6 @@ const AdminManager = () => {
 														</AccordionButton>
 													</h2>
 													<AccordionPanel pb={4}>
-														<Button onClick={onOpen} variant='ghost'>View Account Details</Button>
-														<Modal isOpen={isOpen} onClose={onClose} size='xl' isCentered>
-															<ModalOverlay />
-															<ModalContent bg={'white'}>
-																<ModalHeader>Account Details</ModalHeader>
-																<ModalCloseButton />
-																<ModalBody>
-																	<Text>User Name: {user.username}</Text>
-																	<Text>First Name: {user.firstName}</Text>
-																	<Text>Last Name: {user.lastName}</Text>
-																	<Text>User Role: {user_Role.toLowerCase()}</Text>
-																	<Text>User Privileges: {user_Privileges.toLowerCase()}</Text>
-																</ModalBody>
-																<ModalFooter>
-																	<Button mr={3} onClick={onClose}>Close</Button>
-																</ModalFooter>
-															</ModalContent>
-														</Modal>
 														<Button onClick={pass_func} variant='ghost'>Change Password</Button>
 														<Button onClick={handleRelatedProjects} variant='ghost'>View Related Projects</Button>
 													</AccordionPanel>
