@@ -63,7 +63,7 @@ const Comments = () => {
 							<Link to={`/profile/${comment.accountID}`} as={NavLink}><Text as='b'>{comment.username}</Text></Link>
 							<Spacer />
 
-							{user.userRole==='ADMIN' && <IconButton icon={<DeleteIcon />} boxSize={6} onClick={()=>removeComment(comment.comment_id)}/>}
+							{user.userRole==='ADMIN' && <IconButton icon={<DeleteIcon />} boxSize={6} bg="red" onClick={()=>removeComment(comment.comment_id)}/>}
 						</Flex>
 						
 
