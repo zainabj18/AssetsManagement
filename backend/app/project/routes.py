@@ -78,11 +78,47 @@ def list_people(db):
 #             )
 #             return cur.fetchall()
 
+"""
+Get a list of all projects in the database, along with the people associated with each project.
+
+Args:
+db (obj): The database object to execute the SQL queries.
+
+Returns:
+A list of dictionaries, where each dictionary represents a project and contains the following keys:
+- "projectID": An integer representing the project's unique identifier.
+- "projectName": A string representing the project's name.
+- "projectDescription": A string representing the project's description.
+- "accounts": A list of dictionaries, where each dictionary contains the following keys:
+- "username": A string representing the associated person's username.
+- "account_id": An integer representing the associated person's unique identifier.
+"""
 @bp.route("/", methods=["GET"])
 def people_list():
     db = get_db()
     data = get_projects(db)
     return {"msg": "projects", "data": data}
+
+"""
+    Creates a new project in the database, based on the JSON data provided in the request body.
+
+    If the data is invalid or cannot be used to create a project, returns a JSON error response with
+    status code 400.
+
+    If the project is successfully created, returns a JSON success response with status code 200.
+
+    The JSON data should have the following keys:
+    - "name": a string with the name of the project
+    - "description": a string with a description of the project
+    - "accounts": a list of integers representing the account IDs of the people involved in the project
+
+    Example JSON data:
+    {
+        "name": "Project X",
+        "description": "A project about X",
+        "accounts": [1, 2, 3]
+    }
+"""
 
 @bp.route("/new", methods=["POST"])
 def create():
@@ -157,6 +193,17 @@ def create():
 #     return resp
 
 #Remove Projects from database
+
+"""
+Delete a project with the given id from the database, along with all associated people and assets in projects.
+
+:param id: The id of the project to be deleted.
+:type id: str
+
+:return: A dictionary containing the message indicating the success or failure of the deletion and a boolean flag indicating whether or not the deletion was allowed.
+:rtype: dict
+"""
+
 @bp.route("/delete/<id>", methods=["POST"])
 def delete_project(id):
     database = get_db()
@@ -188,6 +235,15 @@ def delete_project(id):
             conn.execute(query, {"id": id})
 
     return {"msg": "", "wasAllowed": canDo}, 200
+
+"""
+Return a list of all people in the database.
+
+Returns:
+    A dictionary containing a list of dictionaries representing all people in the database.
+    Each dictionary in the list contains keys for 'id', 'first_name', 'last_name', and 'username'.
+    If the query is successful, a status code of 200 is returned.
+"""
 
 @bp.route("/allPeople", methods=["GET"])
 def get_allProjects():

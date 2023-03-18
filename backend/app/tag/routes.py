@@ -71,6 +71,13 @@ def delete_tag(db, id):
                 {"id": id},
             )
 
+"""
+List the names of all the available types with their latest version number.
+
+Returns:
+    A JSON response with the list of names and their latest version number.
+"""
+
 
 @bp.route("/", methods=["POST"])
 @protected(role=UserRole.USER)
@@ -105,6 +112,12 @@ def create(user_id, access_level):
                 {"account_id":user_id,"tag_id":id,"diff":json.dumps({}),"action":Actions.ADD},
             )
     return jsonify({"msg": "Tag Created", "data": tag.dict()})
+"""
+List the names of all the available types with their latest version number.
+
+Returns:
+    A JSON response with the list of names and their latest version number.
+"""
 
 
 @bp.route("/", methods=["GET"])
@@ -116,6 +129,13 @@ def list(user_id, access_level):
     except Error as e:
         return {"msg": str(e), "error": "Database Error"}, 500
     return jsonify({"msg": "tags", "data": tags})
+
+"""
+List the names of all the available types with their latest version number.
+
+Returns:
+    A JSON response with the list of names and their latest version number.
+"""
 
 
 @bp.route("/<id>", methods=["DELETE"])
@@ -135,6 +155,14 @@ def delete(id, user_id, access_level):
     except Error as e:
         return {"msg": str(e), "error": "Database Error"}, 500
     return {}, 200
+
+"""
+List the names of all the available types with their latest version number.
+
+Returns:
+    A JSON response with the list of names and their latest version number.
+"""
+
 
 @bp.route("/<id>", methods=["PATCH"])
 @protected(role=UserRole.ADMIN)

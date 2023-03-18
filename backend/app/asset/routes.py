@@ -98,6 +98,16 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
         )
     return asset
 
+"""
+    Endpoint for creating a new asset in the database.
+
+    :param user_id: the ID of the user making the request
+    :type user_id: int
+    :param access_level: the access level of the user making the request
+    :type access_level: int
+    :return: a JSON response with information about the created asset or an error message
+    :rt
+"""
 @bp.route("/", methods=["POST"])
 @protected(role=UserRole.USER)
 def create(user_id, access_level):
@@ -235,6 +245,16 @@ WHERE attributes_in_types.type_version=%(type_id)s;""",{"type_id": asset.version
                 )
     return {"msg": "Added asset", "data": asset_id}, 200
 
+"""
+    Endpoint for creating a new asset in the database.
+
+    :param user_id: the ID of the user making the request
+    :type user_id: int
+    :param access_level: the access level of the user making the request
+    :type access_level: int
+    :return: a JSON response with information about the created asset or an error message
+    :rt
+"""
 
 @bp.route("/classifications", methods=["GET"])
 @protected(role=UserRole.USER)
@@ -246,6 +266,16 @@ def get_classifications(user_id, access_level):
 
     return {"data": viwable_classifications}
 
+"""
+    Fetches related projects for the given asset ID and sets them to be selected for easy rendering on UI.
+    
+    Args:
+        id (str): The ID of the asset for which to fetch related projects.
+        
+    Returns:
+        A tuple containing the selected projects as a list of dictionaries and the HTTP status code 200.
+        Each dictionary represents a project and has keys representing the project's attributes.
+"""
 
 @bp.route("projects/<id>", methods=["GET"])
 def list_asset_project(id):
@@ -319,7 +349,15 @@ def view(id, user_id, access_level):
     
     return {"data": json.loads(asset.json(by_alias=True))}, 200
 
+"""
+Soft delete an asset with the given id from the database by setting the 'soft_delete' flag to 1.
 
+:param id: The id of the asset to be soft deleted.
+:type id: str
+
+:return: An empty dictionary to indicate a successful soft deletion.
+:rtype: dict
+"""
 @bp.route("/<id>", methods=["DELETE"])
 def delete(id):
     db = get_db()
@@ -333,7 +371,15 @@ def delete(id):
     return {}, 200
 
 
+"""
+Soft delete an asset with the given id from the database by setting the 'soft_delete' flag to 1.
 
+:param id: The id of the asset to be soft deleted.
+:type id: str
+
+:return: An empty dictionary to indicate a successful soft deletion.
+:rtype: dict
+"""
 
 @bp.route("/summary", methods=["GET"])
 @protected(role=UserRole.VIEWER)
@@ -360,6 +406,15 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
             res = jsonify({"data": assets_json})
     return res
 
+"""
+Soft delete an asset with the given id from the database by setting the 'soft_delete' flag to 1.
+
+:param id: The id of the asset to be soft deleted.
+:type id: str
+
+:return: An empty dictionary to indicate a successful soft deletion.
+:rtype: dict
+"""
 
 @bp.route("/<id>", methods=["PATCH"])
 @protected(role=UserRole.VIEWER)
