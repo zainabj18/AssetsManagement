@@ -34,16 +34,12 @@ def logs(user_id, access_level):
 INNER JOIN tracked_models ON tracked_models.model_id=audit_logs.model_id
 INNER JOIN accounts ON audit_logs.account_id=accounts.account_id
 ORDER BY date ASC;""",return_type=QueryResult.ALL_JSON,row_factory=class_row(Log))
-
-      
-    print(logs)
     return {"data":logs}
 
 
 @bp.errorhandler(401)
 def unathorised(e):
     return e.description, 401
-
 
 bp.register_blueprint(auth_bp)
 bp.register_blueprint(asset_bp)
