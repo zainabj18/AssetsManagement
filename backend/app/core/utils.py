@@ -1,6 +1,7 @@
 from functools import wraps
 
 import jwt
+import json
 from app.db import DataAccess, UserRole
 from flask import abort, current_app, request,jsonify
 from pydantic import ValidationError
@@ -52,6 +53,7 @@ from enum import Enum,auto
 class QueryResult(Enum):
     ONE = auto()
     ALL =auto()
+    ALL_JSON =auto()
 
 def run_query(db, query, params=None,row_factory=dict_row,return_type=None):
     try:
@@ -66,6 +68,8 @@ def run_query(db, query, params=None,row_factory=dict_row,return_type=None):
                         return cur.fetchone()
                     case QueryResult.ALL:
                         return cur.fetchall()
+                    case QueryResult.ALL_JSON:
+                        return [json.loads(row.json(by_alias=True)) for row in cur.fetchall()]
                     case _:
                         return
                 

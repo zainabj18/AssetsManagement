@@ -17,7 +17,7 @@ const Logs = () => {
 				header: 'Action',
 				canFilter:true
 			},
-			'model_name':{
+			'modelName':{
 				header: 'Object Type',
 				canFilter:true
 			},
@@ -25,8 +25,8 @@ const Logs = () => {
 				header: 'Username',
 				canFilter:true
 			},
-			'object_id':{
-				header: 'Username',
+			'objectID':{
+				header: 'ObjectID',
 				canFilter:true,
 				Cell:(rowID,value)=><Link to={`/${rowID.model_name}/${value}`} as={NavLink}>{value}</Link>
 			}

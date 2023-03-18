@@ -22,26 +22,21 @@ from app.db import UserRole, get_db
 
 from psycopg.rows import dict_row
 from app.auth.routes import get_user_by_id
-
-
+from app.core.utils import protected,run_query,model_creator,QueryResult
+from app.schemas import Log
+from psycopg.rows import class_row
 @bp.route("/logs", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def logs(user_id, access_level):
     db = get_db()
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=dict_row) as cur:
-            cur.execute(
-                """SELECT model_name,object_id,date,account_id,action FROM public.audit_logs
+    logs=run_query(db,"""
+    SELECT model_name,audit_logs.*,accounts.username FROM audit_logs
 INNER JOIN tracked_models ON tracked_models.model_id=audit_logs.model_id
-ORDER BY date ASC;""",
-                {"asset_id": id},
-            )
-            logs = cur.fetchall()
-            print(logs)
-            for log in logs:
-                if username := get_user_by_id(db,log["account_id"]):
-                    username = username[0]
-                log["username"]=username
+INNER JOIN accounts ON audit_logs.account_id=accounts.account_id
+ORDER BY date ASC;""",return_type=QueryResult.ALL_JSON,row_factory=class_row(Log))
+
+      
+    print(logs)
     return {"data":logs}
 
 
