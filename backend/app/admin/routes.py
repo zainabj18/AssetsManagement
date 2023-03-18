@@ -15,7 +15,7 @@ def enum_converter(o):
 @bp.route("/accountmanager", methods=["GET"])
 def getUsers():
     database = get_db()
-    query = """SELECT account_id,first_name,last_name,username,account_type,account_privileges FROM accounts;"""
+    query = """SELECT * FROM accounts;"""
     with database.connection() as conn:
         result = conn.execute(query)
         usersfetched = result.fetchall()
@@ -32,8 +32,9 @@ def extract_people(people):
                     "firstName": person[1],
                     "lastName": person[2],
                     "username": person[3],
-                    "userRole": person[4],
-                    "userPrivileges": person[5]
+                    "hashed_password": person[4],
+                    "userRole": person[5],
+                    "userPrivileges": person[6]
                 }
         )
     return allPeople_listed

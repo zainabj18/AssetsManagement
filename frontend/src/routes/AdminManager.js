@@ -66,7 +66,7 @@ const AdminManager = () => {
 								<Th>Last Name</Th>
 								<Th>Username</Th>
 								<Th>Account Type</Th>
-								<Th>Account Privileges</Th>
+								<Th>Data Classification</Th>
 								<Th></Th>
 							</Tr>
 						</Thead>
@@ -82,14 +82,12 @@ const AdminManager = () => {
 										<Td>
 											<Accordion allowToggle>
 												<AccordionItem>
-													<h2>
-														<AccordionButton>
-															<Box as="span" flex='1' textAlign='left'>
-																Edit Details
-															</Box>
-															<AccordionIcon />
-														</AccordionButton>
-													</h2>
+													<AccordionButton>
+														<Box as="span" flex='1' textAlign='left'>
+															Edit Details
+														</Box>
+														<AccordionIcon/>
+													</AccordionButton>
 													<AccordionPanel pb={4}>
 														<Button onClick={pass_func} variant='ghost'>Change Password</Button>
 														<Button onClick={handleRelatedProjects} variant='ghost'>View Related Projects</Button>
