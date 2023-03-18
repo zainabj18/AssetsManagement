@@ -21,7 +21,15 @@ import {
 import axios from 'axios';
 import { ViewIcon,ViewOffIcon } from '@chakra-ui/icons';
 import useAuth from '../hooks/useAuth';
-
+/**
+ * Component for login for user.
+ *
+ * @component
+ * @example
+ * const username = admin
+ * const password = 'admin'
+ 
+ */
 function Login() {
 	const [isSmallerThan745] = useMediaQuery("(max-width: 744px)");
 	const [username, setUsername] = useState('');

@@ -5,11 +5,19 @@ import { fetchAssetSummary, filterAssets } from '../../api';
 import AssetList from '../../components/AssetList';
 import AssetSearcher from '../../components/AssetSearcher';
 import AssetTable from '../../components/AssetTable';
+/**
+ * return full name of the user
+ * @param   {}
+ *  a page for view assets 
+ */
 const AssetsOverview = () => {
 	const [assets, setAssets] = useState([]);
 	const [results, setResults] = useState([]);
 	let naviagte=useNavigate();
-
+/**
+ * return full name of the user
+ * @param   {string} searchData  filter assets
+ */
 	const handleFilter = (searchData) => {
 		filterAssets(searchData).then(res=>{
 			setResults(assets.filter((asset)=>res.data.includes(asset.asset_id)));
