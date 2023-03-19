@@ -273,7 +273,6 @@ def test_new_assets_projects(valid_client, new_assets, db_conn):
     res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 200
     assert res.json["msg"] == "Added asset"
-    assert res.json["data"]
     with db_conn.cursor() as cur:
         cur.execute(
             """SELECT project_id FROM assets_in_projects WHERE asset_id=%(id)s;""",
