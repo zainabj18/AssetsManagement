@@ -556,25 +556,13 @@ def filter():
     type_results=services.fetch_assets_with_any_values(db=db,values=filter.types,attribute="version_id")
     filter_asset_ids.append(set(get_key_from_results("asset_id",type_results)))
     services.create_all_attributes_view(db=db)
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=dict_row) as cur:
-            
-            db_conn.commit()
-            print(filter.attributes)
-            for searcher in filter.attributes:
-                print(searcher)
-                match searcher.operation:
-                    case QueryOperation.EQUALS:
-                        cur.execute("SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values=%(value)s",{"attribute_id":searcher.attribute_id,"value":str(searcher.attribute_value)})
-                    case QueryOperation.HAS:
-                        cur.execute("SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s",{"attribute_id":searcher.attribute_id})
-                    case _:
-                        cur.execute("SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values like %(value)s",{"attribute_id":searcher.attribute_id,"value":f"%{str(searcher.attribute_value)}%"})
-                filter_asset_ids.append(set([row["asset_id"] for row in cur.fetchall()]))
-            if filter.operation==QueryJoin.AND:  
-                asset_ids=set.intersection(*filter_asset_ids)
-            else:
-                asset_ids=set(chain.from_iterable(filter_asset_ids))
+    for searcher in filter.attributes:
+        filter_results=services.fetch_assets_attribute_filter(db=db,searcher=searcher)
+        filter_asset_ids.append(set(get_key_from_results("asset_id",filter_results)))
+    if filter.operation==QueryJoin.AND:  
+        asset_ids=set.intersection(*filter_asset_ids)
+    else:
+        asset_ids=set(chain.from_iterable(filter_asset_ids))
     return {"data": list(asset_ids)}
 
 

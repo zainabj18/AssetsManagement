@@ -1,6 +1,6 @@
 from flask import abort,jsonify
 from app.core.utils import run_query,QueryResult
-from app.schemas import Comment,CommentOut,AssetOut
+from app.schemas import Comment,CommentOut,AssetOut,AttributeSearcher,QueryOperation
 from app.db import DataAccess
 from psycopg.rows import class_row
 from psycopg_pool import ConnectionPool
@@ -192,3 +192,27 @@ FROM assets
 UNION ALL 
 SELECT * FROM attributes_values;
             """)
+
+
+def fetch_assets_attribute_filter(db:ConnectionPool,searcher:AttributeSearcher):
+    """Find all asset that as attributes that support like,equal and has.
+
+    Args:
+      db: A object for managing connections to the db.
+      searcher: The attribute searcher.
+
+    Returns:
+      A list of asset ids.
+    """
+    query=sql.Composed([sql.SQL("SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s")])
+    params={"attribute_id":searcher.attribute_id}
+    match searcher.operation:
+      case QueryOperation.EQUALS:
+          query+=sql.SQL(" AND values=%(value)s")
+          params.update({"value":str(searcher.attribute_value)})
+      case QueryOperation.LIKE:
+          query+=sql.SQL(" AND values like %(value)s")
+          params.update({"value":f"%{str(searcher.attribute_value)}%"})
+      case _:
+            pass
+    return run_query(db,query,params,return_type=QueryResult.ALL)
