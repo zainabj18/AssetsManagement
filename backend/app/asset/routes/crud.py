@@ -9,11 +9,9 @@ from app.auth.routes import get_user_by_id
 from itertools import chain
 from flask import abort
 import json
-from .comments import bp as comment_bp
-from .related import bp as related_bp
+
 bp = Blueprint("asset", __name__, url_prefix="/asset")
-bp.register_blueprint(comment_bp)
-bp.register_blueprint(related_bp)
+
 
 
 def asset_differ(orginal,new):

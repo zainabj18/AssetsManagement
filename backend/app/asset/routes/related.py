@@ -1,7 +1,7 @@
 from flask import Blueprint
 from app.core.utils import protected
 from app.db import UserRole, get_db,DataAccess
-from .services import fetch_assets_by_common_count_count,fetch_assets_by_same_attribute,fetch_assets_by_link
+from ..services import fetch_assets_by_common_count_count,fetch_assets_by_same_attribute,fetch_assets_by_link
 bp = Blueprint("related", __name__, url_prefix="/related")
 
 @bp.route("/tags/<id>", methods=["GET"])

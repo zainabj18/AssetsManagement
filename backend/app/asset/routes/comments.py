@@ -4,7 +4,7 @@ from http import HTTPStatus
 from app.core.utils import protected,model_creator,audit_log_event
 from app.db import UserRole, get_db,Actions,Models,DataAccess
 from app.schemas import Comment,CommentOut
-from .services import abort_asset_not_exists,insert_comment_to_db,fetch_asset_comments,delete_comment_db
+from ..services import abort_asset_not_exists,insert_comment_to_db,fetch_asset_comments,delete_comment_db
 
 bp = Blueprint("comment", __name__, url_prefix="/comment")
 

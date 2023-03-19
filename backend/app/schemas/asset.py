@@ -9,9 +9,30 @@ class QueryOperation(Enum):
     EQUALS = "EQUALS"
     LIKE = "LIKE"
     HAS="HAS"
+class QueryJoin(Enum):  
     AND="AND"
     OR="OR"
 
+class AttributeSearcher(BaseModel):
+    attribute_id: Any = Field(..., alias="attributeID")
+    attribute_value: Any = Field(..., alias="attributeValue")
+    operation:QueryJoin=QueryJoin.OR
+
+    class Config:
+        allow_population_by_field_name = True
+
+class FilterSearch(BaseModel):
+    tags:List[int]=[]
+    projects:List[int]=[]
+    types:List[int]=[]
+    classifications:Optional[List[DataAccess]]=[]
+    attributes:List[AttributeSearcher]=[]
+    operation: QueryJoin = Field(QueryJoin.OR, alias="operation")
+    tag_operation: QueryJoin = Field(QueryJoin.OR, alias="tagOperation")
+    project_operation: QueryJoin = Field(QueryJoin.OR, alias="projectOperation")
+    class Config:
+        allow_population_by_field_name = True
+    
 class Log(BaseModel):
     log_id: int = Field(..., alias="logID")
     account_id: int = Field(..., alias="accountID")
@@ -28,26 +49,6 @@ class Log(BaseModel):
             Actions: lambda a: str(a.name),
         }
 
-
-class AttributeSearcher(BaseModel):
-    attribute_id: Any = Field(..., alias="attributeID")
-    attribute_value: Any = Field(..., alias="attributeValue")
-    operation:QueryOperation
-
-    class Config:
-        allow_population_by_field_name = True
-class FilterSearch(BaseModel):
-    tags:List[int]=[]
-    projects:List[int]=[]
-    types:List[int]=[]
-    classifications:Optional[List[DataAccess]]=[]
-    attributes:List[AttributeSearcher]=[]
-    operation: QueryOperation = Field(QueryOperation.OR, alias="operation")
-    tag_operation: QueryOperation = Field(QueryOperation.OR, alias="tagOperation")
-    project_operation: QueryOperation = Field(QueryOperation.OR, alias="projectOperation")
-    class Config:
-        allow_population_by_field_name = True
-    
 
 class TagBase(BaseModel):
     id: Optional[int]
