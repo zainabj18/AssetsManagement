@@ -1,4 +1,4 @@
-import { Box, Button, Center, FormControl, FormLabel, HStack, Heading, Input, Select, Stack, InputGroup, InputRightElement } from '@chakra-ui/react';
+import { Box, Button, Center, FormControl, FormLabel, HStack, Heading, Input, Select, Stack, InputGroup, InputRightElement, Alert, AlertIcon, AlertTitle, AlertDescription } from '@chakra-ui/react';
 import { React, useEffect, useState } from 'react';
 import useAuth from '../hooks/useAuth';
 import { createUser, deleteUserAcc } from '../api';
@@ -16,6 +16,7 @@ const User = () => {
 	const [accountPrivileges, setAccountPrivileges] = useState([]);
 	const [accountTypes, setAccountTypes] = useState([]);
 	const [show, setShow] = useState(false);
+	const { authError } = useAuth();
 
 	const handleClick = () => setShow(!show);
 
@@ -133,6 +134,12 @@ const User = () => {
 						</FormControl>
 					</HStack>
 				);})}
+
+				{authError && (<Alert status='error'>
+  							<AlertIcon />
+					<AlertTitle>{authError.error}</AlertTitle>
+					<AlertDescription>{authError.msg}</AlertDescription>
+				</Alert>)}
 
 				{inputFields.map((index) => {return (
 					<Stack direction='row' align='center' mt={8}>
