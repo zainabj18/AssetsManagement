@@ -11,7 +11,8 @@ const AssetsOverview = () => {
 
 	const handleFilter = (searchData) => {
 		filterAssets(searchData).then(res=>{
-			setResults(assets.filter((asset)=>res.data.includes(asset.asset_id)));
+			setResults(assets.filter((asset)=>res.data.includes(asset.assetID)));
+			console.log(assets.filter((asset)=>res.data.includes(asset.assetID)));
 			console.log(res.data);});
 	};
 

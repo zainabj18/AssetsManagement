@@ -550,28 +550,33 @@ def filter():
         project_results=services.fetch_assets_with_any_links(db=db,fkeys=filter.projects,link_table="assets_in_projects",fkey="project_id")
     else:
         project_results=services.fetch_assets_with_set_links(db,filter.projects,link_table="assets_in_projects",fkey="project_id")
+    print(project_results)
     filter_asset_ids.append(set(get_key_from_results("asset_id",project_results)))
     classification_results=services.fetch_assets_with_any_values(db=db,values=filter.classifications,attribute="classification")
     filter_asset_ids.append(set(get_key_from_results("asset_id",classification_results)))
     type_results=services.fetch_assets_with_any_values(db=db,values=filter.types,attribute="version_id")
+    print("hello")
+    print(filter.types)
+    print("types",type_results)
     filter_asset_ids.append(set(get_key_from_results("asset_id",type_results)))
     services.create_all_attributes_view(db=db)
-    filter_attributes_results=set()
+    filter_attributes_results=[]
     for searcher in filter.attributes:
         filter_results=services.fetch_assets_attribute_filter(db=db,searcher=searcher)
         filter_results=set(get_key_from_results("asset_id",filter_results))
-        print(filter_results)
-        if filter.attribute_operation==QueryJoin.OR:
-            filter_attributes_results=filter_attributes_results.union(filter_results)
-            print("I am her",filter_attributes_results)
-        else:
-            filter_attributes_results=filter_attributes_results.intersection(set(filter_results))
-    print(filter_asset_ids)
+        filter_attributes_results.append(filter_results)
+    if filter.attribute_operation==QueryJoin.OR:
+        filter_attributes_results=set(chain.from_iterable(filter_asset_ids))
+    else:
+        filter_attributes_results=set.intersection(*filter_attributes_results)
     filter_asset_ids.append(filter_attributes_results)
+    print(filter_asset_ids)
+    print(set.intersection(*filter_asset_ids))
     if filter.operation==QueryJoin.AND:  
         asset_ids=set.intersection(*filter_asset_ids)
     else:
         asset_ids=set(chain.from_iterable(filter_asset_ids))
+    print(asset_ids)
     return {"data": list(asset_ids)}
 
 

@@ -24,10 +24,6 @@ const AssetSearcher = ({filerFunc}) => {
 	const [projects, setProjects] = useState([]);
 	const [tags, setTags] = useState([]);
 	const [attributes, setAttributes] = useState([]);
-	const [tag, setTag] = useState(null);
-	const [inputFields, setInputFields] = useState([
-		{ attributeID: -1, attributeValue: 'name' }
-	]);
 	const [searchData, setSearchData] = useState(
 		{ tags:[],types:[],projects:[],classifications:[],attributes:[]}
 	);
@@ -59,31 +55,36 @@ const AssetSearcher = ({filerFunc}) => {
 	};
 
 	const handleFormChange = (index, event) => {
-		let data = [...inputFields];
+		let data = searchData['attributes'];
 		data[index][event.target.name] = event.target.value;
-		setInputFields(data);
+		setSearchData((prevAssetState) => ({
+			...prevAssetState,
+			attributes: data,
+		}));
 	};
 
 	const addFields = () => {
-		let newfield = { attributeID: -1, attributeValue: 'name' };
-		setInputFields([...inputFields, newfield]);
-		console.log(inputFields);
+		let newfield = [...searchData['attributes'],{ attributeID: -1, attributeValue: '' }];
+		console.log('new fieedls');
+		console.log(newfield);
+		setSearchData((prevAssetState) => ({
+			...prevAssetState,
+			attributes: newfield,
+		}));
+		console.log(searchData);
 	};
 
 	const removeFields = (index) => {
-		let data = [...inputFields];
+		let data = searchData['attributes'];
 		data.splice(index, 1);
-		setInputFields(data);
+		setSearchData((prevAssetState) => ({
+			...prevAssetState,
+			attributes: data,
+		}));
 	};
 
 	const filter = () => {
-		console.log(inputFields);
-		setSearchData((prevAssetState) => ({
-			...prevAssetState,
-			attributes: inputFields,
-		}));
-
-
+		console.log(searchData);
 		filerFunc(searchData);
 	};
 
@@ -189,7 +190,7 @@ const AssetSearcher = ({filerFunc}) => {
 									
 									{projects.map((project) => {
 										return ( 
-											<Checkbox  onChange={(e) => handleCheckBoxChange('projects',project.id,e.target.checked)}>{project.name}</Checkbox>
+											<Checkbox  onChange={(e) => handleCheckBoxChange('projects',project.projectID,e.target.checked)}>{project.projectName}</Checkbox>
 										);
 									})}
 								</VStack>
@@ -202,7 +203,8 @@ const AssetSearcher = ({filerFunc}) => {
 			
 
 	
-			{inputFields.map((input, index) => {
+			{searchData['attributes'].map((input, index) => {
+				console.log(input);
 				return (
 					<HStack key={index}>
 						<Select  name='attributeID' value={input.attributeID} onChange={event => handleFormChange(index, event)}>
@@ -223,8 +225,6 @@ const AssetSearcher = ({filerFunc}) => {
 							placeholder='Attribute value'
 							value={input.attributeValue}
 							onChange={event => handleFormChange(index, event)}
-							color='white'
-							fontsize='20'
 						/>}
 						<Button onClick={() => removeFields(index)}>Remove</Button>
 					</HStack>
