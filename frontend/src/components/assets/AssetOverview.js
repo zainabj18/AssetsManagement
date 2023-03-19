@@ -1,9 +1,11 @@
 import { Container,Tabs,TabList,TabPanels,Tab} from '@chakra-ui/react';
-import { useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 const AssetOverview=() => {
 	const navigate = useNavigate();
+	const location = useLocation();
+	const [defaultIndex, setDefaultIndex] = useState(0);
 	const [tabs, setTabs] = useState([{to:'./',name:'Attributes'},
 		{to:'./classification',name:'Classification'},
 		{to:'./type',name:'Type'},
@@ -13,9 +15,22 @@ const AssetOverview=() => {
 		{to:'./incomming',name:'Incomming Asset Links'},
 		{to:'./comments',name:'Comments'},
 		{to:'./logs',name:'Logs'}]);
+
+	useEffect(() => {
+		let name = location.pathname.slice(location.pathname.lastIndexOf('/') , location.pathname.length);
+		for (var i = 0; i < tabs.length; i++) { 
+			
+			if(tabs[i].to==='.'+name){
+				console.log('here');
+				setDefaultIndex(i);
+				break;
+			}
+		}
+	}, []);
+		
 	return ( 
 		<Container minW="100%">
-			<Tabs isFitted variant='enclosed' onChange={(e)=>navigate(tabs[e].to)} bg={'white'}>
+			{defaultIndex && <Tabs isFitted variant='enclosed' onChange={(e)=>navigate(tabs[e].to)} bg={'white'} defaultIndex={defaultIndex}>
 				<TabList>
 					{tabs.map((tab,index)=>{
 						return (
@@ -25,7 +40,7 @@ const AssetOverview=() => {
 				<TabPanels bg="blue.100">
 					<Outlet />	
 				</TabPanels>
-			</Tabs>
+			</Tabs>}
 			
 
 		</Container>);
