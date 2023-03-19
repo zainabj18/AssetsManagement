@@ -4,10 +4,10 @@ import { Box } from '@chakra-ui/react';
 import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Input, Button } from '@chakra-ui/react';
 import { Checkbox } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { fetchTypesList } from '../api';
-import { fetchAllAttributes,fetchTags } from '../api';
-import { fetchProjects } from '../api';
-import { fetchAssetClassifications} from '../api';
+import { fetchTypesList } from '../../api';
+import { fetchAllAttributes,fetchTags } from '../../api';
+import { fetchProjects } from '../../api';
+import { fetchAssetClassifications} from '../../api';
 
 const RadioButtons=({name,changeFunc})=>{
 	return (<RadioGroup defaultValue="OR" onChange={e=>changeFunc(name,e)}>

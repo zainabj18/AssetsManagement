@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {fetchRelatedClassification, fetchRelatedTags, fetchRelatedType } from '../../api';
-
-import AssetTable from '../../components/AssetTable';
+import AssetTable from '../../components/assets/AssetTable';
 const RelatedType = () => {
 	const { id } = useParams();
 	const [assetsin, setAssets] = useState([]);

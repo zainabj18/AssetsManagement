@@ -1,5 +1,6 @@
 import { Routes, Route} from 'react-router-dom';
-import AssetViewer from './components/AssetVeiwer';
+import AssetViewer from './components/assets/AssetVeiwer';
+import AssetOverview from './components/assets/AssetOverview';
 import CreateAsset from './routes/assets/CreateAsset';
 import Layout from './routes/Layout';
 import Login from './routes/Login';
@@ -15,7 +16,6 @@ import { Box, Button } from '@chakra-ui/react';
 import AdminManager from './routes/AdminManager';
 import Tags from './routes/Tags';
 import TagViewer from './routes/TagViewer';
-import AssetOverview from './components/AssetOverview';
 import AssetLogs from './routes/assets/AssetLogs';
 import RelatedTags from './routes/assets/RelatedTags';
 import RelatedProjects from './routes/assets/RelatedProjects';

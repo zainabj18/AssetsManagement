@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {fetchRelatedFrom, fetchRelatedTo} from '../../api';
 
-import AssetTable from '../../components/AssetTable';
+import AssetTable from '../../components/assets/AssetTable';
 const RelatedTo = () => {
 	const { id } = useParams();
 	const [assetsin, setAssets] = useState([]);

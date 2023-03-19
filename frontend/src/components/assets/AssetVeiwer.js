@@ -33,15 +33,15 @@ import { useEffect, useState } from 'react';
 import { redirect, useNavigate, useParams } from 'react-router-dom';
 
 import axios from 'axios';
-import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset, updateAsset, fetchAssetLinks, fetchAssetSummary, fetchTypesNamesVersionList, fetchAssetUpgradeOptions } from '../api';
-import ProjectSelect from './ProjectSelect';
-import useAuth from '../hooks/useAuth';
+import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset, updateAsset, fetchAssetLinks, fetchAssetSummary, fetchTypesNamesVersionList, fetchAssetUpgradeOptions } from '../../api';
+import ProjectSelect from '../ProjectSelect';
+import useAuth from '../../hooks/useAuth';
 import AssetSelect from './AssetSelect';
-import NumFormField from './asset/formfields/NumFormField';
-import FormField from './asset/formfields/FormField';
-import SearchSelect from './asset/formfields/SearchSelect';
-import SelectFormField from './asset/formfields/SelectFormField';
-import ListFormField from './asset/formfields/ListFormField';
+import NumFormField from './formfields/NumFormField';
+import FormField from './formfields/FormField';
+import SearchSelect from './formfields/SearchSelect';
+import SelectFormField from './formfields/SelectFormField';
+import ListFormField from './formfields/ListFormField';
 
 const AssetViewer = () => {
 	const { id } = useParams();

@@ -1,8 +1,8 @@
 import { Badge,Box } from '@chakra-ui/react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link as NavLink } from 'react-router-dom';
-import { fetchAssetClassifications } from '../api';
-import CustomTable from './CustomTable';
+import { fetchAssetClassifications } from '../../api';
+import CustomTable from '../CustomTable';
 import {Link } from '@chakra-ui/react';
 const AssetTable = ({assets,setSelectedAssets,preSelIDs,cols}) => {
 	const [colours,setColors]=useState({});

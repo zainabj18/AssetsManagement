@@ -2,7 +2,7 @@ import { Button, ButtonGroup, Editable, EditableInput, EditablePreview, Heading,
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { copyToTag,deleteTag, fetchAssetsinTag, removeFromTag, updateTag } from '../api';
-import AssetTable from '../components/AssetTable';
+import AssetTable from '../components/assets/AssetTable';
 import OperationTo from '../components/OperationTo';
 import useAuth from '../hooks/useAuth';
 
