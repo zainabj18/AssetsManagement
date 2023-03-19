@@ -18,6 +18,7 @@ const User = () => {
 	const [show, setShow] = useState(false);
 	const { authError } = useAuth();
 	const [error, setError] = useState(null);
+	const [success, setSuccess] = useState(false);
 
 	const handleClick = () => setShow(!show);
 
@@ -60,8 +61,11 @@ const User = () => {
 			try {
 				const response = await createUser(userData);
 				console.log(response.data);
-				alert('User created successfully!');
+				setSuccess(true);
+				setError(false);
+				
 			} catch (error) {
+				setSuccess(false);
 				if (error.response.status === 400) {
 					setError({ error: error.response.data.error, msg: error.response.data.msg });
 				} else {
@@ -145,6 +149,12 @@ const User = () => {
   							<AlertIcon />
 					<AlertTitle>{error.error}</AlertTitle>
 					<AlertDescription>{error.msg}</AlertDescription>
+				</Alert>)}
+
+				{success && (<Alert status="success">
+					<AlertIcon />
+					<AlertTitle>Registration successful.</AlertTitle>
+					<AlertDescription>User has been registered.</AlertDescription>
 				</Alert>)}
 
 				{inputFields.map((index) => {return (
