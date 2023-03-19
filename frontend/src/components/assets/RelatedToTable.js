@@ -14,7 +14,7 @@ const RelatedType = ({relatedFunc}) => {
 		let name = location.pathname.slice(location.pathname.lastIndexOf('/')+1 , location.pathname.length);
 		setName(name);
 		relatedFunc(id).then((data)=>{ console.log(data.data);
-			if(data.data[0].hasOwnProperty('count')){
+			if(data.data.length>0 && data.data[0].hasOwnProperty('count')){
 				setCols({'count':{
 					header: name+' in Common',
 					canFilter:true,
@@ -23,7 +23,7 @@ const RelatedType = ({relatedFunc}) => {
 				setCols({});
 			}
 			setAssets(data.data);});
-	}, [relatedFunc])
+	}, [relatedFunc,name])
 	;
 	return (<Container p={4} maxW='100%'>
 		<Heading style={{textTransform:'capitalize'}}>Assets Related by {name}</Heading>

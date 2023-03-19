@@ -114,7 +114,7 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 			setSelected(preSelected);
 			setSelectedRows(row);
 		}
-		console.log(cols);
+		setCurrnetPage(0);
 	}, [rows,cols]);
 	
 
