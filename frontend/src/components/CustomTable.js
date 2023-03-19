@@ -106,7 +106,8 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 		}
 		//setFilter({});
 		//setQuery('');
-	}, [rows]);
+		console.log(cols);
+	}, [rows,cols]);
 	
 
 	

@@ -18,6 +18,8 @@ const RelatedType = ({relatedFunc}) => {
 					header: name+' in Common',
 					canFilter:true,
 				}});
+			}else{
+				setCols({});
 			}
 			setAssets(data.data);});
 	}, [relatedFunc])

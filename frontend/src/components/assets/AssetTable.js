@@ -8,7 +8,7 @@ const AssetTable = ({assets,setSelectedAssets,preSelIDs,cols}) => {
 	const [colours,setColors]=useState({});
 	const columns =useMemo(()=>
 	{ 
-		console.log(cols);
+		console.log('new cols needed');
 		let orginal={
 			'assetID':{
 				header: 'Asset ID',
@@ -34,7 +34,7 @@ const AssetTable = ({assets,setSelectedAssets,preSelIDs,cols}) => {
 		}
 		return orginal;
 	}
-	,[colours]);
+	,[colours,cols]);
 	useEffect(() => {
 		console.log(assets,'I am assets');
 		fetchAssetClassifications().then((data)=>{
