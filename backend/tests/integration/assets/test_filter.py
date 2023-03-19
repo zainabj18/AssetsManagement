@@ -162,7 +162,6 @@ def test_assets_OR(valid_client, new_assets):
     indirect=True,
 )
 def test_assets_filter_attribute_equals_name(valid_client, new_assets):
-    
     res = valid_client.post("/api/v1/asset/filter", json={"attributes":[{"attributeID":-1,"attributeValue":new_assets[0].name,"operation":"EQUALS"}]})
     assert res.status_code == 200
     assert set(res.json["data"]).issuperset(set([new_assets[0].asset_id]))

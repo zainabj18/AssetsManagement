@@ -61,9 +61,9 @@ def audit_log_event(db,model_id,account_id,object_id,diff_dict,action):
                 INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
         VALUES (%(model_id)s,%(account_id)s,%(object_id)s,%(diff)s,%(action)s);""",
         {"model_id":model_id,"account_id":account_id,"object_id":object_id,"diff":json.dumps(diff_dict),"action":action})
-
+#TODO:FIX
 def run_query(db, query, params=None,row_factory=dict_row,return_type=None):
-    print(query)
+    print(query,params)
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=row_factory) as cur:    
             if params == None:

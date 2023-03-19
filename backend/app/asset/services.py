@@ -239,6 +239,15 @@ def fetch_assets_attribute_filter(db:ConnectionPool,searcher:AttributeSearcher):
 
 
 def get_asset_logs(db,asset_id):
+    """Find all asset logs.
+
+    Args:
+      db: A object for managing connections to the db.
+      asset_id: The asset id to retrieve log.
+
+    Returns:
+      A list of logs.
+    """
     return run_query(db,"""SELECT audit_logs.*, username FROM audit_logs
                 INNER JOIN accounts ON accounts.account_id=audit_logs.account_id
 WHERE object_id=%(asset_id)s AND model_id=%(model_id)s
