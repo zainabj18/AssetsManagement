@@ -19,9 +19,8 @@ def populate_db_assets(db_conn, count):
             string = "asset" + str(i+1)
             conn.execute(create_asset_query, {"name": string})
 
+
 # Tests that all assets are reutrned along with the assets they link to
-
-
 def test_all_assets(client, db_conn):
     link_assets_query = """
     INSERT INTO assets_in_assets(from_asset_id, to_asset_id)
