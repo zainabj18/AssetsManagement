@@ -11,6 +11,13 @@ def remove_end(li):
     return li
 
 
+# Returns the json of a 2d list [[id, name]]
+def extract_name_id(li):
+    for i, tup in enumerate(li):
+        li[i] = {"id": tup[0], "name": tup[1]}
+    return li
+
+
 @bp.route("/assets", methods=["GET"])
 def get_assets():
     query = """
@@ -25,9 +32,7 @@ def get_assets():
     db = get_db()
     with db.connection() as conn:
         res = conn.execute(query)
-        assets = res.fetchall()
-        for i, tup in enumerate(assets):
-            assets[i] = {"id": tup[0], "name": tup[1]}
+        assets = extract_name_id(res.fetchall())
         data = []
         for asset in assets:
             asset_id = asset["id"]
@@ -105,9 +110,7 @@ def get_types():
     db = get_db()
     with db.connection() as conn:
         res = conn.execute(query)
-        types = res.fetchall()
-        for i, tup in enumerate(types):
-            types[i] = {"id": tup[0], "name": tup[1]}
+        types = extract_name_id(res.fetchall())
         data = []
         for type in types:
             version_id = type["id"]
