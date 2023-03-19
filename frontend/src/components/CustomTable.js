@@ -69,7 +69,7 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 				(e)=>{setFilter((prev)=>({
 					...prev,
 					[key]:e.target.value
-				}));}} placeholder={'Search '+columns[key].header} style={{textTransform:'capitalize'}}/>)
+				}));}} placeholder={'Search '+columns[key].header} style={{textTransform:'capitalize',textOverflow: 'ellipsis'}}/>)
 			}
 		</VStack>);
 		
