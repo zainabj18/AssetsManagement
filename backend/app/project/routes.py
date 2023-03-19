@@ -2,7 +2,6 @@ import json
 from app.db import get_db
 from app.schemas import Project
 from flask import Blueprint, jsonify, request
-from psycopg import Error
 from psycopg.rows import dict_row
 from pydantic import ValidationError
 
@@ -58,25 +57,18 @@ def add_people_to_project(db,id,account_id):
             VALUES(%(project_id)s,%(account_id)s);
             """,{"account_id":account_id,"project_id":id})
 
+def delete_people_in_project(db,account_id,id):
+    with db.connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+            DELETE FROM people_in_projects WHERE account_id = ANY(%(account_id)s)) AND id=%(id)s;
+            """,{"account_id":account_id,"id":id})
+
 def list_people(db):
     with db.connection() as conn:
         with conn.cursor(row_factory=dict_row) as cur:
             cur.execute("""SELECT account_id FROM people_in_projects;""")
             return cur.fetchall()
-
-# def get_people(db):
-#     with db.connection() as db_conn:
-#         with db_conn.cursor(row_factory=dict_row) as cur:
-#             cur.execute("""SELECT * FROM people_in_projects;""")
-#             return cur.fetchall()
-        
-# def get_user_by_project(db):
-#     with db.connection() as db_conn:
-#         with db_conn.cursor(row_factory=dict_row) as cur:
-#             cur.execute(
-#                 """SELECT projects.id, projects.name, account.username FROM projects INNER JOIN people_in_projects ON projects.id = people_in_projects.project_id INNER JOIN accounts ON people_in_projects.account_id = accounts.account_id;"""
-#             )
-#             return cur.fetchall()
 
 @bp.route("/", methods=["GET"])
 def people_list():
@@ -133,59 +125,79 @@ def create():
 
 
 
-# @bp.route("/identify", methods=["GET"])
-# def identify():
-#     data = decode_token(request)
-#     db = get_db()
-#     try:
-#         if username := get_user_by_project(db, data["account_id"]):
-#             username = username[0]
-#     except Error as e:
-#         return {"msg": str(e), "error": "Database Connection Error"}, 500
-
-#     resp = jsonify(
-#         {
-#             "msg": "found you",
-#             "data": {
-#                 "userID": data["account_id"],
-#                 "userRole": data["account_type"],
-#                 "username": username,
-#                 "userPrivileges": data["account_privileges"],
-#             },
-#         }
-#     )
-#     return resp
-
 #Remove Projects from database
+# @bp.route("/delete/<id>", methods=["POST"])
+# def delete_project(id):
+#     database = get_db()
+#     canDo = True
+
+#     query = """SELECT COUNT(*) FROM people_in_projects WHERE project_id = (%(id)s);"""
+#     with database.connection() as conn:
+#         res = conn.execute(query, {"project_id": id})
+#         if (res.fetchone()[0] > 0):
+#             canDo = False
+
+#     query = """SELECT COUNT(*) FROM assets_in_projects WHERE project_id = (%(id)s);"""
+#     with database.connection() as conn:
+#         res = conn.execute(query, {"project_id": id})
+#         if (res.fetchone()[0] > 0):
+#             canDo = False
+
+#     if canDo:
+#         query = """DELETE FROM people_in_projects WHERE project_id = (%(id)s);"""
+#         with database.connection() as conn:
+#             conn.execute(query, {"project_id": id})
+
+#         query = """DELETE FROM assets_in_projects WHERE project_id = (%(id)s);"""
+#         with database.connection() as conn:
+#             conn.execute(query, {"project_id": id})
+
+#         query = """DELETE FROM projects WHERE id = (%(id)s);"""
+#         with database.connection() as conn:
+#             conn.execute(query, {"id": id})
+
+#         # query = """DELETE FROM accounts WHERE account_id = (%(id)s);"""
+#         # with database.connection() as conn:
+#         #     conn.execute(query, {"account_id": id})
+
+#         # delete_people_in_project(database,id,id)    
+
+#     return {"msg": "", "wasAllowed": canDo}, 200
+
+
 @bp.route("/delete/<id>", methods=["POST"])
-def delete_project(id):
-    database = get_db()
+def delete_project_and_people(id):
+    db = get_db()
     canDo = True
+    with db.connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """DELETE FROM people_in_projects WHERE project_id = %(project_id)s;""",
+                {"project_id": id},
+            )
 
-    query = """SELECT COUNT(*) FROM people_in_projects WHERE project_id = (%(id)s);"""
-    with database.connection() as conn:
-        res = conn.execute(query, {"id": id})
-        if (res.fetchone()[0] > 0):
-            canDo = False
+            cur.execute(
+                """DELETE FROM projects WHERE id = %(project_id)s;""",
+                {"project_id": id},
+            )
 
-    query = """SELECT COUNT(*) FROM assets_in_projects WHERE project_id = (%(id)s);"""
-    with database.connection() as conn:
-        res = conn.execute(query, {"id": id})
-        if (res.fetchone()[0] > 0):
-            canDo = False
+    return {"msg": "", "wasAllowed": canDo}, 200
 
-    if canDo:
-        query = """DELETE FROM people_in_projects WHERE project_id = (%(id)s);"""
-        with database.connection() as conn:
-            conn.execute(query, {"id": id})
+@bp.route("/delete/people/<id>", methods=["POST"])
+def delete_people(id):
+    db = get_db()
+    canDo = True
+    with db.connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """DELETE FROM people_in_projects WHERE account_id = %(account_id)s;""",
+                {"account_id": id},
+            )
 
-        query = """DELETE FROM assets_in_projects WHERE project_id = (%(id)s);"""
-        with database.connection() as conn:
-            conn.execute(query, {"id": id})
-
-        query = """DELETE FROM projects WHERE id = (%(id)s);"""
-        with database.connection() as conn:
-            conn.execute(query, {"id": id})
+            cur.execute(
+                """DELETE FROM accounts WHERE account_id = %(account_id)s;""",
+                {"account_id": id},
+            )
 
     return {"msg": "", "wasAllowed": canDo}, 200
 
@@ -198,98 +210,3 @@ def get_allProjects():
         allPeople = res.fetchall()
         allPeople_listed = extract_people(allPeople)
         return {"data": allPeople_listed}, 200
-
-# @bp.route("/<id>", methods=["POST"])
-# def get_people_from_project(id):
-#     db = get_db()
-#     people = get_people(db)
-#     with db.connection() as conn:
-#             conn.execute(
-#                 "SELECT * FROM projects WHERE id = %(id)s"
-#             )
-#             project = conn.fetchone()
-#             if project is None:
-#                 return {"msg": "Project not found"}, 404
-            
-#             data = decode_token(request)
-#             conn.execute(
-#                 "INSERT INTO people_in_projects (project_id, account_id) VALUES (%(id)s, %(account_id)s)",
-#                 {"project_id": id, "account_id": data["account_id"]},
-#             )
-#             return {"msg": "People added to project successfully", "data": people}, 200
-
-# @bp.route("/people/<id>", methods=["POST"])
-# def add_people_to_project(id):
-#     db = get_db()
-#     try:
-#         account_id = request.json['account_id']
-#     except KeyError:
-#         return jsonify(
-#             {"msg": "Data provided is invalid", "data": None, "error": "Missing 'account_id' field"}
-#         ), 400
-    
-#     with db.connection() as conn:
-#         conn.execute(
-#             "SELECT * FROM projects WHERE id = %(id)s",
-#             {"id": id}
-#         )
-        
-#         project = conn.fetchone()
-#         if project is None:
-#             return {"msg": "Project not found"}, 404
-        
-#         conn.execute(
-#             "SELECT * FROM accounts WHERE account_id = %(account_id)s",
-#             {"account_id": account_id}
-#         )
-#         account = conn.fetchone()
-#         if account is None:
-#             return {"msg": "Account not found"}, 404
-        
-#         try:
-#             conn.execute(
-#                 "INSERT INTO people_in_projects (project_id, account_id) VALUES (%(project_id)s, %(account_id)s)",
-#                 {"project_id": id, "account_id": account_id}
-#             )
-#         except Error as e:
-#             return {"msg": str(e), "error": "Database Error"}, 500
-        
-#         return {"msg": "People added to project successfully"}, 200
-
-# @bp.route("/<id>/people", methods=["DELETE"])
-# def remove_people_from_project(id):
-#     db = get_db()
-#     try:
-#         account_id = request.json['account_id']
-#     except KeyError:
-#         return jsonify(
-#             {"msg": "Data provided is invalid", "data": None, "error": "Missing 'account_id' field"}
-#         ), 400
-    
-#     with db.connection() as conn:
-#         conn.execute(
-#             "SELECT * FROM projects WHERE id = %(id)s",
-#             {"id": id}
-#         )
-#         project = conn.fetchone()
-#         if project is None:
-#             return {"msg": "Project not found"}, 404
-        
-#         conn.execute(
-#             "SELECT * FROM accounts WHERE account_id = %(account_id)s",
-#             {"account_id": account_id}
-#         )
-#         account = conn.fetchone()
-
-#         if account is None:
-#             return {"msg": "Account not found"}, 404
-        
-#         try:
-#             conn.execute(
-#                 "DELETE FROM people_in_projects WHERE project_id = %(project_id)s AND account_id = %(account_id)s",
-#                 {"project_id": id, "account_id": account_id}
-#             )
-#         except Error as e:
-#             return {"msg": str(e), "error": "Database Error"}, 500
-        
-#         return {"msg": "People removed from project successfully"}, 200
