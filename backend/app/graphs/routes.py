@@ -38,7 +38,7 @@ def get_assets():
     return {"data": {"points": assets, "joins": data}}, 200
 
 
-@bp.route("/asset/<id>")
+@bp.route("/asset/<id>", methods=["GET"])
 def get_asset(id):
     id = int(id)
     query_from = """
