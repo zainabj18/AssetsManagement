@@ -134,7 +134,7 @@ const AssetSearcher = ({filerFunc}) => {
 					</AccordionButton>
 
 					<AccordionPanel pb={4}>
-						<VStack align={'left'}>
+						<VStack align={'left'} overflowY='scroll' maxH="70vh" >
 							{classifications.map((classification) => {
 								return ( 
 			
@@ -148,7 +148,7 @@ const AssetSearcher = ({filerFunc}) => {
 								<AccordionIcon />
 							</AccordionButton>
 
-							<AccordionPanel pb={4}>
+							<AccordionPanel pb={4} overflowY='scroll' maxH="70vh" >
 								<VStack align={'left'}>
 									{types.map((type) => {
 										return ( 
@@ -165,7 +165,7 @@ const AssetSearcher = ({filerFunc}) => {
 								<AccordionIcon />
 							</AccordionButton>
 	
-							<AccordionPanel pb={4}>
+							<AccordionPanel pb={4} overflowY='scroll' maxH="70vh" >
 								<RadioButtons name="tagOperation" changeFunc={handleToggle}/>
 								<VStack align={'left'}>
 									{tags.map((tag) => {
@@ -183,7 +183,7 @@ const AssetSearcher = ({filerFunc}) => {
 								<AccordionIcon />
 							</AccordionButton>
 
-							<AccordionPanel pb={4}>
+							<AccordionPanel pb={4} overflowY='scroll' maxH="70vh" >
 								<RadioButtons name="projectOperation" changeFunc={handleToggle}/>
 								<VStack align={'left'}>
 									
@@ -205,7 +205,7 @@ const AssetSearcher = ({filerFunc}) => {
 			{searchData['attributes'].map((input, index) => {
 				console.log(input);
 				return (
-					<HStack key={index}>
+					<HStack key={index} overflowY='scroll' maxH="70vh" >
 						<Select  name='attributeID' value={input.attributeID} onChange={event => handleFormChange(index, event)}>
 							{attributes.map((attribute, index) => {
 								
