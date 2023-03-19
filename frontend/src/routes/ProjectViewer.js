@@ -1,52 +1,60 @@
 import {
-	Input,
-	FormControl,
-	FormLabel,
 	Text,
-	Box,
-	VStack,
 	Button,
-	Flex,
 	useBoolean,
-	HStack,
-	Table, Thead, Tbody, Tr, Th, Td, TableContainer, TableCaption
+	Table, Thead, Tbody, Tr, Th, Td, TableContainer
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { DeleteIcon } from '@chakra-ui/icons';
 import { IconButton } from '@chakra-ui/react';
-import {deleteProject, fetchProjects, fetchPeopleinProject } from '../api.js';
+import {deleteProject, fetchProjects, fetchPeople, deletePeople} from '../api.js';
 import { useEffect } from 'react';
-//import ProjectPeopleTable from '../components/ProjectPeopleTable.js';
-import {NavLink, useParams} from 'react-router-dom';
+import {NavLink} from 'react-router-dom';
+
 
 
 const ProjectViewer = () => {
 	const [projects, setProjects] = useState([]);
+	const [accounts, setAccounts] = useState([]);
 	const [toggle, set_toggle] = useBoolean();
-	//const [selectedAccounts, setSelectedAccounts]=useState([]);
-	const { id } = useParams();
-
-	// const getAccountIDs=()=>{
-	// 	return selectedAccounts.map(
-	// 		(rowID)=>{return people[rowID].account_id;});
-	// };
 
 	useEffect(() => {
+		async function load_allPeople() {
+			let data = await fetchPeople();
+			console.log(data);
+			setAccounts(data.data);
+		}
+		load_allPeople();
+
 		async function load_allProjects() {
 			let data = await fetchProjects();
 			console.log(data);
 			setProjects(data.data);
+			
 		}
 		load_allProjects();
 	}, [toggle]);
 
 
 	const handleDelete = (index) => {
-		const projectToDelete = projects[index];
-		console.log('Deleting project with id:', projectToDelete.id);
-		deleteProject(projectToDelete.id).then((data) => {
+		const DeleteProjectAndPeople = projects[index];
+		console.log('Deleting project:', DeleteProjectAndPeople);
+		deleteProject(DeleteProjectAndPeople.projectID).then((data) => {
 			if (data.wasAllowed === false) {
-				alert('Project ' + projectToDelete.name + ' is depended upon, can not be deleted.');
+				alert('Project ' + DeleteProjectAndPeople.projectName + ' is depended upon, can not be deleted.');
+			}
+			else {
+				set_toggle.toggle();
+			}
+		});
+	};
+
+	const handleDeletePeople = (index) => {
+		const DeletePeople = accounts[index];
+		console.log('Deleting people:', DeletePeople.accountID);
+		deletePeople(DeletePeople.accountID).then((data) => {
+			if (data.wasAllowed === false) {
+				alert('People ' + DeletePeople.username + ' is depended upon, can not be deleted.');
 			}
 			else {
 				set_toggle.toggle();
@@ -63,7 +71,8 @@ const ProjectViewer = () => {
 							<Th color='Black'>Name</Th>
 							<Th color='Black'>Description</Th>
 							<Th color='Black'>Accounts</Th>
-							<Th color='Black'>Delete</Th>
+							<Th color='Black'>Delete project</Th>
+							<Th color='Black'>Delete people</Th>
 						</Tr>
 					</Thead>
 					<Tbody>			
@@ -77,12 +86,23 @@ const ProjectViewer = () => {
 											<Text key = {index}>{account.username}</Text>
 										);
 									})}</Td>
-									<Td><IconButton
-										left={20}
-										icon={<DeleteIcon />}
-										colorScheme="blue"
+									<Td><Button
+										left={0.9}
+										colorScheme='red' 
+										variant={'solid'}
 										onClick={() => handleDelete(index)}
-									/>
+									>Delete project</Button>
+									</Td>
+									<Td>
+										{projects.accounts.map((index) => {
+											return (
+												<Button
+													left={0.9}
+													colorScheme='blue' 
+													onClick={() => handleDeletePeople(index)}
+												>Delete account</Button>
+											);
+										})}
 									</Td>
 								</Tr>
 							);
