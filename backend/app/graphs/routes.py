@@ -29,3 +29,8 @@ def get_assets():
                 to[i] = item[0]
             data.append({"from": asset_id ,"to": to})
     return {"data": {"points": assets, "joins": data}}, 200
+
+
+@bp.route("/asset/<id>")
+def get_asset(id):
+    return {}, 200
