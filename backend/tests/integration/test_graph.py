@@ -69,7 +69,18 @@ def test_single_asset(client, db_conn):
         conn.execute(link_assets_query, {"from": 1, "to": 2})
         conn.execute(link_assets_query, {"from": 2, "to": 3})
         conn.execute(link_assets_query, {"from": 2, "to": 5})
-        conn.execute(link_assets_query, {"from": 4, "to": 2})
         conn.execute(link_assets_query, {"from": 5, "to": 2})
     res = client.get("/api/v1/graph/asset/2")
     assert res.status_code == 200
+    data = res.json["data"]
+    assert data["points"] == [
+        {'id': 2, 'name': 'asset2'},
+        {'id': 3, 'name': 'asset3'},
+        {'id': 5, 'name': 'asset5'},
+        {'id': 1, 'name': 'asset1'}
+    ]
+    assert data["joins"] == [
+        {'from': 2, 'to': [3, 5]},
+        {'from': 1, 'to': [2]},
+        {'from': 5, 'to': [2]}
+    ]
