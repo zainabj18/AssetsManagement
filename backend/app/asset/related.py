@@ -5,7 +5,7 @@ from http import HTTPStatus
 from app.core.utils import protected,model_creator,audit_log_event
 from app.db import UserRole, get_db,Actions,Models,DataAccess
 from app.schemas import Comment,CommentOut
-from .services import fetch_assets_by_common_count_count
+from .services import fetch_assets_by_common_count_count,fetch_assets_by_same_attribute
 bp = Blueprint("related", __name__, url_prefix="/related")
 
 @bp.route("/tags/<id>", methods=["GET"])
@@ -43,7 +43,7 @@ def fetch_related_by_projects(id:int,user_id:int, access_level:DataAccess):
 
 @bp.route("/classification/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
-def fetch_related_by_projects(id:int,user_id:int, access_level:DataAccess):
+def fetch_related_by_classification(id:int,user_id:int, access_level:DataAccess):
     """Finds assets that share the same classification.
 
     Args:
@@ -55,7 +55,7 @@ def fetch_related_by_projects(id:int,user_id:int, access_level:DataAccess):
       A msg saying comment added.
     """
     db = get_db()
-    return {"data": fetch_assets_by_common_count_count(db=db,asset_id=id,access_level=access_level,related_table="assets_in_projects",related_table_id="project_id")}
+    return {"data": fetch_assets_by_same_attribute(db=db,asset_id=id,access_level=access_level,related_attribute="classification")}
 
 # @bp.route("/classification/<id>", methods=["GET"])
 # @protected(role=UserRole.VIEWER)

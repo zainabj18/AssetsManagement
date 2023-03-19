@@ -74,7 +74,7 @@ def fetch_assets_by_common_count_count(db:ConnectionPool,asset_id:int,access_lev
       related_table_id: The foreign key that used in the linking table.
 
     Returns:
-      A list of comments as dicts for an asset.
+      A list of related assets.
     """
     query=sql.SQL("""WITH related_asset as (SELECT COUNT(asset_id),asset_id FROM {table} WHERE {fkey} in (SELECT {fkey} FROM {table} WHERE asset_id=%(asset_id)s) and asset_id !=%(asset_id)s
 GROUP BY asset_id
@@ -87,3 +87,23 @@ WHERE assets.classification<=%(access_level)s
 ORDER BY count DESC;""").format(table=sql.Identifier(related_table),fkey=sql.Identifier(related_table_id))
     return run_query(db,query,{"asset_id": asset_id,"access_level":access_level,"related_table_id":related_table_id},return_type=QueryResult.ALL_JSON,row_factory=class_row(AssetOut))
 
+
+
+def fetch_assets_by_same_attribute(db:ConnectionPool,asset_id:int,access_level:DataAccess,related_attribute:str):
+    """Find all asset with the same classification as another asset.
+
+    Args:
+      db: A object for managing connections to the db.
+      asset_id: The id of the asset to compare with.
+      access_level: The classification of assets the account it premited to view.
+      related_attribute: The attribute that the assets must share.
+
+    Returns:
+      A list of related assets.
+    """
+    query=sql.SQL("""
+SELECT assets.*,CONCAT(type_name,'-',version_number) AS type FROM assets
+INNER JOIN type_version ON type_version.version_id=assets.version_id
+INNER JOIN types ON types.type_id=type_version.type_id
+WHERE assets.classification<=%(access_level)s AND classification=(SELECT {attribute} FROM assets WHERE asset_id=%(asset_id)s) AND asset_id!=%(asset_id)s ORDER BY asset_id;""").format(attribute=sql.Identifier(related_attribute))
+    return run_query(db,query,{"asset_id": asset_id,"access_level":access_level,},return_type=QueryResult.ALL_JSON,row_factory=class_row(AssetOut))
