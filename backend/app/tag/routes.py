@@ -1,4 +1,4 @@
-from app.db import get_db, UserRole
+from app.db import get_db, UserRole,Actions
 from app.schemas import TagBase,TagBulkRequest
 from app.core.utils import protected
 from flask import Blueprint, jsonify, request
@@ -6,6 +6,7 @@ from psycopg import Error
 from psycopg.errors import UniqueViolation
 from psycopg.rows import dict_row
 from pydantic import ValidationError
+import json
 
 bp = Blueprint("tag", __name__, url_prefix="/tag")
 
@@ -95,6 +96,14 @@ def create(user_id, access_level):
     except Error as e:
         return {"msg": str(e), "error": "Database Error"}, 500
     tag.id = id
+    with db.connection() as db_conn:
+        with db_conn.cursor() as cur:
+            cur.execute(
+                """
+            INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
+        VALUES (4,%(account_id)s,%(tag_id)s,%(diff)s,%(action)s);""",
+                {"account_id":user_id,"tag_id":id,"diff":json.dumps({}),"action":Actions.ADD},
+            )
     return jsonify({"msg": "Tag Created", "data": tag.dict()})
 
 
@@ -115,6 +124,14 @@ def delete(id, user_id, access_level):
     try:
         db = get_db()
         delete_tag(db, id)
+        with db.connection() as db_conn:
+            with db_conn.cursor() as cur:
+                cur.execute(
+                    """
+                INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
+            VALUES (4,%(account_id)s,%(tag_id)s,%(diff)s,%(action)s);""",
+                    {"account_id":user_id,"tag_id":id,"diff":json.dumps({}),"action":Actions.DELETE},
+                )
     except Error as e:
         return {"msg": str(e), "error": "Database Error"}, 500
     return {}, 200
@@ -138,6 +155,15 @@ def update(id, user_id, access_level):
     try:
         db = get_db()
         update_tag(db,tag.dict())
+        with db.connection() as db_conn:
+            with db_conn.cursor() as cur:
+                cur.execute(
+                    """
+                INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
+            VALUES (4,%(account_id)s,%(tag_id)s,%(diff)s,%(action)s);""",
+                    {"account_id":user_id,"tag_id":id,"diff":json.dumps({}),"action":Actions.CHANGE},
+                )
+        
     except UniqueViolation as e:
         return {"msg": f"Tag {tag.name} already exists", "error": "Database Error"}, 500
     except Error as e:

@@ -32,6 +32,7 @@ VALUES (%(username)s,%(password)s,'ADMIN','CONFIDENTIAL');""",
 def generate_assets(existing_version_ids,db_conn,batch_result,added_assets):
        with db_conn.cursor() as cur:
         for asset in batch_result:
+
             attribute_ids = []
             cur.execute(
                 """SELECT * FROM type_version WHERE version_id=%(version_id)s;""",
@@ -161,7 +162,12 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
  
     if (add_to_db):
         with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
-            cur.execute("""SELECT * FROM assets WHERE soft_delete=0;""")
+            cur.execute("""SELECT *,
+ARRAY(SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=assets.asset_id) as tags,
+ARRAY(SELECT project_id FROM assets_in_projects WHERE assets_in_projects.asset_id=assets.asset_id) as projects,
+(SELECT json_agg(row_to_json(attributes_values)) FROM attributes_values 
+INNER JOIN attributes on attributes.attribute_id=attributes_values.attribute_id WHERE asset_id=assets.asset_id) as metadata
+FROM assets;""")
             assets = cur.fetchall()
             return assets
     return batch_result

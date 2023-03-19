@@ -125,7 +125,8 @@ const AssetViewer = () => {
 				version_id: attribute_value,
 				metadata:res.metadata,
 			}));
-			setDependencies(res.depends);
+			console.log(res);
+			setDependencies(res.dependsOn);
 			setTrigger.toggle();
 
 		});
@@ -137,12 +138,14 @@ const AssetViewer = () => {
 	};
 
 	const handleUpgrade = (e) => {
-		let newMetadata=assetSate.metadata.filter((attribute) => (attribute.attributeName in upgradeData[1]));
+		console.log(upgradeData);
+		let newMetadata=assetSate.metadata.filter((attribute) => !(attribute.attributeName in upgradeData[1]));
 		console.log(newMetadata);
 		newMetadata=[...newMetadata,...upgradeData[0]];
 		console.log(newMetadata);
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
+			version_id:upgradeData[2],
 			metadata: newMetadata,
 		}));
 		setUpgradeable(false);
@@ -174,7 +177,7 @@ const AssetViewer = () => {
 		if (errs.length===0){
 			console.log('Sending data');
 			
-			let project_ids=projects.map(p=>p.id);
+			let project_ids=projects.map(p=>p.projectID);
 			let tag_ids=assetSate.tags.map(t=>t.id);
 			let asset_ids=assets.map(a=>assetsList[a].asset_id);
 			let assetObj={
@@ -195,7 +198,7 @@ const AssetViewer = () => {
 			}else{
 				createAsset(assetObj).then(
 				
-					res=>navigate(`../view/${res.data}`)).catch(err=>console.log(err));
+					res=>navigate(`../${res.data}`)).catch(err=>console.log(err));
 			}
 			
 		}else{
@@ -365,7 +368,7 @@ const AssetViewer = () => {
 							{projects.map((value, key) => (
 								<WrapItem key={key}>
 									<Tag key={key} variant='brand'>
-										<TagLabel>{value.name}</TagLabel>
+										<TagLabel>{value.projectName}</TagLabel>
 									</Tag>
 								</WrapItem>
 							))}
