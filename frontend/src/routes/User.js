@@ -118,18 +118,18 @@ const User = () => {
 						<FormControl>
 							<FormLabel>Access Level</FormLabel>
 							<Select placeholder='Select Access Level' color='black' bg='white' defaultValue={attr.account_privileges} onChange={event => handleFormChange(index, event)} name = 'account_privileges'>
-								<option value='option1'>PUBLIC</option>
-								<option value='option2'>INTERNAL</option>
-								<option value='option3'>RESTRICTED</option>
-								<option value='option4'>CONFIDENTIAL</option>
+								<option value='PUBLIC'>PUBLIC</option>
+								<option value='INTERNAL'>INTERNAL</option>
+								<option value='RESTRICTED'>RESTRICTED</option>
+								<option value='CONFIDENTIAL'>CONFIDENTIAL</option>
 							</Select>
 						</FormControl>
 						<FormControl>
 							<FormLabel>Role</FormLabel>
 							<Select placeholder='Select Role' color='black' bg='white' defaultValue={attr.account_type} onChange={event => handleFormChange(index, event)} name = 'account_type'>
-								<option value='option1'>VIEWER</option>
-								<option value='option2'>USER</option>
-								<option value='option3'>ADMIN</option>
+								<option value='VIEWER'>VIEWER</option>
+								<option value='USER'>USER</option>
+								<option value='ADMIN'>ADMIN</option>
 							</Select>
 						</FormControl>
 					</HStack>
