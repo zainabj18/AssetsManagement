@@ -1,8 +1,7 @@
 import { Routes, Route} from 'react-router-dom';
 import AssetViewer from './components/assets/AssetVeiwer';
 import AssetOverview from './components/assets/AssetOverview';
-import CreateAsset from './routes/assets/CreateAsset';
-import Layout from './routes/Layout';
+import Layout from './components/layouts/Layout';
 import Login from './routes/Login';
 import NoMatch from './routes/NoMatch';
 import User from './routes/User';
@@ -10,14 +9,12 @@ import TypeAdder from './routes/TypeAdder';
 import TypeViewer from './routes/TypeViewer';
 import { AuthProvider } from './hooks/useAuth';
 import AssetsOverview from './routes/assets/AssetsOverview';
-import SubLayout from './routes/assets/SubLayout';
+import SubLayout from './components/layouts/SubLayout';
 import CreateProject from './routes/CreateProject';
 import AdminManager from './routes/AdminManager';
 import Tags from './routes/Tags';
 import TagViewer from './routes/TagViewer';
 import AssetLogs from './routes/assets/AssetLogs';
-import RelatedTags from './routes/assets/RelatedTags';
-import RelatedProjects from './routes/assets/RelatedProjects';
 import RelatedToTable from './components/assets/RelatedToTable';
 import AttributeViewer from './routes/AttributeViewer';
 import ProjectViewer from './routes/ProjectViewer';
@@ -25,7 +22,6 @@ import TypeEditor from './routes/TypeEditor';
 import Logs from './routes/Logs';
 import Comments from './routes/assets/Comments';
 import { fetchRelatedClassification, fetchRelatedFrom, fetchRelatedProjects, fetchRelatedTags, fetchRelatedTo, fetchRelatedType } from './api';
-//TODO:Wrap in error boundary
 function App() {
 
 	return (
@@ -35,9 +31,9 @@ function App() {
 				<Route path="/" element={<Layout />}>
 					<Route path="assets/" element={<SubLayout name="Assets"/>}>
 						<Route index element={<AssetsOverview />} />
-						<Route path="new" element={<CreateAsset />} />
+						<Route path="new" element={<AssetViewer />} />
 						<Route path=":id" element={<AssetOverview />}>
-							<Route index element={<AssetViewer canEdit={true} isNew={false}/>} />	
+							<Route index element={<AssetViewer />} />	
 							<Route path="comments" element={<Comments />} />	
 							<Route path="logs" element={<AssetLogs />} />
 							<Route path="type" element={<RelatedToTable relatedFunc={fetchRelatedType}/>} />	

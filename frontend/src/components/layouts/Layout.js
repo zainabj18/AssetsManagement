@@ -1,8 +1,8 @@
 import { Navigate, Outlet,redirect} from 'react-router-dom';
-import { Container, Heading, VStack,Spinner } from '@chakra-ui/react';
-import useAuth from '../hooks/useAuth';
+import { Container, Heading, VStack } from '@chakra-ui/react';
+import useAuth from '../../hooks/useAuth';
 import { useEffect } from 'react';
-import Header from '../components/navigation/Header';
+import Header from '../navigation/Header';
 
 const Layout = () => {
 	const {loggedIn,user} = useAuth();
