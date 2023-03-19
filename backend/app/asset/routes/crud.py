@@ -105,37 +105,10 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
 @bp.route("/", methods=["POST"])
 @protected(role=UserRole.USER)
 def create(user_id, access_level):
-    # validate json
-    try:
-        try:
-            asset = Asset(**request.json)
-        except ValidationError as e:
-            return (
-                jsonify(
-                    {
-                        "msg": "Data provided is invalid",
-                        "data": e.errors(),
-                        "error": "Failed to create asset from the data provided",
-                    }
-                ),
-                400,
-            )
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "msg": "Data provided is invalid",
-                    "data": None,
-                    "error": "Failed to create asset from the data provided",
-                }
-            ),
-            400,
-        )
+    asset=model_creator(model=Asset,err_msg="Failed to create asset from the data provided",**request.json)
     db = get_db()
     db_asset = asset.dict(exclude={"metadata"})
-   
-
-    print(db_asset)
+    
     # add asset to db
     with db.connection() as conn:
         with conn.cursor() as cur:

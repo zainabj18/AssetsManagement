@@ -41,6 +41,10 @@ ORDER BY date ASC;""",return_type=QueryResult.ALL_JSON,row_factory=class_row(Log
 def unathorised(e):
     return e.description, 401
 
+@bp.errorhandler(400)
+def invalid_request(e):
+    return e.description, 400
+
 bp.register_blueprint(auth_bp)
 bp.register_blueprint(asset_bp)
 bp.register_blueprint(type_bp)

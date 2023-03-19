@@ -92,9 +92,7 @@ def model_creator(model,err_msg,*args, **kwargs):
     try:
         obj = model(*args, **kwargs)
     except ValidationError as e:
-        res=jsonify({"msg": err_msg,
+        abort(400,{"msg": err_msg,
                 "data": e.errors()
             })
-        res.status_code=400
-        abort(res)
     return obj
