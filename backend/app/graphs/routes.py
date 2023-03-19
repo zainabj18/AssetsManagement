@@ -32,8 +32,7 @@ def get_assets():
         for asset in assets:
             asset_id = asset["id"]
             res = conn.execute(sub_query, {"from": asset_id})
-            to = res.fetchall()
-            to = remove_end(to)
+            to = remove_end(res.fetchall())
             data.append({"from": asset_id, "to": to})
     return {"data": {"points": assets, "joins": data}}, 200
 
@@ -114,7 +113,6 @@ def get_types():
         for type in types:
             version_id = type["id"]
             res = conn.execute(sub_query, {"from": version_id})
-            to = res.fetchall()
-            to = remove_end(to)
+            to = remove_end(res.fetchall())
             data.append({"from": version_id, "to": to})
     return {"data": {"points": types, "joins": data}}, 200
