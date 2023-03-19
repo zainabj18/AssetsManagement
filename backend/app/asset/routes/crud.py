@@ -1,13 +1,10 @@
-from app.core.utils import protected,run_query,model_creator,QueryResult
+from app.core.utils import protected,run_query,QueryResult
 from app.db import DataAccess, UserRole, get_db,Actions,Models
-from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model,Project,Comment,CommentOut,Log
+from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model,Project,Log,QueryJoin
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
-from psycopg import Error
-from app.auth.routes import get_user_by_id
 from itertools import chain
-from flask import abort
 import json
 
 bp = Blueprint("asset", __name__, url_prefix="/asset")
@@ -543,7 +540,7 @@ def filter():
     filter_asset_ids=[]
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=dict_row) as cur:
-            if filter.tag_operation==QueryOperation.OR:
+            if filter.tag_operation==QueryJoin.OR:
                 cur.execute("""
                 SELECT asset_id FROM assets_in_tags WHERE tag_id=ANY(%(tags)s);""",{"tags":filter.tags})
             else:
@@ -552,8 +549,9 @@ def filter():
     WHERE %(tags)s::int[]<@ARRAY(SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=assets.asset_id);
                 """,{"tags":filter.tags})
             tags_asset_ids = [row["asset_id"] for row in cur.fetchall()]
+            print("tags",tags_asset_ids)
             filter_asset_ids.append(set(tags_asset_ids))
-            if filter.project_operation==QueryOperation.OR:
+            if filter.project_operation==QueryJoin.OR:
                 cur.execute("""
                 SELECT asset_id FROM assets_in_projects WHERE project_id=ANY(%(projects)s);""",{"projects":filter.projects})
             else:
@@ -562,16 +560,19 @@ def filter():
     WHERE %(projects)s::int[]<@ARRAY(SELECT project_id FROM assets_in_projects WHERE assets_in_projects.asset_id=assets.asset_id);
                 """,{"projects":filter.projects})
             project_asset_ids = [row["asset_id"] for row in cur.fetchall()]
+            print("project",project_asset_ids)
             filter_asset_ids.append(set(project_asset_ids))
             cur.execute("""
             SELECT DISTINCT asset_id FROM assets WHERE classification=ANY(%(classification)s);
             """,{"classification":filter.classifications})
             classification_asset_ids = [row["asset_id"] for row in cur.fetchall()]
+            print("classification",classification_asset_ids)
             filter_asset_ids.append(set(classification_asset_ids))
             cur.execute("""
             SELECT DISTINCT asset_id FROM assets WHERE version_id=ANY(%(type)s);
             """,{"type":filter.types})
             type_asset_ids = [row["asset_id"] for row in cur.fetchall()]
+            print("types",type_asset_ids)
             filter_asset_ids.append(set(type_asset_ids))
             cur.execute("""
             CREATE or REPLACE view all_atributes as
@@ -594,7 +595,7 @@ SELECT * FROM attributes_values;
                     case _:
                         cur.execute("SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values like %(value)s",{"attribute_id":searcher.attribute_id,"value":f"%{str(searcher.attribute_value)}%"})
                 filter_asset_ids.append(set([row["asset_id"] for row in cur.fetchall()]))
-            if filter.operation==QueryOperation.AND:  
+            if filter.operation==QueryJoin.AND:  
                 asset_ids=set.intersection(*filter_asset_ids)
             else:
                 asset_ids=set(chain.from_iterable(filter_asset_ids))

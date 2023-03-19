@@ -16,7 +16,7 @@ class QueryJoin(Enum):
 class AttributeSearcher(BaseModel):
     attribute_id: Any = Field(..., alias="attributeID")
     attribute_value: Any = Field(..., alias="attributeValue")
-    operation:QueryJoin=QueryJoin.OR
+    operation:QueryOperation
 
     class Config:
         allow_population_by_field_name = True
