@@ -21,7 +21,6 @@ const FormField = ({
 	fieldType,
 	fieldDefaultValue,
 	isDisabled,
-	startWithEditView,
 	onSubmitHandler,
 	clearOnSumbit,
 	trigger,
@@ -76,7 +75,6 @@ const FormField = ({
 				<Editable
 					textAlign="center"
 					defaultValue={fieldDefaultValue}
-					startWithEditView={startWithEditView}
 					isDisabled={isDisabled}	
 					submitOnBlur={true}
 					alignItems='left' 

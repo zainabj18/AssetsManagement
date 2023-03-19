@@ -13,7 +13,6 @@ import {
 import { useState,useEffect} from 'react';
 import FormField from './FormField';
 const ListFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler,setErrorCount,isDisabled}) => {
-	const [trigger, setTrigger] = useBoolean();
 	const [values, setValues] = useState([]);
 
 	const addHandler=(newVal)=>{
@@ -43,7 +42,6 @@ const ListFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler,s
 				fieldType={validation.type}
 				fieldDefaultValue={''}
 				isDisabled={isDisabled}
-				startWithEditView={true}
 				onSubmitHandler={(_,val)=>{addHandler(val);}}
 				clearOnSumbit={true}
 				setErrorCount={setErrorCount}

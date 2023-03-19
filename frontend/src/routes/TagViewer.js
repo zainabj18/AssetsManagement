@@ -60,7 +60,6 @@ const TagViewer = () => {
 	return ( <VStack bg={'whiteAlpha.500'} h={'100%'} w={'100%'} p={2}>
 		{tag &&<Editable
 			textAlign="center"
-			startWithEditView={false}
 			submitOnBlur={false}
 			isDisabled={!(user && user.userRole === 'ADMIN')}
 			alignItems='left' 

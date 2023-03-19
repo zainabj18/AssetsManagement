@@ -25,8 +25,8 @@ const NumFormField = ({fieldName,fieldDefaultValue,validation,onChangeHandler,is
 					<NumberIncrementStepper color={'blue.100'}/>
 					<NumberDecrementStepper color={'blue.100'}/>
 				</NumberInputStepper>
-				<FormHelperText color={'white'}>Please enter a number between {validation.min} to {validation.max}.</FormHelperText>
 			</NumberInput>
+			<FormHelperText color={'white'}>Please enter a number between {validation.min} to {validation.max}.</FormHelperText>
 		</FormControl>
 	);
 };
