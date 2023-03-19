@@ -147,7 +147,7 @@ def fetch_assets_with_any_links(db:ConnectionPool,fkeys:List[int],link_table:str
     return run_query(db,query,{"fkeys":fkeys},return_type=QueryResult.ALL)
 
 def fetch_assets_with_set_links(db:ConnectionPool,fkeys:List[int],link_table:str,fkey:str):
-    """Find all asset ids that has all of the given tags.
+    """Find all asset ids that has all of the given ids of a link.
 
     Args:
       db: A object for managing connections to the db.

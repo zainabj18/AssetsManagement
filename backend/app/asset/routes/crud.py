@@ -541,24 +541,19 @@ def filter():
     filter=model_creator(model=FilterSearch,err_msg="Failed to run filter from the data provided",**request.json)
     db = get_db()
     filter_asset_ids=[]
+    if filter.tag_operation==QueryJoin.OR:
+        tags_resuls=fetch_assets_with_any_links(db,filter.tags,link_table="assets_in_tags",fkey="tag_id")
+    else:
+        tags_resuls=fetch_assets_with_set_links(db,filter.tags,link_table="assets_in_tags",fkey="tag_id")
+    filter_asset_ids.append(set(get_key_from_results("asset_id",tags_resuls)))
+    if filter.project_operation==QueryJoin.OR:
+        project_resuls=fetch_assets_with_any_links(db=db,fkeys=filter.projects,link_table="assets_in_projects",fkey="project_id")
+    else:
+        project_resuls=fetch_assets_with_set_links(db,filter.projects,link_table="assets_in_projects",fkey="project_id")
+    filter_asset_ids.append(set(get_key_from_results("asset_id",project_resuls)))
+    
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=dict_row) as cur:
-            if filter.tag_operation==QueryJoin.OR:
-                tags_resuls=fetch_assets_with_any_links(db,filter.tags,link_table="assets_in_tags",fkey="tag_id")
-            else:
-                tags_resuls=fetch_assets_with_set_links(db,filter.tags,link_table="assets_in_tags",fkey="tag_id")
-            filter_asset_ids.append(set(get_key_from_results("asset_id",tags_resuls)))
-            if filter.project_operation==QueryJoin.OR:
-                cur.execute("""
-                SELECT asset_id FROM assets_in_projects WHERE project_id=ANY(%(projects)s);""",{"projects":filter.projects})
-            else:
-                cur.execute("""
-                SELECT asset_id FROM assets
-    WHERE %(projects)s::int[]<@ARRAY(SELECT project_id FROM assets_in_projects WHERE assets_in_projects.asset_id=assets.asset_id);
-                """,{"projects":filter.projects})
-            project_asset_ids = [row["asset_id"] for row in cur.fetchall()]
-            print("project",project_asset_ids)
-            filter_asset_ids.append(set(project_asset_ids))
             cur.execute("""
             SELECT DISTINCT asset_id FROM assets WHERE classification=ANY(%(classification)s);
             """,{"classification":filter.classifications})
