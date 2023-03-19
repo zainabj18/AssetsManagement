@@ -106,5 +106,26 @@ SELECT assets.*,CONCAT(type_name,'-',version_number) AS type FROM assets
 INNER JOIN type_version ON type_version.version_id=assets.version_id
 INNER JOIN types ON types.type_id=type_version.type_id
 WHERE assets.classification<=%(access_level)s AND assets.{attribute}=(SELECT {attribute} FROM assets WHERE asset_id=%(asset_id)s) AND asset_id!=%(asset_id)s ORDER BY asset_id;""").format(attribute=sql.Identifier(related_attribute))
-    print(query)
     return run_query(db,query,{"asset_id": asset_id,"access_level":access_level,},return_type=QueryResult.ALL_JSON,row_factory=class_row(AssetOut))
+
+
+def fetch_assets_by_link(db:ConnectionPool,asset_id:int,access_level:DataAccess,from_col:str,to_col:str):
+    """Find all asset linked to an asset.
+
+    Args:
+      db: A object for managing connections to the db.
+      asset_id: The id of the asset to compare with.
+      access_level: The classification of assets the account it premited to view.
+      from_col: The asset link going from col.
+      to_col: The asset link going to col.
+
+    Returns:
+      A list of related assets.
+    """
+    query=sql.SQL("""
+SELECT assets.*,CONCAT(type_name,'-',version_number) AS type FROM assets_in_assets
+INNER JOIN assets on assets.asset_id=assets_in_assets.{from_col} 
+INNER JOIN type_version ON type_version.version_id=assets.version_id
+INNER JOIN types ON types.type_id=type_version.type_id
+WHERE assets.classification<=%(access_level)s AND {to_col}=%(asset_id)s ORDER BY asset_id;""").format(from_col=sql.Identifier(from_col),to_col=sql.Identifier(to_col))
+    return run_query(db,query,{"asset_id": asset_id,"access_level":access_level},return_type=QueryResult.ALL_JSON,row_factory=class_row(AssetOut))

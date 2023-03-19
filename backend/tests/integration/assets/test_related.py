@@ -73,3 +73,40 @@ def test_related_type_version(valid_client, new_assets):
     assert len(res.json["data"])==len(related_versions)
     for asset in res.json["data"]:
         assert asset["version_id"]==new_assets[0].version_id
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 5,"add_to_db":True}],
+    indirect=True,
+)
+def test_related_outgoing(db_conn,valid_client, new_assets):
+    with db_conn.cursor() as cur:
+        cur.execute(
+            """INSERT INTO assets_in_assets(from_asset_id,to_asset_id) VALUES(%(from_id)s,%(to_id_1)s),(%(from_id)s,%(to_id_2)s);""",
+            {"from_id":new_assets[0].asset_id,"to_id_1":new_assets[1].asset_id,"to_id_2":new_assets[2].asset_id}
+        )
+        db_conn.commit()
+    assets_from=[new_assets[1].asset_id,new_assets[2].asset_id]
+    res = valid_client.get(f"/api/v1/asset/related/outgoing/{new_assets[0].asset_id}")
+    assert res.status_code == 200
+    results=[asset["assetID"]  for asset in res.json["data"]]
+    assert set(results)==set(assets_from)
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 5,"add_to_db":True}],
+    indirect=True,
+)
+def test_related_incomming(db_conn,valid_client, new_assets):
+    with db_conn.cursor() as cur:
+        cur.execute(
+            """INSERT INTO assets_in_assets(from_asset_id,to_asset_id) VALUES(%(from_id_1)s,%(to_id)s),(%(from_id_2)s,%(to_id)s);""",
+            {"to_id":new_assets[0].asset_id,"from_id_1":new_assets[1].asset_id,"from_id_2":new_assets[2].asset_id}
+        )
+        db_conn.commit()
+    assets=[new_assets[1].asset_id,new_assets[2].asset_id]
+    res = valid_client.get(f"/api/v1/asset/related/incomming/{new_assets[0].asset_id}")
+    assert res.status_code == 200
+    results=[asset["assetID"]  for asset in res.json["data"]]
+    assert set(results)==set(assets)
