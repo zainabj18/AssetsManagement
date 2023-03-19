@@ -1,3 +1,4 @@
+import { Container, Heading } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import AssetTable from './AssetTable';
@@ -24,7 +25,11 @@ const RelatedType = ({relatedFunc}) => {
 			setAssets(data.data);});
 	}, [relatedFunc])
 	;
-	return (<AssetTable assets={assetsin} setSelectedAssets={null} preSelIDs={[]} cols={cols}/>);
+	return (<Container p={4} maxW='100%'>
+		<Heading style={{textTransform:'capitalize'}}>Assets Related by {name}</Heading>
+		<AssetTable assets={assetsin} setSelectedAssets={null} preSelIDs={[]} cols={cols}/>
+	</Container>
+	);
 };
  
 export default RelatedType;
