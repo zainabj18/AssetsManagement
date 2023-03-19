@@ -63,23 +63,24 @@ def audit_log_event(db,model_id,account_id,object_id,diff_dict,action):
         {"model_id":model_id,"account_id":account_id,"object_id":object_id,"diff":json.dumps(diff_dict),"action":action})
 
 def run_query(db, query, params=None,row_factory=dict_row,return_type=None):
+    print(query)
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=row_factory) as cur:    
+            if params == None:
+                cur.execute(query)
+            else:
+                cur.execute(query, params)
+            match return_type:
+                case QueryResult.ONE:
+                    return cur.fetchone()
+                case QueryResult.ALL:
+                    return cur.fetchall()
+                case QueryResult.ALL_JSON:
+                    return [json.loads(row.json(by_alias=True)) for row in cur.fetchall()]
+                case _:
+                    return
     try:
-        with db.connection() as db_conn:
-            with db_conn.cursor(row_factory=row_factory) as cur:    
-                if params == None:
-                    cur.execute(query)
-                else:
-                    cur.execute(query, params)
-                match return_type:
-                    case QueryResult.ONE:
-                        return cur.fetchone()
-                    case QueryResult.ALL:
-                        return cur.fetchall()
-                    case QueryResult.ALL_JSON:
-                        return [json.loads(row.json(by_alias=True)) for row in cur.fetchall()]
-                    case _:
-                        return
-                
+        pass                
     except Error as e:
         res=jsonify(
             {"msg": "Database Error","data":[str(e)]}

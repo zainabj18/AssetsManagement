@@ -4,7 +4,7 @@ from app.schemas import Comment,CommentOut,AssetOut
 from app.db import DataAccess
 from psycopg.rows import class_row
 from psycopg_pool import ConnectionPool
-
+from psycopg import sql
 def abort_asset_not_exists(db,asset_id):
     """Checks that an asset exist if not aborts.
 
@@ -63,24 +63,27 @@ INNER JOIN accounts ON accounts.account_id=comments.account_id
 
 
 
-def fetch_assets_by_tag_count(db:ConnectionPool,asset_id:int,access_level:DataAccess):
-    """Find all asset related to a tag and count tag in common with other assets.
+def fetch_assets_by_common_count_count(db:ConnectionPool,asset_id:int,access_level:DataAccess,related_table:str,related_table_id:str):
+    """Find all asset related to another model and count models in common with other assets.
 
     Args:
       db: A object for managing connections to the db.
       asset_id: The id of the asset to compare with.
       access_level: The classification of assets the account it premited to view.
+      related_table: The able that links assets to another table in db.
+      related_table_id: The foreign key that used in the linking table.
 
     Returns:
       A list of comments as dicts for an asset.
     """
-    return run_query(db,"""WITH related_asset_tags as (SELECT COUNT(asset_id),asset_id FROM assets_in_tags WHERE tag_id in (SELECT tag_id FROM assets_in_tags WHERE asset_id=%(asset_id)s) and asset_id !=%(asset_id)s
+    query=sql.SQL("""WITH related_asset as (SELECT COUNT(asset_id),asset_id FROM {table} WHERE {fkey} in (SELECT {fkey} FROM {table} WHERE asset_id=%(asset_id)s) and asset_id !=%(asset_id)s
 GROUP BY asset_id
 HAVING COUNT(asset_id)>0)
-SELECT assets.*,related_asset_tags.count,CONCAT(type_name,'-',version_number) AS type FROM assets
-INNER JOIN related_asset_tags ON assets.asset_id=related_asset_tags.asset_id
+SELECT assets.*,related_asset.count,CONCAT(type_name,'-',version_number) AS type FROM assets
+INNER JOIN related_asset ON assets.asset_id=related_asset.asset_id
 INNER JOIN type_version ON type_version.version_id=assets.version_id
 INNER JOIN types ON types.type_id=type_version.type_id
 WHERE assets.classification<=%(access_level)s
-ORDER BY count DESC;""",{"asset_id": asset_id,"access_level":access_level},return_type=QueryResult.ALL_JSON,row_factory=class_row(AssetOut))
+ORDER BY count DESC;""").format(table=sql.Identifier(related_table),fkey=sql.Identifier(related_table_id))
+    return run_query(db,query,{"asset_id": asset_id,"access_level":access_level,"related_table_id":related_table_id},return_type=QueryResult.ALL_JSON,row_factory=class_row(AssetOut))
 
