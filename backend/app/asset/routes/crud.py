@@ -6,7 +6,7 @@ from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
 from itertools import chain
 import json
-from ..services import fetch_assets_with_any_links,fetch_assets_with_set_links
+from .. import services
 from app.core.utils import model_creator
 bp = Blueprint("asset", __name__, url_prefix="/asset")
 
@@ -542,39 +542,23 @@ def filter():
     db = get_db()
     filter_asset_ids=[]
     if filter.tag_operation==QueryJoin.OR:
-        tags_resuls=fetch_assets_with_any_links(db,filter.tags,link_table="assets_in_tags",fkey="tag_id")
+        tags_results=services.fetch_assets_with_any_links(db,filter.tags,link_table="assets_in_tags",fkey="tag_id")
     else:
-        tags_resuls=fetch_assets_with_set_links(db,filter.tags,link_table="assets_in_tags",fkey="tag_id")
-    filter_asset_ids.append(set(get_key_from_results("asset_id",tags_resuls)))
+        tags_results=services.fetch_assets_with_set_links(db,filter.tags,link_table="assets_in_tags",fkey="tag_id")
+    filter_asset_ids.append(set(get_key_from_results("asset_id",tags_results)))
     if filter.project_operation==QueryJoin.OR:
-        project_resuls=fetch_assets_with_any_links(db=db,fkeys=filter.projects,link_table="assets_in_projects",fkey="project_id")
+        project_results=services.fetch_assets_with_any_links(db=db,fkeys=filter.projects,link_table="assets_in_projects",fkey="project_id")
     else:
-        project_resuls=fetch_assets_with_set_links(db,filter.projects,link_table="assets_in_projects",fkey="project_id")
-    filter_asset_ids.append(set(get_key_from_results("asset_id",project_resuls)))
-    
+        project_results=services.fetch_assets_with_set_links(db,filter.projects,link_table="assets_in_projects",fkey="project_id")
+    filter_asset_ids.append(set(get_key_from_results("asset_id",project_results)))
+    classification_results=services.fetch_assets_with_any_values(db=db,values=filter.classifications,attribute="classification")
+    filter_asset_ids.append(set(get_key_from_results("asset_id",classification_results)))
+    type_results=services.fetch_assets_with_any_values(db=db,values=filter.types,attribute="version_id")
+    filter_asset_ids.append(set(get_key_from_results("asset_id",type_results)))
+    services.create_all_attributes_view(db=db)
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=dict_row) as cur:
-            cur.execute("""
-            SELECT DISTINCT asset_id FROM assets WHERE classification=ANY(%(classification)s);
-            """,{"classification":filter.classifications})
-            classification_asset_ids = [row["asset_id"] for row in cur.fetchall()]
-            print("classification",classification_asset_ids)
-            filter_asset_ids.append(set(classification_asset_ids))
-            cur.execute("""
-            SELECT DISTINCT asset_id FROM assets WHERE version_id=ANY(%(type)s);
-            """,{"type":filter.types})
-            type_asset_ids = [row["asset_id"] for row in cur.fetchall()]
-            print("types",type_asset_ids)
-            filter_asset_ids.append(set(type_asset_ids))
-            cur.execute("""
-            CREATE or REPLACE view all_atributes as
-SELECT asset_id,
-   unnest(array[-1,-2,-3]) AS "attribute_id",
-   unnest(array[name, link, description]) AS "values"
-FROM assets
-UNION ALL 
-SELECT * FROM attributes_values;
-            """)
+            
             db_conn.commit()
             print(filter.attributes)
             for searcher in filter.attributes:

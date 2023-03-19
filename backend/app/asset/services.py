@@ -5,7 +5,7 @@ from app.db import DataAccess
 from psycopg.rows import class_row
 from psycopg_pool import ConnectionPool
 from psycopg import sql
-from typing import List
+from typing import List,Any
 def abort_asset_not_exists(db,asset_id):
     """Checks that an asset exist if not aborts.
 
@@ -137,7 +137,7 @@ def fetch_assets_with_any_links(db:ConnectionPool,fkeys:List[int],link_table:str
 
     Args:
       db: A object for managing connections to the db.
-      fkeys: The list of foreign key ids to filter by.
+      fkeys: The list of forirgn keys  to filter by.
       link_table: The table that links assets to another table in db.
       fkey: The foreign key that used in the linking table.
     Returns:
@@ -151,7 +151,7 @@ def fetch_assets_with_set_links(db:ConnectionPool,fkeys:List[int],link_table:str
 
     Args:
       db: A object for managing connections to the db.
-      tags: The list of tags ids to filter by.
+      fkeys: The list of forirgn keys  to filter by.
       link_table: The table that links assets to another table in db.
       fkey: The foreign key that used in the linking table.
 
@@ -161,3 +161,34 @@ def fetch_assets_with_set_links(db:ConnectionPool,fkeys:List[int],link_table:str
     query=sql.SQL("""SELECT asset_id FROM assets
     WHERE %(fkeys)s::int[]<@ARRAY(SELECT {fkey} FROM {table} WHERE {table}.asset_id=assets.asset_id);""""").format(table=sql.Identifier(link_table),fkey=sql.Identifier(fkey))
     return run_query(db,query,{"fkeys":fkeys},return_type=QueryResult.ALL)
+
+def fetch_assets_with_any_values(db:ConnectionPool,values:List[Any],attribute:str):
+    """Find all asset ids that that have one of the attributes values.
+
+    Args:
+      db: A object for managing connections to the db.
+      values: The possible values for the attribute.
+      attribute: The attribute name.
+
+    Returns:
+      A list of asset ids.
+    """
+    query=sql.SQL("""SELECT DISTINCT asset_id FROM assets WHERE {attribute}=ANY(%(values)s)""""").format(attribute=sql.Identifier(attribute))
+    return run_query(db,query,{"values":values},return_type=QueryResult.ALL)
+
+def create_all_attributes_view(db:ConnectionPool):
+    """Creates unpacked all attributes view.
+
+    Args:
+      db: A object for managing connections to the db.
+    """
+    
+    return run_query(db,"""
+            CREATE or REPLACE view all_atributes as
+SELECT asset_id,
+   unnest(array[-1,-2,-3]) AS "attribute_id",
+   unnest(array[name, link, description]) AS "values"
+FROM assets
+UNION ALL 
+SELECT * FROM attributes_values;
+            """)
