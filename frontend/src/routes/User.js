@@ -17,6 +17,7 @@ const User = () => {
 	const [accountTypes, setAccountTypes] = useState([]);
 	const [show, setShow] = useState(false);
 	const { authError } = useAuth();
+	const [error, setError] = useState(null);
 
 	const handleClick = () => setShow(!show);
 
@@ -59,8 +60,13 @@ const User = () => {
 			try {
 				const response = await createUser(userData);
 				console.log(response.data);
+				alert('User created successfully!');
 			} catch (error) {
-				console.error(error);
+				if (error.response.status === 400) {
+					setError({ error: error.response.data.error, msg: error.response.data.msg });
+				} else {
+					console.error(error);
+				}
 			}
 		}
 	};
@@ -135,10 +141,10 @@ const User = () => {
 					</HStack>
 				);})}
 
-				{authError && (<Alert status='error'>
+				{error && (<Alert status='error'>
   							<AlertIcon />
-					<AlertTitle>{authError.error}</AlertTitle>
-					<AlertDescription>{authError.msg}</AlertDescription>
+					<AlertTitle>{error.error}</AlertTitle>
+					<AlertDescription>{error.msg}</AlertDescription>
 				</Alert>)}
 
 				{inputFields.map((index) => {return (
