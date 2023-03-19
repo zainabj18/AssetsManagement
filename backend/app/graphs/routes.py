@@ -80,7 +80,6 @@ def get_asset(id):
         for key in assetList:
             res = conn.execute(query_name, {"id": key})
             points.append({"id": key, "name": res.fetchone()[0]})
-    print(data)
     return {"data": {"points": points, "joins": data}}, 200
 
 
