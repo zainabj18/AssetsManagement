@@ -27,7 +27,7 @@ const Logs = () => {
 			'objectID':{
 				header: 'ObjectID',
 				canFilter:true,
-				Cell:(rowID,value)=><Link to={`/${rowID.model_name}/${value}`} as={NavLink}>{value}</Link>
+				Cell:(row,value)=><Link to={`/${row.modelName}/${value}`} as={NavLink}>{value}</Link>
 			}
 		};
 		return orginal;

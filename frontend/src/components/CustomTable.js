@@ -23,7 +23,9 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 	const [filters,setFilter]= useState({}); 
 	const data = useMemo(
 		() => 
-			rows.map((value,index)=>{return {...value,rowID:index};}),
+			rows.map((value,index)=>{
+				let filertedVals=(Object.fromEntries(Object.keys(cols).map(k => [k, value[k]])));
+				return {...filertedVals,rowID:index};}),
 		[rows]);
 
 	const columns = cols;
@@ -38,7 +40,6 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 				}
 			}
 			return true;});
-			//TODO:FIX this to only search values 
 		return preFiltered.filter((obj)=>Object.values(obj).toString().toLowerCase().includes(query));
 	  }, [filters,query, data]);
 
