@@ -51,8 +51,10 @@ export const fetchAssetProjects = async (id) => {
 	return await axios.get(`/asset/projects/${id}`).then(res => res.data);
 };
 export const deleteProject = async (id) => {
-	console.log(id);
 	return await axios.post(`/project/delete/${id}`).then(res => res.data);
+};
+export const deletePeople = async (id) => {
+	return await axios.post(`/project/delete/people/${id}`).then(res => res.data);
 };
 export const createProject = async (project) => {
 	console.log(project);
