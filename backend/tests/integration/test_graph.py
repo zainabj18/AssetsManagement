@@ -84,3 +84,12 @@ def test_single_asset(client, db_conn):
         {'from': 1, 'to': [2]},
         {'from': 5, 'to': [2]}
     ]
+
+
+def test_wrong_asset_path(client):
+    res = client.get("/api/v1/graph/asset/t2")
+    print(res.json)
+    assert res.status_code == 400
+    data = res.json
+    assert data["data"] == {"points": [], "joins": []}
+    assert data["msg"] == "Given id was not an int."

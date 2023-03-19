@@ -40,7 +40,10 @@ def get_assets():
 
 @bp.route("/asset/<id>", methods=["GET"])
 def get_asset(id):
-    id = int(id)
+    try:
+        id = int(id)
+    except ValueError:
+        return {"data": {"points": [], "joins": []}, "msg": "Given id was not an int."}, 400
     query_from = """
     SELECT to_asset_id
     FROM assets_in_assets
