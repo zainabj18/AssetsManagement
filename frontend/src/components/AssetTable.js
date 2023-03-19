@@ -10,7 +10,7 @@ const AssetTable = ({assets,setSelectedAssets,preSelIDs,cols}) => {
 	{ 
 		console.log(cols);
 		let orginal={
-			'asset_id':{
+			'assetID':{
 				header: 'Asset ID',
 				canFilter:true,
 				Cell:(rowID,value)=><Link to={`/assets/${value}`} as={NavLink}>{value}</Link>

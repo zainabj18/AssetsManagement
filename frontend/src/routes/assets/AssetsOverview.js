@@ -25,7 +25,7 @@ const AssetsOverview = () => {
 	}, []);
 	
 	return (<VStack>
-		<AssetTable assets={results} setSelectedAssets={()=>{}} preSelIDs={[]} />
+		<AssetTable assets={results} setSelectedAssets={null} preSelIDs={[]} />
 		<Button onClick={()=>naviagte('./new')}>Create Asset</Button>
 		<AssetSearcher filerFunc={handleFilter}/>
 	</VStack>);

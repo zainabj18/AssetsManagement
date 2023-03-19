@@ -86,22 +86,24 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 
 	useEffect(() => {
 		console.log('new table');
-		let preSelected=[];
-		let projects=[];
-		for (let i = 0; i < data.length; i++) {
-			let obj=data[i];
-			if (obj.hasOwnProperty('isSelected')&obj.isSelected){
-				preSelected.push(i);
-				projects.push(obj);
+		if (setSelectedRows){
+			let preSelected=[];
+			let row=[];
+			for (let i = 0; i < data.length; i++) {
+				let obj=data[i];
+				if (obj.hasOwnProperty('isSelected')&obj.isSelected){
+					preSelected.push(i);
+					row.push(obj);
+				}
 			}
+			for (let i = 0; i < preSelIDs.length; i++) {
+				let obj=data[i];
+				preSelected.push(i);
+				row.push(obj);
+			}
+			setSelected(preSelected);
+			setSelectedRows(row);
 		}
-		for (let i = 0; i < preSelIDs.length; i++) {
-			let obj=data[i];
-			preSelected.push(i);
-			projects.push(obj);
-		}
-		setSelected(preSelected);
-		setSelectedRows(projects);
 		//setFilter({});
 		//setQuery('');
 	}, [rows]);
@@ -114,11 +116,11 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 			<Table>
 		  <Thead>
 					<Tr key={'header'} >
-						<Th ><Checkbox isChecked={data.length===selected.length}
+						{setSelectedRows && <Th><Checkbox isChecked={data.length===selected.length}
 							isIndeterminate={selected.length>0 && selected.length<data.length}
 							onChange={(e)=>{onIntermediateCheckboxChange(e.target.checked);}}
 									
-						/></Th>
+						/></Th>}
 		  {Object.keys(columns).map(key => (
 							<Th key={key} >
 								{renderHeader(key)}	
@@ -129,7 +131,7 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 		  <Tbody>
 		  {filteredRows.map((row,index)=> (
 						<Tr key={index}>
-							<Td ><Checkbox defaultChecked={selected.includes(row.rowID)} isChecked={selected.includes(row.rowID)} onChange={(e) => handleCheck(row.rowID,e.target.checked)} /></Td>
+							{setSelectedRows && <Td ><Checkbox defaultChecked={selected.includes(row.rowID)} isChecked={selected.includes(row.rowID)} onChange={(e) => handleCheck(row.rowID,e.target.checked)} /></Td>}
 							{Object.keys(columns).map((key)=>{
 
 	 return <Td key={index+key} >{renderCell(key,row.rowID,row[key])}</Td>;
