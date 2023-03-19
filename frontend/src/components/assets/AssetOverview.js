@@ -30,7 +30,7 @@ const AssetOverview=() => {
 		
 	return ( 
 		<Container minW="100%">
-			{defaultIndex && <Tabs isFitted variant='enclosed' onChange={(e)=>navigate(tabs[e].to)} bg={'white'} defaultIndex={defaultIndex}>
+			<Tabs isFitted variant='enclosed' onChange={(e)=>navigate(tabs[e].to)} bg={'white'} defaultIndex={defaultIndex}>
 				<TabList>
 					{tabs.map((tab,index)=>{
 						return (
@@ -40,9 +40,7 @@ const AssetOverview=() => {
 				<TabPanels bg="blue.100">
 					<Outlet />	
 				</TabPanels>
-			</Tabs>}
-			
-
+			</Tabs>
 		</Container>);
 };
  
