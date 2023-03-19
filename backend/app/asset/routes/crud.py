@@ -6,7 +6,7 @@ from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
 from itertools import chain
 import json
-from .. import services
+from .. import services,utils
 from app.core.utils import model_creator
 bp = Blueprint("asset", __name__, url_prefix="/asset")
 
@@ -334,7 +334,6 @@ def delete(id):
                 """UPDATE assets SET soft_delete = %(del)s WHERE asset_id=%(id)s;""",
                 {"id": id, "del": 1},
             )
-
     return {}, 200
 
 
@@ -472,20 +471,12 @@ SET value = EXCLUDED.value""",
     return {}, 200
 
 
-def get_asset_logs(db,asset_id):
-    return run_query(db,"""SELECT audit_logs.*, username FROM audit_logs
-                INNER JOIN accounts ON accounts.account_id=audit_logs.account_id
-WHERE object_id=%(asset_id)s AND model_id=%(model_id)s
-ORDER BY date DESC;""",
-                {"asset_id": asset_id,"model_id":int(Models.ASSETS)},return_type=QueryResult.ALL,row_factory=class_row(Log))
-
-
 @bp.route("/logs/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def logs(id, user_id, access_level):
     db = get_db()
-    logs =[json.loads(c.json(by_alias=True)) for c in get_asset_logs(db,id)]
-    return {"data":logs}
+    services.abort_asset_not_exists(db=db,asset_id=id)
+    return {"data":services.get_asset_logs(db,id)}
 
 #TODO:Moves to tags
 @bp.route("/tags/summary/<id>", methods=["GET"])
@@ -526,16 +517,6 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
             res = jsonify({"data": {"tag": tag, "assets": assets_json}})
     return res
 
-def make_query(searcher):
-    match searcher.operation:
-        case QueryOperation.EQUALS:
-            query="SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values=%(value)s",{"attribute_id":searcher.attribute_id,"value":str(searcher.attribute_value)}
-        case _:
-            query="SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values like %(value)s",{"attribute_id":searcher.attribute_id,"value":f"like %{str(searcher.attribute_value)}%"}
-    return query
-def get_key_from_results(key,results):
-    return [row[key] for row in results]
-
 @bp.route("/filter", methods=["POST"])
 def filter():
     filter=model_creator(model=FilterSearch,err_msg="Failed to run filter from the data provided",**request.json)
@@ -545,25 +526,25 @@ def filter():
         tags_results=services.fetch_assets_with_any_links(db,filter.tags,link_table="assets_in_tags",fkey="tag_id")
     else:
         tags_results=services.fetch_assets_with_set_links(db,filter.tags,link_table="assets_in_tags",fkey="tag_id")
-    filter_asset_ids.append(set(get_key_from_results("asset_id",tags_results)))
+    filter_asset_ids.append(set(utils.get_key_from_results("asset_id",tags_results)))
     if filter.project_operation==QueryJoin.OR:
         project_results=services.fetch_assets_with_any_links(db=db,fkeys=filter.projects,link_table="assets_in_projects",fkey="project_id")
     else:
         project_results=services.fetch_assets_with_set_links(db,filter.projects,link_table="assets_in_projects",fkey="project_id")
     print(project_results)
-    filter_asset_ids.append(set(get_key_from_results("asset_id",project_results)))
+    filter_asset_ids.append(set(utils.get_key_from_results("asset_id",project_results)))
     classification_results=services.fetch_assets_with_any_values(db=db,values=filter.classifications,attribute="classification")
-    filter_asset_ids.append(set(get_key_from_results("asset_id",classification_results)))
+    filter_asset_ids.append(set(utils.get_key_from_results("asset_id",classification_results)))
     type_results=services.fetch_assets_with_any_values(db=db,values=filter.types,attribute="version_id")
     print("hello")
     print(filter.types)
     print("types",type_results)
-    filter_asset_ids.append(set(get_key_from_results("asset_id",type_results)))
+    filter_asset_ids.append(set(utils.get_key_from_results("asset_id",type_results)))
     services.create_all_attributes_view(db=db)
     filter_attributes_results=[]
     for searcher in filter.attributes:
         filter_results=services.fetch_assets_attribute_filter(db=db,searcher=searcher)
-        filter_results=set(get_key_from_results("asset_id",filter_results))
+        filter_results=set(utils.get_key_from_results("asset_id",filter_results))
         filter_attributes_results.append(filter_results)
     if filter.attribute_operation==QueryJoin.OR:
         filter_attributes_results=set(chain.from_iterable(filter_asset_ids))

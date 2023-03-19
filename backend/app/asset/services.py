@@ -1,12 +1,12 @@
 from flask import abort,jsonify
 from app.core.utils import run_query,QueryResult
-from app.schemas import Comment,CommentOut,AssetOut,AttributeSearcher,QueryOperation
-from app.db import DataAccess
+from app.schemas import Comment,CommentOut,AssetOut,AttributeSearcher,QueryOperation,Log
+from app.db import DataAccess,Models
 from psycopg.rows import class_row
 from psycopg_pool import ConnectionPool
 from psycopg import sql
 from typing import List,Any
-def abort_asset_not_exists(db,asset_id):
+def abort_asset_not_exists(db:ConnectionPool,asset_id:int):
     """Checks that an asset exist if not aborts.
 
     Args:
@@ -27,6 +27,26 @@ def abort_asset_not_exists(db,asset_id):
                 res.status_code=400
                 abort(res)
 
+# def abort_insufficient(db:ConnectionPool,asset_id:int,access_level:DataAccess):
+#     """Checks that an asset can be viewed by account if not aborts.
+
+#     Args:
+#       db: A object for managing connections to the db.
+#       asset_id:The asset_id that need checking in the db.
+#     """
+#     with db.connection() as db_conn:
+#         with db_conn.cursor() as cur:
+#             cur.execute(
+#                 """SELECT asset_id FROM assets WHERE asset_id=%(id)s AND soft_delete=0 AND classification<=%(access_level)s;""",
+#                 {"id": asset_id,"access_level":access_level},
+#             )
+#             if cur.fetchone() is None:
+#                 res=jsonify({
+#                     "msg": "Your account is forbidden to access this please speak to your admin",
+#                 }, 403)
+#                 res.status_code=400
+#                 abort(res)
+                
 def insert_comment_to_db(db:ConnectionPool,comment:Comment,account_id:int,asset_id:int):
     """Add a new comment to db.
 
@@ -216,3 +236,12 @@ def fetch_assets_attribute_filter(db:ConnectionPool,searcher:AttributeSearcher):
       case _:
             pass
     return run_query(db,query,params,return_type=QueryResult.ALL)
+
+
+def get_asset_logs(db,asset_id):
+    return run_query(db,"""SELECT audit_logs.*, username FROM audit_logs
+                INNER JOIN accounts ON accounts.account_id=audit_logs.account_id
+WHERE object_id=%(asset_id)s AND model_id=%(model_id)s
+ORDER BY date DESC;""",
+                {"asset_id": asset_id,"model_id":int(Models.ASSETS)},return_type=QueryResult.ALL_JSON,row_factory=class_row(Log))
+

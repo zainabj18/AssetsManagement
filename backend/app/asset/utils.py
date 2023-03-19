@@ -1,3 +1,6 @@
+def get_key_from_results(key,results):
+    return [row[key] for row in results]
+
 def asset_differ(orginal,new):
     removed=list(set(orginal.keys())-set(new.keys()))
     changed=[]
