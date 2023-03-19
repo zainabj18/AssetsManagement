@@ -57,3 +57,19 @@ def test_related_classification(valid_client, new_assets):
     assert len(res.json["data"])==len(related_classification)
     for asset in res.json["data"]:
         assert asset["classification"]==new_assets[0].classification.value
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 10,"add_to_db":True}],
+    indirect=True,
+)
+def test_related_type_version(valid_client, new_assets):
+    related_versions=[]
+    for asset in new_assets[1:]:
+        if asset.version_id==new_assets[0].version_id:
+            related_versions.append(asset.asset_id)
+    res = valid_client.get(f"/api/v1/asset/related/type/{new_assets[0].asset_id}")
+    assert res.status_code == 200
+    assert len(res.json["data"])==len(related_versions)
+    for asset in res.json["data"]:
+        assert asset["version_id"]==new_assets[0].version_id

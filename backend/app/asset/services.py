@@ -105,5 +105,6 @@ def fetch_assets_by_same_attribute(db:ConnectionPool,asset_id:int,access_level:D
 SELECT assets.*,CONCAT(type_name,'-',version_number) AS type FROM assets
 INNER JOIN type_version ON type_version.version_id=assets.version_id
 INNER JOIN types ON types.type_id=type_version.type_id
-WHERE assets.classification<=%(access_level)s AND classification=(SELECT {attribute} FROM assets WHERE asset_id=%(asset_id)s) AND asset_id!=%(asset_id)s ORDER BY asset_id;""").format(attribute=sql.Identifier(related_attribute))
+WHERE assets.classification<=%(access_level)s AND assets.{attribute}=(SELECT {attribute} FROM assets WHERE asset_id=%(asset_id)s) AND asset_id!=%(asset_id)s ORDER BY asset_id;""").format(attribute=sql.Identifier(related_attribute))
+    print(query)
     return run_query(db,query,{"asset_id": asset_id,"access_level":access_level,},return_type=QueryResult.ALL_JSON,row_factory=class_row(AssetOut))

@@ -57,6 +57,22 @@ def fetch_related_by_classification(id:int,user_id:int, access_level:DataAccess)
     db = get_db()
     return {"data": fetch_assets_by_same_attribute(db=db,asset_id=id,access_level=access_level,related_attribute="classification")}
 
+@bp.route("/type/<id>", methods=["GET"])
+@protected(role=UserRole.VIEWER)
+def fetch_related_by_type(id:int,user_id:int, access_level:DataAccess):
+    """Finds assets that share the same type.
+
+    Args:
+      id: The asset id to add related comment.
+      user_id: The id of the user making the request.
+      access_level: The access level of the user.
+    
+    Returns:
+      A msg saying comment added.
+    """
+    db = get_db()
+    return {"data": fetch_assets_by_same_attribute(db=db,asset_id=id,access_level=access_level,related_attribute="version_id")}
+
 # @bp.route("/classification/<id>", methods=["GET"])
 # @protected(role=UserRole.VIEWER)
 # def related_classification(id,user_id, access_level):
