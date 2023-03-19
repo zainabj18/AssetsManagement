@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import {fetchRelatedProjects, fetchRelatedTags } from '../../api';
 
 import AssetTable from '../../components/assets/AssetTable';
 const RelatedProjects = () => {
+	const location = useLocation();
 	const { id } = useParams();
 	const [assetsin, setAssets] = useState([]);
 	const link_col={'count':{
@@ -12,6 +13,7 @@ const RelatedProjects = () => {
 	}};
 
 	useEffect(() => {
+		console.log(location);
 		fetchRelatedProjects(id).then((data)=>{ console.log(data.data);
 			setAssets(data.data);});
 	}, [])

@@ -12,22 +12,19 @@ import { AuthProvider } from './hooks/useAuth';
 import AssetsOverview from './routes/assets/AssetsOverview';
 import SubLayout from './routes/assets/SubLayout';
 import CreateProject from './routes/CreateProject';
-import { Box, Button } from '@chakra-ui/react';
 import AdminManager from './routes/AdminManager';
 import Tags from './routes/Tags';
 import TagViewer from './routes/TagViewer';
 import AssetLogs from './routes/assets/AssetLogs';
 import RelatedTags from './routes/assets/RelatedTags';
 import RelatedProjects from './routes/assets/RelatedProjects';
-import RelatedClassification from './routes/assets/RelatedClassification';
-import RelatedType from './routes/assets/RelatedType';
-import RelatedFrom from './routes/assets/RelatedFrom';
-import RelatedTo from './routes/assets/RelatedTo';
+import RelatedToTable from './components/assets/RelatedToTable';
 import AttributeViewer from './routes/AttributeViewer';
 import ProjectViewer from './routes/ProjectViewer';
 import TypeEditor from './routes/TypeEditor';
 import Logs from './routes/Logs';
 import Comments from './routes/assets/Comments';
+import { fetchRelatedClassification, fetchRelatedFrom, fetchRelatedProjects, fetchRelatedTags, fetchRelatedTo, fetchRelatedType } from './api';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -42,13 +39,13 @@ function App() {
 						<Route path=":id" element={<AssetOverview />}>
 							<Route index element={<AssetViewer canEdit={true} isNew={false}/>} />	
 							<Route path="comments" element={<Comments />} />	
-							<Route path="logs" element={<AssetLogs />} />	
-							<Route path="tags" element={<RelatedTags />} />	
-							<Route path="projects" element={<RelatedProjects />} />	
-							<Route path="classification" element={<RelatedClassification />} />	
-							<Route path="type" element={<RelatedType />} />	
-							<Route path="outgoing" element={<RelatedFrom />} />	
-							<Route path="incomming" element={<RelatedTo />} />	
+							<Route path="logs" element={<AssetLogs />} />
+							<Route path="type" element={<RelatedToTable relatedFunc={fetchRelatedType}/>} />	
+							<Route path="classification" element={<RelatedToTable relatedFunc={fetchRelatedClassification}/>} />
+							<Route path="tags" element={<RelatedToTable relatedFunc={fetchRelatedTags}/>} />
+							<Route path="projects" element={<RelatedToTable relatedFunc={fetchRelatedProjects}/>} />
+							<Route path="outgoing" element={<RelatedToTable relatedFunc={fetchRelatedFrom}/>} />
+							<Route path="incomming" element={<RelatedToTable relatedFunc={fetchRelatedTo}/>} />
 						</Route>
 					</Route>
 					<Route path="projects/" element={<SubLayout name="Projects"/>}>

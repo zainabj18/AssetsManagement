@@ -127,10 +127,10 @@ export const fetchRelatedType= async (id)=> {
 	return await axios.get(`/asset/related/type/${id}`).then(res=>res.data);
 };
 export const fetchRelatedFrom= async (id)=> {
-	return await axios.get(`/asset/related/from/${id}`).then(res=>res.data);
+	return await axios.get(`/asset/related/outgoing/${id}`).then(res=>res.data);
 };
 export const fetchRelatedTo=async (id)=> {
-	return await axios.get(`/asset/related/to/${id}`).then(res=>res.data);
+	return await axios.get(`/asset/related/incomming/${id}`).then(res=>res.data);
 };
 export const deleteAsset = async (id) => {
 	return await axios.delete(`/asset/${id}`).then(res => res.data);

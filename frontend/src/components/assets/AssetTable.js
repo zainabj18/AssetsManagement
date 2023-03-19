@@ -50,7 +50,7 @@ const AssetTable = ({assets,setSelectedAssets,preSelIDs,cols}) => {
 			setColors(customColours);
 			
 			
-		}).catch((err) => {console.log(err);});},[]);
+		}).catch((err) => {console.log(err);});},[columns,assets,cols]);
 	return (colours && (
 
 		<CustomTable rows={assets} cols={columns}  setSelectedRows={setSelectedAssets} preSelIDs={preSelIDs}/>  ));
