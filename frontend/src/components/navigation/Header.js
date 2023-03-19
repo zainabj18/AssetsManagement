@@ -1,6 +1,6 @@
 import { Box, Flex, HStack,Spacer,Text } from '@chakra-ui/react';
-import useAuth from '../hooks/useAuth';
-import CustomNavLink from './CustomNavLink';
+import useAuth from '../../hooks/useAuth';
+import CustomNavLink from '../CustomNavLink';
 import UserMenuButton from './UserMenuButton';
 
 const Header = () => {

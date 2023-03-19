@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { FaUserCircle } from 'react-icons/fa';
 import { MdLogout } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
-import useAuth from '../hooks/useAuth';
+import useAuth from '../../hooks/useAuth';
 const UserMenuButton = () => {
 	const {user,logout} = useAuth();
 	let naviagte=useNavigate();

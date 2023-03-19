@@ -1,7 +1,6 @@
 import { Link, NavLink, Outlet,redirect} from 'react-router-dom';
 import { Container, Heading, VStack,Spinner } from '@chakra-ui/react';
 import { useEffect, useMemo, useState } from 'react';
-import Header from '../components/Header';
 import { fetchLogs } from '../api';
 import CustomTable from '../components/CustomTable';
 
