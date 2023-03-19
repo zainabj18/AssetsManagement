@@ -85,6 +85,7 @@ def test_single_asset(client, db_conn):
     ]
 
 
+# Test for an invalid Id format
 def test_wrong_asset_path(client):
     res = client.get("/api/v1/graph/asset/t2")
     print(res.json)
