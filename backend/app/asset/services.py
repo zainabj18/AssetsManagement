@@ -5,6 +5,7 @@ from app.db import DataAccess
 from psycopg.rows import class_row
 from psycopg_pool import ConnectionPool
 from psycopg import sql
+from typing import List
 def abort_asset_not_exists(db,asset_id):
     """Checks that an asset exist if not aborts.
 
@@ -129,3 +130,34 @@ INNER JOIN type_version ON type_version.version_id=assets.version_id
 INNER JOIN types ON types.type_id=type_version.type_id
 WHERE assets.classification<=%(access_level)s AND {to_col}=%(asset_id)s ORDER BY asset_id;""").format(from_col=sql.Identifier(from_col),to_col=sql.Identifier(to_col))
     return run_query(db,query,{"asset_id": asset_id,"access_level":access_level},return_type=QueryResult.ALL_JSON,row_factory=class_row(AssetOut))
+
+
+def fetch_assets_with_any_links(db:ConnectionPool,fkeys:List[int],link_table:str,fkey:str):
+    """Find all asset ids that has any of the given tags.
+
+    Args:
+      db: A object for managing connections to the db.
+      fkeys: The list of foreign key ids to filter by.
+      link_table: The table that links assets to another table in db.
+      fkey: The foreign key that used in the linking table.
+    Returns:
+      A list of asset ids.
+    """
+    query=sql.SQL("""SELECT asset_id FROM {table} WHERE {fkey}=ANY(%(fkeys)s);""""").format(table=sql.Identifier(link_table),fkey=sql.Identifier(fkey))
+    return run_query(db,query,{"fkeys":fkeys},return_type=QueryResult.ALL)
+
+def fetch_assets_with_set_links(db:ConnectionPool,fkeys:List[int],link_table:str,fkey:str):
+    """Find all asset ids that has all of the given tags.
+
+    Args:
+      db: A object for managing connections to the db.
+      tags: The list of tags ids to filter by.
+      link_table: The table that links assets to another table in db.
+      fkey: The foreign key that used in the linking table.
+
+    Returns:
+      A list of asset ids.
+    """
+    query=sql.SQL("""SELECT asset_id FROM assets
+    WHERE %(fkeys)s::int[]<@ARRAY(SELECT {fkey} FROM {table} WHERE {table}.asset_id=assets.asset_id);""""").format(table=sql.Identifier(link_table),fkey=sql.Identifier(fkey))
+    return run_query(db,query,{"fkeys":fkeys},return_type=QueryResult.ALL)

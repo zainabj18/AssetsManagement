@@ -6,7 +6,8 @@ from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
 from itertools import chain
 import json
-
+from ..services import fetch_assets_with_any_links,fetch_assets_with_set_links
+from app.core.utils import model_creator
 bp = Blueprint("asset", __name__, url_prefix="/asset")
 
 
@@ -532,25 +533,21 @@ def make_query(searcher):
         case _:
             query="SELECT asset_id FROM all_atributes WHERE attribute_id=%(attribute_id)s AND values like %(value)s",{"attribute_id":searcher.attribute_id,"value":f"like %{str(searcher.attribute_value)}%"}
     return query
+def get_key_from_results(key,results):
+    return [row[key] for row in results]
 
 @bp.route("/filter", methods=["POST"])
 def filter():
-    filter = FilterSearch(**request.json)
+    filter=model_creator(model=FilterSearch,err_msg="Failed to run filter from the data provided",**request.json)
     db = get_db()
     filter_asset_ids=[]
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=dict_row) as cur:
             if filter.tag_operation==QueryJoin.OR:
-                cur.execute("""
-                SELECT asset_id FROM assets_in_tags WHERE tag_id=ANY(%(tags)s);""",{"tags":filter.tags})
+                tags_resuls=fetch_assets_with_any_links(db,filter.tags,link_table="assets_in_tags",fkey="tag_id")
             else:
-                cur.execute("""
-                SELECT asset_id FROM assets
-    WHERE %(tags)s::int[]<@ARRAY(SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=assets.asset_id);
-                """,{"tags":filter.tags})
-            tags_asset_ids = [row["asset_id"] for row in cur.fetchall()]
-            print("tags",tags_asset_ids)
-            filter_asset_ids.append(set(tags_asset_ids))
+                tags_resuls=fetch_assets_with_set_links(db,filter.tags,link_table="assets_in_tags",fkey="tag_id")
+            filter_asset_ids.append(set(get_key_from_results("asset_id",tags_resuls)))
             if filter.project_operation==QueryJoin.OR:
                 cur.execute("""
                 SELECT asset_id FROM assets_in_projects WHERE project_id=ANY(%(projects)s);""",{"projects":filter.projects})
