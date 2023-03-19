@@ -12,9 +12,12 @@ import {
 	Input,
 	VStack,
 	Alert,
-	AlertIcon
+	AlertIcon,
+	Text,
+	IconButton,
+	HStack
 } from '@chakra-ui/react';
-
+import {ArrowRightIcon,ArrowLeftIcon} from '@chakra-ui/icons';
 
 
 function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
@@ -29,6 +32,8 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 		[rows]);
 
 	const columns = cols;
+	const pageSize = 15;
+	const [currnetPage,setCurrnetPage]= useState(0); 
 
 	const filteredRows = useMemo(() => {
 		if (!query && !filters) return data;
@@ -85,6 +90,10 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 		}
 	};
 
+	const updatePage=(val)=>{
+		setCurrnetPage(currnetPage + val);
+	};
+
 	useEffect(() => {
 		console.log('new table');
 		if (setSelectedRows){
@@ -131,7 +140,7 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 		  </Tr>
 		  </Thead>
 		  <Tbody>
-		  {filteredRows.map((row,index)=> (
+		  {filteredRows.slice(currnetPage*pageSize,(currnetPage*pageSize)+pageSize).map((row,index)=> (
 						<Tr key={index}>
 							{setSelectedRows && <Td ><Checkbox defaultChecked={selected.includes(row.rowID)} isChecked={selected.includes(row.rowID)} onChange={(e) => handleCheck(row.rowID,e.target.checked)} /></Td>}
 							{Object.keys(columns).map((key)=>{
@@ -141,7 +150,25 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 					)}
 		 
 		  </Tbody>
+
+					
+
 			</Table>
+			<HStack>
+				<IconButton
+					icon={<ArrowLeftIcon />}
+					onClick={(e)=>updatePage(-1)}
+					isDisabled={currnetPage===0}
+				/>
+				<Text>Page {currnetPage+1} of {Math.ceil(filteredRows.length/pageSize)}</Text>
+				<IconButton
+					icon={<ArrowRightIcon />}
+					onClick={(e)=>updatePage(1)}
+					isDisabled={currnetPage+1===Math.ceil(filteredRows.length/pageSize)}
+				/>
+				<Text>{filteredRows.length} row(s) found</Text>
+			</HStack>
+			
 		</TableContainer>):(<Alert status='info'>
 			<AlertIcon />
    No data to view
