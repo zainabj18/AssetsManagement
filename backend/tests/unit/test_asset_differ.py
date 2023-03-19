@@ -2,7 +2,7 @@
 import pytest
 import json
 import copy
-from app.asset.routes import asset_differ
+from app.asset.utils import asset_differ
 
 @pytest.mark.parametrize(
     "new_assets",
