@@ -181,3 +181,10 @@ export const getAccountDetails = async () => {
 	return await axios.get('/admin/accountmanager').then(res => res.data);
 };
 
+export const createUser = async (id) => {
+	return await axios.post('/auth/register', id).then(res => res.data);
+};
+export const deleteUserAcc = async (id) => {
+	return await axios.post('/auth/register', id).then(res => res.data);
+};
+
