@@ -26,7 +26,7 @@ const AssetTable = ({assets,setSelectedAssets,preSelIDs,cols}) => {
 			'classification':{
 				header: 'Asset Classification',
 				canFilter:true,
-				Cell:(rowID,value)=>{return <Badge bg={colours[value]} color={'white'}>{value}</Badge>;}
+				Cell:(row,value)=>{return <Badge bg={colours[value]} color={'white'}>{value}</Badge>;}
 			},
 		};
 		if (cols){
