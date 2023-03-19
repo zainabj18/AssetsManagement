@@ -173,3 +173,6 @@ export const isAttributeNameIn = async (name) => {
 export const makeBackfill = async (data) => {
 	return await axios.post('type/backfill', data).then(res => res.data);
 };
+export const getRelatedAssetsGraphData = async(id) => {
+	return await axios.get(`/graph/asset/${id}`).then(res => res.data);
+};

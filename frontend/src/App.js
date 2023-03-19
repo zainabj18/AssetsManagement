@@ -28,6 +28,7 @@ import ProjectViewer from './routes/ProjectViewer';
 import TypeEditor from './routes/TypeEditor';
 import Logs from './routes/Logs';
 import GraphView from './routes/GraphView';
+import AssetRelationGraph from './routes/assets/AssetRelationGraph';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -49,6 +50,7 @@ function App() {
 							<Route path="type" element={<RelatedType />} />	
 							<Route path="outgoing" element={<RelatedFrom />} />	
 							<Route path="incomming" element={<RelatedTo />} />	
+							<Route path="graph" element={<AssetRelationGraph />} />
 						</Route>
 					</Route>
 					<Route path="projects/" element={<SubLayout name="Projects"/>}>
