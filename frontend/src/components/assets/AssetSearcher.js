@@ -4,8 +4,7 @@ import { Box } from '@chakra-ui/react';
 import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Input, Button } from '@chakra-ui/react';
 import { Checkbox } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { fetchTypesList } from '../../api';
-import { fetchAllAttributes,fetchTags } from '../../api';
+import { fetchAllAttributes,fetchTags,fetchTypesNamesVersionList } from '../../api';
 import { fetchProjects } from '../../api';
 import { fetchAssetClassifications} from '../../api';
 
@@ -92,7 +91,7 @@ const AssetSearcher = ({filerFunc}) => {
 
 	useEffect(() => {
 		console.log(filerFunc);
-		fetchTypesList().then((res) => {
+		fetchTypesNamesVersionList().then((res) => {
 			setTypes(res.data);
 		}
 		);
@@ -153,7 +152,7 @@ const AssetSearcher = ({filerFunc}) => {
 								<VStack align={'left'}>
 									{types.map((type) => {
 										return ( 
-											<Checkbox  onChange={(e) => handleCheckBoxChange('types',type.type_id,e.target.checked)}>{type.type_name}</Checkbox>
+											<Checkbox  onChange={(e) => handleCheckBoxChange('types',type.version_id,e.target.checked)}>{type.type_name}</Checkbox>
 										);
 									})}
 								</VStack>
