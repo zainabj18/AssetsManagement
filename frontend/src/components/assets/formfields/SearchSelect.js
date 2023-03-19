@@ -59,6 +59,7 @@ const SearchSelect = ({dataFunc,selectedValue,setSelectedValue,createFunc}) => {
 				}
 			}else{
 				setCanCreate.off();
+				setResults(data);
 			}
 		}
 	};
