@@ -124,6 +124,7 @@ def test_assets_AND(valid_client, new_assets):
     res = valid_client.post("/api/v1/asset/filter", json={"types":filter_type,"classifications":filter_classification,
                                                           "tags":tags_filter,
                                                           "projects":projects_filter,
+                                                          "attributes":[{"attributeID":-1,"operation":"HAS"}],
                                                           "operation":"AND"})
     assert res.status_code == 200
     assert set(res.json["data"])==set(asset_ids)
@@ -150,7 +151,9 @@ def test_assets_OR(valid_client, new_assets):
     res = valid_client.post("/api/v1/asset/filter", json={"types":filter_type,"classifications":filter_classification,
                                                           "tags":tags_filter,
                                                           "projects":projects_filter,
+                                                          "attributes":[{"attributeID":-1,"operation":"HAS"}],
                                                           "operation":"OR"})
+    print(res.json["data"])
     assert res.status_code == 200
     assert set(res.json["data"]).issuperset(set(asset_ids))
 @pytest.mark.parametrize(
@@ -233,8 +236,21 @@ def test_assets_filter_attribute_has_metadata(valid_client, new_assets):
     [{"batch_size": 100,"add_to_db":True}],
     indirect=True,
 )
-def test_assets_filter_attribute_multiple(valid_client, new_assets):
-    res = valid_client.post("/api/v1/asset/filter", json={"operation":"AND","attributes":[{"attributeID":-1,"attributeValue":new_assets[0].name,"operation":"EQUALS"},
+def test_assets_filter_attribute_multiple_or(valid_client, new_assets):
+    res = valid_client.post("/api/v1/asset/filter", json={"attribute_operation":"OR","attributes":[{"attributeID":-1,"attributeValue":new_assets[0].name,"operation":"EQUALS"},
+                                                                {"attributeID":-1,"attributeValue":new_assets[0].name+"!","operation":"EQUALS"}]})
+    assert res.status_code == 200
+    assert res.json["data"]==[new_assets[0].asset_id]
+
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_assets_filter_attribute_multiple_and(valid_client, new_assets):
+    res = valid_client.post("/api/v1/asset/filter", json={"attribute_operation":"AND","attributes":[{"attributeID":-1,"attributeValue":new_assets[0].name,"operation":"EQUALS"},
                                                                 {"attributeID":-1,"attributeValue":new_assets[0].name+"!","operation":"EQUALS"}]})
     assert res.status_code == 200
     assert res.json["data"]==[]

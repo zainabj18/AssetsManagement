@@ -14,8 +14,8 @@ class QueryJoin(Enum):
     OR="OR"
 
 class AttributeSearcher(BaseModel):
-    attribute_id: Any = Field(..., alias="attributeID")
-    attribute_value: Any = Field(..., alias="attributeValue")
+    attribute_id: int = Field(..., alias="attributeID")
+    attribute_value: Any = Field(None, alias="attributeValue")
     operation:QueryOperation
 
     class Config:
@@ -30,6 +30,7 @@ class FilterSearch(BaseModel):
     operation: QueryJoin = Field(QueryJoin.OR, alias="operation")
     tag_operation: QueryJoin = Field(QueryJoin.OR, alias="tagOperation")
     project_operation: QueryJoin = Field(QueryJoin.OR, alias="projectOperation")
+    attribute_operation: QueryJoin = Field(QueryJoin.OR, alias="attributeOperation")
     class Config:
         allow_population_by_field_name = True
     

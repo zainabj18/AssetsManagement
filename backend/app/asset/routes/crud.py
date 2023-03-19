@@ -556,9 +556,18 @@ def filter():
     type_results=services.fetch_assets_with_any_values(db=db,values=filter.types,attribute="version_id")
     filter_asset_ids.append(set(get_key_from_results("asset_id",type_results)))
     services.create_all_attributes_view(db=db)
+    filter_attributes_results=set()
     for searcher in filter.attributes:
         filter_results=services.fetch_assets_attribute_filter(db=db,searcher=searcher)
-        filter_asset_ids.append(set(get_key_from_results("asset_id",filter_results)))
+        filter_results=set(get_key_from_results("asset_id",filter_results))
+        print(filter_results)
+        if filter.attribute_operation==QueryJoin.OR:
+            filter_attributes_results=filter_attributes_results.union(filter_results)
+            print("I am her",filter_attributes_results)
+        else:
+            filter_attributes_results=filter_attributes_results.intersection(set(filter_results))
+    print(filter_asset_ids)
+    filter_asset_ids.append(filter_attributes_results)
     if filter.operation==QueryJoin.AND:  
         asset_ids=set.intersection(*filter_asset_ids)
     else:
