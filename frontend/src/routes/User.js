@@ -67,7 +67,7 @@ const User = () => {
 			} catch (error) {
 				setSuccess(false);
 				if (error.response.status === 400) {
-					setError({ error: error.response.data.error, msg: error.response.data.msg });
+					setError({ error: error.response.data.error, msg: error.response.data.data[0].msg });
 				} else {
 					console.error(error);
 				}
