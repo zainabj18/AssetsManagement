@@ -864,6 +864,16 @@ SELECT * FROM attributes_values;
             else:
                 asset_ids=set(chain.from_iterable(filter_asset_ids))
     return {"data": list(asset_ids)}
+
+"""
+ Fetches the current version and latest version of an asset, and returns whether an upgrade is needed along with any added or removed attributes.
+
+    Parameters:
+    id : The ID of the asset to check for an upgrade.
+
+    Returns:
+    dict: A dictionary containing message, data, and canUpgrade keys. The message will either be "no upgrade needed" or "upgrade needed", the data will contain any added or removed attributes and the latest version ID, and canUpgrade will be True or False depending on whether an upgrade is possible
+"""
 @bp.route("/upgrade/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def get_upgrade(id,user_id, access_level):
