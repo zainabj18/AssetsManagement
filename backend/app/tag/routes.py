@@ -223,7 +223,12 @@ def copy(user_id, access_level):
         return {"msg": str(e), "error": "Database Error"}, 500
     return {"msg":"Copied assets to tag"}, 200
 
-
+"""_summary_
+ Parameters:
+    id : The ID all the assets that belong to the same project .
+    Returns:
+        json data
+"""
 @bp.route("/remove", methods=["POST"])
 @protected(role=UserRole.USER)
 def remove(user_id, access_level):
