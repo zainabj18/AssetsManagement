@@ -109,42 +109,10 @@ def create(user_id, access_level):
     db = get_db()
     db_asset = asset.dict(exclude={"metadata"})
     utils.check_asset_dependencies(db=db,version_id=asset.version_id,assets=asset.assets)
-    # add asset to db
+    utils.check_asset_metatadata(db=db,version_id=asset.version_id,metadata=asset.metadata)
+    asset_id =  services.add_asset_to_db(db=db,**db_asset)["asset_id"]
     with db.connection() as conn:
-        with conn.cursor() as cur:   
-            cur.execute("""SELECT attributes_in_types.attribute_id FROM attributes_in_types
-INNER JOIN attributes on attributes_in_types.attribute_id=attributes.attribute_id
-WHERE (attributes.validation_data->>'isOptional')::boolean is false AND attributes_in_types.type_version=%(type_id)s;""",{"type_id": asset.version_id})
-            required_attributes=set([x[0] for x in cur.fetchall()])
-            attribute_ids=set([attribute.attribute_id for attribute in asset.metadata])
-            cur.execute("""SELECT attributes_in_types.attribute_id FROM attributes_in_types
-INNER JOIN attributes on attributes_in_types.attribute_id=attributes.attribute_id
-WHERE attributes_in_types.type_version=%(type_id)s;""",{"type_id": asset.version_id})
-            all_type_attributes=set([x[0] for x in cur.fetchall()])
-            
-            if not required_attributes.issubset(attribute_ids):
-                 return (
-                    jsonify(
-                        {
-                            "msg": "Missing required attributes",
-                            "data": f"Must inlcude the following attrubutes with ids {list(required_attributes)}",
-                            "error": "Failed to create asset from the data provided",
-                        }
-                    ),
-                    400,
-                )
-            if not (attribute_ids.issubset(all_type_attributes)):
-                return (
-                    jsonify(
-                        {
-                            "msg": "Addtional attributes",
-                            "data": f"Must only inlcude the following attrubutes with ids {list(all_type_attributes)}",
-                            "error": "Failed to create asset from the data provided",
-                        }
-                    ),
-                    400,
-                )
-            asset_id =  services.add_asset_to_db(db=db,**db_asset)["asset_id"]
+        with conn.cursor() as cur:  
             # add asset to tags to db
             for tag in asset.tags:
                 cur.execute(
@@ -186,7 +154,7 @@ WHERE attributes_in_types.type_version=%(type_id)s;""",{"type_id": asset.version
         VALUES (1,%(account_id)s,%(asset_id)s,%(diff)s,%(action)s);""",
                     {"account_id":user_id,"asset_id":asset_id,"diff":json.dumps({}),"action":Actions.ADD},
                 )
-    return {"msg": "Added asset", "data": asset_id}, 200
+    return {"msg": "Added asset", "data": asset_id}, 201
 
 
 @bp.route("/classifications", methods=["GET"])
@@ -221,7 +189,7 @@ def list_asset_project(id):
             )
             projects = [Project(**row).dict(by_alias=True) for row in cur.fetchall()]
             selected_projects.extend(projects)
-    return {"data": selected_projects}, 200
+    return {"data": selected_projects}, 201
 
 @bp.route("links/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)

@@ -2,6 +2,7 @@ import json
 import pytest
 from psycopg.rows import dict_row
 from  datetime import datetime
+from app.schemas.factories import AttributeFactory
 def test_new_assset_requires_name(valid_client):
     res = valid_client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
@@ -253,7 +254,7 @@ def test_new_assset_metadata_incorrect_mixed_type(valid_client):
 def test_new_assets_in_db(valid_client, new_assets, db_conn):
     data = json.loads(new_assets[0].json())
     res = valid_client.post("/api/v1/asset/", json=data)
-    assert res.status_code == 200
+    assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
     with db_conn.cursor(row_factory=dict_row) as cur:
@@ -277,7 +278,7 @@ def test_new_assets_in_db(valid_client, new_assets, db_conn):
 def test_new_assets_tags_in_db(valid_client, new_assets, db_conn):
     data = json.loads(new_assets[0].json())
     res = valid_client.post("/api/v1/asset/", json=data)
-    assert res.status_code == 200
+    assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
     with db_conn.cursor() as cur:
@@ -296,7 +297,7 @@ def test_new_assets_tags_in_db(valid_client, new_assets, db_conn):
 def test_new_assets_projects_in_db(valid_client, new_assets, db_conn):
     data = json.loads(new_assets[0].json())
     res = valid_client.post("/api/v1/asset/", json=data)
-    assert res.status_code == 200
+    assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
     with db_conn.cursor() as cur:
         cur.execute(
@@ -316,7 +317,7 @@ def test_new_assets_projects_in_db(valid_client, new_assets, db_conn):
 def test_new_assets_values_in_db(valid_client, new_assets, db_conn):
     data = json.loads(new_assets[0].json())
     res = valid_client.post("/api/v1/asset/", json=data)
-    assert res.status_code == 200
+    assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
     with db_conn.cursor() as cur:
@@ -338,7 +339,7 @@ def test_new_assets_values_in_db(valid_client, new_assets, db_conn):
 def test_new_assets_unique(valid_client, new_assets):
     data = json.loads(new_assets[0].json())
     res = valid_client.post("/api/v1/asset/", json=data)
-    assert res.status_code == 200
+    assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
     res = valid_client.post("/api/v1/asset/", json=data)
@@ -346,6 +347,51 @@ def test_new_assets_unique(valid_client, new_assets):
     assert res.json["msg"] == 'Database Error'
     assert res.json["data"]==[f'duplicate key value violates unique constraint "assets_name_key"\nDETAIL:  Key (name)=({data["name"]}) already exists.']
 
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_new_assets_missing_non_optional_attributes(valid_client, new_assets):
+    required_attributes = list(filter(lambda x: x.validation_data["isOptional"]==False, new_assets[0].metadata))
+    attribute_ids=[attribute.attribute_name for attribute in required_attributes]
+    new_assets[0].metadata=[]
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 400
+    assert res.json["msg"]=="Missing required attributes"
+    assert res.json["data"]== [f"Must inlcude the following attrubutes {list(attribute_ids)}"]
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100}],
+    indirect=True,
+)
+def test_new_assets_with_only_required_attributes(valid_client, new_assets):
+    required_attributes = list(filter(lambda x: x.validation_data["isOptional"]==False, new_assets[0].metadata))
+    new_assets[0].metadata=required_attributes
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_new_assets_with_addtional_attributes(valid_client, new_assets):
+    required_attributes = list(filter(lambda x: x.validation_data["isOptional"]==False, new_assets[0].metadata))
+    attribute_names=[attribute.attribute_name for attribute in required_attributes]
+    attribute_ids=[attribute.attribute_id for attribute in new_assets[0].metadata]
+    new_assets[0].metadata.append(AttributeFactory.build(attribute_id=max(attribute_ids)+1))
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 400
+    assert res.json["msg"]=="Addtional attributes"
+    assert res.json["data"]== [f"Must only inlcude the following attrubutes {attribute_names}"]
 
 @pytest.mark.parametrize(
     "new_assets",
@@ -367,7 +413,7 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
             type_name=cur.fetchone()[0]
     asset_1 = json.loads(new_assets[0].json())
     res = valid_client.post("/api/v1/asset/", json=asset_1)
-    assert res.status_code == 200
+    assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
     asset_id=res.json["data"]
@@ -396,14 +442,14 @@ def test_new_assets_dependents(valid_client, new_assets,db_conn):
             db_conn.commit()
     asset_1 = json.loads(new_assets[0].json())
     res = valid_client.post("/api/v1/asset/", json=asset_1)
-    assert res.status_code == 200
+    assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
     asset_id=res.json["data"]
     asset_2 = json.loads(new_assets[1].json())
     asset_2["assets"]=[asset_id]
     res = valid_client.post("/api/v1/asset/", json=asset_2)
-    assert res.status_code == 200
+    assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
     

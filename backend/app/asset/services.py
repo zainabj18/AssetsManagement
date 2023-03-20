@@ -304,3 +304,21 @@ def fetch_assets_versions(db:ConnectionPool,assets_ids:List[int]):
       A list of dictionaries containing version id.
     """
     return run_query(db,"""SELECT version_id FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",{"asset_ids":assets_ids},return_type=QueryResult.ALL)
+
+def fetch_attributes_by_version(db:ConnectionPool,version_id:int,required=False):
+    """Find the attributes related to a version.
+
+    Args:
+      db: A object for managing connections to the db.
+      version_id: The type version id to get the attributes.
+      required: A boolean if to only include required ones.
+
+    Returns:
+      A list of dictionaries containing keys attribute_id and attribute_name.
+    """
+    query=sql.Composed([sql.SQL("""SELECT attributes_in_types.attribute_id,attributes.attribute_name FROM attributes_in_types
+INNER JOIN attributes on attributes_in_types.attribute_id=attributes.attribute_id
+WHERE attributes_in_types.type_version=%(version_id)s""")])
+    if required:
+        query+=sql.SQL(" AND (attributes.validation_data->>'isOptional')::boolean is false;")
+    return run_query(db,query,{"version_id":version_id},return_type=QueryResult.ALL)

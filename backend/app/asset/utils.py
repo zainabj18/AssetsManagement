@@ -1,5 +1,6 @@
 from . import services
 from psycopg_pool import ConnectionPool
+from app.schemas import Attribute
 from typing import List
 from flask import abort
 
@@ -13,6 +14,22 @@ def check_asset_dependencies(db:ConnectionPool,version_id:int,assets:List[int]):
     if not asset_types.issuperset(set(get_key_from_results("version_id",dependents))):
         abort(400, {"msg": "Missing dependencies", "data": get_key_from_results("type_name",dependents)})
 
+def check_asset_metatadata(db:ConnectionPool,version_id:int,metadata:List[Attribute]):
+    required_attributes=services.fetch_attributes_by_version(db=db,version_id=version_id,required=True)
+    attribute_ids=set([attribute.attribute_id for attribute in metadata])
+    required_attributes_names=[row["attribute_name"] for row in required_attributes]
+    if not set([row["attribute_id"] for row in required_attributes]).issubset(attribute_ids):
+        abort(400, {
+                "msg": "Missing required attributes",
+                "data":[f"Must inlcude the following attrubutes {required_attributes_names}"],
+            })
+    all_type_attributes=services.fetch_attributes_by_version(db=db,version_id=version_id)
+    all_type_attributes_names=[row["attribute_name"] for row in required_attributes]
+    if not (attribute_ids.issubset([row["attribute_id"] for row in all_type_attributes])):
+        abort(400,  {
+                "msg": "Addtional attributes",
+                "data": [f"Must only inlcude the following attrubutes {all_type_attributes_names}"],
+            })
 def asset_differ(orginal,new):
     removed=list(set(orginal.keys())-set(new.keys()))
     changed=[]

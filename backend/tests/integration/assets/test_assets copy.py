@@ -467,53 +467,6 @@
 #         print(removed_names)
 #         assert set(res.json["data"][1])==set(removed_names)
 #         assert res.json["data"][2]==max_version_id
-# @pytest.mark.parametrize(
-#     "new_assets",
-#     [{"batch_size": 1}],
-#     indirect=True,
-# )
-# def test_new_assets_non_optional_attributes(valid_client, new_assets):
-#     required_attributes = list(filter(lambda x: x.validation_data["isOptional"]==False, new_assets[0].metadata))
-#     attribute_ids=[attribute.attribute_id for attribute in required_attributes]
-#     new_assets[0].metadata=[]
-#     data = json.loads(new_assets[0].json())
-#     res = valid_client.post("/api/v1/asset/", json=data)
-#     assert res.status_code == 400
-#     assert res.json["msg"]=="Missing required attributes"
-#     assert res.json["error"]=="Failed to create asset from the data provided"
-#     assert res.json["data"]== f"Must inlcude the following attrubutes with ids {list(attribute_ids)}"
-
-
-# @pytest.mark.parametrize(
-#     "new_assets",
-#     [{"batch_size": 100}],
-#     indirect=True,
-# )
-# def test_new_assets_with_required_attributes(valid_client, new_assets):
-#     required_attributes = list(filter(lambda x: x.validation_data["isOptional"]==False, new_assets[0].metadata))
-#     new_assets[0].metadata=required_attributes
-#     data = json.loads(new_assets[0].json())
-#     res = valid_client.post("/api/v1/asset/", json=data)
-#     print(res.json)
-#     assert res.status_code == 200
-    
-
-
-# @pytest.mark.parametrize(
-#     "new_assets",
-#     [{"batch_size": 1}],
-#     indirect=True,
-# )
-# def test_new_assets_with_addtional_attributes(valid_client, new_assets):
-    
-#     attribute_ids=[attribute.attribute_id for attribute in new_assets[0].metadata]
-#     new_assets[0].metadata.append(AttributeFactory.build(attribute_id=max(attribute_ids)+1))
-#     data = json.loads(new_assets[0].json())
-#     res = valid_client.post("/api/v1/asset/", json=data)
-#     assert res.status_code == 400
-#     assert res.json["msg"]=="Addtional attributes"
-#     assert res.json["error"]=="Failed to create asset from the data provided"
-#     assert res.json["data"]== f"Must only inlcude the following attrubutes with ids {list(attribute_ids)}"
 
 def test_get_access_levels(valid_client):
     res = valid_client.get("/api/v1/asset/classifications")
