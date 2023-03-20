@@ -275,3 +275,32 @@ def add_asset_to_db(db:ConnectionPool,name:str,link:str,version_id:int,descripti
     VALUES (%(name)s,%(link)s,%(version_id)s,%(description)s,%(classification)s)  RETURNING asset_id;""",
                 {"name":name,"link":link,"version_id":version_id,"description":description,"classification":classification},return_type=QueryResult.ONE)
 
+
+
+def fetch_version_dependencies(db:ConnectionPool,version_id:int):
+    """Find the version's dependencies.
+
+    Args:
+      db: A object for managing connections to the db.
+      version_id: The version id to check dependencies.
+
+    Returns:
+      A list of dictionaries containing version id and concatenated type name.
+    """
+    return run_query(db,"""SELECT type_version_to as version_id,CONCAT(type_name,'-',version_number) AS type_name  FROM type_version_link
+INNER JOIN type_version ON type_version.version_id=type_version_link.type_version_to
+INNER JOIN types ON types.type_id=type_version.type_id WHERE type_version_from=%(version_id)s;""",{"version_id":version_id},return_type=QueryResult.ALL)
+
+
+
+def fetch_assets_versions(db:ConnectionPool,assets_ids:List[int]):
+    """Find the version ids of a list of assets ids.
+
+    Args:
+      db: A object for managing connections to the db.
+      assets_ids: The list asset ids versions to find.
+
+    Returns:
+      A list of dictionaries containing version id.
+    """
+    return run_query(db,"""SELECT version_id FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",{"asset_ids":assets_ids},return_type=QueryResult.ALL)

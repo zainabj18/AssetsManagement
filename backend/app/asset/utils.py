@@ -1,5 +1,17 @@
+from . import services
+from psycopg_pool import ConnectionPool
+from typing import List
+from flask import abort
+
 def get_key_from_results(key,results):
     return [row[key] for row in results]
+
+def check_asset_dependencies(db:ConnectionPool,version_id:int,assets:List[int]):
+    asset_versions=services.fetch_assets_versions(db=db,assets_ids=assets)
+    asset_types=set(get_key_from_results("version_id",asset_versions))
+    dependents=services.fetch_version_dependencies(db=db,version_id=version_id)
+    if not asset_types.issuperset(set(get_key_from_results("version_id",dependents))):
+        abort(400, {"msg": "Missing dependencies", "data": get_key_from_results("type_name",dependents)})
 
 def asset_differ(orginal,new):
     removed=list(set(orginal.keys())-set(new.keys()))

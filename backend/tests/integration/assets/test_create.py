@@ -335,7 +335,7 @@ def test_new_assets_values_in_db(valid_client, new_assets, db_conn):
     [{"batch_size": 1}],
     indirect=True,
 )
-def test_new_assets_unique(valid_client, new_assets, db_conn):
+def test_new_assets_unique(valid_client, new_assets):
     data = json.loads(new_assets[0].json())
     res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 200
@@ -347,6 +347,63 @@ def test_new_assets_unique(valid_client, new_assets, db_conn):
     assert res.json["data"]==[f'duplicate key value violates unique constraint "assets_name_key"\nDETAIL:  Key (name)=({data["name"]}) already exists.']
 
 
-# # TODO:Test asset name is unique
-# # TODO:Test DB error
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 2}],
+    indirect=True,
+)
+def test_new_assets_dependents_missing(valid_client, new_assets,db_conn):
+    with db_conn.cursor() as cur:
+            cur.execute(
+                """
+    INSERT INTO type_version_link (type_version_from, type_version_to)
+    VALUES (%(from)s, %(to)s)
+    """,
+                {"from": new_assets[1].version_id,"to":new_assets[0].version_id},
+            )
+            db_conn.commit()
+            cur.execute("""SELECT CONCAT(type_name,'-',version_number) AS type_name FROM type_version
+INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",{"version_id": new_assets[0].version_id})
+            type_name=cur.fetchone()[0]
+    asset_1 = json.loads(new_assets[0].json())
+    res = valid_client.post("/api/v1/asset/", json=asset_1)
+    assert res.status_code == 200
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    asset_id=res.json["data"]
+    asset_2 = json.loads(new_assets[1].json())
+    res = valid_client.post("/api/v1/asset/", json=asset_2)
+    assert res.status_code == 400
+    assert res.json["msg"] == 'Missing dependencies'
+    assert res.json["data"] == [type_name]
+    
 
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 2}],
+    indirect=True,
+)
+def test_new_assets_dependents(valid_client, new_assets,db_conn):
+    with db_conn.cursor() as cur:
+            cur.execute(
+                """
+    INSERT INTO type_version_link (type_version_from, type_version_to)
+    VALUES (%(from)s, %(to)s)
+    """,
+                {"from": new_assets[1].version_id,"to":new_assets[0].version_id},
+            )
+            db_conn.commit()
+    asset_1 = json.loads(new_assets[0].json())
+    res = valid_client.post("/api/v1/asset/", json=asset_1)
+    assert res.status_code == 200
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    asset_id=res.json["data"]
+    asset_2 = json.loads(new_assets[1].json())
+    asset_2["assets"]=[asset_id]
+    res = valid_client.post("/api/v1/asset/", json=asset_2)
+    assert res.status_code == 200
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    

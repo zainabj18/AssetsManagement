@@ -108,27 +108,10 @@ def create(user_id, access_level):
     asset=model_creator(model=Asset,err_msg="Failed to create asset from the data provided",**request.json)
     db = get_db()
     db_asset = asset.dict(exclude={"metadata"})
-    
+    utils.check_asset_dependencies(db=db,version_id=asset.version_id,assets=asset.assets)
     # add asset to db
     with db.connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """SELECT version_id FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",
-                {"asset_ids":asset.assets})
-            asset_types=set([x[0] for x in cur.fetchall()])
-            cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(version_id)s;""",{"version_id": asset.version_id})
-            dependents= set([x[0] for x in cur.fetchall()])
-            if not asset_types.issuperset(dependents):
-                return (
-                    jsonify(
-                        {
-                            "msg": "Missing dependencies",
-                            "data": f"Must inlcude assets with type {dependents}",
-                            "error": "Failed to create asset from the data provided",
-                        }
-                    ),
-                    400,
-                )
+        with conn.cursor() as cur:   
             cur.execute("""SELECT attributes_in_types.attribute_id FROM attributes_in_types
 INNER JOIN attributes on attributes_in_types.attribute_id=attributes.attribute_id
 WHERE (attributes.validation_data->>'isOptional')::boolean is false AND attributes_in_types.type_version=%(type_id)s;""",{"type_id": asset.version_id})
@@ -161,13 +144,6 @@ WHERE attributes_in_types.type_version=%(type_id)s;""",{"type_id": asset.version
                     ),
                     400,
                 )
-
-    #         cur.execute(
-    #             """
-    #         INSERT INTO assets (name,link,version_id,description, classification)
-    # VALUES (%(name)s,%(link)s,%(version_id)s,%(description)s,%(classification)s)  RETURNING asset_id;""",
-    #             db_asset,
-    #         )
             asset_id =  services.add_asset_to_db(db=db,**db_asset)["asset_id"]
             # add asset to tags to db
             for tag in asset.tags:
