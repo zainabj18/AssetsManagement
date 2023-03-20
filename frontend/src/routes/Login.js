@@ -9,7 +9,7 @@ import {
 	Button,
 	InputGroup,
 	InputRightElement,
-	Container,
+	Heading,
 	VStack,
 	IconButton,
 	Alert,
@@ -58,6 +58,8 @@ function Login() {
 		
 		>
 			<Card paddingX={10} paddingY={10} width={isSmallerThan745?"90%":"45%"} boxShadow='xl' p='6' rounded='md' bg='white' borderRadius={10}> 
+			
+			<Heading marginY={2} marginX={2} textAlign="center" fontSize={21}>Code Groover Assets Metadata Repository</Heading>
 			<Avatar bg="#4E65FF" alignSelf={"center"} />
 			<Text fontSize='4xl' textAlign={'center'}>Login</Text>
 				<FormControl marginTop={5}>
