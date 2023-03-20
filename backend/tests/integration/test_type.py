@@ -561,7 +561,7 @@ def test_backfill(client, db_conn):
     VALUES ('asset1', 'www.example.com', 1, 'first asset');
     """
     query_b = """
-    INSERT INTO attributes_values (attribute_id, asset_id, value)
+    INSERT INTO attributes_values (attribute_id, asset_id, attribute_value)
     VALUES (1, 1, 'I am some text');
     """
     client.post("/api/v1/type/adder/new", json=test_metaData_a)

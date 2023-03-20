@@ -137,7 +137,7 @@ CREATE TABLE attributes_values
  (
  	attribute_id INTEGER,
  	asset_id INTEGER,
-	value VARCHAR,
+	attribute_value VARCHAR,
  	PRIMARY KEY (attribute_id, asset_id),
 	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
  	FOREIGN KEY (attribute_id) REFERENCES attributes(attribute_id)

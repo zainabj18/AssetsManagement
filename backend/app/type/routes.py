@@ -332,7 +332,7 @@ def backfill():
     WHERE asset_id = %(asset_id)s;
     """
     query_b = """
-    INSERT INTO attributes_values (attribute_id, asset_id, value)
+    INSERT INTO attributes_values (attribute_id, asset_id, attribute_value)
     VALUES (%(attribute_id)s, %(asset_id)s, %(value)s)
     """
 

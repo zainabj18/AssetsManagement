@@ -1,7 +1,7 @@
 import os
 import json
 import click
-from psycopg.rows import class_row
+from psycopg.rows import class_row,dict_row
 from app.db import close_db, get_db,Models,UserRole,DataAccess
 from flask import current_app
 from werkzeug.security import generate_password_hash
@@ -163,7 +163,7 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
                 for attribute in asset.metadata:
                     cur.execute(
                         """
-                    INSERT INTO attributes_values (asset_id,attribute_id,value)
+                    INSERT INTO attributes_values (asset_id,attribute_id,attribute_value)
             VALUES (%(asset_id)s,%(attribute_id)s,%(value)s);""",
                         {
                             "asset_id": asset_id,
@@ -177,16 +177,15 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
     if (add_to_db):
         with db_conn.cursor(row_factory=class_row(AssetOut)) as cur:
             cur.execute("""WITH combined_attributes AS (
-SELECT attributes_values.asset_id,attributes_values.value,attributes.* FROM attributes_values
+SELECT attributes_values.asset_id,attributes_values.attribute_value,attributes.* FROM attributes_values
 INNER JOIN attributes ON attributes.attribute_id=attributes_values.attribute_id)
 SELECT *,
 ARRAY(SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=assets.asset_id) as tags,
 ARRAY(SELECT project_id FROM assets_in_projects WHERE assets_in_projects.asset_id=assets.asset_id) as projects,
-(SELECT json_agg(row_to_json(combined_attributes)) FROM combined_attributes as 
+(SELECT json_agg(row_to_json(combined_attributes)) FROM combined_attributes
 INNER JOIN attributes on attributes.attribute_id=combined_attributes.attribute_id WHERE asset_id=assets.asset_id) as metadata
 FROM assets;""")
             assets = cur.fetchall()
-            print(assets)
             return assets
     return batch_result
 

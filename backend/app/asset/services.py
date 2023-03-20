@@ -377,7 +377,7 @@ def add_asset_metadata_to_db(db:ConnectionPool,asset_id:int,metadata:List[Attrib
     """
     for attribute in metadata:
         run_query(db,"""
-                INSERT INTO attributes_values (asset_id,attribute_id,value)
+                INSERT INTO attributes_values (asset_id,attribute_id,attribute_value)
         VALUES (%(asset_id)s,%(attribute_id)s,%(value)s);""",
                     {
                         "asset_id": asset_id,

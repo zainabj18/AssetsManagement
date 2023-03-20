@@ -338,7 +338,7 @@ def update(id, user_id, access_level):
                 # )
                 cur.execute(
                     """
-                INSERT INTO attributes_values (asset_id,attribute_id,value)
+                INSERT INTO attributes_values (asset_id,attribute_id,attribute_value)
         VALUES (%(asset_id)s,%(attributeID)s,%(attributeValue)s) ON CONFLICT (asset_id,attribute_id) DO UPDATE
 SET value = EXCLUDED.value""",
                     {
