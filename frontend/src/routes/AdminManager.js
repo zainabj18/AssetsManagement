@@ -188,9 +188,9 @@ const AdminManager = () => {
 					</Table>
 				</TableContainer>
 			</Stack>
-			<Stack>
-				<Link href='/user'><Button right={370} colorScheme={'blue'} size={'lg'}>New</Button></Link>
-			</Stack>	
+			<div style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
+				<Link href='/user' color="white"  bg="#ed7966" alignItems={'center'}  width={'50vw'} textAlign="center" rounded="2xl" alignSelf={'center'} ><Button color="white" display='flex'  width={'100%'} textAlign={'center'}  size={'lg'}>New</Button></Link>
+			</div>
 			</Box>
 		</VStack>
     
