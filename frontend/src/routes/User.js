@@ -10,7 +10,7 @@ const User = () => {
 		console.log(user);
 	}, []);
 
-	const [inputFields, setInputFields] = useState([{name: '', surname: '', username: '', password: '', confirmPassword: '', account_privileges: '', account_type: '' }]);
+	const [inputFields, setInputFields] = useState([{first_name: '', last_name: '', username: '', password: '', confirmPassword: '', account_privileges: '', account_type: '' }]);
 	const [deleteuser, setDeleteUser] = useState([{delete: ''}]);
 	const [saveuser, setSaveUser] = useState([{save: ''}]);
 	const [accountPrivileges, setAccountPrivileges] = useState([]);
@@ -44,13 +44,13 @@ const User = () => {
 		e.preventDefault();
 	  
 		const isFormValid = inputFields.every((field) => {
-		  	return field.name !== '' && field.surname !== '' && field.username !== '' && field.password !== '' && field.confirmPassword !== '';
+		  	return field.first_name !== '' && field.last_name !== '' && field.username !== '' && field.password !== '' && field.confirmPassword !== '';
 		});
 	  
 		if (isFormValid) {
 			const userData = {
-				name: inputFields[0].name,
-				surname: inputFields[0].surname,
+				first_name: inputFields[0].first_name,
+				last_name: inputFields[0].last_name,
 				username: inputFields[0].username,
 				password: inputFields[0].password,
 				confirmPassword: inputFields[0].confirmPassword,
@@ -83,11 +83,11 @@ const User = () => {
 					<HStack spacing={'25px'} key={index}>
 						<FormControl>
 							<FormLabel>First Name</FormLabel>
-							<Input type='text' placeholder="Name" defaultValue={attr.name} onChange={event => handleFormChange(index, event)} name="name"/>
+							<Input type='text' placeholder="Name" defaultValue={attr.first_name} onChange={event => handleFormChange(index, event)} name="first_name"/>
 						</FormControl>
 						<FormControl>
 							<FormLabel>Last Name</FormLabel>
-							<Input type='text' placeholder="Surname" defaultValue={attr.surname} onChange={event => handleFormChange(index, event)} name="surname"/>
+							<Input type='text' placeholder="Surname" defaultValue={attr.last_name} onChange={event => handleFormChange(index, event)} name="last_name"/>
 						</FormControl>
 						<FormControl>
 							<FormLabel>Username</FormLabel>
