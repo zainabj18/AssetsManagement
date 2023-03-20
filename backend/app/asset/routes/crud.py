@@ -118,7 +118,6 @@ def create(user_id, access_level):
     audit_log_event(db,Models.ASSETS,user_id,asset_id,{"added":list(db_asset.keys())},Actions.ADD)
     return {"msg": "Added asset", "data": asset_id}, 201
 
-
 @bp.route("/classifications", methods=["GET"])
 @protected(role=UserRole.USER)
 def get_classifications(user_id, access_level):
@@ -126,7 +125,6 @@ def get_classifications(user_id, access_level):
     for c in DataAccess:
         if c <= access_level:
             viwable_classifications.append(c.value)
-
     return {"data": viwable_classifications}
 
 
@@ -350,12 +348,6 @@ SET value = EXCLUDED.value""",
     return {}, 200
 
 
-@bp.route("/logs/<id>", methods=["GET"])
-@protected(role=UserRole.VIEWER)
-def logs(id, user_id, access_level):
-    db = get_db()
-    services.abort_asset_not_exists(db=db,asset_id=id)
-    return {"data":services.get_asset_logs(db,id)}
 
 #TODO:Moves to tags
 @bp.route("/tags/summary/<id>", methods=["GET"])
