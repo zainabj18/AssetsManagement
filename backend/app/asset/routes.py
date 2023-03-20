@@ -792,7 +792,11 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
                     assets_json.append(aj)
             res = jsonify({"data": assets_json})
     return res
+"""
+ Parameters:
+    searcher : The searcher filter the query 
 
+ """
 
 def make_query(searcher):
     match searcher.operation:
