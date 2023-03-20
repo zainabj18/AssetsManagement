@@ -116,7 +116,7 @@ def create(user_id, access_level):
                 """SELECT version_id FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",
                 {"asset_ids":asset.assets})
             asset_types=set([x[0] for x in cur.fetchall()])
-            cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(type_id)s;""",{"type_id": asset.version_id})
+            cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(version_id)s;""",{"version_id": asset.version_id})
             dependents= set([x[0] for x in cur.fetchall()])
             if not asset_types.issuperset(dependents):
                 return (

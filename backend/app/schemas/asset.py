@@ -105,7 +105,8 @@ class Attribute(Attribute_Model):
             values["attribute_value"]=str(v).lower()=='true'
         return values
 
-
+class AttributeIn(Attribute_Model):
+    attribute_value: Any = Field(..., alias="attributeValue")
 class AttributeInDB(Attribute):
     pass
 
@@ -157,18 +158,17 @@ class AssetBaseInDB(AssetBase):
 
 
 class Asset(AssetBase):
-    # TODO change to conlist
     projects: List[int]
     tags: List[int]
     assets: Optional[List[int]]
-    metadata: List[AttributeInDB]
+    metadata: List[AttributeIn]
 
     @validator("metadata", each_item=True, pre=True)
     def check_metadata(cls, v):
-        if isinstance(v, AttributeInDB):
+        if isinstance(v, AttributeIn):
             return v
         try:
-            AttributeInDB(**v)
+            AttributeIn(**v)
             return v
         except ValidationError as e:
             raise e
