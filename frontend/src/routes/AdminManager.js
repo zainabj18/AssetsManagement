@@ -89,6 +89,7 @@ const AdminManager = () => {
 														<AccordionIcon/>
 													</AccordionButton>
 													<AccordionPanel pb={4}>
+														<Button variant='ghost'>Delete User</Button>
 														<Button onClick={pass_func} variant='ghost'>Change Password</Button>
 														<Button onClick={handleRelatedProjects} variant='ghost'>View Related Projects</Button>
 													</AccordionPanel>
