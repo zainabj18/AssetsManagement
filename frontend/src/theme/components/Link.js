@@ -6,11 +6,11 @@ const Link = {
 			p:'5px',
 			bgColor:'white',
 			_active:{
-				bgColor:'#ed7966 ',
+				bgColor:'#0a2861 ',
 				color:"#fff",
 			},
 			_hover:{
-				bgColor:'#ed7966 ',
+				bgColor:'#0a2861  ',
 				color:"#fff",
 			}
 		}
