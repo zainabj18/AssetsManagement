@@ -1,7 +1,7 @@
 const Button = {
 	variants: {
 		'deep': {
-			bg: '#ed7966 ',
+			bg: '#0a2861 ',
 			color: 'white',
 			paddingY:5,
 			paddingX:5
