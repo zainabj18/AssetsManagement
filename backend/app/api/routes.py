@@ -45,6 +45,10 @@ def unathorised(e):
 def invalid_request(e):
     return e.description, 400
 
+@bp.errorhandler(500)
+def interal_server_error(e):
+    return e.description, 500
+
 bp.register_blueprint(auth_bp)
 bp.register_blueprint(asset_bp)
 bp.register_blueprint(type_bp)

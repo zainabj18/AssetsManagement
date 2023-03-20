@@ -6,6 +6,7 @@ from app.db import DataAccess, UserRole
 from flask import abort, current_app, request,jsonify
 from pydantic import ValidationError
 from psycopg import Error
+from psycopg.errors import UniqueViolation
 from psycopg.rows import dict_row
 from enum import Enum,auto
 def decode_token(request):
@@ -61,32 +62,26 @@ def audit_log_event(db,model_id,account_id,object_id,diff_dict,action):
                 INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
         VALUES (%(model_id)s,%(account_id)s,%(object_id)s,%(diff)s,%(action)s);""",
         {"model_id":model_id,"account_id":account_id,"object_id":object_id,"diff":json.dumps(diff_dict),"action":action})
-#TODO:FIX
+
 def run_query(db, query, params=None,row_factory=dict_row,return_type=None):
-    print(query,params)
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=row_factory) as cur:    
-            if params == None:
-                cur.execute(query)
-            else:
-                cur.execute(query, params)
-            match return_type:
-                case QueryResult.ONE:
-                    return cur.fetchone()
-                case QueryResult.ALL:
-                    return cur.fetchall()
-                case QueryResult.ALL_JSON:
-                    return [json.loads(row.json(by_alias=True)) for row in cur.fetchall()]
-                case _:
-                    return
     try:
-        pass                
+        with db.connection() as db_conn:
+            with db_conn.cursor(row_factory=row_factory) as cur:    
+                if params == None:
+                    cur.execute(query)
+                else:
+                    cur.execute(query, params)
+                match return_type:
+                    case QueryResult.ONE:
+                        return cur.fetchone()
+                    case QueryResult.ALL:
+                        return cur.fetchall()
+                    case QueryResult.ALL_JSON:
+                        return [json.loads(row.json(by_alias=True)) for row in cur.fetchall()]
+                    case _:
+                        return       
     except Error as e:
-        res=jsonify(
-            {"msg": "Database Error","data":[str(e)]}
-        )
-        res.status_code=500
-        abort(res)
+        abort(500,{"msg": "Database Error","data":[str(e)]})
 
 def model_creator(model,err_msg,*args, **kwargs):
     try:

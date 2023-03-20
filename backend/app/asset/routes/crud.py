@@ -162,13 +162,13 @@ WHERE attributes_in_types.type_version=%(type_id)s;""",{"type_id": asset.version
                     400,
                 )
 
-            cur.execute(
-                """
-            INSERT INTO assets (name,link,version_id,description, classification)
-    VALUES (%(name)s,%(link)s,%(version_id)s,%(description)s,%(classification)s)  RETURNING asset_id;""",
-                db_asset,
-            )
-            asset_id = cur.fetchone()[0]
+    #         cur.execute(
+    #             """
+    #         INSERT INTO assets (name,link,version_id,description, classification)
+    # VALUES (%(name)s,%(link)s,%(version_id)s,%(description)s,%(classification)s)  RETURNING asset_id;""",
+    #             db_asset,
+    #         )
+            asset_id =  services.add_asset_to_db(db=db,**db_asset)["asset_id"]
             # add asset to tags to db
             for tag in asset.tags:
                 cur.execute(

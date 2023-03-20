@@ -5,7 +5,7 @@ from app.db import DataAccess,Models
 from psycopg.rows import class_row
 from psycopg_pool import ConnectionPool
 from psycopg import sql
-from typing import List,Any
+from typing import List,Any,Union
 def abort_asset_not_exists(db:ConnectionPool,asset_id:int):
     """Checks that an asset exist if not aborts.
 
@@ -253,4 +253,25 @@ def get_asset_logs(db,asset_id):
 WHERE object_id=%(asset_id)s AND model_id=%(model_id)s
 ORDER BY date DESC;""",
                 {"asset_id": asset_id,"model_id":int(Models.ASSETS)},return_type=QueryResult.ALL_JSON,row_factory=class_row(Log))
+
+
+
+def add_asset_to_db(db:ConnectionPool,name:str,link:str,version_id:int,description:str,classification:Union[str,DataAccess],**kwargs):
+    """Inserts asset into db.
+
+    Args:
+      db: A object for managing connections to the db.
+      name: The name of the new asset.
+      link: The link of the new asset.
+      version_id: The version_id of the new asset.
+      description: The description of the new asset.
+      classification: The classification of the new asset.
+
+    Returns:
+      A dictionary containing they key asset_id.
+    """
+    return run_query(db,"""
+            INSERT INTO assets (name,link,version_id,description, classification)
+    VALUES (%(name)s,%(link)s,%(version_id)s,%(description)s,%(classification)s)  RETURNING asset_id;""",
+                {"name":name,"link":link,"version_id":version_id,"description":description,"classification":classification},return_type=QueryResult.ONE)
 

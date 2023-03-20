@@ -266,89 +266,85 @@ def test_new_assets_in_db(valid_client, new_assets, db_conn):
         assert asset["version_id"] == new_assets[0].version_id
         assert asset["description"] == new_assets[0].description
         assert asset["classification"] == new_assets[0].classification
-        assert datetime.fromisoformat(asset["created_at"])>datetime.now()
-        assert datetime.fromisoformat(asset["last_modified_at"])>datetime.now()
+        assert asset["created_at"]<datetime.now()
+        assert asset["last_modified_at"]<datetime.now()
 
-# @pytest.mark.parametrize(
-#     "new_assets",
-#     [{"batch_size": 1}],
-#     indirect=True,
-# )
-# def test_new_assets_tags(valid_client, new_assets, db_conn):
-#     data = json.loads(new_assets[0].json())
-#     res = valid_client.post("/api/v1/asset/", json=data)
-#     assert res.status_code == 200
-#     assert res.json["msg"] == "Added asset"
-#     assert res.json["data"]
-#     with db_conn.cursor() as cur:
-#         cur.execute(
-#             """SELECT tag_id FROM assets_in_tags WHERE asset_id=%(id)s;""",
-#             {"id": res.json["data"]},
-#         )
-#         tags = [t[0] for t in cur.fetchall()]
-#         assert set(tags) == set(new_assets[0].tags)
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_new_assets_tags_in_db(valid_client, new_assets, db_conn):
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 200
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    with db_conn.cursor() as cur:
+        cur.execute(
+            """SELECT tag_id FROM assets_in_tags WHERE asset_id=%(id)s;""",
+            {"id": res.json["data"]},
+        )
+        tags = [row[0] for row in cur.fetchall()]
+        assert set(tags) == set(new_assets[0].tags)
 
-
-# @pytest.mark.parametrize(
-#     "new_assets",
-#     [{"batch_size": 1}],
-#     indirect=True,
-# )
-# def test_new_assets_projects(valid_client, new_assets, db_conn):
-#     data = json.loads(new_assets[0].json())
-#     res = valid_client.post("/api/v1/asset/", json=data)
-#     assert res.status_code == 200
-#     assert res.json["msg"] == "Added asset"
-#     with db_conn.cursor() as cur:
-#         cur.execute(
-#             """SELECT project_id FROM assets_in_projects WHERE asset_id=%(id)s;""",
-#             {"id": res.json["data"]},
-#         )
-#         projects = [t[0] for t in cur.fetchall()]
-#         assert set(projects) == set(new_assets[0].projects)
-
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_new_assets_projects_in_db(valid_client, new_assets, db_conn):
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 200
+    assert res.json["msg"] == "Added asset"
+    with db_conn.cursor() as cur:
+        cur.execute(
+            """SELECT project_id FROM assets_in_projects WHERE asset_id=%(id)s;""",
+            {"id": res.json["data"]},
+        )
+        projects = [row[0] for row in cur.fetchall()]
+        assert set(projects) == set(new_assets[0].projects)
 
 
 
-# @pytest.mark.parametrize(
-#     "new_assets",
-#     [{"batch_size": 1}],
-#     indirect=True,
-# )
-# def test_new_assets_values(valid_client, new_assets, db_conn):
-#     data = json.loads(new_assets[0].json())
-#     res = valid_client.post("/api/v1/asset/", json=data)
-#     assert res.status_code == 200
-#     assert res.json["msg"] == "Added asset"
-#     assert res.json["data"]
-#     with db_conn.cursor() as cur:
-#         cur.execute(
-#             """SELECT attribute_id as attribute_value FROM attributes_values WHERE asset_id=%(id)s;""",
-#             {"id": res.json["data"]},
-#         )
-#         values = [x[0] for x in cur.fetchall()]
-#         for atr in new_assets[0].metadata:
-#             assert atr.attribute_id in values
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_new_assets_values_in_db(valid_client, new_assets, db_conn):
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 200
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    with db_conn.cursor() as cur:
+        cur.execute(
+            """SELECT attribute_id as attribute_value FROM attributes_values WHERE asset_id=%(id)s;""",
+            {"id": res.json["data"]},
+        )
+        values = [row[0] for row in cur.fetchall()]
+        for atr in new_assets[0].metadata:
+            assert atr.attribute_id in values
+        assert len(new_assets[0].metadata)==len(values)
 
 
-# @pytest.mark.parametrize(
-#     "new_assets",
-#     [{"batch_size": 1}],
-#     indirect=True,
-# )
-# def test_new_assets_get(valid_client, new_assets):
-#     data = json.loads(new_assets[0].json())
-#     res = valid_client.post("/api/v1/asset/", json=data)
-#     assert res.status_code == 200
-#     assert res.json["msg"] == "Added asset"
-#     asset_id = res.json["data"]
-#     res = valid_client.get(f"/api/v1/asset/{asset_id}", json=data)
-#     assert res.status_code == 200
-#     saved_asset = res.json["data"]
-#     assert saved_asset["name"] == new_assets[0].name
-#     assert saved_asset["description"] == str(new_assets[0].description)
-#     assert saved_asset["classification"] == str(new_assets[0].classification.value)
-#     assert saved_asset["link"] == str(new_assets[0].link)
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_new_assets_unique(valid_client, new_assets, db_conn):
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 200
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 500
+    assert res.json["msg"] == 'Database Error'
+    assert res.json["data"]==[f'duplicate key value violates unique constraint "assets_name_key"\nDETAIL:  Key (name)=({data["name"]}) already exists.']
 
 
 # # TODO:Test asset name is unique
