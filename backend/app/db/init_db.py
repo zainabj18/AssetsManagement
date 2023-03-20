@@ -6,7 +6,7 @@ from app.db import close_db, get_db,Models,UserRole,DataAccess
 from flask import current_app
 from werkzeug.security import generate_password_hash
 from app.schemas.factories import AssetFactory,TypeVersionFactory,ProjectFactory,TagFactory,TypeFactory
-from app.schemas import Attribute
+from app.schemas import AssetOut
 def init_db():
     db = get_db(new=True)
     absolute_path = os.path.dirname(__file__)
@@ -175,14 +175,18 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
     
  
     if (add_to_db):
-        with db_conn.cursor(row_factory=class_row(Attribute)) as cur:
-            cur.execute("""SELECT *,
+        with db_conn.cursor(row_factory=class_row(AssetOut)) as cur:
+            cur.execute("""WITH combined_attributes AS (
+SELECT attributes_values.asset_id,attributes_values.value,attributes.* FROM attributes_values
+INNER JOIN attributes ON attributes.attribute_id=attributes_values.attribute_id)
+SELECT *,
 ARRAY(SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=assets.asset_id) as tags,
 ARRAY(SELECT project_id FROM assets_in_projects WHERE assets_in_projects.asset_id=assets.asset_id) as projects,
-(SELECT json_agg(row_to_json(attributes_values)) FROM attributes_values 
-INNER JOIN attributes on attributes.attribute_id=attributes_values.attribute_id WHERE asset_id=assets.asset_id) as metadata
+(SELECT json_agg(row_to_json(combined_attributes)) FROM combined_attributes as 
+INNER JOIN attributes on attributes.attribute_id=combined_attributes.attribute_id WHERE asset_id=assets.asset_id) as metadata
 FROM assets;""")
             assets = cur.fetchall()
+            print(assets)
             return assets
     return batch_result
 

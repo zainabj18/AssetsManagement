@@ -78,4 +78,6 @@ class AssetOut(AssetBaseInDB):
     tags: Optional[List[Any]]
     assets: Optional[Any]
     metadata: Optional[List[Attribute]]
+    class Config:
+        allow_population_by_field_name = True
 

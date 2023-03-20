@@ -1,6 +1,6 @@
 from flask import abort,jsonify
 from app.core.utils import run_query,QueryResult
-from app.schemas import Comment,CommentOut,AssetOut,AttributeSearcher,QueryOperation,Log
+from app.schemas import Comment,CommentOut,AssetOut,AttributeSearcher,QueryOperation,Log,Attribute
 from app.db import DataAccess,Models
 from psycopg.rows import class_row
 from psycopg_pool import ConnectionPool
@@ -322,3 +322,66 @@ WHERE attributes_in_types.type_version=%(version_id)s""")])
     if required:
         query+=sql.SQL(" AND (attributes.validation_data->>'isOptional')::boolean is false;")
     return run_query(db,query,{"version_id":version_id},return_type=QueryResult.ALL)
+
+
+def add_asset_tags_to_db(db:ConnectionPool,asset_id:int,tags:List[int]):
+    """Inserts asset's tags into db.
+
+    Args:
+      db: A object for managing connections to the db.
+      asset_id: The asset's id to add.
+      tags: A list of tag ids.
+    """
+    for tag in tags:
+        run_query(db,"""
+                INSERT INTO assets_in_tags (asset_id,tag_id)
+        VALUES (%(asset_id)s,%(tag_id)s);""",
+                    {"asset_id": asset_id, "tag_id": tag})
+        
+def add_asset_projects_to_db(db:ConnectionPool,asset_id:int,projects:List[int]):
+    """Inserts asset's projects into db.
+
+    Args:
+      db: A object for managing connections to the db.
+      asset_id: The asset's id to add.
+      projects: A list of project ids.
+    """
+    for project in projects:
+        run_query(db, """
+                INSERT INTO assets_in_projects (asset_id,project_id)
+        VALUES (%(asset_id)s,%(project_id)s);""",
+                    {"asset_id": asset_id, "project_id": project}
+                )
+
+def add_asset_assets_to_db(db:ConnectionPool,asset_id:int,assets:List[int]):
+    """Inserts asset's assets into db.
+
+    Args:
+      db: A object for managing connections to the db.
+      asset_id: The asset's id to add.
+      assets: A list of asset ids.
+    """
+    for asset in assets:
+        run_query(db,  """
+                INSERT INTO assets_in_assets (from_asset_id,to_asset_id)
+        VALUES (%(from_asset_id)s,%(to_asset_id)s);""",
+                    {"from_asset_id": asset_id, "to_asset_id": asset})
+
+def add_asset_metadata_to_db(db:ConnectionPool,asset_id:int,metadata:List[Attribute]):
+    """Inserts asset's assets into db.
+
+    Args:
+      db: A object for managing connections to the db.
+      asset_id: The asset's id to add.
+      metadata: A list of attributes to add to the db.
+    """
+    for attribute in metadata:
+        run_query(db,"""
+                INSERT INTO attributes_values (asset_id,attribute_id,value)
+        VALUES (%(asset_id)s,%(attribute_id)s,%(value)s);""",
+                    {
+                        "asset_id": asset_id,
+                        "attribute_id": attribute.attribute_id,
+                        "value": attribute.attribute_value,
+                    },
+                )

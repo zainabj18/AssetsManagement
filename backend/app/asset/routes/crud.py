@@ -1,4 +1,4 @@
-from app.core.utils import protected,run_query,QueryResult
+from app.core.utils import protected,run_query,QueryResult,audit_log_event
 from app.db import DataAccess, UserRole, get_db,Actions,Models
 from app.schemas import Asset, Attribute, AssetOut,FilterSearch,QueryOperation,AttributeBase,Project,Log,QueryJoin
 from flask import Blueprint, jsonify, request
@@ -107,53 +107,15 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
 def create(user_id, access_level):
     asset=model_creator(model=Asset,err_msg="Failed to create asset from the data provided",**request.json)
     db = get_db()
-    db_asset = asset.dict(exclude={"metadata"})
+    db_asset = asset.dict()
     utils.check_asset_dependencies(db=db,version_id=asset.version_id,assets=asset.assets)
     utils.check_asset_metatadata(db=db,version_id=asset.version_id,metadata=asset.metadata)
     asset_id =  services.add_asset_to_db(db=db,**db_asset)["asset_id"]
-    with db.connection() as conn:
-        with conn.cursor() as cur:  
-            # add asset to tags to db
-            for tag in asset.tags:
-                cur.execute(
-                    """
-                INSERT INTO assets_in_tags (asset_id,tag_id)
-        VALUES (%(asset_id)s,%(tag_id)s);""",
-                    {"asset_id": asset_id, "tag_id": tag},
-                )
-            for a in asset.assets:
-                cur.execute(
-                    """
-                INSERT INTO assets_in_assets (from_asset_id,to_asset_id)
-        VALUES (%(from_asset_id)s,%(to_asset_id)s);""",
-                    {"from_asset_id": asset_id, "to_asset_id": a},
-                )
-            # add asset to projects to db
-            for project in asset.projects:
-                cur.execute(
-                    """
-                INSERT INTO assets_in_projects (asset_id,project_id)
-        VALUES (%(asset_id)s,%(project_id)s);""",
-                    {"asset_id": asset_id, "project_id": project},
-                )
-            # add attribute values to db
-            for attribute in asset.metadata:
-                cur.execute(
-                    """
-                INSERT INTO attributes_values (asset_id,attribute_id,value)
-        VALUES (%(asset_id)s,%(attribute_id)s,%(value)s);""",
-                    {
-                        "asset_id": asset_id,
-                        "attribute_id": attribute.attribute_id,
-                        "value": attribute.attribute_value,
-                    },
-                )
-            cur.execute(
-                    """
-                INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
-        VALUES (1,%(account_id)s,%(asset_id)s,%(diff)s,%(action)s);""",
-                    {"account_id":user_id,"asset_id":asset_id,"diff":json.dumps({}),"action":Actions.ADD},
-                )
+    services.add_asset_tags_to_db(db=db,asset_id=asset_id,tags=asset.tags)
+    services.add_asset_projects_to_db(db=db,asset_id=asset_id,projects=asset.projects)
+    services.add_asset_assets_to_db(db=db,asset_id=asset_id,assets=asset.assets)
+    services.add_asset_metadata_to_db(db=db,asset_id=asset_id,metadata=asset.metadata)
+    audit_log_event(db,Models.ASSETS,user_id,asset_id,{"added":list(db_asset.keys())},Actions.ADD)
     return {"msg": "Added asset", "data": asset_id}, 201
 
 

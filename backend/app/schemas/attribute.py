@@ -37,3 +37,6 @@ class Attribute(AttributeInDB):
         if t=="checkbox":
             values["attribute_value"]=str(v).lower()=='true'
         return values
+
+    class Config:
+        allow_population_by_field_name = True  
