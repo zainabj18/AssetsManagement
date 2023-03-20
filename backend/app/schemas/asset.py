@@ -60,14 +60,6 @@ class TagInDB(TagBase):
     id: int
 
 
-class Attribute_Model(BaseModel):
-    attribute_id: Any = Field(None, alias="attributeID")
-    attribute_name: str = Field(..., alias="attributeName")
-    attribute_data_type: str = Field(..., alias="attributeType")
-    validation_data: Any = Field(None, alias="validation")
-
-    class Config:
-        allow_population_by_field_name = True
 
 class Comment(BaseModel):
     comment: str=Field(...,min_length=1)
@@ -82,8 +74,22 @@ class CommentOut(Comment):
     username:Optional[str]
     class Config:
         allow_population_by_field_name = True
-class Attribute(Attribute_Model):
-    attribute_value: Any = Field(None, alias="attributeValue")
+
+class AttributeBase(BaseModel):
+    attribute_name: str = Field(..., alias="attributeName")
+    attribute_data_type: str = Field(..., alias="attributeType")
+    validation_data: Any = Field(None, alias="validation")
+
+    class Config:
+        allow_population_by_field_name = True
+
+class AttributeInDB(AttributeBase):
+    attribute_id: Any = Field(None, alias="attributeID")
+    class Config:
+        allow_population_by_field_name = True  
+
+class Attribute(AttributeInDB):
+    attribute_value: Any = Field(..., alias="attributeValue")
     # cast string to correct type based on attribute type
 
     @root_validator
@@ -104,12 +110,6 @@ class Attribute(Attribute_Model):
         if t=="checkbox":
             values["attribute_value"]=str(v).lower()=='true'
         return values
-
-class AttributeIn(Attribute_Model):
-    attribute_value: Any = Field(..., alias="attributeValue")
-class AttributeInDB(Attribute):
-    pass
-
 
 class Type(BaseModel):
     type_name: str = Field(..., alias="typeName")
@@ -161,14 +161,14 @@ class Asset(AssetBase):
     projects: List[int]
     tags: List[int]
     assets: Optional[List[int]]
-    metadata: List[AttributeIn]
+    metadata: List[Attribute]
 
     @validator("metadata", each_item=True, pre=True)
     def check_metadata(cls, v):
-        if isinstance(v, AttributeIn):
+        if isinstance(v, Attribute):
             return v
         try:
-            AttributeIn(**v)
+            Attribute(**v)
             return v
         except ValidationError as e:
             raise e
@@ -179,7 +179,7 @@ class AssetOut(AssetBaseInDB):
     projects: Optional[List[Any]]
     tags: Optional[List[Any]]
     assets: Optional[Any]
-    metadata: Optional[List[AttributeInDB]]
+    metadata: Optional[List[Attribute]]
 
 
 class TagBulkRequest(BaseModel):

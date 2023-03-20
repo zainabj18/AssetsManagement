@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from app.db import UserRole, DataAccess
-from app.schemas import AssetBaseInDB
+from app.schemas import Attribute
 from app.schemas.factories import TypeVersionFactory,TypeFactory,AttributeFactory
 import jwt
 import json

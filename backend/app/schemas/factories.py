@@ -2,7 +2,7 @@
 from random import choice, sample, randint
 from typing import Optional
 from faker import Faker
-from app.schemas import Asset, AttributeInDB, Project, TagBase, TypeBase,TagInDB,TypeVersion,Comment
+from app.schemas import Asset, Attribute, Project, TagBase, TypeBase,TagInDB,TypeVersion,Comment
 from pydantic_factories import ModelFactory, PostGenerated, Use
 f=Faker()
 
@@ -39,7 +39,7 @@ def add_value(name: str, values: dict, *args, **kwds):
 
 
 class AttributeFactory(ModelFactory):
-    __model__ = AttributeInDB
+    __model__ = Attribute
 
     attribute_data_type = Use(
         choice,

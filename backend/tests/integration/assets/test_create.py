@@ -1,7 +1,7 @@
 import json
 import pytest
 from psycopg.rows import dict_row
-
+from  datetime import datetime
 def test_new_assset_requires_name(valid_client):
     res = valid_client.post("/api/v1/asset/", json={})
     assert res.status_code == 400
@@ -245,7 +245,29 @@ def test_new_assset_metadata_incorrect_mixed_type(valid_client):
     } in res.json["data"]
 
 
-
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_new_assets_in_db(valid_client, new_assets, db_conn):
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 200
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT * FROM assets WHERE asset_id=%(id)s;""", {"id": res.json["data"]}
+        )
+        asset = cur.fetchone()
+        assert asset["name"] == new_assets[0].name
+        assert asset["link"] == new_assets[0].link
+        assert asset["version_id"] == new_assets[0].version_id
+        assert asset["description"] == new_assets[0].description
+        assert asset["classification"] == new_assets[0].classification
+        assert datetime.fromisoformat(asset["created_at"])>datetime.now()
+        assert datetime.fromisoformat(asset["last_modified_at"])>datetime.now()
 
 # @pytest.mark.parametrize(
 #     "new_assets",
@@ -286,27 +308,6 @@ def test_new_assset_metadata_incorrect_mixed_type(valid_client):
 #         assert set(projects) == set(new_assets[0].projects)
 
 
-# @pytest.mark.parametrize(
-#     "new_assets",
-#     [{"batch_size": 1}],
-#     indirect=True,
-# )
-# def test_new_assets_in_db(valid_client, new_assets, db_conn):
-#     data = json.loads(new_assets[0].json())
-#     res = valid_client.post("/api/v1/asset/", json=data)
-#     assert res.status_code == 200
-#     assert res.json["msg"] == "Added asset"
-#     assert res.json["data"]
-#     with db_conn.cursor(row_factory=dict_row) as cur:
-#         cur.execute(
-#             """SELECT * FROM assets WHERE asset_id=%(id)s;""", {"id": res.json["data"]}
-#         )
-#         asset = cur.fetchone()
-#         assert asset["name"] == new_assets[0].name
-#         assert asset["link"] == new_assets[0].link
-#         assert asset["version_id"] == new_assets[0].version_id
-#         assert asset["description"] == new_assets[0].description
-#         assert asset["classification"] == new_assets[0].classification
 
 
 # @pytest.mark.parametrize(

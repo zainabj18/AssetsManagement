@@ -1,6 +1,6 @@
 from app.core.utils import protected,run_query,QueryResult
 from app.db import DataAccess, UserRole, get_db,Actions,Models
-from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model,Project,Log,QueryJoin
+from app.schemas import Asset, Attribute, AssetOut,FilterSearch,QueryOperation,AttributeBase,Project,Log,QueryJoin
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
@@ -52,7 +52,7 @@ def asset_differ(orginal,new):
     return {"added":added,"removed":removed,"changed":changed}
 def fetch_asset(db,id,classification):
     with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+        with db_conn.cursor(row_factory=class_row(Attribute)) as cur:
             # gets asset
             cur.execute(
                 """SELECT * FROM assets WHERE asset_id=%(id)s AND soft_delete=0;""",
@@ -254,7 +254,7 @@ def list_asset_in_assets(id,user_id, access_level):
     # get related assets for  an asset and set them to be selected for easy rendering on UI
     assets_json = []
     with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+        with db_conn.cursor(row_factory=class_row(Attribute)) as cur:
             cur.execute(
                 """SELECT assets.* FROM assets_in_assets
     INNER JOIN assets on assets.asset_id=assets_in_assets.to_asset_id WHERE from_asset_id=%(id)s ORDER BY assets_in_assets.to_asset_id;""",
@@ -318,7 +318,7 @@ def summary(user_id, access_level):
     db = get_db()
     assets_json = []
     with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+        with db_conn.cursor(row_factory=class_row(Attribute)) as cur:
             cur.execute("""SELECT * FROM assets WHERE soft_delete=0 ORDER BY asset_id;""")
             assets = cur.fetchall()
         # gets the type name for each assset
@@ -458,7 +458,7 @@ def tags_summary(id, user_id, access_level):
     db = get_db()
     assets_json = []
     with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+        with db_conn.cursor(row_factory=class_row(Attribute)) as cur:
             cur.execute(
                 """SELECT assets.* FROM assets
 INNER JOIN assets_in_tags ON assets.asset_id=assets_in_tags.asset_id WHERE soft_delete=0 AND tag_id=%(tag_id)s ORDER BY assets.asset_id;""",
@@ -515,7 +515,7 @@ WHERE asset_id=%(asset_id)s;""",
             current_version=cur.fetchone()
             if max_version==current_version:
                 return {"msg":"no upgrade needed","data":[],"canUpgrade":False}
-        with db_conn.cursor(row_factory=class_row(Attribute_Model)) as cur:
+        with db_conn.cursor(row_factory=class_row(AttributeBase)) as cur:
             cur.execute("""SELECT attributes.* FROM attributes_in_types 
             INNER JOIN attributes ON attributes.attribute_id=attributes_in_types.attribute_id
             WHERE type_version=%(type_version)s;""",{"type_version":max_version["version_id"]})
