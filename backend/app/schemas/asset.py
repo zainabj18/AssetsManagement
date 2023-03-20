@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import Any, List, Optional
-
-from app.db import DataAccess,Actions
-from pydantic import BaseModel, Field, ValidationError, root_validator, validator,Extra
+from app.db import DataAccess
+from pydantic import BaseModel, Field, ValidationError, validator,Extra
 from enum import Enum
+from .attribute import Attribute
 
 class QueryOperation(Enum):
     EQUALS = "EQUALS"
@@ -33,108 +33,6 @@ class FilterSearch(BaseModel):
     attribute_operation: QueryJoin = Field(QueryJoin.OR, alias="attributeOperation")
     class Config:
         allow_population_by_field_name = True
-    
-class Log(BaseModel):
-    log_id: int = Field(..., alias="logID")
-    account_id: int = Field(..., alias="accountID")
-    object_id:int = Field(..., alias="objectID")
-    model_id:int = Field(..., alias="modelID")
-    model_name:Optional[str] = Field(None, alias="modelName")
-    username:Optional[str]
-    action:Actions
-    date:datetime
-    class Config:
-        allow_population_by_field_name = True
-        extra = Extra.allow
-        json_encoders = {
-            Actions: lambda a: str(a.name),
-        }
-
-
-class TagBase(BaseModel):
-    id: Optional[int]
-    name: str = Field(..., min_length=1)
-
-
-class TagInDB(TagBase):
-    id: int
-
-
-
-class Comment(BaseModel):
-    comment: str=Field(...,min_length=1)
-    class Config:
-        allow_population_by_field_name = True
-
-class CommentOut(Comment):
-    comment_id:int
-    asset_id:int= Field(..., alias="assetID")
-    account_id:int= Field(..., alias="accountID")
-    datetime:datetime
-    username:Optional[str]
-    class Config:
-        allow_population_by_field_name = True
-
-class AttributeBase(BaseModel):
-    attribute_name: str = Field(..., alias="attributeName")
-    attribute_data_type: str = Field(..., alias="attributeType")
-    validation_data: Any = Field(None, alias="validation")
-
-    class Config:
-        allow_population_by_field_name = True
-
-class AttributeInDB(AttributeBase):
-    attribute_id: Any = Field(None, alias="attributeID")
-    class Config:
-        allow_population_by_field_name = True  
-
-class Attribute(AttributeInDB):
-    attribute_value: Any = Field(..., alias="attributeValue")
-    # cast string to correct type based on attribute type
-
-    @root_validator
-    def check_metadata(cls, values):
-        t = values.get("attribute_data_type")
-        v = values.get("attribute_value")
-        # check if string is actually and array and convert
-        if (
-            (t == "list" or t == "options")
-            and isinstance(v, str)
-            and v.startswith("{")
-            and v.startswith("{")
-        ):
-            values["attribute_value"] = v[1:-1].split(",")
-        # convert if a number
-        if (t == "num_lmt" or t == "number") and isinstance(v, str) and v.isnumeric():
-            values["attribute_value"] = int(v)
-        if t=="checkbox":
-            values["attribute_value"]=str(v).lower()=='true'
-        return values
-
-class Type(BaseModel):
-    type_name: str = Field(..., alias="typeName")
-    metadata: List[AttributeInDB]
-    depends_on: List[int] = Field(..., alias="dependsOn")
-
-
-class TypeBase(BaseModel):
-    type_id: Optional[int]
-    type_name: str
-
-
-class Project(BaseModel):
-    id: Optional[int]=Field(None, alias="projectID")
-    name: str=Field(..., alias="projectName")
-    description: Optional[str]=Field(..., alias="projectDescription")
-    accounts: Optional[List[int]]
-
-    class Config:
-        allow_population_by_field_name = True
-        extra = Extra.allow
-
-class People(BaseModel):
-    account_id: Optional[int]
-    username: str
 
 class AssetBase(BaseModel):
     name: str
@@ -181,17 +79,3 @@ class AssetOut(AssetBaseInDB):
     assets: Optional[Any]
     metadata: Optional[List[Attribute]]
 
-
-class TagBulkRequest(BaseModel):
-    to_tag_id: int = Field(..., alias="toTagID")
-    assest_ids: List[int] = Field(..., alias="assetIDs")
-
-    class Config:
-        allow_population_by_field_name = True
-
-class TypeVersion(BaseModel):
-    version_id:int
-    version_number:int
-    type_id:int
-    class Config:
-        extra = Extra.allow
