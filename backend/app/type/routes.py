@@ -220,7 +220,13 @@ def get_allAttributes():
         allAttributes_listed = extract_attributes(allAttributes)
         return json.dumps(allAttributes_listed)
 
-
+"""_summary_
+api:GET
+description: get all the types 
+    Returns:
+   
+        json data
+"""
 @bp.route("/allTypes", methods=["GET"])
 def get_allTypes():
     database = get_db()
@@ -308,7 +314,12 @@ def delete_type(id):
 
     return {"msg": "", "wasAllowed": canDo}, 200
 
-
+"""_summary_
+ Parameters:
+    id : The ID all the assets that belong to the same project .
+    Returns:
+        json data
+"""
 @bp.route("/attribute/delete/<id>", methods=["POST"])
 def delete_attribute(id):
     database = get_db()
