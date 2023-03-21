@@ -415,3 +415,24 @@ CASE WHEN asset_id in (SELECT to_asset_id FROM assets_in_assets WHERE from_asset
 THEN 'TRUE' else 'FALSE' end as is_selected FROM assets 
 WHERE asset_id!=%(asset_id)s AND classification<=%(classification)s;""",
                     {"asset_id": asset_id,"classification":classification},row_factory=class_row(AssetBaseInDB),return_type=QueryResult.ALL_JSON)
+
+
+def fetch_asset_current_and_max_versions(db:ConnectionPool,asset_id:int):
+    """Fetches assets current and max verison for type.
+
+    Args:
+      db: A object for managing connections to the db.
+      asset_id: The asset id to get versions for.
+    """
+    return run_query(db, """WITH max_versions AS (
+SELECT version_id,MAX (version_id) OVER (PARTITION BY type_id) as max_version_id FROM type_version)
+SELECT max_versions.* FROM max_versions
+INNER JOIN assets ON assets.version_id=max_versions.version_id
+WHERE asset_id=%(asset_id)s;""",
+                    {"asset_id": asset_id},return_type=QueryResult.ONE)
+
+
+
+
+
+
