@@ -37,10 +37,7 @@ def protected(role=UserRole.VIEWER):
         def wrapper(*args, **kwargs):
             data = decode_token(request)
             if UserRole(data["account_type"]) < role:
-                return {
-                    "msg": "Your account is forbidden to access this please speak to your admin",
-                    "error": "Invalid Token",
-                }, 403
+                abort(403)
             return func(
                 user_id=data["account_id"],
                 access_level=DataAccess(data["account_privileges"]),

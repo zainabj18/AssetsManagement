@@ -22,7 +22,7 @@ def abort_asset_not_exists(db:ConnectionPool,asset_id:int):
             if cur.fetchone() is None:
                 res=jsonify({"msg": "Asset doesn't exist",
       
-                "data": []
+                "data": [asset_id]
             })
                 res.status_code=400
                 abort(res)

@@ -48,7 +48,33 @@ def test_new_assets_get(valid_client, new_assets):
         assert attribute in data["metadata"]
     
 
+def test_new_assets_get_invalid_id(valid_client):
+    res = valid_client.get(f"/api/v1/asset/{1}")
+    assert res.status_code == 400
+    assert res.json=={'data': ['1'], 'msg': "Asset doesn't exist"}
 
+
+@pytest.mark.parametrize(
+    "valid_client",
+    [
+        ({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC})
+    ],
+    indirect=True,
+)
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_new_assets_get_forbidden(valid_client, new_assets):
+    data = json.loads(new_assets[0].json(by_alias=True))
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    asset_id = res.json["data"]
+    res = valid_client.get(f"/api/v1/asset/{asset_id}")
+    assert res.status_code == 403
+    assert res.json=={'msg': 'Your account is forbidden to access this please speak to your admin'}
 # # TODO:Test asset name is unique
 # # TODO:Test DB error
 
