@@ -21,20 +21,32 @@ def test_get_access_levels(valid_client):
     indirect=True,
 )
 def test_new_assets_get(valid_client, new_assets):
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
     asset_id = res.json["data"]
-    print(asset_id)
     res = valid_client.get(f"/api/v1/asset/{asset_id}")
     assert res.status_code == 200
     saved_asset = res.json["data"]
     assert saved_asset["name"] == new_assets[0].name
+    assert saved_asset["link"] == str(new_assets[0].link)
     assert saved_asset["description"] == str(new_assets[0].description)
     assert saved_asset["classification"] == str(new_assets[0].classification.value)
-    assert saved_asset["link"] == str(new_assets[0].link)
-    print(saved_asset)
+    assert saved_asset["version_id"] ==new_assets[0].version_id
+    assert saved_asset["assets"]==[]
+    assert datetime.fromisoformat(saved_asset["created_at"])<datetime.now()
+    assert datetime.fromisoformat(saved_asset["last_modified_at"])<datetime.now()
+    assert len(new_assets[0].tags)==len(saved_asset['tags'])
+    for tag in saved_asset['tags']:
+        assert tag["id"] in new_assets[0].tags
+    assert len(new_assets[0].projects)==len(saved_asset['projects'])
+    for project in saved_asset['projects']:
+        assert project["projectID"] in new_assets[0].projects
+    assert len(saved_asset['metadata'])==len(data["metadata"])
+    for attribute in saved_asset['metadata']:
+        assert attribute in data["metadata"]
+    
 
 
 # # TODO:Test asset name is unique

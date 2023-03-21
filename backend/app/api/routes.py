@@ -41,6 +41,12 @@ ORDER BY date ASC;""",return_type=QueryResult.ALL_JSON,row_factory=class_row(Log
 def unathorised(e):
     return e.description, 401
 
+@bp.errorhandler(403)
+def unathorised(e):
+    return {
+                    "msg": "Your account is forbidden to access this please speak to your admin",
+                }, 403
+
 @bp.errorhandler(400)
 def invalid_request(e):
     return e.description, 400

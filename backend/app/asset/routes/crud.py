@@ -82,10 +82,8 @@ def get_classifications(user_id, access_level):
 @protected(role=UserRole.VIEWER)
 def view(id, user_id, access_level):
     db = get_db()
-    services.abort_asset_not_exists(db=db,asset_id=id)
-    #TODO aboirt not assext
+    utils.can_preform_id_request(db=db,asset_id=id,access_level=access_level)
     asset=services.fetch_asset(db,id)
-    print(asset)
     return {"data": json.loads(asset.json(by_alias=True))}, 200
 
 @bp.route("projects/<id>", methods=["GET"])

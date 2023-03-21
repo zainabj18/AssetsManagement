@@ -4,6 +4,9 @@ from app.schemas import Attribute
 from typing import List
 from flask import abort
 
+def can_preform_id_request(db,asset_id,access_level):
+    services.abort_asset_not_exists(db=db,asset_id=asset_id)
+    services.abort_insufficient(db=db,access_level=access_level,asset_id=asset_id)
 def get_key_from_results(key,results):
     return [row[key] for row in results]
 

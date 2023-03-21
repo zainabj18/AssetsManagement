@@ -27,25 +27,18 @@ def abort_asset_not_exists(db:ConnectionPool,asset_id:int):
                 res.status_code=400
                 abort(res)
 
-# def abort_insufficient(db:ConnectionPool,asset_id:int,access_level:DataAccess):
-#     """Checks that an asset can be viewed by account if not aborts.
+def abort_insufficient(db:ConnectionPool,asset_id:int,access_level:DataAccess):
+    """Checks that an asset can be viewed by account if not aborts.
 
-#     Args:
-#       db: A object for managing connections to the db.
-#       asset_id:The asset_id that need checking in the db.
-#     """
-#     with db.connection() as db_conn:
-#         with db_conn.cursor() as cur:
-#             cur.execute(
-#                 """SELECT asset_id FROM assets WHERE asset_id=%(id)s AND soft_delete=0 AND classification<=%(access_level)s;""",
-#                 {"id": asset_id,"access_level":access_level},
-#             )
-#             if cur.fetchone() is None:
-#                 res=jsonify({
-#                     "msg": "Your account is forbidden to access this please speak to your admin",
-#                 }, 403)
-#                 res.status_code=400
-#                 abort(res)
+    Args:
+      db: A object for managing connections to the db.
+      asset_id:The asset_id that need checking in the db.
+    """
+    results=run_query(db,"""SELECT asset_id FROM assets WHERE asset_id=%(id)s AND soft_delete=0 AND classification<=%(access_level)s;""",
+                {"id": asset_id,"access_level":access_level},return_type=QueryResult.ONE)
+    if results is None:
+      abort(403)
+
                 
 def insert_comment_to_db(db:ConnectionPool,comment:Comment,account_id:int,asset_id:int):
     """Add a new comment to db.
