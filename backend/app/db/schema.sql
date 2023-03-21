@@ -233,7 +233,7 @@ SELECT tags.id,name,assets_in_tags.asset_id FROM assets_in_tags
 INNER JOIN tags on tags.id=assets_in_tags.tag_id;
 
 CREATE or REPLACE VIEW assets_assets AS
-SELECT assets.*,assets_in_assets.from_asset_id FROM assets_in_assets
+SELECT assets.asset_id,assets_in_assets.from_asset_id FROM assets_in_assets
 INNER JOIN assets on assets.asset_id=assets_in_assets.to_asset_id;
 
 CREATE or REPLACE VIEW type_names_versions AS
