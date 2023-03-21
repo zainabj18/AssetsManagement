@@ -40,17 +40,17 @@ const AdminManager = () => {
 		console.log(relatedprojects);
 	};
 
-	const deleteUser = async (index) => {
-		const userIdToDelete = inputField[index].id;
+	const deleteUser = async (userIdToDelete) => {
 		try {
-		  await deleteUserAcc(userIdToDelete);
-		  let data = [...deleteuser];
-		  data.splice(index, 1);
-		  setDeleteUser(data);
+			await deleteUserAcc(userIdToDelete);
+			let data = [...deleteuser];
+			const indexToDelete = data.findIndex(user => user.id === userIdToDelete);
+			data.splice(indexToDelete, 1);
+			setDeleteUser(data);
 		} catch (error) {
-		  console.error(error);
+			console.error(error);
 		}
-	}; 
+	};
 
 	return (
 		<VStack minW="100vw">
@@ -84,7 +84,7 @@ const AdminManager = () => {
 										<Td>{user.username}</Td>
 										<Td>{user.userRole}</Td>
 										<Td>{user.userPrivileges}</Td>
-										<Td><Button variant='ghost' onClick={deleteUser}>Delete User</Button></Td>
+										<Td><Button variant='ghost' onClick={() => deleteUser(user.accountID)}>Delete User</Button></Td>
 										<Td><Button onClick={handleRelatedProjects} variant='ghost'>View Related Projects</Button></Td>	
 									</Tr>
 								);
