@@ -83,14 +83,13 @@ def view(id, user_id, access_level):
     db = get_db()
     utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
     asset=services.fetch_asset(db,id)
-    return {"data": json.loads(asset.json(by_alias=True))}, 200
+    return {"data": json.loads(asset.json(by_alias=True))}
 
 @bp.route("/summary", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def summary(user_id, access_level):
     db = get_db()
-    res = jsonify({"data": services.fetch_assets_summary(db=db,classification=access_level)})
-    return res
+    return {"data": services.fetch_assets_summary(db=db,classification=access_level)}
 
 @bp.route("projects/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
@@ -98,15 +97,60 @@ def list_asset_project(id,user_id, access_level):
     db = get_db()
     utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
     projects=services.fetch_assets_projects_selected(db=db,asset_id=id)
-    return {"data": projects}, 200
+    return {"data": projects}
 
 @bp.route("links/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
-def list_asset_in_assets(id,user_id, access_level):
+def list_asset_links(id,user_id, access_level):
     db = get_db()
     utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
     assets=services.fetch_assets_asssets_selected(db=db,asset_id=id,classification=access_level)
-    return {"data": assets}, 200
+    return {"data": assets}
+
+@bp.route("/upgrade/<id>", methods=["GET"])
+@protected(role=UserRole.VIEWER)
+def get_upgrade(id,user_id, access_level):
+    db = get_db()
+    utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
+    with db.connection() as db_conn:
+        with db_conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(
+                        """SELECT MAX(version_id) AS version_id FROM type_version
+WHERE type_id in (SELECT type_id FROM type_version
+INNER JOIN assets ON assets.version_id=type_version.version_id
+WHERE asset_id=%(asset_id)s);""",
+                        {"asset_id":id},
+                    )
+            max_version=cur.fetchone()
+            print(max_version)
+            cur.execute(
+                        """SELECT type_version.version_id FROM type_version
+INNER JOIN assets ON assets.version_id=type_version.version_id
+WHERE asset_id=%(asset_id)s;""",
+                        {"asset_id":id},
+                    )
+            current_version=cur.fetchone()
+            if max_version==current_version:
+                return {"msg":"no upgrade needed","data":[],"canUpgrade":False}
+        with db_conn.cursor(row_factory=class_row(AttributeBase)) as cur:
+            cur.execute("""SELECT attributes.* FROM attributes_in_types 
+            INNER JOIN attributes ON attributes.attribute_id=attributes_in_types.attribute_id
+            WHERE type_version=%(type_version)s;""",{"type_version":max_version["version_id"]})
+            new_attributes=cur.fetchall()
+            cur.execute("""SELECT attributes.* FROM attributes_in_types 
+            INNER JOIN attributes ON attributes.attribute_id=attributes_in_types.attribute_id
+            WHERE type_version=%(type_version)s;""",{"type_version":current_version["version_id"]})
+            old_attributes=cur.fetchall()
+            added_attributes=[]
+            removed_attributes_names=[]
+            for attribute in new_attributes:
+                if not attribute in old_attributes:
+                    added_attributes.append(attribute.dict(by_alias=True))
+            for attribute in old_attributes:
+                if not attribute in new_attributes:
+                    removed_attributes_names.append(attribute.attribute_name)
+            return {"msg":"upgrade needed","data":[added_attributes,removed_attributes_names,max_version["version_id"]],"canUpgrade":True}
+
 
 @bp.route("/<id>", methods=["DELETE"])
 def delete(id):
@@ -119,11 +163,6 @@ def delete(id):
                 {"id": id, "del": 1},
             )
     return {}, 200
-
-
-
-
-
 
 
 @bp.route("/<id>", methods=["PATCH"])
@@ -272,46 +311,3 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
             res = jsonify({"data": {"tag": tag, "assets": assets_json}})
     return res
 
-
-@bp.route("/upgrade/<id>", methods=["GET"])
-@protected(role=UserRole.VIEWER)
-def get_upgrade(id,user_id, access_level):
-    db = get_db()
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=dict_row) as cur:
-            cur.execute(
-                        """SELECT MAX(version_id) AS version_id FROM type_version
-WHERE type_id in (SELECT type_id FROM type_version
-INNER JOIN assets ON assets.version_id=type_version.version_id
-WHERE asset_id=%(asset_id)s);""",
-                        {"asset_id":id},
-                    )
-            max_version=cur.fetchone()
-            print(max_version)
-            cur.execute(
-                        """SELECT type_version.version_id FROM type_version
-INNER JOIN assets ON assets.version_id=type_version.version_id
-WHERE asset_id=%(asset_id)s;""",
-                        {"asset_id":id},
-                    )
-            current_version=cur.fetchone()
-            if max_version==current_version:
-                return {"msg":"no upgrade needed","data":[],"canUpgrade":False}
-        with db_conn.cursor(row_factory=class_row(AttributeBase)) as cur:
-            cur.execute("""SELECT attributes.* FROM attributes_in_types 
-            INNER JOIN attributes ON attributes.attribute_id=attributes_in_types.attribute_id
-            WHERE type_version=%(type_version)s;""",{"type_version":max_version["version_id"]})
-            new_attributes=cur.fetchall()
-            cur.execute("""SELECT attributes.* FROM attributes_in_types 
-            INNER JOIN attributes ON attributes.attribute_id=attributes_in_types.attribute_id
-            WHERE type_version=%(type_version)s;""",{"type_version":current_version["version_id"]})
-            old_attributes=cur.fetchall()
-            added_attributes=[]
-            removed_attributes_names=[]
-            for attribute in new_attributes:
-                if not attribute in old_attributes:
-                    added_attributes.append(attribute.dict(by_alias=True))
-            for attribute in old_attributes:
-                if not attribute in new_attributes:
-                    removed_attributes_names.append(attribute.attribute_name)
-            return {"msg":"upgrade needed","data":[added_attributes,removed_attributes_names,max_version["version_id"]],"canUpgrade":True}

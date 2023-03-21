@@ -50,18 +50,18 @@ class AssetBase(BaseModel):
 
 
 class AssetBaseInDB(AssetBase):
-    asset_id: Optional[int]=Field(None, alias="assetID")
-    created_at: datetime
-    last_modified_at: datetime
+    asset_id:int=Field(..., alias="assetID")
+    created_at: Optional[datetime]
+    last_modified_at: Optional[datetime]
     is_selected: Optional[bool]=Field(None, alias="isSelected")
     class Config:
         extra = Extra.allow
 
 
 class Asset(AssetBase):
-    projects: List[int]
-    tags: List[int]
-    assets: Optional[List[int]]
+    project_ids: List[int]
+    tag_ids: List[int]
+    asset_ids: Optional[List[int]]
     metadata: List[Attribute]
 
     @validator("metadata", each_item=True, pre=True)
@@ -76,10 +76,13 @@ class Asset(AssetBase):
 
 class AssetOut(AssetBaseInDB):
     type_name: Optional[str]
-    projects: Optional[List[ProjectInDBBase]]
     tags: Optional[List[TagInDB]]
-    assets: Optional[List[Any]]
     metadata: Optional[List[Attribute]]
     class Config:
         allow_population_by_field_name = True
 
+class AssetFlattend(Asset,AssetOut):
+    projects: Optional[List[ProjectInDBBase]]
+    assets: Optional[List[Any]]
+    class Config:
+        allow_population_by_field_name = True

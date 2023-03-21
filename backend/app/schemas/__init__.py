@@ -1,4 +1,4 @@
-from .asset import Asset,AssetBase,AssetBaseInDB,AssetOut,AttributeSearcher,FilterSearch,QueryOperation,QueryJoin
+from .asset import Asset,AssetBase,AssetBaseInDB,AssetOut,AttributeSearcher,FilterSearch,QueryOperation,QueryJoin,AssetFlattend
 from .attribute import Attribute,AttributeBase,AttributeInDB
 from .comment import Comment,CommentOut
 from .type import Type,TypeBase,TypeVersion

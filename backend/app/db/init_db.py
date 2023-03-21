@@ -6,7 +6,7 @@ from app.db import close_db, get_db,Models,UserRole,DataAccess
 from flask import current_app
 from werkzeug.security import generate_password_hash
 from app.schemas.factories import AssetFactory,TypeVersionFactory,ProjectFactory,TagFactory,TypeFactory
-from app.schemas import Asset
+from app.schemas import AssetFlattend
 def init_db():
     db = get_db(new=True)
     absolute_path = os.path.dirname(__file__)
@@ -101,7 +101,7 @@ def generate_assets(existing_version_ids,db_conn,batch_result,added_assets):
     VALUES (%(attribute_id)s,%(type_version)s) ON CONFLICT (attribute_id,type_version) DO NOTHING;""",
                     {"attribute_id": id, "type_version": asset.version_id},
                 )
-            for project in asset.projects:
+            for project in asset.project_ids:
                 p = ProjectFactory.build(id=project)
                 cur.execute(
                     """
@@ -109,7 +109,7 @@ def generate_assets(existing_version_ids,db_conn,batch_result,added_assets):
     VALUES (%(id)s,%(name)s,%(description)s) ON CONFLICT DO NOTHING;""",
                     p.dict(),
                 )
-            for tag in asset.tags:
+            for tag in asset.tag_ids:
                 t = TagFactory.build(id=tag)
                 cur.execute(
                 """SELECT * FROM tags WHERE id=%(id)s;""",
@@ -143,7 +143,7 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
                     asset.dict(),
                 )
                 asset_id = cur.fetchone()[0]
-                for tag in asset.tags:
+                for tag in asset.tag_ids:
                     cur.execute(
                         """
                     INSERT INTO assets_in_tags (asset_id,tag_id)
@@ -151,7 +151,7 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
                         {"asset_id": asset_id, "tag_id": tag},
                     )
                 # add asset to projects to db
-                for project in asset.projects:
+                for project in asset.project_ids:
                     cur.execute(
                         """
                     INSERT INTO assets_in_projects (asset_id,project_id)
@@ -174,16 +174,8 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
     
  
     if (add_to_db):
-        with db_conn.cursor(row_factory=class_row(Asset)) as cur:
-            cur.execute("""WITH combined_attributes AS (
-SELECT attributes_values.asset_id,attributes_values.attribute_value,attributes.* FROM attributes_values
-INNER JOIN attributes ON attributes.attribute_id=attributes_values.attribute_id)
-SELECT *,
-ARRAY(SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=assets.asset_id) as tags,
-ARRAY(SELECT project_id FROM assets_in_projects WHERE assets_in_projects.asset_id=assets.asset_id) as projects,
-(SELECT json_agg(row_to_json(combined_attributes)) FROM combined_attributes
-INNER JOIN attributes on attributes.attribute_id=combined_attributes.attribute_id WHERE asset_id=assets.asset_id) as metadata
-FROM assets;""")
+        with db_conn.cursor(row_factory=class_row(AssetFlattend)) as cur:
+            cur.execute("""SELECT * FROM flatten_assets;""")
             assets = cur.fetchall()
             return assets
     return added_assets

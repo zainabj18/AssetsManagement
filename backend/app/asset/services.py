@@ -366,13 +366,11 @@ def fetch_asset(db:ConnectionPool,asset_id:int):
 
     Args:
       db: A object for managing connections to the db.
-      asset_id: The asset's id to add.
-      assets: A list of asset ids.
+      asset_id: The asset's id to fetch.
     """
     return run_query(db, """SELECT * FROM flatten_assets WHERE asset_id=%(asset_id)s""",
                     {"asset_id": asset_id},row_factory=class_row(AssetOut),return_type=QueryResult.ONE)
-             
-      
+
 def fetch_assets_summary(db:ConnectionPool,classification:DataAccess):
     """Fetches all asset's from db.
 
