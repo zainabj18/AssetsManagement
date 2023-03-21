@@ -204,7 +204,7 @@ CREATE TABLE audit_logs
 	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
  );
 --VIEWS 
-DROP VIEW IF EXISTS unpacked_assets;
+DROP VIEW IF EXISTS flatten_assets;
 DROP VIEW IF EXISTS combined_attributes;
 DROP VIEW IF EXISTS assets_projects;
 DROP VIEW IF EXISTS assets_tags;
@@ -241,7 +241,7 @@ SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM typ
 INNER JOIN types ON types.type_id=type_version.type_id;
 
 
-CREATE or REPLACE VIEW unpacked_assets AS(
+CREATE or REPLACE VIEW flatten_assets AS(
 SELECT assets.*,type_names_versions.type_name,
 (SELECT COALESCE(json_agg(row_to_json(assets_tags)),'[]'::json) FROM assets_tags WHERE assets_tags.asset_id=assets.asset_id) as tags,
 (SELECT COALESCE(json_agg(row_to_json(assets_projects)),'[]'::json) FROM assets_projects WHERE assets_projects.asset_id=assets.asset_id) as projects,
