@@ -211,7 +211,7 @@ def test_assets_links(valid_client, new_assets):
         asset_id=res.json["data"]
         added_asset_ids.append(asset_id)
     data = json.loads(new_assets[50].json(by_alias=True))
-    data["assets"]=[asset_id]
+    data["assets"]=added_asset_ids
     res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
@@ -223,6 +223,7 @@ def test_assets_links(valid_client, new_assets):
     for asset in res.json["data"]:
         if asset["isSelected"]:
             added_asset_ids.remove(asset["assetID"])
+    assert len(added_asset_ids)==0
 
 def test_assets_links_invalid_id(valid_client):
     res = valid_client.get(f"/api/v1/asset/links/{1}")
@@ -253,6 +254,45 @@ def test_assets_projects_account_privileges_check(valid_client, new_assets):
     assert res.status_code == 403
     assert res.json=={'msg': 'Your account is forbidden to access this please speak to your admin'}
 
+
+@pytest.mark.parametrize(
+    "valid_client",
+    [
+        ({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC})
+    ],
+    indirect=True,
+)
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100}],
+    indirect=True,
+)
+def test_assets_links_with_different_classifications(valid_client, new_assets):
+    added_asset_ids=[]
+    for x in range(99):
+        data = json.loads(new_assets[x].json(by_alias=True))
+        res = valid_client.post("/api/v1/asset/", json=data)
+        assert res.status_code == 201
+        assert res.json["msg"] == "Added asset"
+        assert res.json["data"]
+        asset_id=res.json["data"]
+        if new_assets[x].classification==DataAccess.PUBLIC:
+            added_asset_ids.append(asset_id)
+    new_assets[99].classification=DataAccess.PUBLIC
+    new_assets[99].assets=added_asset_ids
+    data = json.loads(new_assets[99].json(by_alias=True))
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    asset_id=res.json["data"]
+    res = valid_client.get(f"/api/v1/asset/links/{asset_id}", json=data)
+    assert res.status_code == 200
+    assert len(res.json["data"])==len(added_asset_ids)
+    for asset in res.json["data"]:
+        if asset["isSelected"]:
+            added_asset_ids.remove(asset["assetID"])
+    assert len(added_asset_ids)==0
 
 # @pytest
 # @pytest.mark.parametrize(
