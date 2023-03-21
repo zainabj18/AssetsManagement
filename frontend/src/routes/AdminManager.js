@@ -1,10 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { VStack, Text, Input, Stack, Button, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Accordion, AccordionItem, 
-	AccordionButton, AccordionPanel, AccordionIcon, Box, Link,}
+import { VStack, Text, Input, Stack, Button, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Link,}
 	from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import useAuth from '../hooks/useAuth';
-import { getUsers} from '../api';
+import { getUsers } from '../api';
 
 const AdminManager = () => {
 
@@ -25,9 +24,7 @@ const AdminManager = () => {
 
 	const [searchText, setSearchText] = useState('');
 	const [inputField, setInputField] = useState([{ username: ''}]);
-	const [pass] = useState([{ pass: '' }]);
 	const [relatedprojects] = useState([{ relatedproj: '' }]);
-
 	const [users, setUsers] = useState([]);
 
 	const handleFormChange =  (index, event) => {
@@ -35,11 +32,6 @@ const AdminManager = () => {
 		data[index][event.target.name] = event.target.value;
 		setInputField(data);
 		setSearchText(data[0].username);
-	};
-
-	const pass_func = (e) => {
-		e.preventDefault();
-		console.log(pass);
 	};
 
 	const handleRelatedProjects = (e) => {
@@ -53,7 +45,7 @@ const AdminManager = () => {
 			{inputField.map((search, index) => {
 				return (
 					<Stack spacing={3} key = {index}>
-						<Input  placeholder='search' size='lg' type='text' width={800} top={25} onChange={event => handleFormChange(index, event)} name="username" />
+						<Input placeholder='search' size='lg' type='text' width={800} top={25} onChange={event => handleFormChange(index, event)} name="username" />
 					</Stack>
 				);
 			})}
@@ -92,7 +84,6 @@ const AdminManager = () => {
 				<Link href='/user'><Button right={370} colorScheme={'blue'} size={'lg'}>New</Button></Link>
 			</Stack>
 		</VStack>
-
 	);
 };
 
