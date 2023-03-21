@@ -66,7 +66,7 @@ def test_new_assets_get_invalid_id(valid_client):
     [{"batch_size": 1}],
     indirect=True,
 )
-def test_new_assets_get_forbidden(valid_client, new_assets):
+def test_new_assets_get_account_privileges_check(valid_client, new_assets):
     new_assets[0].classification=DataAccess.CONFIDENTIAL
     data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post("/api/v1/asset/", json=data)
@@ -138,20 +138,32 @@ def test_new_assets_get_summary_account_privileges_check(valid_client, new_asset
     saved_assets = res.json["data"]
     assert saved_assets==[]
 
-    # assert len(asset.tags)==len(saved_asset['tags'])
-    # for tag in saved_asset['tags']:
-    #     assert tag["id"] in asset.tags
-    # assert len(asset.projects)==len(saved_asset['projects'])
-    # for project in saved_asset['projects']:
-    #     assert project["projectID"] in asset.projects
-    # assert len(saved_asset['metadata'])==len(data["metadata"])
-    # for attribute in saved_asset['metadata']:
-    #     assert attribute in data["metadata"]
 
-
-# # TODO:Test asset name is unique
-# # TODO:Test DB error
-
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100}],
+    indirect=True,
+)
+def test_assets_projects(valid_client, new_assets,db_conn):
+    with db_conn.cursor() as cur:
+        cur.execute("SELECT COUNT(projects) FROM projects;")
+        project_count=cur.fetchone()[0]
+        print(project_count)
+    for asset in new_assets:
+        data = json.loads(asset.json(by_alias=True))
+        res = valid_client.post("/api/v1/asset/", json=data)
+        assert res.status_code == 201
+        assert res.json["msg"] == "Added asset"
+        assert res.json["data"]
+        asset_id=res.json["data"]
+        res = valid_client.get(f"/api/v1/asset/projects/{asset_id}")
+        assert res.status_code == 200
+        asset_projects=set(data["projects"])
+        assert len(res.json["data"])==project_count
+        for project in res.json["data"]:
+            if project["isSelected"]:
+                asset_projects.remove(project["projectID"])
+        assert len(asset_projects)==0
 
 # @pytest
 # @pytest.mark.parametrize(

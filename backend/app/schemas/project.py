@@ -19,7 +19,7 @@ class Project(BaseModel):
     name: str=Field(..., alias="projectName")
     description: Optional[str]=Field(..., alias="projectDescription")
     accounts: Optional[List[int]]
-
+    is_selected: Optional[bool]=Field(None, alias="isSelected")
     class Config:
         allow_population_by_field_name = True
         extra = Extra.allow

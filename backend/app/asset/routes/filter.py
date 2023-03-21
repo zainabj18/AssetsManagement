@@ -60,12 +60,10 @@ def filter():
     # join interm results  of the the attribute filter
     if filter.attribute_operation==QueryJoin.OR:
         filter_attributes_results=set(chain.from_iterable(filter_attributes_results))
-        print("Hello",filter_attributes_results)
     else:
         filter_attributes_results=set.intersection(*filter_attributes_results)
     filter_asset_ids.append(filter_attributes_results)
-    
-    print(filter_asset_ids)
+
     # join all interm results based on previous searches
     if filter.operation==QueryJoin.AND:  
         asset_ids=set.intersection(*filter_asset_ids)

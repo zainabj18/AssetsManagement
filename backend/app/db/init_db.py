@@ -6,7 +6,7 @@ from app.db import close_db, get_db,Models,UserRole,DataAccess
 from flask import current_app
 from werkzeug.security import generate_password_hash
 from app.schemas.factories import AssetFactory,TypeVersionFactory,ProjectFactory,TagFactory,TypeFactory
-from app.schemas import AssetOut
+from app.schemas import Asset
 def init_db():
     db = get_db(new=True)
     absolute_path = os.path.dirname(__file__)
@@ -83,7 +83,6 @@ def generate_assets(existing_version_ids,db_conn,batch_result,added_assets):
                 )
             for attribute in asset.metadata:
                 db_attribute = attribute.dict(exclude={"validation_data"})
-                print("hello",type(attribute))
                 db_attribute["validation_data"] = json.dumps(attribute.validation_data)
                 cur.execute(
                     """
@@ -175,7 +174,7 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
     
  
     if (add_to_db):
-        with db_conn.cursor(row_factory=class_row(AssetOut)) as cur:
+        with db_conn.cursor(row_factory=class_row(Asset)) as cur:
             cur.execute("""WITH combined_attributes AS (
 SELECT attributes_values.asset_id,attributes_values.attribute_value,attributes.* FROM attributes_values
 INNER JOIN attributes ON attributes.attribute_id=attributes_values.attribute_id)
@@ -187,7 +186,7 @@ INNER JOIN attributes on attributes.attribute_id=combined_attributes.attribute_i
 FROM assets;""")
             assets = cur.fetchall()
             return assets
-    return batch_result
+    return added_assets
 
 
 

@@ -100,21 +100,23 @@ def list_asset_project(id):
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=dict_row) as cur:
             cur.execute(
-                """SELECT projects.* FROM assets_in_projects
-    INNER JOIN projects on projects.id=assets_in_projects.project_id WHERE asset_id=%(id)s;""",
+                """
+                SELECT projects.*,
+CASE WHEN id in (SELECT project_id FROM assets_in_projects WHERE asset_id=%(id)s) 
+THEN 'TRUE' else 'FALSE' end as is_selected  FROM projects;""",
                 {"id": id},
             )
             selected_projects = [Project(**row).dict(by_alias=True) for row in cur.fetchall()]
             
-            for x in selected_projects:
-                x["isSelected"] = True
-            cur.execute(
-                """SELECT * FROM projects WHERE id not in (SELECT project_id FROM assets_in_projects WHERE asset_id=%(id)s);""",
-                {"id": id},
-            )
-            projects = [Project(**row).dict(by_alias=True) for row in cur.fetchall()]
-            selected_projects.extend(projects)
-    return {"data": selected_projects}, 201
+            # for x in selected_projects:
+            #     x["isSelected"] = True
+            # cur.execute(
+            #     """SELECT * FROM projects WHERE id not in (SELECT project_id FROM assets_in_projects WHERE asset_id=%(id)s);""",
+            #     {"id": id},
+            # )
+            # projects = [Project(**row).dict(by_alias=True) for row in cur.fetchall()]
+            # selected_projects.extend(projects)
+    return {"data": selected_projects}, 200
 
 @bp.route("links/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
