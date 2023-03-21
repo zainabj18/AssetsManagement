@@ -1,6 +1,6 @@
 from flask import abort,jsonify
 from app.core.utils import run_query,QueryResult
-from app.schemas import Comment,CommentOut,AssetOut,AttributeSearcher,QueryOperation,Log,Attribute
+from app.schemas import Comment,CommentOut,AssetOut,AttributeSearcher,QueryOperation,Log,Attribute,AssetBaseInDB
 from app.db import DataAccess,Models
 from psycopg.rows import class_row
 from psycopg_pool import ConnectionPool
@@ -373,3 +373,20 @@ def fetch_asset(db:ConnectionPool,asset_id:int):
                     {"asset_id": asset_id},row_factory=class_row(AssetOut),return_type=QueryResult.ONE)
              
       
+def fetch_assets_summary(db:ConnectionPool,classification:DataAccess):
+    """Fetches all asset's from db.
+
+    Args:
+      db: A object for managing connections to the db.
+      classification: The max classification level to view.
+    """
+    return run_query(db, """SELECT assets.*,type_names_versions.type_name FROM assets
+INNER JOIN type_names_versions ON type_names_versions.version_id=assets.version_id 
+WHERE classification<=%(classification)s
+ORDER BY asset_id;""",
+                    {"classification": classification},row_factory=class_row(AssetBaseInDB),return_type=QueryResult.ALL_JSON)
+             
+      
+
+
+

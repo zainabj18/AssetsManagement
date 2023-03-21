@@ -1,6 +1,6 @@
 from app.core.utils import protected,run_query,QueryResult,audit_log_event
 from app.db import DataAccess, UserRole, get_db,Actions,Models
-from app.schemas import Asset, Attribute, AssetOut,FilterSearch,QueryOperation,AttributeBase,Project,Log,QueryJoin
+from app.schemas import Asset, Attribute, AssetOut,FilterSearch,QueryOperation,AttributeBase,Project,Log,QueryJoin,AssetBaseInDB
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
@@ -85,6 +85,13 @@ def view(id, user_id, access_level):
     asset=services.fetch_asset(db,id)
     return {"data": json.loads(asset.json(by_alias=True))}, 200
 
+@bp.route("/summary", methods=["GET"])
+@protected(role=UserRole.VIEWER)
+def summary(user_id, access_level):
+    db = get_db()
+    res = jsonify({"data": services.fetch_assets_summary(db=db,classification=access_level)})
+    return res
+
 @bp.route("projects/<id>", methods=["GET"])
 def list_asset_project(id):
     db = get_db()
@@ -163,30 +170,7 @@ def delete(id):
 
 
 
-@bp.route("/summary", methods=["GET"])
-@protected(role=UserRole.VIEWER)
-def summary(user_id, access_level):
-    db = get_db()
-    assets_json = []
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(Attribute)) as cur:
-            cur.execute("""SELECT * FROM assets WHERE soft_delete=0 ORDER BY asset_id;""")
-            assets = cur.fetchall()
-        # gets the type name for each assset
-        with db_conn.cursor(row_factory=dict_row) as cur:
-            for a in assets:
-                if a.classification <= access_level:
-                    cur.execute(
-                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
-INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
-                        {"version_id": a.version_id},
-                    )
-                    type = cur.fetchone()["type_name"]
-                    aj = json.loads(a.json(by_alias=True))
-                    aj["type"] = type
-                    assets_json.append(aj)
-            res = jsonify({"data": assets_json})
-    return res
+
 
 
 @bp.route("/<id>", methods=["PATCH"])
@@ -196,7 +180,7 @@ def update(id, user_id, access_level):
     asset = dict(**request.json)
     del asset['created_at']
     del asset['last_modified_at']
-    orgignal_asset=fetch_asset(db,id,access_level)
+    orgignal_asset=services.fetch_asset(db,id,access_level)
     orgignal_asset=json.loads(orgignal_asset.json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
     orgignal_asset["tags"]=[tag["id"]for tag in orgignal_asset["tags"]]
     orgignal_asset["projects"]=[project["projectID"]for project in orgignal_asset["projects"]]

@@ -67,6 +67,7 @@ def test_new_assets_get_invalid_id(valid_client):
     indirect=True,
 )
 def test_new_assets_get_forbidden(valid_client, new_assets):
+    new_assets[0].classification=DataAccess.CONFIDENTIAL
     data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 201
@@ -75,6 +76,47 @@ def test_new_assets_get_forbidden(valid_client, new_assets):
     res = valid_client.get(f"/api/v1/asset/{asset_id}")
     assert res.status_code == 403
     assert res.json=={'msg': 'Your account is forbidden to access this please speak to your admin'}
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100}],
+    indirect=True,
+)
+def test_new_assets_get_summary(valid_client, new_assets):
+    added_assets=[]
+    for asset in new_assets:
+        data = json.loads(asset.json(by_alias=True))
+        res = valid_client.post("/api/v1/asset/", json=data)
+        assert res.status_code == 201
+        assert res.json["msg"] == "Added asset"
+        asset_id = res.json["data"]
+        data["asset_id"]=asset_id
+        added_assets.append(data)
+
+    res = valid_client.get("/api/v1/asset/summary")
+    assert res.status_code == 200
+    saved_assets = res.json["data"]
+    assert len(saved_assets)==len(added_assets)
+    for index,saved_asset in enumerate(saved_assets):
+        assert saved_asset["name"] == added_assets[index]["name"]
+        assert saved_asset["link"] == str(added_assets[index]["link"])
+        assert saved_asset["description"] == str(added_assets[index]["description"])
+        assert saved_asset["classification"] == str(added_assets[index]["classification"])
+        assert saved_asset["version_id"] ==added_assets[index]["version_id"]
+        assert datetime.fromisoformat(saved_asset["created_at"])<datetime.now()
+        assert datetime.fromisoformat(saved_asset["last_modified_at"])<datetime.now()
+    # assert len(asset.tags)==len(saved_asset['tags'])
+    # for tag in saved_asset['tags']:
+    #     assert tag["id"] in asset.tags
+    # assert len(asset.projects)==len(saved_asset['projects'])
+    # for project in saved_asset['projects']:
+    #     assert project["projectID"] in asset.projects
+    # assert len(saved_asset['metadata'])==len(data["metadata"])
+    # for attribute in saved_asset['metadata']:
+    #     assert attribute in data["metadata"]
+
+
 # # TODO:Test asset name is unique
 # # TODO:Test DB error
 
