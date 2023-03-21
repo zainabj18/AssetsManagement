@@ -132,19 +132,19 @@ function ProjectSelect({setSelectedProjects,projects}) {
 	
 
 	
-	return (<Box >
+	return (<Box bgGradient= "linear(to-l, #4E65FF, #92EFFD)" >
 		<Button onClick={onOpen}>Select Projects</Button>
 		<Modal isOpen={isOpen} onClose={onClose} size={'full'}>
 			<ModalOverlay />
-			<ModalContent  background='#e3e3e3'>
+			<ModalContent bgGradient= "linear(to-l, #4E65FF, #92EFFD)">
 				<ModalHeader textAlign="center" paddingY={5}>Project Select</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody >
 					{projects && <TableContainer>
 						<Input onChange={(e)=>{setQuery(e.target.value);}} background="white" paddingY="5px" placeholder='Enter here...'/>
 						<Table variant='stripped'>
-		  <Thead alignContent={'center'} alignItems="center" width="90vw" rounded={10} bg="#ed7966">
-								<Tr key={'header'} border={"1px solid"} background="#ed7966" marginY={5}> 
+		  <Thead alignContent={'center'} alignItems="center" width="90vw" rounded={10} bg='blue.900'>
+								<Tr key={'header'} border={"1px solid"} background="blue.900" marginY={5}> 
 									<Th><Checkbox isChecked={data.length===selected.length}
 										isIndeterminate={selected.length>0 && selected.length<data.length}
 										onChange={(e)=>{onIntermediateCheckboxChange(e.target.checked);}}

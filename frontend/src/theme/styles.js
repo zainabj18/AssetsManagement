@@ -4,7 +4,10 @@ const styles = {
 			bg: '#e3e3e3',
 			color: '#173e43',
 			height:"99vh",
-			overflow:"hidden"
+			overflow:"hidden",
+			bgGradient: "linear(to-l, #4E65FF, #92EFFD)"
+			//bg: 'gray.200',
+            //color: '#173e43',
 		},
 	},
 };

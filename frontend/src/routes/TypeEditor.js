@@ -217,7 +217,7 @@ const TypeEditor = () => {
 	};
 
 	return (
-		<VStack width='80vw' bg="white" rounded="2xl">
+		<VStack width='80vw' bg="white" rounded="2xl" height={'80vh'} overflow="scroll">
 			<Heading as='h1' size='2xl' paddingTop={5}> {type.typeName}</Heading>
 			<Heading as='h2' size='1xl'>Version: {type.versionNumber}</Heading>
 			<HStack width='80vw' display={'flex'} flexDirection="row" alignItems={'flex-start'} justifyContent='flex-start' padding={5}>

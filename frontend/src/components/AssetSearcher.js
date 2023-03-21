@@ -12,8 +12,8 @@ import { fetchAssetClassifications} from '../api';
 const RadioButtons=({name,changeFunc})=>{
 	return (<RadioGroup defaultValue="OR" onChange={e=>changeFunc(name,e)} marginY={4}>
 		<Stack spacing={5} direction='row'>
-			<Radio value="OR" defaultChecked borderColor={"#ed7966 "}>OR</Radio>
-			<Radio value="AND" borderColor={"#ed7966 "}>AND</Radio>
+			<Radio value="OR" defaultChecked borderColor={"#0a2861 "}>OR</Radio>
+			<Radio value="AND" borderColor={"#0a2861 "}>AND</Radio>
 		</Stack>
 	</RadioGroup>);
 };

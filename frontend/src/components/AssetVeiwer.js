@@ -289,7 +289,7 @@ const AssetViewer = () => {
 	
 
 	return assetSate ? (
-		<Box p={4} width={'60vw'}>
+		<Box p={4} width={'60vw'} height={'80vh'} overflow="scroll">
 			{assetSate && <VStack maxW='100%'>
 				{errors.length && <Alert status='error' flexDirection='column' alignItems='right'>
 					<AlertIcon alignSelf='center'/>

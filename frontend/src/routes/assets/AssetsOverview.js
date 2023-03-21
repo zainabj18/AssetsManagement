@@ -33,9 +33,11 @@ const AssetsOverview = () => {
 	}, []);
 	
 	return (<VStack  width={"100vw"} height={'80vh'} background="white" justifyContent={"space-between"} overflow="hidden" flexDirection={'row-reverse'} display="flex" paddingX={5} paddingY={5} rounded="2xl"  boxShadow="0 3px 6px #00000029">
-		<div style={{width:'75vw',overflow:"hidden", height:'40vw', overflowY:'auto'}} >
+		<div style={{width:'75vw',flexDirection:"column",justifyContent:"center",display:"flex"}} >
+			<div  style={{width:'75vw',overflow:"hidden", height:'30vw', overflowY:'auto'}}>
 		<AssetTable assets={results} setSelectedAssets={()=>{}} preSelIDs={[]} />
-		<Button onClick={()=>naviagte('./new')} width="100%" paddingY={6}>Create Asset</Button>
+		</div>
+		<Button onClick={()=>naviagte('./new')} width="50%" paddingY={6} alignSelf="center">Create Asset</Button>
 		</div>
 		<div style={{width:'20vw',overflow:'scroll',height:'70vh'}}>
 		<AssetSearcher filerFunc={handleFilter}/>

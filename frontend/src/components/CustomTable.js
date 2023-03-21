@@ -116,7 +116,7 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 			<Table overflow={'auto'} height={'24vh'} >
 		  <Thead border={'1px solid red'} position="sticky" top={0}>
 					<Tr key={'header'}  >
-						<Th bg= '#ed7966'>
+						<Th bg= '#0a2861'>
 							<Checkbox isChecked={data.length===selected.length}
 							isIndeterminate={selected.length>0 && selected.length<data.length}
 							onChange={(e)=>{onIntermediateCheckboxChange(e.target.checked)  }}
@@ -125,7 +125,7 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 									
 						/></Th>
 		  {Object.keys(columns).map(key => (
-							<Th key={key} bg='#ed7966' >
+							<Th key={key} bg='#0a2861' >
 								{renderHeader(key)}	
 							</Th>)
 		  )}

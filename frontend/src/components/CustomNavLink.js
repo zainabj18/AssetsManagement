@@ -5,7 +5,7 @@ const CustomNavLink = ({ children, to, ...props }) => {
 
 	const activeStyle={
 		textDecoration: 'none',
-		background:"#ed7966 ",
+		background:"#0a2861",
 		color:"#fff",
 		paddingY:0,
 		marginY:0
