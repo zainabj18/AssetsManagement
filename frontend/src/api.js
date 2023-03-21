@@ -67,7 +67,15 @@ export const fetchPeopleinProject = async (id) => {
 	console.log('hello');
 	return await axios.get('/project/allPeople').then(res => res.data);
 };
+export const getProjectType = async () => {
+	console.log('hey');
+	return await axios.get('/project/projectType').then(res => res.data);
+};
 
+export const getProjectByID = async (id) => {
+	console.log('hey');
+	return await axios.get(`/project/${id}`).then(res => res.data);
+};
 
 export const fetchAllTypes = async () => {
 	return await axios.get('/type/allTypes').then(res => res.data);
