@@ -79,23 +79,8 @@ const AdminManager = () => {
 										<Td>{user.username}</Td>
 										<Td>{user.userRole}</Td>
 										<Td>{user.userPrivileges}</Td>
-										<Td>
-											<Accordion allowToggle>
-												<AccordionItem>
-													<AccordionButton>
-														<Box as="span" flex='1' textAlign='left'>
-															Edit Details
-														</Box>
-														<AccordionIcon/>
-													</AccordionButton>
-													<AccordionPanel pb={4}>
-														<Button variant='ghost'>Delete User</Button>
-														<Button onClick={pass_func} variant='ghost'>Change Password</Button>
-														<Button onClick={handleRelatedProjects} variant='ghost'>View Related Projects</Button>
-													</AccordionPanel>
-												</AccordionItem>
-											</Accordion>
-										</Td>
+										<Td><Button variant='ghost'>Delete User</Button></Td>
+										<Td><Button onClick={handleRelatedProjects} variant='ghost'>View Related Projects</Button></Td>	
 									</Tr>
 								);
 							})}
