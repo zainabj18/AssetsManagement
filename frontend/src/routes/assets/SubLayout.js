@@ -4,7 +4,7 @@ import {Outlet} from 'react-router-dom';
 
 const SubLayout= ({name}) => {
 	return (<VStack minH={'100vh'}>
-		<Heading>{name}</Heading>
+		{/* <Heading>{name}</Heading> */}
 		<Outlet  />
 	</VStack>);
 };

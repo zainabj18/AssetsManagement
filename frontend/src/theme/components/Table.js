@@ -7,7 +7,7 @@ const { definePartsStyle, defineMultiStyleConfig } =
 const baseStyle = definePartsStyle({
 	table: {
 		mt:'4',
-		borderWidth:'10px',
+		// borderWidth:'10px',
 	  	width: '100%'
 	}});
 const brandPrimary = definePartsStyle({
@@ -45,6 +45,7 @@ export const tableTheme = defineMultiStyleConfig({
 	variants: {
 		brand: brandPrimary,
 	},
+	border:'none',
 	defaultProps: {
 		size: 'sm',
 		variant: 'brand'
