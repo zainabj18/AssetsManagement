@@ -55,13 +55,13 @@ const User = () => {
 					<HStack spacing={'25px'} mt={'25px'} key={user.account_id}>
 						<FormControl>
 							<FormLabel>Access Level</FormLabel>
-							<Select placeholder='Select Access Level' color='black' bg='white'>
+							<Select placeholder='Select' color='black' bg='white'>
 								<option value='option1'>{user.account_privileges}</option>
 							</Select>
 						</FormControl>
 						<FormControl>
 							<FormLabel>Role</FormLabel>
-							<Select placeholder='Select Role' color='black' bg='white'>
+							<Select placeholder='Select' color='black' bg='white'>
 								<option value='option1'>{user.account_type}</option>
 							</Select>
 						</FormControl>

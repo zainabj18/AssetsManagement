@@ -14,7 +14,7 @@ const GlobalFilter = ({globalFilter,setGlobalFilter}) => {
 			<Input value={value || ''} onChange={e => {
 				setValue(e.target.value);
 				onChange(e.target.value);
-			}} placeholder="Search table"/>
+			}} placeholder="Search"/>
 		</>
 	);
 };

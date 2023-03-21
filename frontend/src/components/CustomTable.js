@@ -69,7 +69,7 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 				(e)=>{setFilter((prev)=>({
 					...prev,
 					[key]:e.target.value
-				}));}} placeholder={'Search '+columns[key].header} bg="white" border="1px solid"/>)
+				}));}} placeholder={'Search '} bg="white" border="1px solid"/>)
 			}
 		</VStack>);
 		
@@ -111,7 +111,7 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 	
 	return (<>
 		{rows.length>0 ?( <TableContainer maxW={'100%'} p={4} >
-			<Input onChange={(e)=>{setQuery(e.target.value);}} placeholder="Search table" bg="white" border="1px solid"/>
+			<Input onChange={(e)=>{setQuery(e.target.value);}} placeholder="Search" bg="white" border="1px solid"/>
 			<Table>
 		  <Thead border={'1px solid red'}>
 					<Tr key={'header'}  >

@@ -34,7 +34,7 @@ const Tags = () => {
 	return (<Box w='75vw' minH='80vh' display={'flex'} flexDirection="row" p={2} border alignSelf={'center'}>
 		<Box w='8wv' minH='100%' bg='gray.300' p={4} color='black' align={'top'}>
 			<HStack>
-				<Input type='text' placeholder='Search for tag ...' onChange={(e)=>{filter(e.target.value);}}/>
+				<Input type='text' placeholder='Search' onChange={(e)=>{filter(e.target.value);}}/>
 				<NewTag trigger={setTrigger}/>
 			</HStack>
 			<VStack p={2}>
