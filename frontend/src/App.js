@@ -28,10 +28,10 @@ import ProjectViewer from './routes/ProjectViewer';
 import TypeEditor from './routes/TypeEditor';
 import Logs from './routes/Logs';
 import GraphView from './routes/GraphView';
+import AsssetGraph from './routes/assets/AssetGraph';
 import AssetRelationGraph from './routes/assets/AssetRelationGraph';
 //TODO:Wrap in error boundary
 function App() {
-
 	return (
 		<AuthProvider>
 			<Routes>
@@ -40,6 +40,7 @@ function App() {
 					<Route path="graph" element={<GraphView />} />
 					<Route path="assets/" element={<SubLayout name="Assets"/>}>
 						<Route index element={<AssetsOverview />} />
+						<Route path="graph" element={<AsssetGraph />} />
 						<Route path="new" element={<CreateAsset />} />
 						<Route path=":id" element={<AssetOverview />}>
 							<Route index element={<AssetViewer canEdit={true} isNew={false}/>} />	
