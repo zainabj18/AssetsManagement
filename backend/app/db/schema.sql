@@ -245,7 +245,7 @@ CREATE or REPLACE VIEW flatten_assets AS(
 SELECT assets.*,type_names_versions.type_name,
 (SELECT COALESCE(json_agg(row_to_json(assets_tags)),'[]'::json) FROM assets_tags WHERE assets_tags.asset_id=assets.asset_id) as tags,
 (SELECT COALESCE(json_agg(row_to_json(assets_projects)),'[]'::json) FROM assets_projects WHERE assets_projects.asset_id=assets.asset_id) as projects,
-(SELECT COALESCE(json_agg(row_to_json(assets_assets)),'[]'::json) FROM assets_assets WHERE assets_assets.asset_id=assets.asset_id) as assets,
+(SELECT COALESCE(json_agg(row_to_json(assets_assets)),'[]'::json) FROM assets_assets WHERE assets_assets.from_asset_id=assets.asset_id) as assets,
 (SELECT COALESCE(json_agg(row_to_json(combined_attributes)),'[]'::json)  FROM combined_attributes WHERE asset_id=assets.asset_id) AS metadata
 FROM assets
 INNER JOIN type_names_versions ON type_names_versions.version_id=assets.version_id);

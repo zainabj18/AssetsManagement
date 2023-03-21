@@ -50,57 +50,7 @@ def asset_differ(orginal,new):
                     changed.append((key,orginal[key],new[key]))    
 
     return {"added":added,"removed":removed,"changed":changed}
-def fetch_asset(db,id,classification):
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(Attribute)) as cur:
-            # gets asset
-            cur.execute(
-                """SELECT * FROM assets WHERE asset_id=%(id)s AND soft_delete=0;""",
-                {"id": id},
-            )
-            asset = cur.fetchone()
-            # check user can view assset
-            if asset.classification > classification:
-                return {"data": []}, 401
-        # get related info for asset
-        with db_conn.cursor(row_factory=class_row(AttributeInDB)) as cur:
-            cur.execute(
-                """SELECT attributes.attribute_id,attribute_name, attribute_data_type as attribute_data_type, validation_data,value as attribute_value FROM attributes_values 
-INNER JOIN attributes on attributes.attribute_id=attributes_values.attribute_id WHERE asset_id=%(id)s;""",
-                {"id": id},
-            )
-            metadata = cur.fetchall()
-        with db_conn.cursor(row_factory=dict_row) as cur:
-            cur.execute(
-                """SELECT projects.* FROM assets_in_projects
-INNER JOIN projects on projects.id=assets_in_projects.project_id WHERE asset_id=%(id)s;""",
-                {"id": id},
-            )
-            projects = [Project(**row).dict(by_alias=True) for row in cur.fetchall()]
-            print(projects)
-            cur.execute(
-                """SELECT tags.id,name FROM assets_in_tags 
-INNER JOIN tags on tags.id=assets_in_tags.tag_id WHERE asset_id=%(id)s;""",
-                {"id": id},
-            )
-            tags = list(cur.fetchall())
-            cur.execute(
-                """SELECT assets.* FROM assets_in_assets
-    INNER JOIN assets on assets.asset_id=assets_in_assets.to_asset_id WHERE from_asset_id=%(id)s;""",
-                {"id": id},
-            )
-            assets = list(cur.fetchall())
-            cur.execute(
-                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
-INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
-                {"version_id": asset.version_id},
-            )
-            type = cur.fetchone()["type_name"]
 
-        asset = AssetOut(
-            **asset.dict(), metadata=metadata, projects=projects, tags=tags,assets=assets,type=type
-        )
-    return asset
 
 @bp.route("/", methods=["POST"])
 @protected(role=UserRole.USER)
@@ -128,9 +78,20 @@ def get_classifications(user_id, access_level):
     return {"data": viwable_classifications}
 
 
+@bp.route("/<id>", methods=["GET"])
+@protected(role=UserRole.VIEWER)
+def view(id, user_id, access_level):
+    db = get_db()
+    services.abort_asset_not_exists(db=db,asset_id=id)
+    #TODO aboirt not assext
+    asset=services.fetch_asset(db,id)
+    print(asset)
+    return {"data": json.loads(asset.json(by_alias=True))}, 200
+
 @bp.route("projects/<id>", methods=["GET"])
 def list_asset_project(id):
     db = get_db()
+    #TODO:Abort if can't view
     # get related projects for asset and set them to be selected for easy rendering on UI
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=dict_row) as cur:
@@ -155,6 +116,7 @@ def list_asset_project(id):
 @protected(role=UserRole.VIEWER)
 def list_asset_in_assets(id,user_id, access_level):
     db = get_db()
+    #TODO:Abort if can't view
     # get related assets for  an asset and set them to be selected for easy rendering on UI
     assets_json = []
     with db.connection() as db_conn:
@@ -192,19 +154,11 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
 
 
 
-@bp.route("/<id>", methods=["GET"])
-@protected(role=UserRole.VIEWER)
-def view(id, user_id, access_level):
-    #TODO view if none
-    db = get_db()
-    asset=fetch_asset(db,id,access_level)
-    
-    return {"data": json.loads(asset.json(by_alias=True))}, 200
-
 
 @bp.route("/<id>", methods=["DELETE"])
 def delete(id):
     db = get_db()
+    #TODO:Abort if can't view
     with db.connection() as db_conn:
         with db_conn.cursor() as cur:
             cur.execute(
@@ -431,75 +385,3 @@ WHERE asset_id=%(asset_id)s;""",
                 if not attribute in new_attributes:
                     removed_attributes_names.append(attribute.attribute_name)
             return {"msg":"upgrade needed","data":[added_attributes,removed_attributes_names,max_version["version_id"]],"canUpgrade":True}
-        
-
-
-@bp.route("/filter", methods=["POST"])
-def filter():
-    """Finds all assets based on filter criteria.
-
-    Args:
-      id: The asset id to add related comment.
-      user_id: The id of the user making the request.
-      access_level: The access level of the user.
-    
-    Returns:
-      A list of assets ids.
-    """
-    filter=model_creator(model=FilterSearch,err_msg="Failed to run filter from the data provided",**request.json)
-    db = get_db()
-    # the list of sets of asset ids to joint
-    filter_asset_ids=[]
-    
-    # filter based on tags
-    if filter.tag_operation==QueryJoin.OR:
-        tags_results=services.fetch_assets_with_any_links(db,filter.tags,link_table="assets_in_tags",fkey="tag_id")
-    else:
-        tags_results=services.fetch_assets_with_set_links(db,filter.tags,link_table="assets_in_tags",fkey="tag_id")
-    filter_asset_ids.append(set(utils.get_key_from_results("asset_id",tags_results)))
-    
-    # filter based on projects
-    if filter.project_operation==QueryJoin.OR:
-        project_results=services.fetch_assets_with_any_links(db=db,fkeys=filter.projects,link_table="assets_in_projects",fkey="project_id")
-    else:
-        project_results=services.fetch_assets_with_set_links(db,filter.projects,link_table="assets_in_projects",fkey="project_id")
-    filter_asset_ids.append(set(utils.get_key_from_results("asset_id",project_results)))
-    
-    # filter based on classification
-    classification_results=services.fetch_assets_with_any_values(db=db,values=filter.classifications,attribute="classification")
-    filter_asset_ids.append(set(utils.get_key_from_results("asset_id",classification_results)))
-    
-    # filter based on type
-    type_results=services.fetch_assets_with_any_values(db=db,values=filter.types,attribute="version_id")
-    filter_asset_ids.append(set(utils.get_key_from_results("asset_id",type_results)))
-    
-    # build a view of asset attributes which can searched
-    services.create_all_attributes_view(db=db)
-
-    # holds a list of sets of asset ids based on attribute filters
-    filter_attributes_results=[]
-    # iterates overs all attributes searchers
-    for searcher in filter.attributes:
-        # apply filter based on attribute
-        filter_results=services.fetch_assets_attribute_filter(db=db,searcher=searcher)
-        # unpack results of query to get asset ids and adds to interm results 
-        filter_results=set(utils.get_key_from_results("asset_id",filter_results))
-        filter_attributes_results.append(filter_results)
-    print(filter_attributes_results)
-
-    # join interm results  of the the attribute filter
-    if filter.attribute_operation==QueryJoin.OR:
-        filter_attributes_results=set(chain.from_iterable(filter_attributes_results))
-        print("Hello",filter_attributes_results)
-    else:
-        filter_attributes_results=set.intersection(*filter_attributes_results)
-    filter_asset_ids.append(filter_attributes_results)
-    
-    print(filter_asset_ids)
-    # join all interm results based on previous searches
-    if filter.operation==QueryJoin.AND:  
-        asset_ids=set.intersection(*filter_asset_ids)
-    else:
-        asset_ids=set(chain.from_iterable(filter_asset_ids))
-    return {"data": list(asset_ids)}
-

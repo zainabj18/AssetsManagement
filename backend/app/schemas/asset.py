@@ -4,6 +4,8 @@ from app.db import DataAccess
 from pydantic import BaseModel, Field, ValidationError, validator,Extra
 from enum import Enum
 from .attribute import Attribute
+from .project import ProjectInDBBase
+from .tag import TagInDB
 
 class QueryOperation(Enum):
     EQUALS = "EQUALS"
@@ -73,10 +75,10 @@ class Asset(AssetBase):
 
 
 class AssetOut(AssetBaseInDB):
-    type: Optional[str]
-    projects: Optional[List[Any]]
-    tags: Optional[List[Any]]
-    assets: Optional[Any]
+    type_name: Optional[str]
+    projects: Optional[List[ProjectInDBBase]]
+    tags: Optional[List[TagInDB]]
+    assets: Optional[List[Any]]
     metadata: Optional[List[Attribute]]
     class Config:
         allow_population_by_field_name = True

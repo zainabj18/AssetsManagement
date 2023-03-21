@@ -196,24 +196,6 @@ def fetch_assets_with_any_values(db:ConnectionPool,values:List[Any],attribute:st
     query=sql.SQL("""SELECT DISTINCT asset_id FROM assets WHERE {attribute}=ANY(%(values)s)""""").format(attribute=sql.Identifier(attribute))
     return run_query(db,query,{"values":values},return_type=QueryResult.ALL)
 
-def create_all_attributes_view(db:ConnectionPool):
-    """Creates unpacked all attributes view.
-
-    Args:
-      db: A object for managing connections to the db.
-    """
-    
-    return run_query(db,"""
-            CREATE or REPLACE view all_atributes as
-SELECT asset_id,
-   unnest(array[-1,-2,-3]) AS "attribute_id",
-   unnest(array[name, link, description]) AS "values"
-FROM assets
-UNION ALL 
-SELECT * FROM attributes_values;
-            """)
-
-
 def fetch_assets_attribute_filter(db:ConnectionPool,searcher:AttributeSearcher):
     """Find all asset that as attributes that support like,equal and has.
 
@@ -385,3 +367,16 @@ def add_asset_metadata_to_db(db:ConnectionPool,asset_id:int,metadata:List[Attrib
                         "value": attribute.attribute_value,
                     },
                 )
+
+def fetch_asset(db:ConnectionPool,asset_id:int):
+    """Fetches an asset's with all its metadata and attributes from db.
+
+    Args:
+      db: A object for managing connections to the db.
+      asset_id: The asset's id to add.
+      assets: A list of asset ids.
+    """
+    return run_query(db, """SELECT * FROM flatten_assets WHERE asset_id=%(asset_id)s""",
+                    {"asset_id": asset_id},row_factory=class_row(AssetOut),return_type=QueryResult.ONE)
+             
+      

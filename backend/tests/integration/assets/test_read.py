@@ -15,24 +15,26 @@ def test_get_access_levels(valid_client):
     assert res.status_code == 200
     assert res.json["data"] == ["PUBLIC", "INTERNAL", "RESTRICTED", "CONFIDENTIAL"]
 
-# @pytest.mark.parametrize(
-#     "new_assets",
-#     [{"batch_size": 1}],
-#     indirect=True,
-# )
-# def test_new_assets_get(valid_client, new_assets):
-#     data = json.loads(new_assets[0].json())
-#     res = valid_client.post("/api/v1/asset/", json=data)
-#     assert res.status_code == 200
-#     assert res.json["msg"] == "Added asset"
-#     asset_id = res.json["data"]
-#     res = valid_client.get(f"/api/v1/asset/{asset_id}", json=data)
-#     assert res.status_code == 200
-#     saved_asset = res.json["data"]
-#     assert saved_asset["name"] == new_assets[0].name
-#     assert saved_asset["description"] == str(new_assets[0].description)
-#     assert saved_asset["classification"] == str(new_assets[0].classification.value)
-#     assert saved_asset["link"] == str(new_assets[0].link)
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_new_assets_get(valid_client, new_assets):
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    asset_id = res.json["data"]
+    print(asset_id)
+    res = valid_client.get(f"/api/v1/asset/{asset_id}")
+    assert res.status_code == 200
+    saved_asset = res.json["data"]
+    assert saved_asset["name"] == new_assets[0].name
+    assert saved_asset["description"] == str(new_assets[0].description)
+    assert saved_asset["classification"] == str(new_assets[0].classification.value)
+    assert saved_asset["link"] == str(new_assets[0].link)
+    print(saved_asset)
 
 
 # # TODO:Test asset name is unique
