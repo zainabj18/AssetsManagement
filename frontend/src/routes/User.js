@@ -23,18 +23,6 @@ const User = () => {
 		setInputFields(data);
 	};
 
-	/*const deleteUser = async (index) => {
-		const userIdToDelete = inputFields[index].id;
-		try {
-		  await deleteUserAcc(userIdToDelete);
-		  let data = [...deleteuser];
-		  data.splice(index, 1);
-		  setDeleteUser(data);
-		} catch (error) {
-		  console.error(error);
-		}
-	  }; */
-
 	const saveUser = async (e) => {
 		e.preventDefault();
 	  

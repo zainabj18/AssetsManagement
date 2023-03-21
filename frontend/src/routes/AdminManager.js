@@ -3,7 +3,7 @@ import { VStack, Text, Input, Stack, Button, Table, Thead, Tbody, Tr, Th, Td, Ta
 	from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import useAuth from '../hooks/useAuth';
-import { getUsers } from '../api';
+import { getUsers, deleteUserAcc } from '../api';
 
 const AdminManager = () => {
 
@@ -26,6 +26,7 @@ const AdminManager = () => {
 	const [inputField, setInputField] = useState([{ username: ''}]);
 	const [relatedprojects] = useState([{ relatedproj: '' }]);
 	const [users, setUsers] = useState([]);
+	const [deleteuser, setDeleteUser] = useState([{delete: ''}]);
 
 	const handleFormChange =  (index, event) => {
 		let data = [...inputField];
@@ -38,6 +39,18 @@ const AdminManager = () => {
 		e.preventDefault();
 		console.log(relatedprojects);
 	};
+
+	const deleteUser = async (index) => {
+		const userIdToDelete = inputField[index].id;
+		try {
+		  await deleteUserAcc(userIdToDelete);
+		  let data = [...deleteuser];
+		  data.splice(index, 1);
+		  setDeleteUser(data);
+		} catch (error) {
+		  console.error(error);
+		}
+	}; 
 
 	return (
 		<VStack minW="100vw">
@@ -71,7 +84,7 @@ const AdminManager = () => {
 										<Td>{user.username}</Td>
 										<Td>{user.userRole}</Td>
 										<Td>{user.userPrivileges}</Td>
-										<Td><Button variant='ghost'>Delete User</Button></Td>
+										<Td><Button variant='ghost' onClick={deleteUser}>Delete User</Button></Td>
 										<Td><Button onClick={handleRelatedProjects} variant='ghost'>View Related Projects</Button></Td>	
 									</Tr>
 								);
