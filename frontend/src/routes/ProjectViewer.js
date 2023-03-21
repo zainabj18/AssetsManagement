@@ -124,6 +124,7 @@ const ProjectViewer = () => {
 													colorScheme='blue' 
 													onClick={() => handleDeletePeople(index)}
 												>Delete people</Button>
+
 											);
 										})}
 									</Td>

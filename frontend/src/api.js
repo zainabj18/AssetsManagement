@@ -51,8 +51,10 @@ export const fetchAssetProjects = async (id) => {
 	return await axios.get(`/asset/projects/${id}`).then(res => res.data);
 };
 export const deleteProject = async (id) => {
-	console.log(id);
 	return await axios.post(`/project/delete/${id}`).then(res => res.data);
+};
+export const deletePeople = async (id) => {
+	return await axios.post(`/project/delete/people/${id}`).then(res => res.data);
 };
 export const createProject = async (project) => {
 	console.log(project);
@@ -65,7 +67,15 @@ export const fetchPeopleinProject = async (id) => {
 	console.log('hello');
 	return await axios.get('/project/allPeople').then(res => res.data);
 };
+export const getProjectType = async () => {
+	console.log('hey');
+	return await axios.get('/project/projectType').then(res => res.data);
+};
 
+export const getProjectByID = async (id) => {
+	console.log('hey');
+	return await axios.get(`/project/${id}`).then(res => res.data);
+};
 
 export const fetchAllTypes = async () => {
 	return await axios.get('/type/allTypes').then(res => res.data);

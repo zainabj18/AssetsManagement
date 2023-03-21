@@ -15,6 +15,8 @@ DROP TABLE IF EXISTS people_in_projects CASCADE;
 
 CREATE TYPE account_role AS ENUM ('VIEWER', 'USER', 'ADMIN');
 CREATE TYPE data_classification AS ENUM ('PUBLIC', 'INTERNAL','RESTRICTED','CONFIDENTIAL');
+CREATE TYPE project_type AS ENUM ('PUBLIC', 'PRIVATE');
+
 CREATE TABLE accounts
 (
 	account_id SERIAL,
@@ -40,6 +42,7 @@ CREATE TABLE projects
 	id SERIAL,
 	name VARCHAR NOT NULL UNIQUE,
 	description VARCHAR,
+	type project_type NOT NULL DEFAULT 'PUBLIC',
 	PRIMARY KEY (id)
 );
 
