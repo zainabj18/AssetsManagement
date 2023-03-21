@@ -37,7 +37,7 @@ const AttributeViewer = () => {
 		<VStack>
 			<TableContainer>
 				<Table>
-					<TableCaption placement='top'>Attribute Viewer</TableCaption>
+					{/* <TableCaption placement='top'>Attribute Viewer</TableCaption> */}
 					<Thead>
 						<Tr>
 							<Th>Name</Th>
