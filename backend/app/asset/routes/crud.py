@@ -93,30 +93,12 @@ def summary(user_id, access_level):
     return res
 
 @bp.route("projects/<id>", methods=["GET"])
-def list_asset_project(id):
+@protected(role=UserRole.VIEWER)
+def list_asset_project(id,user_id, access_level):
     db = get_db()
-    #TODO:Abort if can't view
-    # get related projects for asset and set them to be selected for easy rendering on UI
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=dict_row) as cur:
-            cur.execute(
-                """
-                SELECT projects.*,
-CASE WHEN id in (SELECT project_id FROM assets_in_projects WHERE asset_id=%(id)s) 
-THEN 'TRUE' else 'FALSE' end as is_selected  FROM projects;""",
-                {"id": id},
-            )
-            selected_projects = [Project(**row).dict(by_alias=True) for row in cur.fetchall()]
-            
-            # for x in selected_projects:
-            #     x["isSelected"] = True
-            # cur.execute(
-            #     """SELECT * FROM projects WHERE id not in (SELECT project_id FROM assets_in_projects WHERE asset_id=%(id)s);""",
-            #     {"id": id},
-            # )
-            # projects = [Project(**row).dict(by_alias=True) for row in cur.fetchall()]
-            # selected_projects.extend(projects)
-    return {"data": selected_projects}, 200
+    utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
+    projects=services.fetch_assets_projects_selected(db=db,asset_id=id)
+    return {"data": projects}, 200
 
 @bp.route("links/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)

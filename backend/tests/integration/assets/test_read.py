@@ -165,6 +165,36 @@ def test_assets_projects(valid_client, new_assets,db_conn):
                 asset_projects.remove(project["projectID"])
         assert len(asset_projects)==0
 
+
+def test_assets_projects_invalid_id(valid_client):
+    res = valid_client.get(f"/api/v1/asset/projects/{1}")
+    assert res.status_code == 400
+    assert res.json=={'data': ['1'], 'msg': "Asset doesn't exist"}
+
+@pytest.mark.parametrize(
+    "valid_client",
+    [
+        ({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC})
+    ],
+    indirect=True,
+)
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_assets_projects_account_privileges_check(valid_client, new_assets):
+    new_assets[0].classification=DataAccess.CONFIDENTIAL
+    data = json.loads(new_assets[0].json(by_alias=True))
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    asset_id = res.json["data"]
+    res = valid_client.get(f"/api/v1/asset/projects/{asset_id}")
+    assert res.status_code == 403
+    assert res.json=={'msg': 'Your account is forbidden to access this please speak to your admin'}
+
+
 # @pytest
 # @pytest.mark.parametrize(
 #     "new_assets",

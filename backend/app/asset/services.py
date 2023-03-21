@@ -1,6 +1,6 @@
 from flask import abort,jsonify
 from app.core.utils import run_query,QueryResult
-from app.schemas import Comment,CommentOut,AssetOut,AttributeSearcher,QueryOperation,Log,Attribute,AssetBaseInDB
+from app.schemas import Comment,CommentOut,AssetOut,AttributeSearcher,QueryOperation,Log,Attribute,AssetBaseInDB,Project,Asset
 from app.db import DataAccess,Models
 from psycopg.rows import class_row
 from psycopg_pool import ConnectionPool
@@ -389,4 +389,31 @@ ORDER BY asset_id;""",
       
 
 
+def fetch_assets_projects_selected(db:ConnectionPool,asset_id:int):
+    """Fetches all projects from db with asset's projects row as is_selected True.
 
+    Args:
+      db: A object for managing connections to the db.
+      asset_id: The asset id to get projects for.
+    """
+    return run_query(db, """
+                SELECT projects.*,
+CASE WHEN id in (SELECT project_id FROM assets_in_projects WHERE asset_id=%(asset_id)s) 
+THEN 'TRUE' else 'FALSE' end as is_selected  FROM projects ORDER BY is_selected DESC;""",
+                    {"asset_id": asset_id},row_factory=class_row(Project),return_type=QueryResult.ALL_JSON)
+
+
+def fetch_assets_projects_selected(db:ConnectionPool,asset_id:int):
+    """Fetches all assets from db with asset's assets row as is_selected True.
+
+    Args:
+      db: A object for managing connections to the db.
+      asset_id: The asset id to get assets for.
+    """
+    return run_query(db, """
+    SELECT assets.*,
+CASE WHEN asset_id in (SELECT to_asset_id FROM assets_in_assets WHERE from_asset_id=%(asset_id)s)
+THEN 'TRUE' else 'FALSE' end as is_selected FROM assets 
+WHERE asset_id!=%(asset_id)s
+ORDER BY is_selected DESC;""",
+                    {"asset_id": asset_id},row_factory=class_row(Asset),return_type=QueryResult.ALL_JSON)
