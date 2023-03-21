@@ -203,22 +203,22 @@ const AssetSearcher = ({filerFunc}) => {
 	
 			{inputFields.map((input, index) => {
 				return (
-					<HStack key={index} marginY={5}  paddingY={5} justifyContent="space-evenly" display={'flex'} >
-						<Select  name='attributeID' value={input.attributeID} onChange={event => handleFormChange(index, event)} border={'1px solid'} width={"25%"}>
+					<HStack key={index} marginY={5}  paddingY={5}  display={'flex'} flexDirection="column" width={'90%'} gap={4} >
+						<Select  name='attributeID' value={input.attributeID} onChange={event => handleFormChange(index, event)} border={'1px solid'} width={"80%"}>
 							{attributes.map((attribute, index) => {
 								
 				
 								return <option value={attribute.attributeID}>{attribute.attributeName}</option>;})}
 								
 						</Select>
-						<Select  name='operation' value={input.operation} onChange={event => handleFormChange(index, event)} border={'1px solid'} width={"25%"}>
+						<Select  name='operation' value={input.operation} onChange={event => handleFormChange(index, event)} border={'1px solid'} width={"80%"}>
 								 <option value='EQUALS'>=</option>
 								 <option value='LIKE'>LIKE</option>
 								 <option value='HAS'>HAS</option>
 						</Select>
 						{input.operation !=='HAS' && 
 						<Input
-						width={"25%"}
+						width={"80%"}
 							name='attributeValue'
 							placeholder='Attribute value'
 							value={input.attributeValue}
@@ -228,7 +228,7 @@ const AssetSearcher = ({filerFunc}) => {
 							bgColor={'white'}
 							border={'1px solid'}
 						/>}
-						<Button onClick={() => removeFields(index)} paddingY={5} paddingx={20} width={"25%"}>Remove</Button>
+						<Button onClick={() => removeFields(index)} paddingY={5} paddingx={20} width={"80%"}>Remove</Button>
 					</HStack>
 				);
 			})}

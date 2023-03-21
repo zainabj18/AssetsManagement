@@ -43,8 +43,8 @@ const TypeViewer = () => {
 	};
 
 	return (
-		<VStack>
-			<TableContainer>
+		<VStack height={'85vh'} paddingBottom={5}>
+			<div style={{height:'72vh',overflow:"scroll"}}>
 				<Table varient='simple'>
 					{/* <TableCaption placement='top'>Types</TableCaption> */}
 					<Thead>
@@ -98,7 +98,8 @@ const TypeViewer = () => {
 						})}
 					</Tbody>
 				</Table>
-			</TableContainer>
+				</div>
+			
 			{(user && user.userRole === 'ADMIN') && <RouteLink to='adder'>
 				<Button>New</Button>
 			</RouteLink>}

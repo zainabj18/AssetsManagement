@@ -34,11 +34,11 @@ const AttributeViewer = () => {
 	};
 
 	return (
-		<VStack>
-			<TableContainer>
+		<VStack height={"85vh"}>
+		<div style={{height:"72vh",overflow:'scroll'}}>
 				<Table>
 					{/* <TableCaption placement='top'>Attribute Viewer</TableCaption> */}
-					<Thead>
+					<Thead zIndex={999}>
 						<Tr>
 							<Th>Name</Th>
 							<Th>Type</Th>
@@ -46,17 +46,17 @@ const AttributeViewer = () => {
 							<Th>Delete</Th>
 						</Tr>
 					</Thead>
-					<Tbody>
+					<Tbody zIndex={-99}>
 						{attributes.map((attributes) => {
 							return (
-								<Tr key={attributes.attributeID}>
+								<Tr key={attributes.attributeID} zIndex={-1}>
 									<Td>{attributes.attributeName}</Td>
 									<Td>{attributes.attributeType}</Td>
 									<Td>{attributes.validation.isOptional.toString()}</Td>
 									<Td>
 										{
 											(user && user.userRole === 'ADMIN') &&
-											<Button onClick={() => deleteThis(attributes)}>Delete</Button>
+											<div style={{background:'#ed7966',padding:5,borderRadius:5,color:"#fff"}}   onClick={() => deleteThis(attributes)}>Delete</div >
 										}
 									</Td>
 								</Tr>
@@ -65,7 +65,7 @@ const AttributeViewer = () => {
 						})}
 					</Tbody>
 				</Table>
-			</TableContainer>
+				</div>
 			<AttributeModal showModalButtonText='New' load_allAttributes_setter={set_toggle}/>
 		</VStack>
 	);

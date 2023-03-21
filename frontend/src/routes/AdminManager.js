@@ -68,7 +68,7 @@ const AdminManager = () => {
 	};
 
 	return (
-		<VStack display={"flex"} width="70vw" justifyContent={"flex-start"} alignItems="flex-start" overflow={"hidden"}>
+		<VStack display={"flex"} width="80vw" justifyContent={"flex-start"} alignItems="flex-start" overflow={"hidden"}>
 			<Box  width={'72vw'} alignSelf="center" bg="white" marginY={5}>
 			<Heading fontWeight={"bold"}  textAlign="center" paddingY="5px">AdminManager</Heading>
 			{inputField.map((search, index) => {return (
@@ -77,7 +77,7 @@ const AdminManager = () => {
 				</Stack>
 			);})}
 			<Stack pt={35}>
-				<TableContainer>
+				<div style={{height:'50vh',overflow:"scroll",width:"100%"}}>
 					<Table size={'lg'}>
 						<Thead>
 							<Tr>
@@ -103,9 +103,9 @@ const AdminManager = () => {
 													<AccordionIcon />
 												</AccordionButton>
 											</h2>
-											<AccordionPanel pb={4} borderTop={'1px solid black'} >
+											<AccordionPanel pb={4} borderTop={'1px solid black'} display="flex" >
 												<Button bg='#80aaff' color='#000' marginRight={1} onClick={accountDetails}>View Account Details</Button>
-												<Button bg='#80aaff' color='#000'  marginX={2} onClick={pass_func}>Change Password</Button>
+												<Button bg='#80aaff' color='#000'  marginX={1} onClick={pass_func}>Change Password</Button>
 												<Button bg='#80aaff' color='#000'  onClick={handleRelatedProjects}>View Related Projects</Button>
 											</AccordionPanel>
 										</AccordionItem>
@@ -186,10 +186,10 @@ const AdminManager = () => {
 							</Tr>
 						</Tbody>
 					</Table>
-				</TableContainer>
+				</div>
 			</Stack>
 			<div style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
-				<Link href='/user' color="white"  bg="#ed7966" alignItems={'center'}  width={'50vw'} textAlign="center" rounded="2xl" alignSelf={'center'} ><Button color="white" display='flex'  width={'100%'} textAlign={'center'}  size={'lg'}>New</Button></Link>
+				<Link href='/user' color="white"  bg="#ed7966" alignItems={'center'}  width={'30vw'} textAlign="center" rounded="2xl" alignSelf={'center'} ><Button color="white" display='flex'  width={'100%'} textAlign={'center'}  size={'lg'}>New</Button></Link>
 			</div>
 			</Box>
 		</VStack>

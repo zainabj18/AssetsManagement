@@ -3,6 +3,8 @@ const styles = {
 		body: {
 			bg: '#e3e3e3',
 			color: '#173e43',
+			height:"99vh",
+			overflow:"hidden"
 		},
 	},
 };

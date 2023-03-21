@@ -29,7 +29,7 @@ const Layout = () => {
 	},[loggedIn,user]);
 
 	return (
-		<VStack minW="100vw" minH={'100vh'} p={1} m={1}>
+		<VStack minW="100vw" height={'99vh'} p={1} m={1}>
 			<Heading marginY={2} textAlign="center">Code Groover Assets Metadata Repository</Heading>
 
 			<Box sx={styles} width="90vw" >
@@ -41,9 +41,9 @@ const Layout = () => {
 			</Box>
 
 			
-			<Container maxW={'full'} alignContent="center" display={'flex'} justifyContent="center" flexDirection={'column'} width={"60vw"}  >
+			<Box maxW={'full'} alignContent="center" display={'flex'} justifyContent="center" flexDirection={'column'} width={"60vw"}  >
 				<Outlet />
-			</Container>
+			</Box>
 		</VStack>
 	);
 };

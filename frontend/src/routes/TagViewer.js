@@ -78,7 +78,9 @@ const TagViewer = () => {
 			<Input type='text' as={EditableInput} onChange={e=>{setTag(e.target.value);}}/>	
 			<SaveControl />
 		</Editable>}
+		<div style={{height:'53vh' ,overflow:"scroll"}}>
 		<AssetTable assets={assetsin} setSelectedAssets={setSelectedAssets} preSelIDs={[]}/>
+		</div>
 		{(user && user.userRole !== 'VIEWER') && 
 			<ButtonGroup>
 				<Button onClick={handleRemove}>Remove from tag</Button>

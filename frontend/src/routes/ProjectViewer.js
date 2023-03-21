@@ -56,7 +56,7 @@ const ProjectViewer = () => {
 
 	return (
 	<div style={{borderColor:"#fff"}}>
-			<Box background="white"  boxShadow="0 3px 6px #00000029" width={'60vw'} p={0} m={0} rounded="2xl" borderColor={'white'}  >
+			<Box background="white"  overflow={"scroll"} height={'72vh'} boxShadow="0 3px 6px #00000029" width={'60vw'} p={0} m={0} rounded="2xl" borderColor={'white'}  >
 				<Table variant='simple'  bg="white"  >
 					<Thead>
 						<Tr>

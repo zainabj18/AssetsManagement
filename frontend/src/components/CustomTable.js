@@ -112,8 +112,9 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 	return (<>
 		{rows.length>0 ?( <TableContainer maxW={'100%'} p={4} >
 			<Input onChange={(e)=>{setQuery(e.target.value);}} placeholder="Search" bg="white" border="1px solid"/>
-			<Table>
-		  <Thead border={'1px solid red'}>
+			
+			<Table overflow={'auto'} height={'24vh'} >
+		  <Thead border={'1px solid red'} position="sticky" top={0}>
 					<Tr key={'header'}  >
 						<Th bg= '#ed7966'>
 							<Checkbox isChecked={data.length===selected.length}
@@ -130,7 +131,8 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 		  )}
 		  </Tr>
 		  </Thead>
-		  <Tbody>
+		
+		  <Tbody >
 		  {filteredRows.map((row,index)=> (
 						<Tr key={index} bg="white">
 							<Td bg="white"><Checkbox defaultChecked={selected.includes(row.rowID)} isChecked={selected.includes(row.rowID)} onChange={(e) => handleCheck(row.rowID,e.target.checked)} /></Td>
@@ -141,7 +143,9 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 					)}
 		 
 		  </Tbody>
+		
 			</Table>
+			
 		</TableContainer>):(
 		<Alert status='info' background={"rgb(74 74 74 / 19%)"} paddingY={5} borderRadius={10} margin={5} >
 			<AlertIcon />
