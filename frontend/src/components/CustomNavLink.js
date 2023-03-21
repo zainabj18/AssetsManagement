@@ -7,8 +7,8 @@ const CustomNavLink = ({ children, to, ...props }) => {
 		textDecoration: 'none',
 		background:"#ed7966 ",
 		color:"#fff",
-		paddingY:2,
-		marginY:6
+		paddingY:0,
+		marginY:0
 		
 	};
 	
