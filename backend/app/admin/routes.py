@@ -38,3 +38,10 @@ def extract_people(people):
                 }
         )
     return allPeople_listed
+
+def deleteUsers():
+    database = get_db()
+    query = """DELETE FROM accounts;"""
+    with database.connection() as conn:
+        conn.execute(query)
+    return {"message":"Users deleted successfully"}, 200

@@ -185,6 +185,6 @@ export const createUser = async (id) => {
 	return await axios.post('/auth/register', id).then(res => res.data);
 };
 export const deleteUserAcc = async (id) => {
-	return await axios.post('/auth/register', id).then(res => res.data);
+	return await axios.post('/admin/accountmanager', id).then(res => res.data);
 };
 
