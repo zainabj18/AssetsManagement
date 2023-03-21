@@ -58,12 +58,12 @@ def create(user_id, access_level):
     asset=model_creator(model=Asset,err_msg="Failed to create asset from the data provided",**request.json)
     db = get_db()
     db_asset = asset.dict()
-    utils.check_asset_dependencies(db=db,version_id=asset.version_id,assets=asset.assets)
+    utils.check_asset_dependencies(db=db,version_id=asset.version_id,assets=asset.asset_ids)
     utils.check_asset_metatadata(db=db,version_id=asset.version_id,metadata=asset.metadata)
     asset_id =  services.add_asset_to_db(db=db,**db_asset)["asset_id"]
-    services.add_asset_tags_to_db(db=db,asset_id=asset_id,tags=asset.tags)
-    services.add_asset_projects_to_db(db=db,asset_id=asset_id,projects=asset.projects)
-    services.add_asset_assets_to_db(db=db,asset_id=asset_id,assets=asset.assets)
+    services.add_asset_tags_to_db(db=db,asset_id=asset_id,tags=asset.tag_ids)
+    services.add_asset_projects_to_db(db=db,asset_id=asset_id,projects=asset.project_ids)
+    services.add_asset_assets_to_db(db=db,asset_id=asset_id,assets=asset.asset_ids)
     services.add_asset_metadata_to_db(db=db,asset_id=asset_id,metadata=asset.metadata)
     audit_log_event(db,Models.ASSETS,user_id,asset_id,{"added":list(db_asset.keys())},Actions.ADD)
     return {"msg": "Added asset", "data": asset_id}, 201
@@ -115,24 +115,19 @@ def get_upgrade(id,user_id, access_level):
     results=services.fetch_asset_current_and_max_versions(db=db,asset_id=id)
     if results["version_id"]==results["max_version_id"]:
         return {"msg":"no upgrade needed","data":[]}
-    # with db_conn.cursor(row_factory=class_row(AttributeBase)) as cur:
-    #     cur.execute("""SELECT attributes.* FROM attributes_in_types 
-    #     INNER JOIN attributes ON attributes.attribute_id=attributes_in_types.attribute_id
-    #     WHERE type_version=%(type_version)s;""",{"type_version":max_version["version_id"]})
-    #     new_attributes=cur.fetchall()
-    #     cur.execute("""SELECT attributes.* FROM attributes_in_types 
-    #     INNER JOIN attributes ON attributes.attribute_id=attributes_in_types.attribute_id
-    #     WHERE type_version=%(type_version)s;""",{"type_version":current_version["version_id"]})
-    #     old_attributes=cur.fetchall()
-    #     added_attributes=[]
-    #     removed_attributes_names=[]
-    #     for attribute in new_attributes:
-    #         if not attribute in old_attributes:
-    #             added_attributes.append(attribute.dict(by_alias=True))
-    #     for attribute in old_attributes:
-    #         if not attribute in new_attributes:
-    #             removed_attributes_names.append(attribute.attribute_name)
-    #     return {"msg":"upgrade needed","data":[added_attributes,removed_attributes_names,max_version["version_id"]],"canUpgrade":True}
+    new_attributes=services.fetch_versions_attributes(db=db,version_id=results["max_version_id"])
+    old_attributes=services.fetch_versions_attributes(db=db,version_id=results["version_id"])
+    new_dependencies=services.fetch_version_dependencies(db=db,version_id=results["max_version_id"])
+    new_dependencies_names=[depdencent["type_name"] for depdencent in new_dependencies]
+    added_attributes=[]
+    removed_attributes_names=[]
+    for attribute in new_attributes:
+        if not attribute in old_attributes:
+            added_attributes.append(attribute)
+    for attribute in old_attributes:
+        if not attribute in new_attributes:
+            removed_attributes_names.append(attribute["attributeName"])
+    return {"msg":"upgrade needed","data":{"addedAttributes":added_attributes,"removedAttributesNames":removed_attributes_names,"dependsOn":new_dependencies_names,"maxVersion":results["max_version_id"]}}
 
 
 @bp.route("/<id>", methods=["DELETE"])

@@ -1,6 +1,6 @@
 from flask import abort,jsonify
 from app.core.utils import run_query,QueryResult
-from app.schemas import Comment,CommentOut,AssetOut,AttributeSearcher,QueryOperation,Log,Attribute,AssetBaseInDB,Project,AssetBaseInDB
+from app.schemas import Comment,CommentOut,AssetOut,AttributeSearcher,QueryOperation,Log,Attribute,AssetBaseInDB,Project,AssetBaseInDB,AttributeInDB
 from app.db import DataAccess,Models
 from psycopg.rows import class_row
 from psycopg_pool import ConnectionPool
@@ -20,12 +20,7 @@ def abort_asset_not_exists(db:ConnectionPool,asset_id:int):
                 {"id": asset_id},
             )
             if cur.fetchone() is None:
-                res=jsonify({"msg": "Asset doesn't exist",
-      
-                "data": [asset_id]
-            })
-                res.status_code=400
-                abort(res)
+                abort(404,description={"msg": "Asset doesn't exist"})
 
 def abort_insufficient(db:ConnectionPool,asset_id:int,access_level:DataAccess):
     """Checks that an asset can be viewed by account if not aborts.
@@ -431,8 +426,14 @@ INNER JOIN assets ON assets.version_id=max_versions.version_id
 WHERE asset_id=%(asset_id)s;""",
                     {"asset_id": asset_id},return_type=QueryResult.ONE)
 
+def fetch_versions_attributes(db:ConnectionPool,version_id:int):
+    """Fetches a versions attributes.
 
-
-
-
+    Args:
+      db: A object for managing connections to the db.
+      version_id: The version id attributes to be fetched.
+    """
+    return run_query(db, """SELECT attributes.* FROM attributes_in_types 
+        INNER JOIN attributes ON attributes.attribute_id=attributes_in_types.attribute_id
+        WHERE type_version=%(type_version)s;""",{"type_version":version_id},return_type=QueryResult.ALL_JSON,row_factory=class_row(AttributeInDB))
 

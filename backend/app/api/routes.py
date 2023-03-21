@@ -51,6 +51,9 @@ def unathorised(e):
 def invalid_request(e):
     return e.description, 400
 
+@bp.errorhandler(404)
+def resouce_not_found(e):
+    return e.description, 404
 @bp.errorhandler(500)
 def interal_server_error(e):
     return e.description, 500
