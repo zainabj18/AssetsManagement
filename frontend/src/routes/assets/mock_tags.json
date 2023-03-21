@@ -34,7 +34,6 @@
       {
         "source": "Node 1",
         "target": "Node 2",
-        "distance": 80,
         "linkColor":"rgb(255, 205, 187)"
       }
     ]
