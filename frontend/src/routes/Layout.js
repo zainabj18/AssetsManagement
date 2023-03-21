@@ -34,8 +34,8 @@ const Layout = () => {
 
 			<Box sx={styles} width="90vw" >
 			<Header />
-			<Box display={'flex'} flexDirection="row" justifyContent={"center"} marginX={2} >
-			<Text marginX={4} >Hello</Text>
+			<Box display={'flex'} flexDirection="row" justifyContent={"center"} alignItems="center" marginX={2} >
+			<Text marginRight={3} >Hello</Text>
 				<UserMenuButton />
 				</Box>
 			</Box>
