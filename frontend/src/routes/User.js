@@ -1,7 +1,7 @@
 import { Box, Button, Center, FormControl, FormLabel, HStack, Heading, Input, Select, Stack, InputGroup, InputRightElement, Alert, AlertIcon, AlertTitle, AlertDescription } from '@chakra-ui/react';
 import { React, useEffect, useState } from 'react';
 import useAuth from '../hooks/useAuth';
-import { createUser, deleteUserAcc } from '../api';
+import { createUser } from '../api';
 
 const User = () => {
 	const { user } = useAuth();
@@ -11,12 +11,7 @@ const User = () => {
 	}, []);
 
 	const [inputFields, setInputFields] = useState([{first_name: '', last_name: '', username: '', password: '', confirmPassword: '', account_privileges: '', account_type: '' }]);
-	const [deleteuser, setDeleteUser] = useState([{delete: ''}]);
-	const [saveuser, setSaveUser] = useState([{save: ''}]);
-	const [accountPrivileges, setAccountPrivileges] = useState([]);
-	const [accountTypes, setAccountTypes] = useState([]);
 	const [show, setShow] = useState(false);
-	const { authError } = useAuth();
 	const [error, setError] = useState(null);
 	const [success, setSuccess] = useState(false);
 
@@ -28,7 +23,7 @@ const User = () => {
 		setInputFields(data);
 	};
 
-	const deleteUser = async (index) => {
+	/*const deleteUser = async (index) => {
 		const userIdToDelete = inputFields[index].id;
 		try {
 		  await deleteUserAcc(userIdToDelete);
@@ -38,7 +33,7 @@ const User = () => {
 		} catch (error) {
 		  console.error(error);
 		}
-	  };
+	  }; */
 
 	const saveUser = async (e) => {
 		e.preventDefault();
@@ -161,9 +156,6 @@ const User = () => {
 					<Stack direction='row' align='center' mt={8}>
 						<Button colorScheme='blue' variant='solid' size='md' onClick={saveUser}>
 				Save
-						</Button>
-						<Button colorScheme='red' variant='solid' size='md' onClick={deleteUser}>
-				Delete
 						</Button>
 					</Stack>
 				);})}
