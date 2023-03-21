@@ -93,7 +93,6 @@ def test_new_assets_get_summary(valid_client, new_assets):
         asset_id = res.json["data"]
         data["asset_id"]=asset_id
         added_assets.append(data)
-
     res = valid_client.get("/api/v1/asset/summary")
     assert res.status_code == 200
     saved_assets = res.json["data"]
@@ -106,6 +105,39 @@ def test_new_assets_get_summary(valid_client, new_assets):
         assert saved_asset["version_id"] ==added_assets[index]["version_id"]
         assert datetime.fromisoformat(saved_asset["created_at"])<datetime.now()
         assert datetime.fromisoformat(saved_asset["last_modified_at"])<datetime.now()
+
+
+def test_new_assets_get_summary_no_assets(valid_client):
+    res = valid_client.get("/api/v1/asset/summary")
+    assert res.status_code == 200
+    saved_assets = res.json["data"]
+    assert saved_assets==[]
+
+
+@pytest.mark.parametrize(
+    "valid_client",
+    [
+        ({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC})
+    ],
+    indirect=True,
+)  
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100}],
+    indirect=True,
+)
+def test_new_assets_get_summary_account_privileges_check(valid_client, new_assets):
+    for asset in new_assets:
+        asset.classification=DataAccess.CONFIDENTIAL
+        data = json.loads(asset.json(by_alias=True))
+        res = valid_client.post("/api/v1/asset/", json=data)
+        assert res.status_code == 201
+        assert res.json["msg"] == "Added asset"
+    res = valid_client.get("/api/v1/asset/summary")
+    assert res.status_code == 200
+    saved_assets = res.json["data"]
+    assert saved_assets==[]
+
     # assert len(asset.tags)==len(saved_asset['tags'])
     # for tag in saved_asset['tags']:
     #     assert tag["id"] in asset.tags
