@@ -77,12 +77,11 @@ def get_classifications(user_id, access_level):
             viwable_classifications.append(c.value)
     return {"data": viwable_classifications}
 
-
 @bp.route("/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def view(id, user_id, access_level):
     db = get_db()
-    utils.can_preform_id_request(db=db,asset_id=id,access_level=access_level)
+    utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
     asset=services.fetch_asset(db,id)
     return {"data": json.loads(asset.json(by_alias=True))}, 200
 
@@ -148,10 +147,6 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
                     assets_json.append(aj)
             res = jsonify({"data": assets_json})
     return res
-
-
-
-
 
 @bp.route("/<id>", methods=["DELETE"])
 def delete(id):
