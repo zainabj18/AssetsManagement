@@ -17,19 +17,25 @@ const MyResponsiveNetwork = ({ data /* see data tab */ }) => (
 	<ResponsiveNetwork
 		data={data}
 		margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
-		linkDistance={50}
+		linkDistance={100}
 		linkColor={function(e){
 			return e.data.linkColor;}}
-		nodeSize={function(n){return n.size;}}
-		activeNodeSize={function(n){return 1.5*n.size;}}
+		nodeSize={function(n){
+			let size=25*n.size;
+			if (size>50){
+				return 50; 
+			}
+			return size;}}
 		nodeColor={function(e){return e.color;}}
-		nodeBorderWidth={1}
+		linkThickness={1}
 		nodeTooltip={ToolTip}
 		onClick={(e)=>console.log(e)}
+		centeringStrength={0.1}
+		repulsivity={10}
 	/>
 );
 const AsssetGraph = () => {
-	return (<div style={{height: '100vh',width: '100vw'}}>
+	return (<div style={{height: '1000px',width: '100vw'}}>
 		<MyResponsiveNetwork data={data}/>
 	</div> );
 };
