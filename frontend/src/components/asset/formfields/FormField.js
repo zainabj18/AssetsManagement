@@ -81,9 +81,9 @@ const FormField = ({
 					submitOnBlur={true}
 					alignItems='left' 
 					alignContent='left'
-					paddingBottom={3}
+					paddingBottom={1}
 					paddingRight={5}
-					border={'1px solid'}
+					// border={'1px solid'}
 					onSubmit={(e) => {
 						handleSumbit(e);
 					}}

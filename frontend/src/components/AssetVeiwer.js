@@ -302,7 +302,7 @@ const AssetViewer = () => {
 					alignContent='left' p={6} borderRadius={6}>
 					<Heading size={'2xl'} >Asset Attributes</Heading>
 					<FormField
-					   border={'1px solid'}
+					//    border={'1px solid'}
 						fieldName="name"
 						fieldType="text"
 						fieldDefaultValue={assetSate.name}
