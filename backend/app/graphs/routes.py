@@ -39,7 +39,7 @@ def get_assets():
             res = conn.execute(sub_query, {"from": asset_id})
             to = remove_end(res.fetchall())
             data.append({"from": asset_id, "to": to})
-    return {"data": {"points": assets, "joins": data}}, 200
+    return {"data": {"nodes": assets, "joins": data}}, 200
 
 
 @bp.route("/asset/<id>", methods=["GET"])

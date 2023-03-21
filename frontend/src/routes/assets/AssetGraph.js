@@ -4,11 +4,26 @@ import { Box } from '@chakra-ui/react';
 // yarn add @nivo/core @nivo/network
 import { ResponsiveNetwork } from '@nivo/network';
 import data from './mock_tags.json';
+import { BasicTooltip } from '@nivo/tooltip';
+const ToolTip= (props) => {
+	
+	return (
+	  <BasicTooltip
+			id={props.node.id}
+			value={props.node.data.degree}
+			color="blue"
+	  />
+	);
+};
 const MyResponsiveNetwork = ({ data /* see data tab */ }) => (
 	<ResponsiveNetwork
 		data={data}
 		margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
-		linkDistance={function(e){return e.distance;}}
+		linkDistance={function(e){
+			return e.distance;}}
+		linkColor={function(e){
+			console.log(e.data.linkColor);
+			return e.data.linkColor;}}
 		centeringStrength={1.2}
 		repulsivity={19}
 		iterations={260}
@@ -16,6 +31,8 @@ const MyResponsiveNetwork = ({ data /* see data tab */ }) => (
 		activeNodeSize={function(n){return 1.5*n.size;}}
 		nodeColor={function(e){return e.color;}}
 		nodeBorderWidth={4}
+		nodeTooltip={ToolTip}
+		onClick={(e)=>console.log(e)}
 		nodeBorderColor={{
 			from: 'color',
 			modifiers: [
