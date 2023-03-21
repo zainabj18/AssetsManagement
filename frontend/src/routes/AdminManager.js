@@ -45,7 +45,7 @@ const AdminManager = () => {
 			{inputField.map((search, index) => {
 				return (
 					<Stack spacing={3} key = {index}>
-						<Input placeholder='search' size='lg' type='text' width={800} top={25} onChange={event => handleFormChange(index, event)} name="username" />
+						<Input placeholder='username search' size='lg' type='text' width={800} top={25} onChange={event => handleFormChange(index, event)} name="username" />
 					</Stack>
 				);
 			})}
