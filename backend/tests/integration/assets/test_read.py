@@ -195,6 +195,65 @@ def test_assets_projects_account_privileges_check(valid_client, new_assets):
     assert res.json=={'msg': 'Your account is forbidden to access this please speak to your admin'}
 
 
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 51}],
+    indirect=True,
+)
+def test_assets_links(valid_client, new_assets):
+    added_asset_ids=[]
+    for x in range(50):
+        data = json.loads(new_assets[x].json(by_alias=True))
+        res = valid_client.post("/api/v1/asset/", json=data)
+        assert res.status_code == 201
+        assert res.json["msg"] == "Added asset"
+        assert res.json["data"]
+        asset_id=res.json["data"]
+        added_asset_ids.append(asset_id)
+    data = json.loads(new_assets[50].json(by_alias=True))
+    data["assets"]=[asset_id]
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    asset_id=res.json["data"]
+    res = valid_client.get(f"/api/v1/asset/links/{asset_id}", json=data)
+    assert res.status_code == 200
+    assert len(res.json["data"])==50
+    for asset in res.json["data"]:
+        if asset["isSelected"]:
+            added_asset_ids.remove(asset["assetID"])
+
+def test_assets_links_invalid_id(valid_client):
+    res = valid_client.get(f"/api/v1/asset/links/{1}")
+    assert res.status_code == 400
+    assert res.json=={'data': ['1'], 'msg': "Asset doesn't exist"}
+
+
+@pytest.mark.parametrize(
+    "valid_client",
+    [
+        ({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC})
+    ],
+    indirect=True,
+)
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_assets_projects_account_privileges_check(valid_client, new_assets):
+    new_assets[0].classification=DataAccess.CONFIDENTIAL
+    data = json.loads(new_assets[0].json(by_alias=True))
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    asset_id = res.json["data"]
+    res = valid_client.get(f"/api/v1/asset/links/{asset_id}")
+    assert res.status_code == 403
+    assert res.json=={'msg': 'Your account is forbidden to access this please speak to your admin'}
+
+
 # @pytest
 # @pytest.mark.parametrize(
 #     "new_assets",

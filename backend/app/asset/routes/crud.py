@@ -104,40 +104,9 @@ def list_asset_project(id,user_id, access_level):
 @protected(role=UserRole.VIEWER)
 def list_asset_in_assets(id,user_id, access_level):
     db = get_db()
-    #TODO:Abort if can't view
-    # get related assets for  an asset and set them to be selected for easy rendering on UI
-    assets_json = []
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(Attribute)) as cur:
-            cur.execute(
-                """SELECT assets.* FROM assets_in_assets
-    INNER JOIN assets on assets.asset_id=assets_in_assets.to_asset_id WHERE from_asset_id=%(id)s ORDER BY assets_in_assets.to_asset_id;""",
-                {"id": id},
-            )
-            selected_assets = list(cur.fetchall())
-            for x in selected_assets:
-                x.isSelected = True
-            cur.execute(
-                """SELECT * FROM assets WHERE asset_id not in (SELECT to_asset_id FROM assets_in_assets WHERE from_asset_id=%(id)s) AND asset_id!=%(id)s ORDER BY asset_id;""",
-                {"id": id},
-            )
-            assets = list(cur.fetchall())
-            selected_assets.extend(assets)
-        # gets the type name for each assset
-        with db_conn.cursor(row_factory=dict_row) as cur:
-            for a in selected_assets:
-                if a.classification <= access_level:
-                    cur.execute(
-                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
-INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
-                        {"version_id": a.version_id},
-                    )
-                    type = cur.fetchone()["type_name"]
-                    aj = json.loads(a.json(by_alias=True))
-                    aj["type"] = type
-                    assets_json.append(aj)
-            res = jsonify({"data": assets_json})
-    return res
+    utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
+    assets=services.fetch_assets_asssets_selected(db=db,asset_id=id,classification=access_level)
+    return {"data": assets}, 200
 
 @bp.route("/<id>", methods=["DELETE"])
 def delete(id):

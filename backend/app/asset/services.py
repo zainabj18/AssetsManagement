@@ -1,6 +1,6 @@
 from flask import abort,jsonify
 from app.core.utils import run_query,QueryResult
-from app.schemas import Comment,CommentOut,AssetOut,AttributeSearcher,QueryOperation,Log,Attribute,AssetBaseInDB,Project,Asset
+from app.schemas import Comment,CommentOut,AssetOut,AttributeSearcher,QueryOperation,Log,Attribute,AssetBaseInDB,Project,AssetBaseInDB
 from app.db import DataAccess,Models
 from psycopg.rows import class_row
 from psycopg_pool import ConnectionPool
@@ -403,17 +403,17 @@ THEN 'TRUE' else 'FALSE' end as is_selected  FROM projects ORDER BY is_selected 
                     {"asset_id": asset_id},row_factory=class_row(Project),return_type=QueryResult.ALL_JSON)
 
 
-def fetch_assets_projects_selected(db:ConnectionPool,asset_id:int):
+def fetch_assets_asssets_selected(db:ConnectionPool,asset_id:int,classification:DataAccess):
     """Fetches all assets from db with asset's assets row as is_selected True.
 
     Args:
       db: A object for managing connections to the db.
       asset_id: The asset id to get assets for.
+      classification: The max classification level to view.
     """
     return run_query(db, """
     SELECT assets.*,
 CASE WHEN asset_id in (SELECT to_asset_id FROM assets_in_assets WHERE from_asset_id=%(asset_id)s)
 THEN 'TRUE' else 'FALSE' end as is_selected FROM assets 
-WHERE asset_id!=%(asset_id)s
-ORDER BY is_selected DESC;""",
-                    {"asset_id": asset_id},row_factory=class_row(Asset),return_type=QueryResult.ALL_JSON)
+WHERE asset_id!=%(asset_id)s AND classification<=%(classification)s;""",
+                    {"asset_id": asset_id,"classification":classification},row_factory=class_row(AssetBaseInDB),return_type=QueryResult.ALL_JSON)

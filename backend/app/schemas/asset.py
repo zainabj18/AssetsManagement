@@ -53,6 +53,7 @@ class AssetBaseInDB(AssetBase):
     asset_id: Optional[int]=Field(None, alias="assetID")
     created_at: datetime
     last_modified_at: datetime
+    is_selected: Optional[bool]=Field(None, alias="isSelected")
     class Config:
         extra = Extra.allow
 
@@ -72,7 +73,6 @@ class Asset(AssetBase):
             return v
         except ValidationError as e:
             raise e
-
 
 class AssetOut(AssetBaseInDB):
     type_name: Optional[str]
