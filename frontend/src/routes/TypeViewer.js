@@ -20,8 +20,8 @@ const TypeViewer = () => {
 	useEffect(() => {
 		async function load_allTypes() {
 			let data = await fetchAllTypes(res => res.data);
-			set_highest(TypeMethodManager.assignHighest(data));
-			set_types(data);
+			set_highest(TypeMethodManager.assignHighest(data.data));
+			set_types(data.data);
 		}
 		load_allTypes();
 	}, [toggle]);

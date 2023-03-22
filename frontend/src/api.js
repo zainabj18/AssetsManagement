@@ -127,10 +127,10 @@ export const fetchRelatedType= async (id)=> {
 	return await axios.get(`/asset/related/type/${id}`).then(res=>res.data);
 };
 export const fetchRelatedFrom= async (id)=> {
-	return await axios.get(`/asset/related/from/${id}`).then(res=>res.data);
+	return await axios.get(`/asset/related/outgoing/${id}`).then(res=>res.data);
 };
 export const fetchRelatedTo=async (id)=> {
-	return await axios.get(`/asset/related/to/${id}`).then(res=>res.data);
+	return await axios.get(`/asset/related/incomming/${id}`).then(res=>res.data);
 };
 export const deleteAsset = async (id) => {
 	return await axios.delete(`/asset/${id}`).then(res => res.data);
@@ -151,7 +151,7 @@ export const updateTag = async (id, tag) => {
 	return await axios.patch(`/tag/${id}`, tag).then(res => res.data);
 };
 export const fetchAssetsinTag = async (id) => {
-	return await axios.get(`/asset/tags/summary/${id}`).then(res => res.data);
+	return await axios.get(`/tag/assets/${id}`).then(res => res.data);
 };
 
 export const fetchAssetsLogs= async (id) => {
@@ -172,6 +172,23 @@ export const isAttributeNameIn = async (name) => {
 };
 export const makeBackfill = async (data) => {
 	return await axios.post('type/backfill', data).then(res => res.data);
+};
+export const fetchComments = async (id) => {
+	return await axios.get(`/asset/comment/${id}`).then(res => res.data);
+};
+export const addComment = async (id,comment) => {
+	console.log(comment);
+	return await axios.post(`/asset/comment/${id}`,comment).then(res => res.data);
+};
+
+export const deleteComment = async (id,comment_id) => {
+	return await axios.delete(`/asset/comment/${id}/remove/${comment_id}`).then(res => res.data);
+};
+export const createUser = async (id) => {
+	return await axios.post('/auth/register', id).then(res => res.data);
+};
+export const deleteUserAcc = async (id) => {
+	return await axios.post('/auth/register', id).then(res => res.data);
 };
 export const getRelatedAssetsGraphData = async(id) => {
 	return await axios.get(`/graph/asset/${id}`).then(res => res.data);

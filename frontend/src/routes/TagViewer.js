@@ -1,8 +1,8 @@
 import { Button, ButtonGroup, Editable, EditableInput, EditablePreview, Heading,IconButton,Input,Tooltip,useBoolean,useEditableControls,VStack } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
 import { copyToTag,deleteTag, fetchAssetsinTag, removeFromTag, updateTag } from '../api';
-import AssetTable from '../components/AssetTable';
+import AssetTable from '../components/assets/AssetTable';
 import OperationTo from '../components/OperationTo';
 import useAuth from '../hooks/useAuth';
 
@@ -21,6 +21,7 @@ const TagViewer = () => {
 	const [tag, setTag] = useState('');
 	const [trigger,setTrigger]=useBoolean();
 	const { id } = useParams();
+	const [update, setUpdate] = useOutletContext();
 	
 	let navigate = useNavigate();
 	
@@ -30,20 +31,20 @@ const TagViewer = () => {
 	};
 	const handleRemove=()=>{
 		let assetIDs=getAssetIDs();
-		removeFromTag(id,assetIDs).then((res)=>{console.log(res); setTrigger.toggle();});
+		removeFromTag(id,assetIDs).then((res)=>{console.log(res); setTrigger.toggle();setUpdate.toggle();});
 	};
 	const handleCopy=(tag)=>{
 		let assetIDs=getAssetIDs();
-		copyToTag(tag,assetIDs).then((res)=>{console.log(res); setTrigger.toggle();});
+		copyToTag(tag,assetIDs).then((res)=>{console.log(res); setTrigger.toggle();setUpdate.toggle();});
 	};
 	const handleMove=(tag)=>{
 		let assetIDs=getAssetIDs();
-		copyToTag(tag,assetIDs).then((res)=>{removeFromTag(id,assetIDs);setTrigger.toggle();});
+		copyToTag(tag,assetIDs).then((res)=>{removeFromTag(id,assetIDs);setTrigger.toggle();setUpdate.toggle();});
 	};
 	const handleDelete=()=>{
 		deleteTag(id).then((res)=>{console.log(res);});
 		setTrigger.toggle();
-		navigate(0);
+		setUpdate.toggle();
 		navigate('/tags');
 	};
 
@@ -52,15 +53,18 @@ const TagViewer = () => {
 		navigate(0);
 	};
 	useEffect(() => {
-		fetchAssetsinTag(id).then((res)=>{setAssets(res.data.assets);
-			setTag(res.data.tag);});
+		fetchAssetsinTag(id).then((res)=>{
+			console.log(res.data.tag);
+			setAssets(res.data.assets);
+			setTag(res.data.tag.name);
+		
+		});
 		;
 	}, [id,trigger,user]);
     
 	return ( <VStack bg={'whiteAlpha.500'} h={'100%'} w={'100%'} p={2}>
 		{tag &&<Editable
 			textAlign="center"
-			startWithEditView={false}
 			submitOnBlur={false}
 			isDisabled={!(user && user.userRole === 'ADMIN')}
 			alignItems='left' 

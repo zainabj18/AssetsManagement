@@ -7,9 +7,8 @@ const NewTag = ({trigger}) => {
 
 	const saveTag = (e) => {
 		if (name){
-			createTag(name);
+			createTag(name).then(trigger.toggle());
 			onClose();
-			trigger.toggle();
 		}
 	};
 
