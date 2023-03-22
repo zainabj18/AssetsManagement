@@ -38,10 +38,10 @@ def delete(id, user_id, access_level):
 @bp.route("/<id>", methods=["PATCH"])
 @protected(role=UserRole.ADMIN)
 def update(id, user_id, access_level):
+    db = get_db()
     services.tag_in_db(db=db,tag_id=id)
     tag=model_creator(model=TagBase,err_msg="Failed to create tag from the data provided",**request.json)
     tag.id = id
-    db = get_db()
     services.update_tag(db=db,tag=tag)
     audit_log_event(db,Models.TAGS,user_id,id,{},Actions.CHANGE)
     return {"msg": "Tag Updated"}, 200

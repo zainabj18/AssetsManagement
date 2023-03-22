@@ -52,8 +52,12 @@ const TagViewer = () => {
 		navigate(0);
 	};
 	useEffect(() => {
-		fetchAssetsinTag(id).then((res)=>{setAssets(res.data.assets);
-			setTag(res.data.tag);});
+		fetchAssetsinTag(id).then((res)=>{
+			console.log(res.data.tag);
+			setAssets(res.data.assets);
+			setTag(res.data.tag.name);
+		
+		});
 		;
 	}, [id,trigger,user]);
     

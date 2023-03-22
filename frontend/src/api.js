@@ -151,7 +151,7 @@ export const updateTag = async (id, tag) => {
 	return await axios.patch(`/tag/${id}`, tag).then(res => res.data);
 };
 export const fetchAssetsinTag = async (id) => {
-	return await axios.get(`/asset/tags/summary/${id}`).then(res => res.data);
+	return await axios.get(`/tag/assets/${id}`).then(res => res.data);
 };
 
 export const fetchAssetsLogs= async (id) => {
