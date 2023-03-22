@@ -1,5 +1,3 @@
-from unittest import mock
-from psycopg import Error
 from psycopg.rows import dict_row
 from app.db import UserRole, DataAccess,Models
 from app.schemas.factories import TagInDBFactory

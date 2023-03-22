@@ -37,9 +37,9 @@ def test_remove_multiple_from_orginal(new_assets):
     new_asset=copy.deepcopy(old_asset)
     del new_asset["link"]
     del new_asset["name"]
-    del new_asset["tags"]
+    del new_asset["tag_ids"]
     res=asset_differ(old_asset,new_asset)
-    assert set(res["removed"])==set(["link","name","tags"])
+    assert set(res["removed"])==set(["link","name","tag_ids"])
 
 @pytest.mark.parametrize(
     "new_assets",
@@ -76,7 +76,7 @@ def test_change_to_new_str(new_assets):
     new_asset=copy.deepcopy(old_asset)
     new_asset["name"]=old_asset["name"]+"new"
     res=asset_differ(old_asset,new_asset)
-    assert set(res["changed"])==set([("name",old_asset["name"],new_asset["name"])])
+    assert res["changed"]==[["name",old_asset["name"],new_asset["name"]]]
 
 @pytest.mark.parametrize(
     "new_assets",
@@ -89,7 +89,7 @@ def test_change_to_new_int(new_assets):
     new_asset=copy.deepcopy(old_asset)
     new_asset["num"]=2
     res=asset_differ(old_asset,new_asset)
-    assert set(res["changed"])==set([("num",old_asset["num"],new_asset["num"])])
+    assert res["changed"]==[["num",old_asset["num"],new_asset["num"]]]
 
 @pytest.mark.parametrize(
     "new_assets",
@@ -102,7 +102,7 @@ def test_change_to_new_boolean(new_assets):
     new_asset=copy.deepcopy(old_asset)
     new_asset["draft"]=True
     res=asset_differ(old_asset,new_asset)
-    assert set(res["changed"])==set([("draft",old_asset["draft"],new_asset["draft"])])
+    assert res["changed"]==[["draft",old_asset["draft"],new_asset["draft"]]]
 
 @pytest.mark.parametrize(
     "new_assets",
@@ -118,8 +118,10 @@ def test_change_multiple(new_assets):
     new_asset["num"]=2
     new_asset["link"]="http://www.price2-griffi.com/"
     res=asset_differ(old_asset,new_asset)
-    assert set(res["changed"])==set([("num",old_asset["num"],new_asset["num"]),("name",old_asset["name"],new_asset["name"]),("link",old_asset["link"],new_asset["link"])])
-
+    changes=[["num",old_asset["num"],new_asset["num"]],["name",old_asset["name"],new_asset["name"]],["link",old_asset["link"],new_asset["link"]]]
+    for x in  changes:
+        assert x in res["changed"]
+    assert len(changes)==len(res["changed"])
 
 @pytest.mark.parametrize(
     "new_assets",
@@ -128,11 +130,11 @@ def test_change_multiple(new_assets):
 )
 def test_change_to_new_list_add(new_assets):
     old_asset=json.loads(new_assets[0].json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
-    old_asset["tags"]=[1, 5, 2, 7, 8]
+    old_asset["tag_ids"]=[1, 5, 2, 7, 8]
     new_asset=copy.deepcopy(old_asset)
-    new_asset["tags"]=[1, 5, 2, 7, 8, 10]
+    new_asset["tag_ids"]=[1, 5, 2, 7, 8, 10]
     res=asset_differ(old_asset,new_asset)
-    assert set(res["changed"])==set([("tags",tuple([]),tuple([10]))])
+    assert res["changed"]==[["tag_ids",[],[10]]]
 
 
 @pytest.mark.parametrize(
@@ -146,7 +148,7 @@ def test_change_to_new_list_remove(new_assets):
     new_asset=copy.deepcopy(old_asset)
     new_asset["tags"]=[1, 5, 2, 7]
     res=asset_differ(old_asset,new_asset)
-    assert set(res["changed"])==set([("tags",tuple([8]),tuple([]))])
+    assert res["changed"]==[["tags",[8],[]]]
 
 
 @pytest.mark.parametrize(
@@ -197,7 +199,7 @@ def test_metadata_removed(new_assets):
     new_asset=copy.deepcopy(old_asset)
     new_asset["metadata"].pop()
     res=asset_differ(old_asset,new_asset)
-    assert set(res["removed"])==set(["metadata-3-kgMhKzcidTxblyVLgWai"])
+    assert res["removed"]==["metadata-3-kgMhKzcidTxblyVLgWai"]
 
 
 @pytest.mark.parametrize(
@@ -239,7 +241,7 @@ def test_metadata_added(new_assets):
             "validation": None,
         })
     res=asset_differ(old_asset,new_asset)
-    assert set(res["added"])==set(["metadata-4-kgMhKzcidTxblyVLgWai"])
+    assert res["added"]==["metadata-4-kgMhKzcidTxblyVLgWai"]
 
 
 
@@ -298,4 +300,4 @@ def test_metadata_changed(new_assets):
         }
     ]
     res=asset_differ(old_asset,new_asset)
-    assert set(res["changed"])==set([('metadata-1-TRHAGaOwPNQpKDzXQwqU', '10', '9')])
+    assert res["changed"]==[['metadata-1-TRHAGaOwPNQpKDzXQwqU', '10', '9']]
