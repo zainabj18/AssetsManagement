@@ -310,7 +310,6 @@ def test_get_allAttributes(client):
     res = client.get("/api/v1/type/allAttributes")
     assert res.status_code == 200
     attributes = res.json["data"]
-    print(attributes)
     for attribute in test_attributes:
         assert attribute in attributes
 

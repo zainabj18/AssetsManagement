@@ -37,9 +37,9 @@ def test_remove_multiple_from_orginal(new_assets):
     new_asset=copy.deepcopy(old_asset)
     del new_asset["link"]
     del new_asset["name"]
-    del new_asset["tag_ids"]
+    del new_asset["tagIDs"]
     res=asset_differ(old_asset,new_asset)
-    assert set(res["removed"])==set(["link","name","tag_ids"])
+    assert set(res["removed"])==set(["link","name","tagIDs"])
 
 @pytest.mark.parametrize(
     "new_assets",
@@ -130,11 +130,11 @@ def test_change_multiple(new_assets):
 )
 def test_change_to_new_list_add(new_assets):
     old_asset=json.loads(new_assets[0].json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
-    old_asset["tag_ids"]=[1, 5, 2, 7, 8]
+    old_asset["tagIDs"]=[1, 5, 2, 7, 8]
     new_asset=copy.deepcopy(old_asset)
-    new_asset["tag_ids"]=[1, 5, 2, 7, 8, 10]
+    new_asset["tagIDs"]=[1, 5, 2, 7, 8, 10]
     res=asset_differ(old_asset,new_asset)
-    assert res["changed"]==[["tag_ids",[],[10]]]
+    assert res["changed"]==[["tagIDs",[],[10]]]
 
 
 @pytest.mark.parametrize(

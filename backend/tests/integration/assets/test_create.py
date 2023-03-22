@@ -67,7 +67,7 @@ def test_new_assset_requires_projects(valid_client):
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
-        "loc": ["project_ids"],
+        "loc": ["projectIDs"],
         "msg": "field required",
         "type": "value_error.missing",
     } in res.json["data"]
@@ -79,7 +79,7 @@ def test_new_assset_requires_tags(valid_client):
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
-        "loc": ["tag_ids"],
+        "loc": ["tagIDs"],
         "msg": "field required",
         "type": "value_error.missing",
     } in res.json["data"]
@@ -127,11 +127,11 @@ def test_new_assset_string_types_incorect(valid_client, attribute, json):
     } in res.json["data"]
 
 def test_new_assset_tags_list_incorect_type(valid_client):
-    res = valid_client.post("/api/v1/asset/", json={"tag_ids": ["1", []]})
+    res = valid_client.post("/api/v1/asset/", json={"tagIDs": ["1", []]})
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
-        "loc": ["tag_ids", 1],
+        "loc": ["tagIDs", 1],
         "msg": "value is not a valid integer",
         "type": "type_error.integer",
     } in res.json["data"]
@@ -141,7 +141,7 @@ def test_new_assset_project_list_incorect(valid_client):
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
-        "loc": ["project_ids", 1],
+        "loc": ["projectIDs", 1],
         "msg": "value is not a valid integer",
         "type": "type_error.integer",
     } in res.json["data"]
@@ -152,7 +152,7 @@ def test_new_assset_asssets_list_incorect(valid_client):
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
-        "loc": ["asset_ids", 1],
+        "loc": ["assetIDs", 1],
         "msg": "value is not a valid integer",
         "type": "type_error.integer",
     } in res.json["data"]
@@ -174,7 +174,7 @@ def test_new_assset_metadata_incorrect_integer(valid_client):
         ("link", {"link": "assetLink"}),
         ("type", {"type": "assetType"}),
         ("description", {"description": "assetDescription"}),
-        ("tag_ids", {"tag_ids": ["assetTag1", "assetTag2"]}),
+        ("tagIDs", {"tagIDs": ["assetTag1", "assetTag2"]}),
         ("classification", {"classification": "CONFIDENTIAL"}),
         ("project", {"project": "projectName"}),
         (
@@ -252,7 +252,7 @@ def test_new_assset_metadata_incorrect_mixed_type(valid_client):
     indirect=True,
 )
 def test_new_assets_in_db(valid_client, new_assets, db_conn):
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
@@ -276,7 +276,7 @@ def test_new_assets_in_db(valid_client, new_assets, db_conn):
     indirect=True,
 )
 def test_new_assets_tags_in_db(valid_client, new_assets, db_conn):
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
@@ -295,7 +295,7 @@ def test_new_assets_tags_in_db(valid_client, new_assets, db_conn):
     indirect=True,
 )
 def test_new_assets_projects_in_db(valid_client, new_assets, db_conn):
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
@@ -315,7 +315,7 @@ def test_new_assets_projects_in_db(valid_client, new_assets, db_conn):
     indirect=True,
 )
 def test_new_assets_values_in_db(valid_client, new_assets, db_conn):
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
@@ -337,7 +337,7 @@ def test_new_assets_values_in_db(valid_client, new_assets, db_conn):
     indirect=True,
 )
 def test_new_assets_unique(valid_client, new_assets):
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
@@ -357,7 +357,7 @@ def test_new_assets_missing_non_optional_attributes(valid_client, new_assets):
     required_attributes = list(filter(lambda x: x.validation_data["isOptional"]==False, new_assets[0].metadata))
     attribute_ids=[attribute.attribute_name for attribute in required_attributes]
     new_assets[0].metadata=[]
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 400
     assert res.json["msg"]=="Missing required attributes"
@@ -372,7 +372,7 @@ def test_new_assets_missing_non_optional_attributes(valid_client, new_assets):
 def test_new_assets_with_only_required_attributes(valid_client, new_assets):
     required_attributes = list(filter(lambda x: x.validation_data["isOptional"]==False, new_assets[0].metadata))
     new_assets[0].metadata=required_attributes
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
@@ -387,7 +387,7 @@ def test_new_assets_with_addtional_attributes(valid_client, new_assets):
     attribute_names=[attribute.attribute_name for attribute in required_attributes]
     attribute_ids=[attribute.attribute_id for attribute in new_assets[0].metadata]
     new_assets[0].metadata.append(AttributeFactory.build(attribute_id=max(attribute_ids)+1))
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 400
     assert res.json["msg"]=="Addtional attributes"
@@ -411,9 +411,8 @@ def test_new_assets_dependents_missing(valid_client, new_assets,db_conn):
             cur.execute("""SELECT CONCAT(type_name,'-',version_number) AS type_name FROM type_version
 INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",{"version_id": new_assets[0].version_id})
             type_name=cur.fetchone()[0]
-    asset_1 = json.loads(new_assets[0].json())
+    asset_1 = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post("/api/v1/asset/", json=asset_1)
-    print(res.json)
     assert res.status_code == 201
    
     assert res.json["msg"] == "Added asset"
@@ -442,7 +441,7 @@ def test_new_assets_dependents(valid_client, new_assets,db_conn):
                 {"from": new_assets[1].version_id,"to":new_assets[0].version_id},
             )
             db_conn.commit()
-    asset_1 = json.loads(new_assets[0].json())
+    asset_1 = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post("/api/v1/asset/", json=asset_1)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"

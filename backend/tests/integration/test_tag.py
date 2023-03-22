@@ -60,7 +60,6 @@ def test_tag_create_requires_name_not_to_empty(valid_client):
 )
 def test_tag_create_adds_to_db(valid_client, db_conn):
     res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
-    print(res.json)
     assert res.status_code == 200
     expected = {"id": 1, "name": "Test"}
     assert res.json == {"data": expected, "msg": "Tag Created"}
@@ -74,7 +73,6 @@ def test_tag_create_adds_to_db(valid_client, db_conn):
 
 def test_tag_duplicate_name(valid_client):
     res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
-    print(res.json)
     assert res.status_code == 200
     expected = {"id": 1, "name": "Test"}
     assert res.json == {"data": expected, "msg": "Tag Created"}
@@ -247,7 +245,6 @@ def test_tag_copy_to_requires_assest_ids_list_ints(valid_client):
 
 def test_tag_copy_to_requires_valid_to_tag_id(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={"to_tag_id":1,"assest_ids":[1]})
-    print(res.json)
     assert res.status_code == 400
     assert res.json=={'msg': "Tag 1 doesn't exist"}
 
@@ -433,7 +430,7 @@ def test_tag_remove_db_change(valid_client,db_conn,new_assets):
             assert res.status_code == 200
             assert res.json["data"][0]["accountID"]==1
             assert res.json["data"][0]["action"]=="CHANGE"
-            assert res.json["data"][0]["diff"]["changed"][0]==["tag_ids",[tag],[]]
+            assert res.json["data"][0]["diff"]["changed"][0]==["tagIDs",[tag],[]]
             assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
             assert res.json["data"][0]["objectID"]==asset_id
             assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]

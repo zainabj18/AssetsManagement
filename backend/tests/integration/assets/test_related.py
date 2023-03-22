@@ -30,7 +30,6 @@ def test_related_projects(valid_client, new_assets):
     projects=set(new_assets[0].project_ids)
     for asset in new_assets[1:]:
         projects_in_common = len(projects.intersection(asset.project_ids))
-        print(asset.project_ids)
         if projects_in_common>0:
             related_projects[asset.asset_id]=projects_in_common
     res = valid_client.get(f"/api/v1/asset/related/projects/{new_assets[0].asset_id}")

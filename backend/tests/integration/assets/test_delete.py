@@ -66,14 +66,13 @@ def test_delete_with_links(valid_client, new_assets,db_conn):
     expected_dependencies=[]
     for x in range(1,10):
         data = json.loads(new_assets[x].json(by_alias=True))
-        data["asset_ids"]=[first_asset_id]
+        data["assetIDs"]=[first_asset_id]
         res = valid_client.post("/api/v1/asset/", json=data)
         assert res.status_code == 201
         assert res.json["msg"] == "Added asset"
         asset_id = res.json["data"]
         asset_ids.append(asset_id)
         expected_dependencies.append({"assetID":asset_id,"name":data["name"]})
-   
     res = valid_client.delete(f"/api/v1/asset/{first_asset_id}")
     assert res.status_code == 400
     assert res.json["msg"] == "Asset has dependencies"

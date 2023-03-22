@@ -68,7 +68,7 @@ def remove(user_id, access_level):
         return {"msg": f"Tag {tag_remove.to_tag_id} doesn't exist"},400
     services.delete_asset_in_tag(db,tag_remove.assest_ids,tag_remove.to_tag_id)
     for id in tag_remove.assest_ids:
-        audit_log_event(db,Models.ASSETS,user_id,id,{"changed":[["tag_ids",[tag_remove.to_tag_id],[]]]},Actions.CHANGE)
+        audit_log_event(db,Models.ASSETS,user_id,id,{"changed":[["tagIDs",[tag_remove.to_tag_id],[]]]},Actions.CHANGE)
     return {"msg":"Removed assets from tag"}, 200
 
 @bp.route("/assets/<id>", methods=["GET"])

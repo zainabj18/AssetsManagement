@@ -48,7 +48,6 @@ def test_comment_require_not_empty(valid_client):
 def test_comment_add_to_db(db_conn,valid_client, new_assets):
     comment="Hello World!"
     res = valid_client.post(f"/api/v1/asset/comment/{new_assets[0].asset_id}",json={"comment":comment})
-    print(res.json)
     assert res.status_code == 200
     assert res.json["msg"]=="Comment added"
     with db_conn.cursor(row_factory=dict_row) as cur:
@@ -108,12 +107,9 @@ def test_comment_get(db_conn,valid_client, new_assets):
         assert res.status_code == 200
         assert res.json["msg"]=="Comment added"
     res = valid_client.get(f"/api/v1/asset/comment/{new_assets[0].asset_id}")
-    #print(res.json)
     assert res.status_code == 200
     assert res.json["msg"]=="Comments"
-    #print(res.json["data"])
     assert len(res.json["data"])==len(comments)
-    print(res.json["data"])
     for index,comment in enumerate(comments):
         db_comment=res.json["data"][index]
         assert db_comment["accountID"]==1
@@ -143,7 +139,6 @@ def test_comment_add_logged(db_conn,valid_client, new_assets):
             assert logs["action"]==Actions.ADD
             assert logs["diff"]=={'added': ['comment']}
             assert logs["account_id"]==1
-            print(logs)
 
 @pytest.mark.parametrize(
     "new_assets",

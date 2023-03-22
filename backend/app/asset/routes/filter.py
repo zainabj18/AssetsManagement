@@ -55,7 +55,6 @@ def filter():
         # unpack results of query to get asset ids and adds to interm results 
         filter_results=set(utils.get_key_from_results("asset_id",filter_results))
         filter_attributes_results.append(filter_results)
-    print(filter_attributes_results)
 
     # join interm results  of the the attribute filter
     if filter.attribute_operation==QueryJoin.OR:

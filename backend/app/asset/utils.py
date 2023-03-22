@@ -65,7 +65,6 @@ def asset_differ(orginal,new):
                 if isinstance(orginal[key],list) and isinstance(new[key],list):
                     list_removed=list(set(orginal[key])-set(new[key]))
                     list_added=list(set(new[key])-set(orginal[key]))
-                    print("I am here")
                     changed.append((key,tuple(list_removed),tuple(list_added)))   
                 else:
                     changed.append((key,orginal[key],new[key]))    
@@ -78,7 +77,6 @@ def add_asset_to_db(db:ConnectionPool,data:dict,asset_id=None):
     if asset_id is None:
         asset_id =services.add_asset_to_db(db=db,**db_asset)["asset_id"]
     else:
-        print("I am blue")
         services.update_asset(db=db,asset_id=asset_id,**db_asset)
     services.add_asset_tags_to_db(db=db,asset_id=asset_id,tags=asset.tag_ids)
     services.add_asset_projects_to_db(db=db,asset_id=asset_id,projects=asset.project_ids)

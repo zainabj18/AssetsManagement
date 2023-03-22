@@ -20,7 +20,6 @@ def test_new_assets_get(valid_client, new_assets):
     assert res.json["msg"] == "Added asset"
     asset_id = res.json["data"]
     res = valid_client.get(f"/api/v1/asset/{asset_id}")
-    print(res.json)
     assert res.status_code == 200
     saved_asset = res.json["data"]
     assert saved_asset["name"] == new_assets[0].name
@@ -138,7 +137,6 @@ def test_assets_projects(valid_client, new_assets,db_conn):
     with db_conn.cursor() as cur:
         cur.execute("SELECT COUNT(projects) FROM projects;")
         project_count=cur.fetchone()[0]
-        print(project_count)
     for asset in new_assets:
         data = json.loads(asset.json(by_alias=True))
         res = valid_client.post("/api/v1/asset/", json=data)
@@ -148,7 +146,7 @@ def test_assets_projects(valid_client, new_assets,db_conn):
         asset_id=res.json["data"]
         res = valid_client.get(f"/api/v1/asset/projects/{asset_id}")
         assert res.status_code == 200
-        asset_projects=set(data["project_ids"])
+        asset_projects=set(data["projectIDs"])
         assert len(res.json["data"])==project_count
         for project in res.json["data"]:
             if project["isSelected"]:
@@ -201,7 +199,7 @@ def test_assets_links(valid_client, new_assets):
         asset_id=res.json["data"]
         added_asset_ids.append(asset_id)
     data = json.loads(new_assets[50].json(by_alias=True))
-    data["asset_ids"]=added_asset_ids
+    data["assetIDs"]=added_asset_ids
     res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"

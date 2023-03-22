@@ -12,7 +12,6 @@ def test_assets_filter_tags_AND(valid_client, new_assets):
         if set(asset.tag_ids).issuperset(set(filter_tags)):
             asset_ids.append(asset.asset_id)
     res = valid_client.post("/api/v1/asset/filter/", json={"tags":filter_tags,"tag_operation":"AND"})
-    print(res)
     assert res.status_code == 200
     assert set(res.json["data"])==set(asset_ids)
 
@@ -44,7 +43,6 @@ def test_assets_filter_projects_AND(valid_client, new_assets):
         if set(asset.project_ids).issuperset(set(filter_project)):
             asset_ids.append(asset.asset_id)
     res = valid_client.post("/api/v1/asset/filter/", json={"projects":filter_project,"project_operation":"AND"})
-    print(res.json)
     assert res.status_code == 200
     assert set(res.json["data"])==set(asset_ids)
 
@@ -110,7 +108,6 @@ def test_assets_AND_missing_filters(valid_client, new_assets):
     indirect=True,
 )
 def test_assets_AND(valid_client, new_assets):
-    print(str(new_assets[0].classification.value))
     asset_ids=set()
     filter_type=[]
     projects_filter=[]
@@ -137,7 +134,6 @@ def test_assets_AND(valid_client, new_assets):
     indirect=True,
 )
 def test_assets_OR(valid_client, new_assets):
-    print(str(new_assets[0].classification.value))
     asset_ids=set()
     filter_type=[]
     projects_filter=[]
@@ -155,7 +151,6 @@ def test_assets_OR(valid_client, new_assets):
                                                           "projects":projects_filter,
                                                           "attributes":[{"attributeID":-1,"operation":"HAS"}],
                                                           "operation":"OR"})
-    print(res.json["data"])
     assert res.status_code == 200
     assert set(res.json["data"]).issuperset(set(asset_ids))
 @pytest.mark.parametrize(

@@ -257,8 +257,6 @@ def update_asset(db:ConnectionPool,name:str,link:str,version_id:int,description:
     Returns:
       A dictionary containing they key asset_id.
     """
-    print("I am running this query")
-    print(asset_id)
     return run_query(db,"""
     UPDATE assets 
 SET name=%(name)s,link=%(link)s,description=%(description)s,version_id=%(version_id)s,classification=%(classification)s,last_modified_at=now() WHERE asset_id=%(asset_id)s ;""",
@@ -363,7 +361,6 @@ def add_asset_metadata_to_db(db:ConnectionPool,asset_id:int,metadata:List[Attrib
       asset_id: The asset's id to add.
       metadata: A list of attributes to add to the db.
     """
-    print("running",len(metadata))
     for attribute in metadata:
         run_query(db,"""
                 INSERT INTO attributes_values (asset_id,attribute_id,attribute_value)

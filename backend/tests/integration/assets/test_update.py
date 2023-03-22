@@ -103,7 +103,7 @@ def test_upgrade_assets_get_account_privileges_check(valid_client, new_assets):
     assert res.json=={'msg': 'Your account is forbidden to access this please speak to your admin'}
 
 def test_patch_assets_not_in_db(valid_client, new_assets, db_conn):
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.patch(f"/api/v1/asset/{1}", json=data)
     assert res.status_code == 404
     assert res.json=={'msg': "Asset doesn't exist"}
@@ -124,7 +124,6 @@ def test_upgrade_assets_get_account_privileges_check(valid_client, new_assets):
     new_assets[0].classification=DataAccess.CONFIDENTIAL
     data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post("/api/v1/asset/", json=data)
-    print(res.json)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
     asset_id = res.json["data"]
@@ -139,7 +138,7 @@ def test_upgrade_assets_get_account_privileges_check(valid_client, new_assets):
     indirect=True,
 )
 def test_patch_assets(valid_client, new_assets):
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post(f"/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
@@ -159,8 +158,7 @@ def test_patch_assets(valid_client, new_assets):
     indirect=True,
 )
 def test_patch_assets_change_fields(valid_client, new_assets,db_conn,field):
-    data = json.loads(new_assets[0].json())
-    print(data)
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post(f"/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
@@ -198,7 +196,7 @@ def test_patch_assets_change_fields(valid_client, new_assets,db_conn,field):
 )
 def test_patch_assets_change_classification(valid_client, new_assets,db_conn):
     new_assets[0].classification=DataAccess.CONFIDENTIAL
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post(f"/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
@@ -238,7 +236,7 @@ def test_patch_assets_change_classification(valid_client, new_assets,db_conn):
     indirect=True,
 )
 def test_patch_assets_change_version_id(valid_client, new_assets,db_conn,type_verions):
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post(f"/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
@@ -256,13 +254,13 @@ def test_patch_assets_change_version_id(valid_client, new_assets,db_conn,type_ve
     indirect=True,
 )
 def test_patch_assets_change_tags(valid_client, new_assets,db_conn):
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post(f"/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
     asset_id=res.json["data"]
-    removed_tag=data["tag_ids"].pop()
+    removed_tag=data["tagIDs"].pop()
     res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
     assert res.status_code == 200
     assert res.json=={"msg": "Updated asset"}
@@ -270,19 +268,19 @@ def test_patch_assets_change_tags(valid_client, new_assets,db_conn):
         cur.execute(
             """SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=%(asset_id)s;""",{"asset_id":asset_id})
         tags=[row["tag_id"] for row in cur.fetchall()]
-        assert set(tags)==set(data["tag_ids"])
+        assert set(tags)==set(data["tagIDs"])
     res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
     assert res.status_code == 200
     assert res.json["data"][0]["accountID"]==1
     assert res.json["data"][0]["action"]=="CHANGE"
     assert res.json["data"][0]["diff"]["added"]==[]
     assert res.json["data"][0]["diff"]["removed"]==[]
-    assert res.json["data"][0]["diff"]["changed"][0]==["tag_ids",[removed_tag],[]]
+    assert res.json["data"][0]["diff"]["changed"][0]==["tagIDs",[removed_tag],[]]
     assert res.json["data"][0]["logID"]==2
     assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
     assert res.json["data"][0]["objectID"]==asset_id
     assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
-    data["tag_ids"]==data["tag_ids"].append(removed_tag)
+    data["tagIDs"]==data["tagIDs"].append(removed_tag)
     res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
     assert res.status_code == 200
     assert res.json=={"msg": "Updated asset"}
@@ -290,14 +288,14 @@ def test_patch_assets_change_tags(valid_client, new_assets,db_conn):
         cur.execute(
             """SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=%(asset_id)s;""",{"asset_id":asset_id})
         tags=[row["tag_id"] for row in cur.fetchall()]
-        assert set(tags)==set(data["tag_ids"])
+        assert set(tags)==set(data["tagIDs"])
     res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
     assert res.status_code == 200
     assert res.json["data"][0]["accountID"]==1
     assert res.json["data"][0]["action"]=="CHANGE"
     assert res.json["data"][0]["diff"]["added"]==[]
     assert res.json["data"][0]["diff"]["removed"]==[]
-    assert res.json["data"][0]["diff"]["changed"][0]==["tag_ids",[],[removed_tag]]
+    assert res.json["data"][0]["diff"]["changed"][0]==["tagIDs",[],[removed_tag]]
     assert res.json["data"][0]["logID"]==3
     assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
     assert res.json["data"][0]["objectID"]==asset_id
@@ -310,13 +308,13 @@ def test_patch_assets_change_tags(valid_client, new_assets,db_conn):
     indirect=True,
 )
 def test_patch_assets_change_projects(valid_client, new_assets,db_conn):
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post(f"/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
     asset_id=res.json["data"]
-    removed_project=data["project_ids"].pop()
+    removed_project=data["projectIDs"].pop()
     res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
     assert res.status_code == 200
     assert res.json=={"msg": "Updated asset"}
@@ -324,19 +322,19 @@ def test_patch_assets_change_projects(valid_client, new_assets,db_conn):
         cur.execute(
             """SELECT project_id FROM assets_in_projects WHERE assets_in_projects.asset_id=%(asset_id)s;""",{"asset_id":asset_id})
         tags=[row["project_id"] for row in cur.fetchall()]
-        assert set(tags)==set(data["project_ids"])
+        assert set(tags)==set(data["projectIDs"])
     res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
     assert res.status_code == 200
     assert res.json["data"][0]["accountID"]==1
     assert res.json["data"][0]["action"]=="CHANGE"
     assert res.json["data"][0]["diff"]["added"]==[]
     assert res.json["data"][0]["diff"]["removed"]==[]
-    assert res.json["data"][0]["diff"]["changed"][0]==["project_ids",[removed_project],[]]
+    assert res.json["data"][0]["diff"]["changed"][0]==["projectIDs",[removed_project],[]]
     assert res.json["data"][0]["logID"]==2
     assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
     assert res.json["data"][0]["objectID"]==asset_id
     assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
-    data["project_ids"]==data["project_ids"].append(removed_project)
+    data["projectIDs"]==data["projectIDs"].append(removed_project)
     res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
     assert res.status_code == 200
     assert res.json=={"msg": "Updated asset"}
@@ -344,14 +342,14 @@ def test_patch_assets_change_projects(valid_client, new_assets,db_conn):
         cur.execute(
             """SELECT project_id FROM assets_in_projects WHERE assets_in_projects.asset_id=%(asset_id)s;""",{"asset_id":asset_id})
         projects=[row["project_id"] for row in cur.fetchall()]
-        assert set(projects)==set(data["project_ids"])
+        assert set(projects)==set(data["projectIDs"])
     res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
     assert res.status_code == 200
     assert res.json["data"][0]["accountID"]==1
     assert res.json["data"][0]["action"]=="CHANGE"
     assert res.json["data"][0]["diff"]["added"]==[]
     assert res.json["data"][0]["diff"]["removed"]==[]
-    assert res.json["data"][0]["diff"]["changed"][0]==["project_ids",[],[removed_project]]
+    assert res.json["data"][0]["diff"]["changed"][0]==["projectIDs",[],[removed_project]]
     assert res.json["data"][0]["logID"]==3
     assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
     assert res.json["data"][0]["objectID"]==asset_id
@@ -365,20 +363,20 @@ def test_patch_assets_change_projects(valid_client, new_assets,db_conn):
     indirect=True,
 )
 def test_patch_assets_change_assets(valid_client, new_assets,db_conn):
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post(f"/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
 
-    data = json.loads(new_assets[1].json())
+    data = json.loads(new_assets[1].json(by_alias=True))
     res = valid_client.post(f"/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
     asset_id=res.json["data"]
     link_asset_id=res.json["data"]
-    data["asset_ids"].append(link_asset_id)
+    data["assetIDs"].append(link_asset_id)
     res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
     assert res.status_code == 200
     assert res.json=={"msg": "Updated asset"}
@@ -386,19 +384,19 @@ def test_patch_assets_change_assets(valid_client, new_assets,db_conn):
         cur.execute(
             """SELECT to_asset_id FROM assets_in_assets WHERE assets_in_assets.from_asset_id=%(asset_id)s;""",{"asset_id":asset_id})
         tags=[row["to_asset_id"] for row in cur.fetchall()]
-        assert set(tags)==set(data["asset_ids"])
+        assert set(tags)==set(data["assetIDs"])
     res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
     assert res.status_code == 200
     assert res.json["data"][0]["accountID"]==1
     assert res.json["data"][0]["action"]=="CHANGE"
     assert res.json["data"][0]["diff"]["added"]==[]
     assert res.json["data"][0]["diff"]["removed"]==[]
-    assert res.json["data"][0]["diff"]["changed"][0]==["asset_ids",[],[link_asset_id]]
+    assert res.json["data"][0]["diff"]["changed"][0]==["assetIDs",[],[link_asset_id]]
     assert res.json["data"][0]["logID"]==3
     assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
     assert res.json["data"][0]["objectID"]==asset_id
     assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
-    data["asset_ids"]==data["asset_ids"].pop()
+    data["assetIDs"]==data["assetIDs"].pop()
     res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
     assert res.status_code == 200
     assert res.json=={"msg": "Updated asset"}
@@ -406,14 +404,14 @@ def test_patch_assets_change_assets(valid_client, new_assets,db_conn):
         cur.execute(
             """SELECT to_asset_id FROM assets_in_assets WHERE assets_in_assets.from_asset_id=%(asset_id)s;""",{"asset_id":asset_id})
         projects=[row["to_asset_id"] for row in cur.fetchall()]
-        assert set(projects)==set(data["asset_ids"])
+        assert set(projects)==set(data["assetIDs"])
     res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
     assert res.status_code == 200
     assert res.json["data"][0]["accountID"]==1
     assert res.json["data"][0]["action"]=="CHANGE"
     assert res.json["data"][0]["diff"]["added"]==[]
     assert res.json["data"][0]["diff"]["removed"]==[]
-    assert res.json["data"][0]["diff"]["changed"][0]==["asset_ids",[link_asset_id],[]]
+    assert res.json["data"][0]["diff"]["changed"][0]==["assetIDs",[link_asset_id],[]]
     assert res.json["data"][0]["logID"]==4
     assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
     assert res.json["data"][0]["objectID"]==asset_id
@@ -426,20 +424,20 @@ def test_patch_assets_change_assets(valid_client, new_assets,db_conn):
     indirect=True,
 )
 def test_patch_assets_change_assets(valid_client, new_assets,db_conn):
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post(f"/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
 
-    data = json.loads(new_assets[1].json())
+    data = json.loads(new_assets[1].json(by_alias=True))
     res = valid_client.post(f"/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
     asset_id=res.json["data"]
     link_asset_id=res.json["data"]
-    data["asset_ids"].append(link_asset_id)
+    data['assetIDs'].append(link_asset_id)
     res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
     assert res.status_code == 200
     assert res.json=={"msg": "Updated asset"}
@@ -447,19 +445,19 @@ def test_patch_assets_change_assets(valid_client, new_assets,db_conn):
         cur.execute(
             """SELECT to_asset_id FROM assets_in_assets WHERE assets_in_assets.from_asset_id=%(asset_id)s;""",{"asset_id":asset_id})
         tags=[row["to_asset_id"] for row in cur.fetchall()]
-        assert set(tags)==set(data["asset_ids"])
+        assert set(tags)==set(data['assetIDs'])
     res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
     assert res.status_code == 200
     assert res.json["data"][0]["accountID"]==1
     assert res.json["data"][0]["action"]=="CHANGE"
     assert res.json["data"][0]["diff"]["added"]==[]
     assert res.json["data"][0]["diff"]["removed"]==[]
-    assert res.json["data"][0]["diff"]["changed"][0]==["asset_ids",[],[link_asset_id]]
+    assert res.json["data"][0]["diff"]["changed"][0]==['assetIDs',[],[link_asset_id]]
     assert res.json["data"][0]["logID"]==3
     assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
     assert res.json["data"][0]["objectID"]==asset_id
     assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
-    data["asset_ids"]==data["asset_ids"].pop()
+    data['assetIDs']==data['assetIDs'].pop()
     res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
     assert res.status_code == 200
     assert res.json=={"msg": "Updated asset"}
@@ -467,14 +465,14 @@ def test_patch_assets_change_assets(valid_client, new_assets,db_conn):
         cur.execute(
             """SELECT to_asset_id FROM assets_in_assets WHERE assets_in_assets.from_asset_id=%(asset_id)s;""",{"asset_id":asset_id})
         projects=[row["to_asset_id"] for row in cur.fetchall()]
-        assert set(projects)==set(data["asset_ids"])
+        assert set(projects)==set(data['assetIDs'])
     res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
     assert res.status_code == 200
     assert res.json["data"][0]["accountID"]==1
     assert res.json["data"][0]["action"]=="CHANGE"
     assert res.json["data"][0]["diff"]["added"]==[]
     assert res.json["data"][0]["diff"]["removed"]==[]
-    assert res.json["data"][0]["diff"]["changed"][0]==["asset_ids",[link_asset_id],[]]
+    assert res.json["data"][0]["diff"]["changed"][0]==['assetIDs',[link_asset_id],[]]
     assert res.json["data"][0]["logID"]==4
     assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
     assert res.json["data"][0]["objectID"]==asset_id
@@ -489,7 +487,7 @@ def test_patch_assets_change_assets(valid_client, new_assets,db_conn):
 )
 def test_patch_assets_change_metadata(valid_client, new_assets,db_conn,type_verions):
     orignal_attribute_ids=[a.attribute_id for a in new_assets[0].metadata]
-    data = json.loads(new_assets[0].json())
+    data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post(f"/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
