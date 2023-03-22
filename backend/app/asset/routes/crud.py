@@ -11,6 +11,15 @@ bp = Blueprint("asset", __name__, url_prefix="/asset")
 @bp.route("/", methods=["POST"])
 @protected(role=UserRole.USER)
 def create(user_id, access_level):
+    """Add a new asset to the db.
+
+    Args:
+      user_id: The id of the user making the request.
+      access_level: The access_level of the user.
+    
+    Returns:
+      A msg saying asset added.
+    """
     db = get_db()
     asset_id=utils.add_asset_to_db(db=db,data=request.json)
     audit_log_event(db,Models.ASSETS,user_id,asset_id,{"added":list(Asset.schema(by_alias=True)["properties"].keys())},Actions.ADD)
@@ -19,6 +28,15 @@ def create(user_id, access_level):
 @bp.route("/classifications", methods=["GET"])
 @protected(role=UserRole.USER)
 def get_classifications(user_id, access_level):
+    """Gets all classifications from db.
+
+    Args:
+      user_id: The id of the user making the request.
+      access_level: The access_level of the user.
+    
+    Returns:
+      A list of classifications that the user can view
+    """
     viwable_classifications = []
     for c in DataAccess:
         if c <= access_level:
