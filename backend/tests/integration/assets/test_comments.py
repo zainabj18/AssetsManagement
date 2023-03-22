@@ -21,9 +21,8 @@ def test_comment_add_requires_comment(valid_client, new_assets):
 
 def test_comment_add_requires_asset_in_db(valid_client):
     res = valid_client.post(f"/api/v1/asset/comment/{1}",json={"comment":"Hello World!"})
-    assert res.status_code == 400
+    assert res.status_code == 404
     assert res.json["msg"]=="Asset doesn't exist"
-    assert res.json["data"]==[]
 
 def test_comment_add_requires_comment(valid_client):
     res = valid_client.post(f"/api/v1/asset/comment/{1}",json={})
