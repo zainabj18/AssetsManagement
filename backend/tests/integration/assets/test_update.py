@@ -248,3 +248,233 @@ def test_patch_assets_change_version_id(valid_client, new_assets,db_conn,type_ve
     assert res.json['msg']=='Missing required attributes'
   
 
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_patch_assets_change_tags(valid_client, new_assets,db_conn):
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post(f"/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    asset_id=res.json["data"]
+    removed_tag=data["tag_ids"].pop()
+    res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
+    assert res.status_code == 200
+    assert res.json=={"msg": "Updated asset"}
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=%(asset_id)s;""",{"asset_id":asset_id})
+        tags=[row["tag_id"] for row in cur.fetchall()]
+        assert set(tags)==set(data["tag_ids"])
+    res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
+    assert res.status_code == 200
+    assert res.json["data"][0]["accountID"]==1
+    assert res.json["data"][0]["action"]=="CHANGE"
+    assert res.json["data"][0]["diff"]["added"]==[]
+    assert res.json["data"][0]["diff"]["removed"]==[]
+    assert res.json["data"][0]["diff"]["changed"][0]==["tag_ids",[removed_tag],[]]
+    assert res.json["data"][0]["logID"]==2
+    assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
+    assert res.json["data"][0]["objectID"]==asset_id
+    assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
+    data["tag_ids"]==data["tag_ids"].append(removed_tag)
+    res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
+    assert res.status_code == 200
+    assert res.json=={"msg": "Updated asset"}
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=%(asset_id)s;""",{"asset_id":asset_id})
+        tags=[row["tag_id"] for row in cur.fetchall()]
+        assert set(tags)==set(data["tag_ids"])
+    res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
+    assert res.status_code == 200
+    assert res.json["data"][0]["accountID"]==1
+    assert res.json["data"][0]["action"]=="CHANGE"
+    assert res.json["data"][0]["diff"]["added"]==[]
+    assert res.json["data"][0]["diff"]["removed"]==[]
+    assert res.json["data"][0]["diff"]["changed"][0]==["tag_ids",[],[removed_tag]]
+    assert res.json["data"][0]["logID"]==3
+    assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
+    assert res.json["data"][0]["objectID"]==asset_id
+    assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_patch_assets_change_projects(valid_client, new_assets,db_conn):
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post(f"/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    asset_id=res.json["data"]
+    removed_project=data["project_ids"].pop()
+    res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
+    assert res.status_code == 200
+    assert res.json=={"msg": "Updated asset"}
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT project_id FROM assets_in_projects WHERE assets_in_projects.asset_id=%(asset_id)s;""",{"asset_id":asset_id})
+        tags=[row["project_id"] for row in cur.fetchall()]
+        assert set(tags)==set(data["project_ids"])
+    res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
+    assert res.status_code == 200
+    assert res.json["data"][0]["accountID"]==1
+    assert res.json["data"][0]["action"]=="CHANGE"
+    assert res.json["data"][0]["diff"]["added"]==[]
+    assert res.json["data"][0]["diff"]["removed"]==[]
+    assert res.json["data"][0]["diff"]["changed"][0]==["project_ids",[removed_project],[]]
+    assert res.json["data"][0]["logID"]==2
+    assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
+    assert res.json["data"][0]["objectID"]==asset_id
+    assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
+    data["project_ids"]==data["project_ids"].append(removed_project)
+    res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
+    assert res.status_code == 200
+    assert res.json=={"msg": "Updated asset"}
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT project_id FROM assets_in_projects WHERE assets_in_projects.asset_id=%(asset_id)s;""",{"asset_id":asset_id})
+        projects=[row["project_id"] for row in cur.fetchall()]
+        assert set(projects)==set(data["project_ids"])
+    res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
+    assert res.status_code == 200
+    assert res.json["data"][0]["accountID"]==1
+    assert res.json["data"][0]["action"]=="CHANGE"
+    assert res.json["data"][0]["diff"]["added"]==[]
+    assert res.json["data"][0]["diff"]["removed"]==[]
+    assert res.json["data"][0]["diff"]["changed"][0]==["project_ids",[],[removed_project]]
+    assert res.json["data"][0]["logID"]==3
+    assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
+    assert res.json["data"][0]["objectID"]==asset_id
+    assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
+
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 2}],
+    indirect=True,
+)
+def test_patch_assets_change_assets(valid_client, new_assets,db_conn):
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post(f"/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+
+    data = json.loads(new_assets[1].json())
+    res = valid_client.post(f"/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    asset_id=res.json["data"]
+    link_asset_id=res.json["data"]
+    data["asset_ids"].append(link_asset_id)
+    res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
+    assert res.status_code == 200
+    assert res.json=={"msg": "Updated asset"}
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT to_asset_id FROM assets_in_assets WHERE assets_in_assets.from_asset_id=%(asset_id)s;""",{"asset_id":asset_id})
+        tags=[row["to_asset_id"] for row in cur.fetchall()]
+        assert set(tags)==set(data["asset_ids"])
+    res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
+    assert res.status_code == 200
+    assert res.json["data"][0]["accountID"]==1
+    assert res.json["data"][0]["action"]=="CHANGE"
+    assert res.json["data"][0]["diff"]["added"]==[]
+    assert res.json["data"][0]["diff"]["removed"]==[]
+    assert res.json["data"][0]["diff"]["changed"][0]==["asset_ids",[],[link_asset_id]]
+    assert res.json["data"][0]["logID"]==3
+    assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
+    assert res.json["data"][0]["objectID"]==asset_id
+    assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
+    data["asset_ids"]==data["asset_ids"].pop()
+    res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
+    assert res.status_code == 200
+    assert res.json=={"msg": "Updated asset"}
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT to_asset_id FROM assets_in_assets WHERE assets_in_assets.from_asset_id=%(asset_id)s;""",{"asset_id":asset_id})
+        projects=[row["to_asset_id"] for row in cur.fetchall()]
+        assert set(projects)==set(data["asset_ids"])
+    res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
+    assert res.status_code == 200
+    assert res.json["data"][0]["accountID"]==1
+    assert res.json["data"][0]["action"]=="CHANGE"
+    assert res.json["data"][0]["diff"]["added"]==[]
+    assert res.json["data"][0]["diff"]["removed"]==[]
+    assert res.json["data"][0]["diff"]["changed"][0]==["asset_ids",[link_asset_id],[]]
+    assert res.json["data"][0]["logID"]==4
+    assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
+    assert res.json["data"][0]["objectID"]==asset_id
+    assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 2}],
+    indirect=True,
+)
+def test_patch_assets_change_assets(valid_client, new_assets,db_conn):
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post(f"/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+
+    data = json.loads(new_assets[1].json())
+    res = valid_client.post(f"/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    asset_id=res.json["data"]
+    link_asset_id=res.json["data"]
+    data["asset_ids"].append(link_asset_id)
+    res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
+    assert res.status_code == 200
+    assert res.json=={"msg": "Updated asset"}
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT to_asset_id FROM assets_in_assets WHERE assets_in_assets.from_asset_id=%(asset_id)s;""",{"asset_id":asset_id})
+        tags=[row["to_asset_id"] for row in cur.fetchall()]
+        assert set(tags)==set(data["asset_ids"])
+    res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
+    assert res.status_code == 200
+    assert res.json["data"][0]["accountID"]==1
+    assert res.json["data"][0]["action"]=="CHANGE"
+    assert res.json["data"][0]["diff"]["added"]==[]
+    assert res.json["data"][0]["diff"]["removed"]==[]
+    assert res.json["data"][0]["diff"]["changed"][0]==["asset_ids",[],[link_asset_id]]
+    assert res.json["data"][0]["logID"]==3
+    assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
+    assert res.json["data"][0]["objectID"]==asset_id
+    assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
+    data["asset_ids"]==data["asset_ids"].pop()
+    res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
+    assert res.status_code == 200
+    assert res.json=={"msg": "Updated asset"}
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT to_asset_id FROM assets_in_assets WHERE assets_in_assets.from_asset_id=%(asset_id)s;""",{"asset_id":asset_id})
+        projects=[row["to_asset_id"] for row in cur.fetchall()]
+        assert set(projects)==set(data["asset_ids"])
+    res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
+    assert res.status_code == 200
+    assert res.json["data"][0]["accountID"]==1
+    assert res.json["data"][0]["action"]=="CHANGE"
+    assert res.json["data"][0]["diff"]["added"]==[]
+    assert res.json["data"][0]["diff"]["removed"]==[]
+    assert res.json["data"][0]["diff"]["changed"][0]==["asset_ids",[link_asset_id],[]]
+    assert res.json["data"][0]["logID"]==4
+    assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
+    assert res.json["data"][0]["objectID"]==asset_id
+    assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]

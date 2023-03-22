@@ -53,8 +53,8 @@ class AssetFactory(ModelFactory):
     __model__ = Asset
     link=Faker().unique.url()
     asset_ids=[]
-    tag_ids= lambda: sample(range(1, 10), k=randint(1, 5))
-    project_ids = lambda: sample(range(1, 10), k=randint(1, 5))
+    tag_ids= lambda: sample(range(1, 10), k=randint(2, 5))
+    project_ids = lambda: sample(range(1, 10), k=randint(2, 5))
     metadata = lambda: sample(list(AttributeFactory.batch(size=20)), k=5)+[(AttributeFactory.build(attribute_data_type="text",validation_data={"isOptional":True}))]
 
 

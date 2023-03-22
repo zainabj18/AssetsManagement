@@ -65,10 +65,10 @@ def asset_differ(orginal,new):
                 if isinstance(orginal[key],list) and isinstance(new[key],list):
                     list_removed=list(set(orginal[key])-set(new[key]))
                     list_added=list(set(new[key])-set(orginal[key]))
+                    print("I am here")
                     changed.append((key,tuple(list_removed),tuple(list_added)))   
                 else:
                     changed.append((key,orginal[key],new[key]))    
-
     return json.loads(Diff(added=added,removed=removed,changed=changed).json())
 def add_asset_to_db(db:ConnectionPool,data:dict,asset_id=None):
     asset=model_creator(model=Asset,err_msg="Failed to create asset from the data provided",**data)

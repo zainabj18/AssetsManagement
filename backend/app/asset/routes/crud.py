@@ -85,99 +85,19 @@ def update(id, user_id, access_level):
     utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
     new_asset=model_creator(model=Asset,err_msg="Failed to create asset from the data provided",**request.json)
     old_asset=Asset(**services.fetch_asset(db=db,asset_id=id).dict())
-    
+    print(new_asset.tag_ids)
+    print(old_asset.tag_ids)
     diff=utils.asset_differ(old_asset.dict(by_alias=True),new_asset.dict(by_alias=True))
     utils.add_asset_to_db(db=db,data=request.json,asset_id=id)
-    tags_removed=set(old_asset.tag_ids)-set(new_asset.tag_ids)
     print(diff)
+    tags_removed=list(set(old_asset.tag_ids)-set(new_asset.tag_ids))
+    projects_removed=list(set(old_asset.project_ids)-set(new_asset.project_ids))
+    assets_removed=list(set(old_asset.asset_ids)-set(new_asset.asset_ids))
+    services.delete_tags_from_asset(db=db,asset_id=id,tags=tags_removed)
+    services.delete_projects_from_asset(db=db,asset_id=id,projects=projects_removed)
+    services.delete_assets_from_asset(db=db,asset_id=id,asset_ids=assets_removed)
     audit_log_event(db,Models.ASSETS,user_id,id,diff,Actions.CHANGE)
-    #services.delete_assets_from_asset(db=db,asset_ids=new_asset.asset_ids,asset_id=id)
-    #services.delete_projects_from_asset(db=db,projects=new_asset.)
-#     with db.connection() as conn:
-#         with conn.cursor() as cur:
-            
-#             cur.execute(
-#                 """SELECT version_id FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",
-#                 {"asset_ids":asset["assets"]})
-#             asset_types=set([x[0] for x in cur.fetchall()])
-#             cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(type_id)s;""",{"type_id": asset["version_id"]})
-#             dependents= set([x[0] for x in cur.fetchall()])
-#             if not asset_types.issuperset(dependents):
-#                 return (
-#                     jsonify(
-#                         {
-#                             "msg": "Missing dependencies",
-#                             "data": f"Must inlcude assets with type {dependents}",
-#                             "error": "Failed to create asset from the data provided",
-#                         }
-#                     ),
-#                     400,
-#                 )
-#             cur.execute(
-#                     """
-#                 INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
-#         VALUES (1,%(account_id)s,%(asset_id)s,%(diff)s,%(action)s);""",
-#                     {"account_id":user_id,"asset_id":asset["asset_id"],"diff":json.dumps(diff_dict),"action":Actions.CHANGE},
-#                 )
-#             print(asset)
-#             cur.execute(
-#                 """
-#             UPDATE assets 
-#             SET name=%(name)s,link=%(link)s,description=%(description)s,version_id=%(version_id)s,classification=%(classification)s,last_modified_at=now() WHERE asset_id=%(asset_id)s ;""",
-#                 asset,
-#             )
-#             cur.execute("""
-#             DELETE FROM assets_in_tags WHERE tag_id = ANY(%(tag_ids)s) AND asset_id=%(asset_id)s;
-#             """,{"tag_ids":tags_removed,"asset_id":asset["asset_id"]})
-#             cur.execute("""
-#             DELETE FROM assets_in_projects WHERE project_id = ANY(%(project_ids)s) AND asset_id=%(asset_id)s;
-#             """,{"project_ids":projects_removed,"asset_id":asset["asset_id"]})
-#             cur.execute("""
-#             DELETE FROM assets_in_assets WHERE to_asset_id = ANY(%(asset_ids)s) AND from_asset_id=%(asset_id)s;
-#             """,{"asset_ids":assets_removed,"asset_id":asset["asset_id"]})
-#             for a in assets_added:
-#                 cur.execute(
-#                     """
-#                 INSERT INTO assets_in_assets (from_asset_id,to_asset_id)
-#         VALUES (%(from_asset_id)s,%(to_asset_id)s);""",
-#                     {"from_asset_id": asset["asset_id"], "to_asset_id": a},
-#                 )
-#             for tag in tags_added:
-#                 cur.execute(
-#                     """
-#                 INSERT INTO assets_in_tags (asset_id,tag_id)
-#         VALUES (%(asset_id)s,%(tag_id)s);""",
-#                     {"asset_id": asset["asset_id"], "tag_id": tag},
-#                 )
-#             # add asset to projects to db
-#             for project in projects_added:
-#                 cur.execute(
-#                     """
-#                 INSERT INTO assets_in_projects (asset_id,project_id)
-#         VALUES (%(asset_id)s,%(project_id)s);""",
-#                     {"asset_id": asset["asset_id"], "project_id": project},
-#                 )
-# DELETE metadata values
-#             # updates metadatat values
-#             print(asset["metadata"],"hello")
-#             for attribute in asset["metadata"]:
-#                 # cur.execute(
-#                 #     """
-#                 # UPDATE attributes_values 
-#                 # SET value=%(attributeValue)s WHERE asset_id=%(asset_id)s AND attribute_id=%(attributeID)s;""",
-#                 #     {"asset_id": id, **attribute},
-#                 # )
-#                 cur.execute(
-#                     """
-#                 INSERT INTO attributes_values (asset_id,attribute_id,attribute_value)
-#         VALUES (%(asset_id)s,%(attributeID)s,%(attributeValue)s) ON CONFLICT (asset_id,attribute_id) DO UPDATE
-# SET value = EXCLUDED.value""",
-#                     {
-#                         "asset_id": id,
-#                         **attribute
-#                     },
-#                 )
-            
+    print(diff)
     return {"msg": "Updated asset"}
 
 
