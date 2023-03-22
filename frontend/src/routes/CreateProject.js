@@ -11,7 +11,7 @@ import {
 	FormErrorMessage,Select
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
-import {createProject, fetchPeople, fetchProjects, getProjectType,getProjectByID, deleteProject} from '../api.js';
+import {createProject, fetchPeople, fetchProjects, getProjectType,getProjectByID, deleteProject, updateProject} from '../api.js';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
@@ -47,16 +47,12 @@ const CreateProject = () => {
 	/**
  	* The Function handleDelete deletes a project with the provided index.
  	*
- 	* @param {number} index - The index of the project that is to delete.
  	* @returns {void}
  	*/
-	const handleDelete = (index) => {
-		const DeleteProject = projects[index];
-		console.log('Deleting project:', DeleteProject);
-		console.log('Deleting project:', DeleteProject.projectID);
+	const handleDelete = () => {
 		deleteProject(id).then((data) => {
 			if (data.wasAllowed === false) {
-				alert('Project ' + DeleteProject.projectName + ' is depended upon, can not be deleted.');
+				alert('Project ' + newName + ' is depended upon, can not be deleted.');
 			}
 			else {
 				set_toggle.toggle();
@@ -89,12 +85,18 @@ const CreateProject = () => {
  	*/
 
 	const addProject = () => {
-		if (isProjectNameIn(newName, projects)) {
-			setFormError('This project name is already used');
-		}else{
-			createProject({ name: newName, description: newDescription, accounts: selectedPeople }).then(_ => {
-				navigate('../');
-			});
+		if (id !== null){
+			updateProject({id: id,private: !isPublic,selectedPeople: selectedPeople });
+			navigate('../');
+		}
+		else {
+			if (isProjectNameIn(newName, projects)) {
+				setFormError('This project name is already used');
+			}else{
+				createProject({ name: newName, description: newDescription, accounts: selectedPeople }).then(_ => {
+					navigate('../');
+				});
+			}
 		}
 
 	};
@@ -128,7 +130,7 @@ const CreateProject = () => {
  	*/
 	const adjustSelectedPeople = (checked, value) => {
 		console.log(value);
-		let list = selectedProjectType;
+		let list = selectedPeople;
 		if (checked){
 			list.push(value);
 		}
@@ -136,7 +138,7 @@ const CreateProject = () => {
 			let index = list.indexOf(value);
 			list.splice(index,1);
 		}
-		setselectedProjectType(list);
+		setSelectedPeople(list);
 	};
 
 	
@@ -150,18 +152,13 @@ const CreateProject = () => {
 			async function load_project() {
 				let data = await getProjectByID(id);
 				console.log(data);
-				setNewName(data.data.name);
-				setNewDescription(data.data.description);
+				setNewName(data.data.projectName);
+				setNewDescription(data.data.projectDescription);
 			}
 			load_project();
 			console.log(id);
 		}else{
-			async function load_allPeople() {
-				let data = await fetchPeople();
-				console.log(data);
-				setAllPeople(data.data);
-			}
-			load_allPeople();
+			
 
 			async function load_allProjects() {
 				let data = await fetchProjects();
@@ -170,39 +167,45 @@ const CreateProject = () => {
 			}
 			load_allProjects();
 
-			async function load_projectType() {
-				let data = await getProjectType();
-				console.log(data);
-				setProjectType(data.data);
-			}
 		}
+		async function load_allPeople() {
+			let data = await fetchPeople();
+			console.log(data);
+			setAllPeople(data.data);
+		}
+		load_allPeople();
 
 	}, []);
 
 	/**
  	* The code below returns a functional component that renders a form for adding or editing a project.
  	*/
+	console.log(newName,newDescription);
 	return (<Flex w='100%' minH='80vh' alignItems={'stretch'} p={2} border>
 		
 		<Box w='100%' minH='100%' bg='white' alignItems='left'>
 			
 			<VStack p={3} >
 				<FormControl isInvalid = {formError !== ''}>
+
 					<Input
 						type="text"
-						placeholder="Project Name"
-						value={newName}
+						placeholder = {((newName === '')? 'projectName':newName)}
+						defaultValue={newName}
 						onChange={(event) => setNewName(event.target.value)}
 						name="name"
+						isDisabled = {newName !== ''}
+	
 					/>
 					<FormErrorMessage>{formError}</FormErrorMessage>
 				</FormControl>
 				<Input
 					type="text"
-					placeholder="Description"
-					value={newDescription}
+					placeholder={((newDescription === '')? 'projectDescription':newDescription)}
+					defaultValue={newDescription}
 					onChange={(event) => changeDescription(event.target.value)}
 					name="description"
+					isDisabled = {newDescription !== ''}
 				/>
 				
 				<Checkbox
@@ -210,31 +213,31 @@ const CreateProject = () => {
 						Private
 				</Checkbox>
 			
-      			{isPublic && id 
-      			? null:<>
-						<Text>Add People To Project</Text>
-						<Box alignItems='left'>
-							{allPeople.map((person, index) => {
-								return (
-									<Checkbox
-										onChange={(e) => adjustSelectedPeople(e.target.checked, person.accountID)}>
+      			{!isPublic && <>
+					<Text>Add People To Project</Text>
+					<Box alignItems='left'>
+						{allPeople.map((person, index) => {
+							return (
+								<Checkbox
+									key={index}
+									onChange={(e) => adjustSelectedPeople(e.target.checked, person.accountID)}>
 						    {person.username}
-									</Checkbox>
-								);
-							})}
-						</Box>
-						<Box alignItems='left'>
-							{projectType.map((person, index) => {
-								return (
-									<Checkbox
-										onChange={(e) => adjustProjectType(e.target.checked, person.accountPrivileges)}>
+								</Checkbox>
+							);
+						})}
+					</Box>
+					<Box alignItems='left'>
+						{projectType.map((person, index) => {
+							return (
+								<Checkbox
+									onChange={(e) => adjustProjectType(e.target.checked, person.accountPrivileges)}>
 						    {person.accountPrivileges}
-									</Checkbox>
-								);
-							})}
-						</Box>
+								</Checkbox>
+							);
+						})}
+					</Box>
 			
-					</>
+				</>
 				}
 			</VStack>
 					
@@ -244,12 +247,11 @@ const CreateProject = () => {
 					<Button 						
 						colorScheme='red' 
 						variant={'solid'} 
-						onClick={() => handleDelete(id)}>
+						onClick={() => handleDelete()}>
 						Delete Project
 					</Button>
 				)}
 			</HStack>
-			
 			
 		</Box>		
 	</Flex>
