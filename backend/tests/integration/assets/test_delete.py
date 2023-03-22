@@ -1,9 +1,10 @@
 import pytest
 import json
-from app.db import Models,UserRole,DataAccess
 
-def check_db_references(db_conn,asset_id):
-    with db_conn.cursor() as cur:
+from app.db import Models,UserRole,DataAccess,Actions
+from psycopg.rows import dict_row
+def check_db_references(db_conn,asset_id,valid_client):
+    with db_conn.cursor(row_factory=dict_row) as cur:
         cur.execute(
             """SELECT * FROM assets WHERE asset_id=%(asset_id)s;""",{"asset_id":asset_id})
         assert cur.fetchone() is None
@@ -23,8 +24,17 @@ def check_db_references(db_conn,asset_id):
             """SELECT * FROM assets_in_projects WHERE asset_id=%(asset_id)s;""",{"asset_id":asset_id})
         assert cur.fetchone() is None
         cur.execute(
-            """SELECT * FROM audit_logs WHERE object_id=%(asset_id)s AND model_id=%(model_id)s;""",{"asset_id":asset_id,"model_id":int(Models.ASSETS)})
-        assert len(cur.fetchall())==1
+            """SELECT * FROM audit_logs WHERE object_id=%(asset_id)s AND model_id=%(model_id)s ORDER BY log_id DESC;""",{"asset_id":asset_id,"model_id":int(Models.ASSETS)})
+        logs=cur.fetchall()
+        assert len(logs)==2
+        assert logs[0]["account_id"]==1
+        assert logs[0]["action"]==Actions.DELETE
+        assert logs[0]["diff"]=={}
+        assert logs[0]["model_id"]==int(Models.ASSETS)
+        assert logs[0]["object_id"]==asset_id
+        res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
+        assert res.status_code == 404
+
 
 @pytest.mark.parametrize(
     "new_assets",
@@ -39,7 +49,7 @@ def test_delete(valid_client, new_assets,db_conn):
     asset_id = res.json["data"]
     res = valid_client.delete(f"/api/v1/asset/{asset_id}")
     assert res.status_code == 200
-    check_db_references(db_conn=db_conn,asset_id=asset_id)
+    check_db_references(db_conn=db_conn,asset_id=asset_id,valid_client=valid_client)
 
 @pytest.mark.parametrize(
     "new_assets",
@@ -83,10 +93,11 @@ def test_delete_with_links(valid_client, new_assets,db_conn):
         data["asset_ids"]=[]
         res = valid_client.delete(f"/api/v1/asset/{asset_ids[x-1]}")
         assert res.status_code == 200
-        check_db_references(db_conn=db_conn,asset_id=asset_ids[x-1])
+        check_db_references(db_conn=db_conn,asset_id=asset_ids[x-1],valid_client=valid_client)
     res = valid_client.delete(f"/api/v1/asset/{first_asset_id}")
     assert res.status_code == 200
-    check_db_references(db_conn=db_conn,asset_id=first_asset_id)
+    check_db_references(db_conn=db_conn,asset_id=first_asset_id,valid_client=valid_client)
+
 
 
 def test_delete_get_invalid_id(valid_client):

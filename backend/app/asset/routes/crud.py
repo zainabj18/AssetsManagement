@@ -122,7 +122,6 @@ def delete(id,user_id, access_level):
     db = get_db()
     utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
     dependencies=services.fetch_asset_dependencies(db=db,asset_id=id)
-    print(dependencies)
     if dependencies:
         return {"msg":"Asset has dependencies","data":dependencies}, 400
     services.delete_tags_from_asset(db=db,asset_id=id)
@@ -130,8 +129,7 @@ def delete(id,user_id, access_level):
     services.delete_assets_from_asset(db=db,asset_id=id)
     services.delete_attributes_from_asset(db=db,asset_id=id)
     services.delete_asset(db=db,asset_id=id)
-    #TODO:Abort if can't view
-
+    audit_log_event(db,Models.ASSETS,user_id,id,{},Actions.DELETE)
     return {}, 200
 
 #TODO:Moves to tags

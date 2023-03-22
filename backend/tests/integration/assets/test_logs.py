@@ -49,3 +49,25 @@ def test_logs_add(valid_client,new_assets):
     assert res.json["data"][0]["objectID"]==1
     assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
     assert datetime.fromisoformat(res.json["data"][0]["date"])<datetime.now()
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_logs_delete(valid_client,new_assets):
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    asset_id=res.json["data"]
+    res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
+    assert res.status_code == 200
+    assert res.json["data"][0]["accountID"]==1
+    assert res.json["data"][0]["action"]=="ADD"
+    assert res.json["data"][0]["diff"]=={"added":list(data.keys())}
+    assert res.json["data"][0]["logID"]==1
+    assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
+    assert res.json["data"][0]["objectID"]==1
+    assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
+    assert datetime.fromisoformat(res.json["data"][0]["date"])<datetime.now()
