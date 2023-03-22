@@ -65,10 +65,13 @@ class AssetSummary(BaseModel):
         allow_population_by_field_name = True
 
 class Asset(AssetBase):
-    project_ids: List[int]
-    tag_ids: List[int]
-    asset_ids: Optional[List[int]]
+    project_ids: List[int]=Field(..., alias="projectIDs")
+    tag_ids: List[int]=Field(..., alias="tagIDs")
+    asset_ids: Optional[List[int]]=Field(..., alias="assetIDs")
     metadata: List[Attribute]
+
+    class Config:
+        allow_population_by_field_name = True
 
     @validator("metadata", each_item=True, pre=True)
     def check_metadata(cls, v):

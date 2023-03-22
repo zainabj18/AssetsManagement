@@ -43,6 +43,10 @@ import SearchSelect from './formfields/SearchSelect';
 import SelectFormField from './formfields/SelectFormField';
 import ListFormField from './formfields/ListFormField';
 
+
+const FormErrors = () => {
+	
+};
 const AssetViewer = () => {
 	const { id } = useParams();
 	const {user} = useAuth();
@@ -153,42 +157,35 @@ const AssetViewer = () => {
 
 	const createNewAsset = (e) => {
 		e.preventDefault();
-		//axios.post('/api/v1/asset/new', assetSate);
-		console.log(Object.entries(assetSate));
-		console.log(assetSate.name.length);
+		console.log(assetSate);
+		const REQUIRED_FIELDS=['name','link','version_id','description','classification'];
 		setErrors([]);
 		let errs=[];
-		for (const [key, value] of Object.entries(assetSate)) {
-			if(value.length===0 && key!=='projects' && key!=='assets'){
-				errs.push(key+' is required');
-			}
-			
-		}
-		console.log(assetSate.metadata);
-		for (const [key, value] of Object.entries(assetSate.metadata)){
-			if(!value.validation.isOptional && (!(value.hasOwnProperty('attributeValue'))) || (value.hasOwnProperty('attributeValue') && value.attributeValue.length===0)){
-				errs.push(value.attributeName);
+		for (const field of REQUIRED_FIELDS){
+			console.log(field);
+			if ((!assetSate.hasOwnProperty(field)) ||  ((!assetSate.hasOwnProperty(field)) && assetSate[field].length===0)){
+				errs.push(field+' is required');
 			}
 		}
-	
 		if (projects.length===0){
 			errs.push('project(s) is required');
 		}
 		if (errs.length===0){
 			console.log('Sending data');
 			
-			let project_ids=projects.map(p=>p.projectID);
-			let tag_ids=assetSate.tags.map(t=>t.id);
-			let asset_ids=assets.map(a=>assetsList[a].asset_id);
+			let projectIDs=projects.map(p=>p.projectID);
+			let tagIDs=assetSate.tags.map(t=>t.id);
+			let assetIDs=assets.map(a=>assetsList[a].asset_id);
 			let assetObj={
 				asset_id:id,
 				...assetSate,
-				projects: project_ids,
-				assets:asset_ids,
-				tags:tag_ids
+				projectIDs: projectIDs,
+				assetIDs:assetIDs,
+				tagIDs:tagIDs
 			};
-			console.log(assetObj);
+			
 			if (id){
+				console.log(assetObj);
 				updateAsset(id,assetObj).then(
 					res=>fetchAsset(id).then((res)=>{
 						setAssetState(res.data);}).catch(err=>{
@@ -328,12 +325,11 @@ const AssetViewer = () => {
 							}}
 						>
 							<option key={'placeholder'} selected disabled>
-								{id?assetSate.type:'Select a type'}
+								{id?assetSate.type_name:'Select a type'}
 							</option>
 							{
 								types.map((value, key) => {
 									return (
-								
 										<option key={key} value={value.version_id}>
 											{value.type_name}
 										</option>
