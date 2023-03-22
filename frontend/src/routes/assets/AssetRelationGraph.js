@@ -16,7 +16,7 @@ const AssetRelationGraph = () => {
 	}, []);
 
 	return (
-		<RadialGraph data={data} show2WayInKey={false}/>
+		<RadialGraph data={data} show2WayInKey={false} size='800' radiusPercent='0.5'/>
 	);
 };
 

@@ -31,7 +31,7 @@ const RadialGraph = ({
 	useEffect(() => {
 		onLoad();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [data]);
 
 	const getX = (index) => {
 		return center + radius * Math.sin(index * angleSplit);
