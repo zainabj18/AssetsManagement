@@ -169,8 +169,6 @@ def change_project():
     
     return{"msg": ""}, 200
 
-
-
 """
 Creates a new project with the data provided in the POST request and inserts it into the database.
 Also inserts the associated accounts into the people_in_projects table.
