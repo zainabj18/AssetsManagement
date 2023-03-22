@@ -1,11 +1,11 @@
 from flask import abort,jsonify
 from app.core.utils import run_query,QueryResult
-from app.schemas import Comment,CommentOut,AssetOut,AttributeSearcher,QueryOperation,Log,Attribute,AssetBaseInDB,Project,AssetBaseInDB,AttributeInDB
+from app.schemas import Comment,CommentOut,AssetOut,AttributeSearcher,QueryOperation,Log,Attribute,AssetBaseInDB,Project,AssetBaseInDB,AttributeInDB,AssetSummary
 from app.db import DataAccess,Models
 from psycopg.rows import class_row
 from psycopg_pool import ConnectionPool
 from psycopg import sql
-from typing import List,Any,Union
+from typing import List,Any,Union,Optional
 def abort_asset_not_exists(db:ConnectionPool,asset_id:int):
     """Checks that an asset exist if not aborts.
 
@@ -261,6 +261,8 @@ def update_asset(db:ConnectionPool,name:str,link:str,version_id:int,description:
     Returns:
       A dictionary containing they key asset_id.
     """
+    print("I am running this query")
+    print(asset_id)
     return run_query(db,"""
     UPDATE assets 
 SET name=%(name)s,link=%(link)s,description=%(description)s,version_id=%(version_id)s,classification=%(classification)s,last_modified_at=now() WHERE asset_id=%(asset_id)s ;""",
@@ -376,11 +378,19 @@ def add_asset_metadata_to_db(db:ConnectionPool,asset_id:int,metadata:List[Attrib
                         "value": attribute.attribute_value,
                     },
                 )
-
-    print(run_query(db,"""SELECT * FROM attributes_values WHERE attributes_values.asset_id=%(asset_id)s;""",{"asset_id":asset_id},return_type=QueryResult.ALL))
-        
+         
 def fetch_asset(db:ConnectionPool,asset_id:int):
     """Fetches an asset's with all its metadata and attributes from db.
+
+    Args:
+      db: A object for managing connections to the db.
+      asset_id: The asset's id to fetch.
+    """
+    return run_query(db, """SELECT * FROM assets_out WHERE asset_id=%(asset_id)s""",
+                    {"asset_id": asset_id},row_factory=class_row(AssetOut),return_type=QueryResult.ONE)
+
+def fetch_asset_flattend(db:ConnectionPool,asset_id:int):
+    """Fetches an asset's with all its project_ids,asset_ids,metadata and attributesfrom db.
 
     Args:
       db: A object for managing connections to the db.
@@ -461,7 +471,7 @@ def fetch_versions_attributes(db:ConnectionPool,version_id:int):
         WHERE type_version=%(type_version)s;""",{"type_version":version_id},return_type=QueryResult.ALL_JSON,row_factory=class_row(AttributeInDB))
 
 
-def delete_projects_from_asset(db:ConnectionPool,projects:List[int],asset_id:int):
+def delete_projects_from_asset(db:ConnectionPool,asset_id:int,projects:Optional[List[int]]=None):
     """Deletes the realtionship between projects and an asset.
 
     Args:
@@ -469,9 +479,12 @@ def delete_projects_from_asset(db:ConnectionPool,projects:List[int],asset_id:int
       projects: The list of projects to deleted.
       asset_id: The asset id to remove the projects from.
     """
-    return run_query(db,"""DELETE FROM assets_in_projects WHERE project_id = ANY(%(project_ids)s) AND asset_id=%(asset_id)s;""",{"project_ids":projects,"asset_id":asset_id})
+    query=sql.Composed([sql.SQL("""DELETE FROM assets_in_projects WHERE asset_id=%(asset_id)s""")])
+    if projects is not None:
+        query+=sql.SQL(" AND project_id = ANY(%(project_ids)s);")
+    return run_query(db,query,{"project_ids":projects,"asset_id":asset_id})
 
-def delete_tags_from_asset(db:ConnectionPool,tags:List[int],asset_id:int):
+def delete_tags_from_asset(db:ConnectionPool,asset_id:int,tags:Optional[List[int]]=None):
     """Deletes the realtionship between tags and an asset.
 
     Args:
@@ -479,9 +492,12 @@ def delete_tags_from_asset(db:ConnectionPool,tags:List[int],asset_id:int):
       tags: The list of tags to deleted.
       asset_id: The asset id to remove the tags from.
     """
-    return run_query(db,"""DELETE FROM assets_in_tags WHERE tag_id = ANY(%(tag_ids)s) AND asset_id=%(asset_id)s;""",{"tag_ids":tags,"asset_id":asset_id})
+    query=sql.Composed([sql.SQL("""DELETE FROM assets_in_tags WHERE asset_id=%(asset_id)s""")])
+    if tags is not None:
+        query+=sql.SQL(" AND tag_id = ANY(%(tag_ids)s);")
+    return run_query(db,query,{"tag_ids":tags,"asset_id":asset_id})
 
-def delete_attributes_from_asset(db:ConnectionPool,attributes:List[int],asset_id:int):
+def delete_attributes_from_asset(db:ConnectionPool,asset_id:int,attributes:Optional[List[int]]=None):
     """Deletes the realtionship between attributes and an asset.
 
     Args:
@@ -489,15 +505,41 @@ def delete_attributes_from_asset(db:ConnectionPool,attributes:List[int],asset_id
       attributes: The list of attributes ids to deleted.
       asset_id: The asset id to remove the attributes from.
     """
-    return run_query(db,"""DELETE FROM attributes_values WHERE attribute_id = ANY(%(attributes)s) AND asset_id=%(asset_id)s;""",{"attributes":attributes,"asset_id":asset_id})
+    query=sql.Composed([sql.SQL("""DELETE FROM attributes_values WHERE asset_id=%(asset_id)s""")])
+    if attributes is not None:
+        query+=sql.SQL(" AND attribute_id = ANY(%(attributes)s);")
+    return run_query(db,query,{"attributes":attributes,"asset_id":asset_id})
 
 
-def delete_assets_from_asset(db:ConnectionPool,asset_ids:List[int],asset_id:int):
+def delete_assets_from_asset(db:ConnectionPool,asset_id:int,asset_ids:Optional[List[int]]=None):
     """Deletes the realtionship between assets and an asset.
 
     Args:
       db: A object for managing connections to the db.
       asset_ids: The list of assets ids to deleted.
-      asset_id: The asset id to remove the tags from.
+      asset_id: The asset id to remove the assets from.
     """
-    return run_query(db,"""DELETE FROM assets_in_assets WHERE to_asset_id = ANY(%(asset_ids)s) AND from_asset_id=%(asset_id)s;""",{"asset_ids":asset_ids,"asset_id":asset_id})
+    query=sql.Composed([sql.SQL("""DELETE FROM assets_in_assets WHERE from_asset_id=%(asset_id)s""")])
+    if asset_ids is not None:
+        query+=sql.SQL(" AND to_asset_id = ANY(%(asset_ids)s);")
+    return run_query(db,query,{"asset_ids":asset_ids,"asset_id":asset_id})
+
+def delete_asset(db:ConnectionPool,asset_id:int):
+    """Deletes an asset from db.
+
+    Args:
+      db: A object for managing connections to the db.
+      asset_id: The asset id to delete.
+    """
+    return run_query(db,"""DELETE FROM assets WHERE asset_id=%(asset_id)s""",{"asset_id":asset_id})
+
+def fetch_asset_dependencies(db:ConnectionPool,asset_id:int):
+    """Finds all asset depene.
+
+    Args:
+      db: A object for managing connections to the db.
+      asset_id: The asset id to check the dependecnies for.
+    """
+    return run_query(db,"""SELECT asset_id,name FROM assets_in_assets
+INNER JOIN assets ON assets_in_assets.from_asset_id=assets.asset_id
+WHERE to_asset_id=%(asset_id)s""",{"asset_id":asset_id},row_factory=class_row(AssetSummary),return_type=QueryResult.ALL_JSON)

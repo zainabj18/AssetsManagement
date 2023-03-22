@@ -7,7 +7,7 @@ from app.core.utils import model_creator
 
 bp = Blueprint("filter", __name__, url_prefix="/filter")
 
-@bp.route("/filter", methods=["POST"])
+@bp.route("/", methods=["POST"])
 def filter():
     """Finds all assets based on filter criteria.
 

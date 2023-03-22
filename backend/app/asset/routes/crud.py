@@ -83,7 +83,7 @@ def update(id, user_id, access_level):
     db = get_db()
     utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
     new_asset=model_creator(model=Asset,err_msg="Failed to create asset from the data provided",**request.json)
-    old_asset=Asset(**services.fetch_asset(db=db,asset_id=id).dict())
+    old_asset=Asset(**services.fetch_asset_flattend(db=db,asset_id=id).dict())
     diff=utils.asset_differ(old_asset.dict(by_alias=True),new_asset.dict(by_alias=True))
     utils.add_asset_to_db(db=db,data=request.json,asset_id=id)
     tags_removed=list(set(old_asset.tag_ids)-set(new_asset.tag_ids))
@@ -98,17 +98,22 @@ def update(id, user_id, access_level):
     return {"msg": "Updated asset"}
 
 
-
 @bp.route("/<id>", methods=["DELETE"])
-def delete(id):
+@protected(role=UserRole.USER)
+def delete(id,user_id, access_level):
     db = get_db()
+    utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
+    dependencies=services.fetch_asset_dependencies(db=db,asset_id=id)
+    print(dependencies)
+    if dependencies:
+        return {"msg":"Asset has dependencies","data":dependencies}, 400
+    services.delete_tags_from_asset(db=db,asset_id=id)
+    services.delete_projects_from_asset(db=db,asset_id=id)
+    services.delete_assets_from_asset(db=db,asset_id=id)
+    services.delete_attributes_from_asset(db=db,asset_id=id)
+    services.delete_asset(db=db,asset_id=id)
     #TODO:Abort if can't view
-    with db.connection() as db_conn:
-        with db_conn.cursor() as cur:
-            cur.execute(
-                """UPDATE assets SET soft_delete = %(del)s WHERE asset_id=%(id)s;""",
-                {"id": id, "del": 1},
-            )
+
     return {}, 200
 
 #TODO:Moves to tags

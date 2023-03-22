@@ -6,9 +6,9 @@ import pytest
 )
 def test_related_tags(valid_client, new_assets):
     related_tags={}
-    tags=set(new_assets[0].tags)
+    tags=set(new_assets[0].tag_ids)
     for asset in new_assets[1:]:
-        tags_in_common = len(tags.intersection(asset.tags))
+        tags_in_common = len(tags.intersection(asset.tag_ids))
         if tags_in_common>0:
             related_tags[asset.asset_id]=tags_in_common
     res = valid_client.get(f"/api/v1/asset/related/tags/{new_assets[0].asset_id}")
@@ -27,10 +27,10 @@ def test_related_tags(valid_client, new_assets):
 )
 def test_related_projects(valid_client, new_assets):
     related_projects={}
-    projects=set(new_assets[0].projects)
+    projects=set(new_assets[0].project_ids)
     for asset in new_assets[1:]:
-        projects_in_common = len(projects.intersection(asset.projects))
-        print(asset.projects)
+        projects_in_common = len(projects.intersection(asset.project_ids))
+        print(asset.project_ids)
         if projects_in_common>0:
             related_projects[asset.asset_id]=projects_in_common
     res = valid_client.get(f"/api/v1/asset/related/projects/{new_assets[0].asset_id}")

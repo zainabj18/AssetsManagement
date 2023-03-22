@@ -67,7 +67,7 @@ def test_new_assset_requires_projects(valid_client):
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
-        "loc": ["projects"],
+        "loc": ["project_ids"],
         "msg": "field required",
         "type": "value_error.missing",
     } in res.json["data"]
@@ -79,7 +79,7 @@ def test_new_assset_requires_tags(valid_client):
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
-        "loc": ["tags"],
+        "loc": ["tag_ids"],
         "msg": "field required",
         "type": "value_error.missing",
     } in res.json["data"]
@@ -127,32 +127,32 @@ def test_new_assset_string_types_incorect(valid_client, attribute, json):
     } in res.json["data"]
 
 def test_new_assset_tags_list_incorect_type(valid_client):
-    res = valid_client.post("/api/v1/asset/", json={"tags": ["1", []]})
+    res = valid_client.post("/api/v1/asset/", json={"tag_ids": ["1", []]})
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
-        "loc": ["tags", 1],
+        "loc": ["tag_ids", 1],
         "msg": "value is not a valid integer",
         "type": "type_error.integer",
     } in res.json["data"]
 
 def test_new_assset_project_list_incorect(valid_client):
-    res = valid_client.post("/api/v1/asset/", json={"projects": ["1", []]})
+    res = valid_client.post("/api/v1/asset/", json={"project_ids": ["1", []]})
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
-        "loc": ["projects", 1],
+        "loc": ["project_ids", 1],
         "msg": "value is not a valid integer",
         "type": "type_error.integer",
     } in res.json["data"]
 
 
 def test_new_assset_asssets_list_incorect(valid_client):
-    res = valid_client.post("/api/v1/asset/", json={"assets": ["1", []]})
+    res = valid_client.post("/api/v1/asset/", json={"asset_ids": ["1", []]})
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
-        "loc": ["assets", 1],
+        "loc": ["asset_ids", 1],
         "msg": "value is not a valid integer",
         "type": "type_error.integer",
     } in res.json["data"]
@@ -174,7 +174,7 @@ def test_new_assset_metadata_incorrect_integer(valid_client):
         ("link", {"link": "assetLink"}),
         ("type", {"type": "assetType"}),
         ("description", {"description": "assetDescription"}),
-        ("tags", {"tags": ["assetTag1", "assetTag2"]}),
+        ("tag_ids", {"tag_ids": ["assetTag1", "assetTag2"]}),
         ("classification", {"classification": "CONFIDENTIAL"}),
         ("project", {"project": "projectName"}),
         (
@@ -287,7 +287,7 @@ def test_new_assets_tags_in_db(valid_client, new_assets, db_conn):
             {"id": res.json["data"]},
         )
         tags = [row[0] for row in cur.fetchall()]
-        assert set(tags) == set(new_assets[0].tags)
+        assert set(tags) == set(new_assets[0].tag_ids)
 
 @pytest.mark.parametrize(
     "new_assets",
@@ -305,7 +305,7 @@ def test_new_assets_projects_in_db(valid_client, new_assets, db_conn):
             {"id": res.json["data"]},
         )
         projects = [row[0] for row in cur.fetchall()]
-        assert set(projects) == set(new_assets[0].projects)
+        assert set(projects) == set(new_assets[0].project_ids)
 
 
 
@@ -413,7 +413,9 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
             type_name=cur.fetchone()[0]
     asset_1 = json.loads(new_assets[0].json())
     res = valid_client.post("/api/v1/asset/", json=asset_1)
+    print(res.json)
     assert res.status_code == 201
+   
     assert res.json["msg"] == "Added asset"
     assert res.json["data"]
     asset_id=res.json["data"]
@@ -447,7 +449,7 @@ def test_new_assets_dependents(valid_client, new_assets,db_conn):
     assert res.json["data"]
     asset_id=res.json["data"]
     asset_2 = json.loads(new_assets[1].json())
-    asset_2["assets"]=[asset_id]
+    asset_2["asset_ids"]=[asset_id]
     res = valid_client.post("/api/v1/asset/", json=asset_2)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"

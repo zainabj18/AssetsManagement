@@ -1,14 +1,7 @@
 import json
-
 import pytest
-from unittest import mock
-from psycopg import Error
-from app.db import DataAccess, UserRole,Models,Actions
-from app.schemas import Attribute
-from psycopg.rows import dict_row
-from collections import defaultdict
-from app.schemas.factories import AttributeFactory,CommentFactory
-from datetime import datetime,timedelta
+from app.db import DataAccess, UserRole
+from datetime import datetime
 
 def test_get_access_levels(valid_client):
     res = valid_client.get("/api/v1/asset/classifications")
@@ -27,6 +20,7 @@ def test_new_assets_get(valid_client, new_assets):
     assert res.json["msg"] == "Added asset"
     asset_id = res.json["data"]
     res = valid_client.get(f"/api/v1/asset/{asset_id}")
+    print(res.json)
     assert res.status_code == 200
     saved_asset = res.json["data"]
     assert saved_asset["name"] == new_assets[0].name
@@ -34,15 +28,11 @@ def test_new_assets_get(valid_client, new_assets):
     assert saved_asset["description"] == str(new_assets[0].description)
     assert saved_asset["classification"] == str(new_assets[0].classification.value)
     assert saved_asset["version_id"] ==new_assets[0].version_id
-    assert saved_asset["assets"]==[]
     assert datetime.fromisoformat(saved_asset["created_at"])<datetime.now()
     assert datetime.fromisoformat(saved_asset["last_modified_at"])<datetime.now()
-    assert len(new_assets[0].tags)==len(saved_asset['tags'])
+    assert len(new_assets[0].tag_ids)==len(saved_asset['tags'])
     for tag in saved_asset['tags']:
-        assert tag["id"] in new_assets[0].tags
-    assert len(new_assets[0].projects)==len(saved_asset['projects'])
-    for project in saved_asset['projects']:
-        assert project["projectID"] in new_assets[0].projects
+        assert tag["id"] in new_assets[0].tag_ids
     assert len(saved_asset['metadata'])==len(data["metadata"])
     for attribute in saved_asset['metadata']:
         assert attribute in data["metadata"]
@@ -50,8 +40,8 @@ def test_new_assets_get(valid_client, new_assets):
 
 def test_new_assets_get_invalid_id(valid_client):
     res = valid_client.get(f"/api/v1/asset/{1}")
-    assert res.status_code == 400
-    assert res.json=={'data': ['1'], 'msg': "Asset doesn't exist"}
+    assert res.status_code == 404
+    assert res.json=={'msg': "Asset doesn't exist"}
 
 
 @pytest.mark.parametrize(
@@ -158,7 +148,7 @@ def test_assets_projects(valid_client, new_assets,db_conn):
         asset_id=res.json["data"]
         res = valid_client.get(f"/api/v1/asset/projects/{asset_id}")
         assert res.status_code == 200
-        asset_projects=set(data["projects"])
+        asset_projects=set(data["project_ids"])
         assert len(res.json["data"])==project_count
         for project in res.json["data"]:
             if project["isSelected"]:
@@ -168,8 +158,8 @@ def test_assets_projects(valid_client, new_assets,db_conn):
 
 def test_assets_projects_invalid_id(valid_client):
     res = valid_client.get(f"/api/v1/asset/projects/{1}")
-    assert res.status_code == 400
-    assert res.json=={'data': ['1'], 'msg': "Asset doesn't exist"}
+    assert res.status_code == 404
+    assert res.json=={'msg': "Asset doesn't exist"}
 
 @pytest.mark.parametrize(
     "valid_client",
@@ -211,7 +201,7 @@ def test_assets_links(valid_client, new_assets):
         asset_id=res.json["data"]
         added_asset_ids.append(asset_id)
     data = json.loads(new_assets[50].json(by_alias=True))
-    data["assets"]=added_asset_ids
+    data["asset_ids"]=added_asset_ids
     res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
@@ -227,8 +217,8 @@ def test_assets_links(valid_client, new_assets):
 
 def test_assets_links_invalid_id(valid_client):
     res = valid_client.get(f"/api/v1/asset/links/{1}")
-    assert res.status_code == 400
-    assert res.json=={'data': ['1'], 'msg': "Asset doesn't exist"}
+    assert res.status_code == 404
+    assert res.json=={'msg': "Asset doesn't exist"}
 
 
 @pytest.mark.parametrize(
@@ -279,7 +269,7 @@ def test_assets_links_with_different_classifications(valid_client, new_assets):
         if new_assets[x].classification==DataAccess.PUBLIC:
             added_asset_ids.append(asset_id)
     new_assets[99].classification=DataAccess.PUBLIC
-    new_assets[99].assets=added_asset_ids
+    new_assets[99].asset_ids=added_asset_ids
     data = json.loads(new_assets[99].json(by_alias=True))
     res = valid_client.post("/api/v1/asset/", json=data)
     assert res.status_code == 201

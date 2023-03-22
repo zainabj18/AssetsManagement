@@ -78,6 +78,7 @@ def add_asset_to_db(db:ConnectionPool,data:dict,asset_id=None):
     if asset_id is None:
         asset_id =services.add_asset_to_db(db=db,**db_asset)["asset_id"]
     else:
+        print("I am blue")
         services.update_asset(db=db,asset_id=asset_id,**db_asset)
     services.add_asset_tags_to_db(db=db,asset_id=asset_id,tags=asset.tag_ids)
     services.add_asset_projects_to_db(db=db,asset_id=asset_id,projects=asset.project_ids)

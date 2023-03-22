@@ -56,7 +56,13 @@ class AssetBaseInDB(AssetBase):
     is_selected: Optional[bool]=Field(None, alias="isSelected")
     class Config:
         extra = Extra.allow
+        allow_population_by_field_name = True
 
+class AssetSummary(BaseModel):
+    asset_id:int=Field(..., alias="assetID")
+    name: str
+    class Config:
+        allow_population_by_field_name = True
 
 class Asset(AssetBase):
     project_ids: List[int]

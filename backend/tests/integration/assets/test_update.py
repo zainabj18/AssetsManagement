@@ -160,6 +160,7 @@ def test_patch_assets(valid_client, new_assets):
 )
 def test_patch_assets_change_fields(valid_client, new_assets,db_conn,field):
     data = json.loads(new_assets[0].json())
+    print(data)
     res = valid_client.post(f"/api/v1/asset/", json=data)
     assert res.status_code == 201
     assert res.json["msg"] == "Added asset"
