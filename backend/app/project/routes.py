@@ -142,14 +142,21 @@ def people_list():
 def get_id(id):
     db = get_db()
     query = """SELECT name, description, type FROM projects WHERE id=%(id)s """
+    query1 = """SELECT account_id FROM people_in_projects WHERE project_id=%(id)s"""
     key = {"id": id}
     with db.connection() as conn:
-       res = conn.execute(query,key)
-       project = res.fetchall()[0]
-       data = {
+        res = conn.execute(query,key)
+        project = res.fetchall()[0]
+        res = conn.execute(query1,key)
+        accounts =  res.fetchall()
+        for i, tup in enumerate(accounts):
+            accounts[i] = tup[0]
+        print(project)
+        data = {
                     "projectName":project[0],
                     "projectDescription":project[1],
-                    "projectType": project[2]
+                    "projectType": project[2],
+                    "linkedAccounts": accounts
                 }
     return {"data": data}, 200
 

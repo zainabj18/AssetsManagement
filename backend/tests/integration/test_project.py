@@ -44,14 +44,22 @@ def test_project_list(client, db_conn):
 
 
 def test_get_project(client, db_conn):
-    
+    q1 = """INSERT INTO accounts(first_name,last_name,username,hashed_password) VALUES ('john','mark','john123','321')"""
+    q2 = """INSERT INTO accounts(first_name,last_name,username,hashed_password) VALUES ('sam','johnstone','sam69','123')"""
+    q3 = """INSERT INTO accounts(first_name,last_name,username,hashed_password) VALUES ('Taka','Minamino','taka12','690')"""
+    q4 = """INSERT INTO people_in_projects (account_id, project_id) VALUES (%(account)s, %(project)s)"""
     with db_conn.connection as conn:
         with conn.cursor() as cur:
-            cur.execute("""INSERT INTO projects(name, description, type) VALUES ('TestProject', 'This is a test project', 'PUBLIC') RETURNING id;""")
-            project_id = cur.fetchone()[0]
+            cur.execute("""INSERT INTO projects(name, description, type) VALUES ('TestProject', 'This is a test project', 'PUBLIC');""")
+            cur.execute(q1)
+            cur.execute(q2)
+            cur.execute(q3)
+            cur.execute(q4,{"account": 1,"project": 1})
+            cur.execute(q4,{"account": 2,"project": 1})
+            cur.execute(q4,{"account": 3,"project": 1})
 
     
-    res = client.get(f"/api/v1/project/{project_id}")
+    res = client.get("/api/v1/project/1")
 
     assert res.status_code == 200
 
@@ -59,13 +67,14 @@ def test_get_project(client, db_conn):
         "projectName": "TestProject",
         "projectDescription": "This is a test project",
         "projectType": "PUBLIC",
-        "linkedAccounts": [1, 2, 3, 5, 6]
+        "linkedAccounts": [1, 2, 3]
     }
-    assert res.json == {"data": expected_data}
+    print(res.json)
+    assert res.json['data']['projectName'] == expected_data['projectName']
+    assert res.json['data']['projectDescription'] == expected_data['projectDescription']
+    assert res.json['data']['projectType'] == expected_data['projectType']
+    assert res.json['data']['linkedAccounts'] == expected_data['linkedAccounts']
 
-   
-    with db_conn.connection as conn:
-        conn.execute("""DELETE FROM projects WHERE id = %s""", (project_id,))
 
 
 
