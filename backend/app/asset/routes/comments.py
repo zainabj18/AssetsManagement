@@ -4,8 +4,8 @@ from http import HTTPStatus
 from app.core.utils import protected,model_creator,audit_log_event
 from app.db import UserRole, get_db,Actions,Models,DataAccess
 from app.schemas import Comment,CommentOut
-from ..services import abort_asset_not_exists,insert_comment_to_db,fetch_asset_comments,delete_comment_db
-
+from ..services import insert_comment_to_db,fetch_asset_comments,delete_comment_db
+from ..utils import can_view_asset
 bp = Blueprint("comment", __name__, url_prefix="/comment")
 
 
@@ -38,7 +38,7 @@ def add_comment(id:int,user_id:int,access_level:DataAccess):
     """
     comment=model_creator(model=Comment,err_msg="Failed to add comment from the data provided",**request.json)
     db = get_db()
-    abort_asset_not_exists(db,id)
+    can_view_asset(db=db,asset_id=id,access_level=access_level)
     insert_comment_to_db(db,comment,user_id,id)
     audit_log_event(db,Models.ASSETS,user_id,id,{"added":["comment"]},Actions.ADD)
     return {"msg": "Comment added"}
@@ -75,7 +75,7 @@ def fetch_comments(id:int,user_id:int, access_level:DataAccess):
       A list of comments as dicts for an asset.
     """
     db = get_db()
-    abort_asset_not_exists(db,id)
+    can_view_asset(db=db,asset_id=id,access_level=access_level)
     comments=fetch_asset_comments(db,id)
     return {"msg": "Comments","data":comments}
 
@@ -113,6 +113,7 @@ def delete_comment(id:int,comment_id:int,user_id:int, access_level:DataAccess):
       A msg saying it has been deleted.
     """
     db = get_db()
+    can_view_asset(db=db,asset_id=id,access_level=access_level)
     delete_comment_db(db,comment_id)
     audit_log_event(db,Models.ASSETS,user_id,id,{"removed":[f"comment-{comment_id}"]},Actions.ADD)
     return {"msg": "Comment deleted"}
