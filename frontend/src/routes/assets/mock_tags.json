@@ -13,7 +13,7 @@
       {
           "linkColor": "blue",
           "source": 48,
-          "target": 2
+          "target": 2 
       },
       {
           "linkColor": "blue",
@@ -2289,7 +2289,7 @@
           "degree": 3,
           "id": 1,
           "name": "TtdOFUqEVspQySQoafaW",
-          "size": 2.386294361119891,
+          "size": 5,
           "version_id": 6655
       }
   ]

@@ -175,14 +175,15 @@ const AssetViewer = () => {
 			
 			let projectIDs=projects.map(p=>p.projectID);
 			let tagIDs=assetSate.tags.map(t=>t.id);
-			let assetIDs=assets.map(a=>assetsList[a].asset_id);
+			let assetIDs=assets.map(a=>assetsList[a].assetID);
 			let assetObj={
-				asset_id:id,
+				assetID:id,
 				...assetSate,
 				projectIDs: projectIDs,
 				assetIDs:assetIDs,
 				tagIDs:tagIDs
 			};
+			console.log(assetObj);
 			
 			if (id){
 				console.log(assetObj);

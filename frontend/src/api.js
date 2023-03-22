@@ -193,3 +193,6 @@ export const deleteUserAcc = async (id) => {
 export const getRelatedAssetsGraphData = async(id) => {
 	return await axios.get(`/graph/asset/${id}`).then(res => res.data);
 };
+export const getAssetsGraphData = async() => {
+	return await axios.get('/graph/assets').then(res => res.data);
+};
