@@ -185,3 +185,9 @@ export const addComment = async (id,comment) => {
 export const deleteComment = async (id,comment_id) => {
 	return await axios.delete(`/asset/comment/${id}/remove/${comment_id}`).then(res => res.data);
 };
+export const createUser = async (id) => {
+	return await axios.post('/auth/register', id).then(res => res.data);
+};
+export const deleteUserAcc = async (id) => {
+	return await axios.post('/auth/register', id).then(res => res.data);
+};
