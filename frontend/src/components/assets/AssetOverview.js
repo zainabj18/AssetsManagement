@@ -14,6 +14,7 @@ const AssetOverview=() => {
 		{to:'./outgoing',name:'Outgoing Asset Links'},
 		{to:'./incomming',name:'Incomming Asset Links'},
 		{to:'./comments',name:'Comments'},
+		{to: './graph',name:'Relationship Graph'},
 		{to:'./logs',name:'Logs'}]);
 
 	useEffect(() => {

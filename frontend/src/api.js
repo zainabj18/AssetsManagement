@@ -173,7 +173,6 @@ export const isAttributeNameIn = async (name) => {
 export const makeBackfill = async (data) => {
 	return await axios.post('type/backfill', data).then(res => res.data);
 };
-
 export const fetchComments = async (id) => {
 	return await axios.get(`/asset/comment/${id}`).then(res => res.data);
 };
@@ -190,4 +189,10 @@ export const createUser = async (id) => {
 };
 export const deleteUserAcc = async (id) => {
 	return await axios.post('/auth/register', id).then(res => res.data);
+};
+export const getRelatedAssetsGraphData = async(id) => {
+	return await axios.get(`/graph/asset/${id}`).then(res => res.data);
+};
+export const getAssetsGraphData = async() => {
+	return await axios.get('/graph/assets').then(res => res.data);
 };

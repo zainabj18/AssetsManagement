@@ -20,6 +20,8 @@ import AttributeViewer from './routes/AttributeViewer';
 import ProjectViewer from './routes/ProjectViewer';
 import TypeEditor from './routes/TypeEditor';
 import Logs from './routes/Logs';
+import AsssetGraph from './routes/assets/AssetGraph';
+import AssetRelationGraph from './routes/assets/AssetRelationGraph';
 import Comments from './routes/assets/Comments';
 import {ErrorBoundary} from 'react-error-boundary';
 import { fetchRelatedClassification, fetchRelatedFrom, fetchRelatedProjects, fetchRelatedTags, fetchRelatedTo, fetchRelatedType } from './api';
@@ -35,6 +37,7 @@ function App() {
 						<Route path="assets/" element={<SubLayout name="Assets"/>}>
 							<Route index element={<AssetsOverview />} />
 							<Route path="new" element={<AssetViewer />} />
+							<Route path="graph" element={<AsssetGraph />} />
 							<Route path=":id" element={<AssetOverview />}>
 								<Route index element={<AssetViewer />} />	
 								<Route path="comments" element={<Comments />} />	
@@ -45,11 +48,13 @@ function App() {
 								<Route path="projects" element={<RelatedToTable relatedFunc={fetchRelatedProjects}/>} />
 								<Route path="outgoing" element={<RelatedToTable relatedFunc={fetchRelatedFrom}/>} />
 								<Route path="incomming" element={<RelatedToTable relatedFunc={fetchRelatedTo}/>} />
+								<Route path="graph" element={<AssetRelationGraph />} />
 							</Route>
 						</Route>
 						<Route path="projects/" element={<SubLayout name="Projects"/>}>
 							<Route index element={<ProjectViewer/>} />
 							<Route path="new" element={<CreateProject />} />
+
 						</Route>
 
 						<Route path="tags/" element={<Tags />}>
