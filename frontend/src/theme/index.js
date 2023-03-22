@@ -11,7 +11,15 @@ import shadows from './foundations/shadows';
 import { tableTheme } from './components/Table';
 import { checkboxTheme } from './components/Checkbox';
 
+
 const overrides = {
+	colors: {
+		transparent: 'transparent',
+		PUBLIC: 'green',
+		INTERNAL: 'orange',
+		RESTRICTED: 'brown',
+		CONFIDENTIAL: 'red',
+	},
 	styles,
 	shadows:shadows,
 	components: {

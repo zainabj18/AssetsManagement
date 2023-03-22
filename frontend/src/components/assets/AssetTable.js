@@ -1,11 +1,9 @@
-import { Badge,Box } from '@chakra-ui/react';
-import { useEffect, useMemo, useState } from 'react';
+import { Badge } from '@chakra-ui/react';
+import { useEffect, useMemo } from 'react';
 import { Link as NavLink } from 'react-router-dom';
-import { fetchAssetClassifications } from '../../api';
 import CustomTable from '../CustomTable';
 import {Link } from '@chakra-ui/react';
 const AssetTable = ({assets,setSelectedAssets,preSelIDs,cols}) => {
-	const [colours,setColors]=useState({});
 	const columns =useMemo(()=>
 	{ 
 		let orginal={
@@ -25,7 +23,7 @@ const AssetTable = ({assets,setSelectedAssets,preSelIDs,cols}) => {
 			'classification':{
 				header: 'Asset Classification',
 				canFilter:true,
-				Cell:(row,value)=>{return <Badge bg={colours[value]} color={'white'}>{value}</Badge>;}
+				Cell:(row,value)=>{return <Badge bg={value} color={'white'}>{value}</Badge>;}
 			},
 		};
 		if (cols){
@@ -33,26 +31,13 @@ const AssetTable = ({assets,setSelectedAssets,preSelIDs,cols}) => {
 		}
 		return orginal;
 	}
-	,[colours,cols]);
+	,[cols]);
 	useEffect(() => {
-		console.log(assets,'I am assets');
-		fetchAssetClassifications().then((data)=>{
-			let classification_levels=data.data;
-			let customColours={};
-			let RED=225;
-			let GREEN=128;
-			for (let i = 0; i < classification_levels.length; i++) {
-				let factor=i/(classification_levels.length-1);
-				customColours[classification_levels[i]]=`rgb(${factor*RED},${(1-factor)*GREEN},0)`;
-			}
-			console.log(customColours);
-			setColors(customColours);
-			
-			
-		}).catch((err) => {console.log(err);});},[assets,cols]);
-	return (colours && (
 
-		<CustomTable rows={assets} cols={columns}  setSelectedRows={setSelectedAssets} preSelIDs={preSelIDs}/>  ));
+	},[assets,cols]);
+	return (
+
+		<CustomTable rows={assets} cols={columns}  setSelectedRows={setSelectedAssets} preSelIDs={preSelIDs}/>);
 };
  
 export default AssetTable;
