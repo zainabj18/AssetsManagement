@@ -2,7 +2,7 @@
 from random import choice, sample, randint
 from typing import Optional
 from faker import Faker
-from app.schemas import Asset, AttributeInDB, Project, TagBase, TypeBase,TagInDB,TypeVersion,Comment
+from app.schemas import Asset, Attribute, Project, TagBase, TypeBase,TagInDB,TypeVersion,Comment
 from pydantic_factories import ModelFactory, PostGenerated, Use
 f=Faker()
 
@@ -39,7 +39,7 @@ def add_value(name: str, values: dict, *args, **kwds):
 
 
 class AttributeFactory(ModelFactory):
-    __model__ = AttributeInDB
+    __model__ = Attribute
 
     attribute_data_type = Use(
         choice,
@@ -52,9 +52,9 @@ class AttributeFactory(ModelFactory):
 class AssetFactory(ModelFactory):
     __model__ = Asset
     link=Faker().unique.url()
-    assets=[]
-    tags = lambda: sample(range(1, 10), k=randint(1, 5))
-    projects = lambda: sample(range(1, 10), k=randint(1, 5))
+    asset_ids=[]
+    tag_ids= lambda: sample(range(1, 10), k=randint(2, 5))
+    project_ids = lambda: sample(range(1, 10), k=randint(2, 5))
     metadata = lambda: sample(list(AttributeFactory.batch(size=20)), k=5)+[(AttributeFactory.build(attribute_data_type="text",validation_data={"isOptional":True}))]
 
 

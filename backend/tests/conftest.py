@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from app.db import UserRole, DataAccess
-from app.schemas import AssetBaseInDB
+from app.schemas import Attribute
 from app.schemas.factories import TypeVersionFactory,TypeFactory,AttributeFactory
 import jwt
 import json
@@ -88,6 +88,10 @@ def type_verions(db_conn,request):
     added_versions=[]
     with db_conn.cursor() as cur:
         cur.execute(
+                """SELECT version_id FROM type_version;""",
+        )
+        versions_in_db=[row[0] for row in cur.fetchall()]
+        cur.execute(
                 """SELECT type_id FROM types;""",
         )
         types_in_db=[row[0] for row in cur.fetchall()]
@@ -97,11 +101,15 @@ def type_verions(db_conn,request):
         new_type_id=1
     new_type=TypeFactory.build(type_id=new_type_id,type_name=f'Test-{new_type_id}-{len(types_in_db)}')
     verion_ids=set()
+    versions_in_db.append(0)
+    version_id_counter=max(versions_in_db)+1
     batch_size_counter=batch_size
     while len(added_versions)<batch_size:
         batch_result = TypeVersionFactory.batch(size=batch_size_counter,type_id=new_type_id) 
         for type_verion in batch_result:
             if type_verion.version_id not in verion_ids:
+                type_verion.version_id=version_id_counter
+                version_id_counter+=1
                 verion_ids.add(type_verion.version_id)
                 added_versions.append(type_verion)
         batch_size_counter=batch_size-len(added_versions)
@@ -124,6 +132,7 @@ def type_verions(db_conn,request):
             attributes=AttributeFactory.batch(size=20)
             type_version.attributes=attributes
             attribute_ids=[]
+            type_version.attribute_ids=attribute_ids
             for attribute in attributes:
                 attribute_in = attribute.dict(exclude={"validation_data"})
                 attribute_in["validation_data"] = json.dumps(attribute.validation_data)
@@ -145,4 +154,4 @@ def type_verions(db_conn,request):
                     {"attribute_id": id, "type_version": type_version.version_id},
                 )
         db_conn.commit()
-        return (added_versions,new_type)
+        return {"added":added_versions,"type":new_type}

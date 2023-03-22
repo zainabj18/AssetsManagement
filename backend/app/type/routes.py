@@ -1,7 +1,7 @@
 import json
 
 from app.db import get_db
-from app.schemas import Attribute_Model, Type
+from app.schemas import AttributeBase, Type
 from flask import Blueprint, request
 from psycopg.rows import dict_row
 
@@ -109,7 +109,7 @@ WHERE row_rank=1""")
 
 @bp.route("/adder/new", methods=["POST"])
 def add_attribute():
-    new_attribute = Attribute_Model(**request.json)
+    new_attribute = AttributeBase(**request.json)
     db_attribute = new_attribute.dict(exclude={"validation_data"})
     db_attribute["validation_data"] = json.dumps(new_attribute.validation_data)
     database = get_db()
@@ -187,7 +187,7 @@ def get_allAttributes():
         res = conn.execute(query)
         allAttributes = res.fetchall()
         allAttributes_listed = extract_attributes(allAttributes)
-        return json.dumps(allAttributes_listed)
+        return {"data":allAttributes_listed}
 
 
 @bp.route("/allTypes", methods=["GET"])
@@ -221,7 +221,7 @@ def get_allTypes():
                 "metadata": attributes
             }
         )
-    return json.dumps(allTypes_listed), 200
+    return {"data":allTypes_listed}
 
 
 @bp.route("/delete/<id>", methods=["POST"])
@@ -332,7 +332,7 @@ def backfill():
     WHERE asset_id = %(asset_id)s;
     """
     query_b = """
-    INSERT INTO attributes_values (attribute_id, asset_id, value)
+    INSERT INTO attributes_values (attribute_id, asset_id, attribute_value)
     VALUES (%(attribute_id)s, %(asset_id)s, %(value)s)
     """
 

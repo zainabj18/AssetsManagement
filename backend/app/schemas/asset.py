@@ -1,137 +1,40 @@
 from datetime import datetime
 from typing import Any, List, Optional
-
-from app.db import DataAccess,Actions
-from pydantic import BaseModel, Field, ValidationError, root_validator, validator,Extra
+from app.db import DataAccess
+from pydantic import BaseModel, Field, ValidationError, validator,Extra
 from enum import Enum
+from .attribute import Attribute
+from .project import ProjectInDBBase
+from .tag import TagInDB
 
 class QueryOperation(Enum):
     EQUALS = "EQUALS"
     LIKE = "LIKE"
     HAS="HAS"
+class QueryJoin(Enum):  
     AND="AND"
     OR="OR"
 
-class Log(BaseModel):
-    log_id: int = Field(..., alias="logID")
-    account_id: int = Field(..., alias="accountID")
-    object_id:int = Field(..., alias="objectID")
-    model_id:int = Field(..., alias="modelID")
-    model_name:Optional[str] = Field(None, alias="modelName")
-    username:Optional[str]
-    action:Actions
-    date:datetime
-    class Config:
-        allow_population_by_field_name = True
-        extra = Extra.allow
-        json_encoders = {
-            Actions: lambda a: str(a.name),
-        }
-
-
 class AttributeSearcher(BaseModel):
-    attribute_id: Any = Field(..., alias="attributeID")
-    attribute_value: Any = Field(..., alias="attributeValue")
-    operation:QueryOperation
+    attribute_id: int = Field(..., alias="attributeID")
+    attribute_value: Any = Field(None, alias="attributeValue")
+    operation:QueryOperation=QueryOperation.EQUALS
 
     class Config:
         allow_population_by_field_name = True
+
 class FilterSearch(BaseModel):
     tags:List[int]=[]
     projects:List[int]=[]
     types:List[int]=[]
     classifications:Optional[List[DataAccess]]=[]
     attributes:List[AttributeSearcher]=[]
-    operation: QueryOperation = Field(QueryOperation.OR, alias="operation")
-    tag_operation: QueryOperation = Field(QueryOperation.OR, alias="tagOperation")
-    project_operation: QueryOperation = Field(QueryOperation.OR, alias="projectOperation")
+    operation: QueryJoin = Field(QueryJoin.OR, alias="operation")
+    tag_operation: QueryJoin = Field(QueryJoin.OR, alias="tagOperation")
+    project_operation: QueryJoin = Field(QueryJoin.OR, alias="projectOperation")
+    attribute_operation: QueryJoin = Field(QueryJoin.OR, alias="attributeOperation")
     class Config:
         allow_population_by_field_name = True
-    
-
-class TagBase(BaseModel):
-    id: Optional[int]
-    name: str = Field(..., min_length=1)
-
-
-class TagInDB(TagBase):
-    id: int
-
-
-class Attribute_Model(BaseModel):
-    attribute_id: Any = Field(None, alias="attributeID")
-    attribute_name: str = Field(..., alias="attributeName")
-    attribute_data_type: str = Field(..., alias="attributeType")
-    validation_data: Any = Field(None, alias="validation")
-
-    class Config:
-        allow_population_by_field_name = True
-
-class Comment(BaseModel):
-    comment: str=Field(...,min_length=1)
-    class Config:
-        allow_population_by_field_name = True
-
-class CommentOut(Comment):
-    comment_id:int
-    asset_id:int= Field(..., alias="assetID")
-    account_id:int= Field(..., alias="accountID")
-    datetime:datetime
-    username:Optional[str]
-    class Config:
-        allow_population_by_field_name = True
-class Attribute(Attribute_Model):
-    attribute_value: Any = Field(None, alias="attributeValue")
-    # cast string to correct type based on attribute type
-
-    @root_validator
-    def check_metadata(cls, values):
-        t = values.get("attribute_data_type")
-        v = values.get("attribute_value")
-        # check if string is actually and array and convert
-        if (
-            (t == "list" or t == "options")
-            and isinstance(v, str)
-            and v.startswith("{")
-            and v.startswith("{")
-        ):
-            values["attribute_value"] = v[1:-1].split(",")
-        # convert if a number
-        if (t == "num_lmt" or t == "number") and isinstance(v, str) and v.isnumeric():
-            values["attribute_value"] = int(v)
-        if t=="checkbox":
-            values["attribute_value"]=str(v).lower()=='true'
-        return values
-
-
-class AttributeInDB(Attribute):
-    pass
-
-
-class Type(BaseModel):
-    type_name: str = Field(..., alias="typeName")
-    metadata: List[AttributeInDB]
-    depends_on: List[int] = Field(..., alias="dependsOn")
-
-
-class TypeBase(BaseModel):
-    type_id: Optional[int]
-    type_name: str
-
-
-class Project(BaseModel):
-    id: Optional[int]=Field(None, alias="projectID")
-    name: str=Field(..., alias="projectName")
-    description: Optional[str]=Field(..., alias="projectDescription")
-    accounts: Optional[List[int]]
-
-    class Config:
-        allow_population_by_field_name = True
-        extra = Extra.allow
-
-class People(BaseModel):
-    account_id: Optional[int]
-    username: str
 
 class AssetBase(BaseModel):
     name: str
@@ -147,49 +50,48 @@ class AssetBase(BaseModel):
 
 
 class AssetBaseInDB(AssetBase):
-    asset_id: Optional[int]
-    created_at: datetime
-    last_modified_at: datetime
+    asset_id:int=Field(..., alias="assetID")
+    created_at: Optional[datetime]
+    last_modified_at: Optional[datetime]
+    is_selected: Optional[bool]=Field(None, alias="isSelected")
     class Config:
         extra = Extra.allow
+        allow_population_by_field_name = True
 
+class AssetSummary(BaseModel):
+    asset_id:int=Field(..., alias="assetID")
+    name: str
+    class Config:
+        allow_population_by_field_name = True
 
 class Asset(AssetBase):
-    # TODO change to conlist
-    projects: List[int]
-    tags: List[int]
-    assets: Optional[List[int]]
-    metadata: List[AttributeInDB]
-
-    @validator("metadata", each_item=True, pre=True)
-    def check_metadata(cls, v):
-        if isinstance(v, AttributeInDB):
-            return v
-        try:
-            AttributeInDB(**v)
-            return v
-        except ValidationError as e:
-            raise e
-
-
-class AssetOut(AssetBaseInDB):
-    type: str
-    projects: List[Any]
-    tags: List[Any]
-    assets: Optional[Any]
-    metadata: List[AttributeInDB]
-
-
-class TagBulkRequest(BaseModel):
-    to_tag_id: int = Field(..., alias="toTagID")
-    assest_ids: List[int] = Field(..., alias="assetIDs")
+    project_ids: List[int]=Field(..., alias="projectIDs")
+    tag_ids: List[int]=Field(..., alias="tagIDs")
+    asset_ids: Optional[List[int]]=Field(..., alias="assetIDs")
+    metadata: List[Attribute]
 
     class Config:
         allow_population_by_field_name = True
 
-class TypeVersion(BaseModel):
-    version_id:int
-    version_number:int
-    type_id:int
+    @validator("metadata", each_item=True, pre=True)
+    def check_metadata(cls, v):
+        if isinstance(v, Attribute):
+            return v
+        try:
+            Attribute(**v)
+            return v
+        except ValidationError as e:
+            raise e
+
+class AssetOut(AssetBaseInDB):
+    type_name: Optional[str]
+    tags: Optional[List[TagInDB]]
+    metadata: Optional[List[Attribute]]
     class Config:
-        extra = Extra.allow
+        allow_population_by_field_name = True
+
+class AssetFlattend(Asset,AssetOut):
+    projects: Optional[List[ProjectInDBBase]]
+    assets: Optional[List[Any]]
+    class Config:
+        allow_population_by_field_name = True

@@ -12,7 +12,7 @@ const AttributeSelection = ({ selectedAttributes_state, set_selectedAttributes_s
 	useEffect(() => {
 		async function load_allAttributes() {
 			let data = await fetchAllAttributes(res => res.data);
-			set_allAttributes(data);
+			set_allAttributes(data.data);
 		}
 		load_allAttributes();
 	}, [load_attribute_trigger]);

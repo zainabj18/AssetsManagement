@@ -137,7 +137,7 @@ CREATE TABLE attributes_values
  (
  	attribute_id INTEGER,
  	asset_id INTEGER,
-	value VARCHAR,
+	attribute_value VARCHAR,
  	PRIMARY KEY (attribute_id, asset_id),
 	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
  	FOREIGN KEY (attribute_id) REFERENCES attributes(attribute_id)
@@ -203,3 +203,52 @@ CREATE TABLE audit_logs
 	FOREIGN KEY (model_id) REFERENCES tracked_models(model_id),
 	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
  );
+--VIEWS 
+DROP VIEW IF EXISTS flatten_assets;
+DROP VIEW IF EXISTS assets_out;
+DROP VIEW IF EXISTS combined_attributes;
+DROP VIEW IF EXISTS assets_projects;
+DROP VIEW IF EXISTS assets_tags;
+DROP VIEW IF EXISTS assets_assets;
+DROP VIEW IF EXISTS type_names_versions;
+DROP VIEW IF EXISTS all_atributes;
+
+CREATE or REPLACE view all_atributes as
+SELECT asset_id,
+   unnest(array[-1,-2,-3]) AS "attribute_id",
+   unnest(array[name, link, description]) AS "values"
+FROM assets
+UNION ALL 
+SELECT * FROM attributes_values;
+
+CREATE or REPLACE VIEW combined_attributes AS
+SELECT attributes_values.asset_id,attributes_values.attribute_value,attributes.* FROM attributes_values
+INNER JOIN attributes ON attributes.attribute_id=attributes_values.attribute_id;
+
+CREATE or REPLACE VIEW assets_projects AS
+SELECT projects.*,assets_in_projects.asset_id FROM assets_in_projects
+INNER JOIN projects on projects.id=assets_in_projects.project_id;
+
+CREATE or REPLACE VIEW assets_tags AS
+SELECT tags.id,name,assets_in_tags.asset_id FROM assets_in_tags 
+INNER JOIN tags on tags.id=assets_in_tags.tag_id;
+
+CREATE or REPLACE VIEW type_names_versions AS
+SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
+INNER JOIN types ON types.type_id=type_version.type_id;
+
+
+CREATE or REPLACE VIEW assets_out AS(
+SELECT assets.*,type_names_versions.type_name,
+(SELECT COALESCE(json_agg(row_to_json(assets_tags)),'[]'::json) FROM assets_tags WHERE assets_tags.asset_id=assets.asset_id) as tags,
+(SELECT COALESCE(json_agg(row_to_json(combined_attributes)),'[]'::json)  FROM combined_attributes WHERE asset_id=assets.asset_id) AS metadata
+FROM assets
+INNER JOIN type_names_versions ON type_names_versions.version_id=assets.version_id);
+
+CREATE or REPLACE VIEW flatten_assets AS(
+SELECT assets_out.*,
+(SELECT COALESCE(json_agg(row_to_json(assets_projects)),'[]'::json) FROM assets_projects WHERE assets_projects.asset_id=assets_out.asset_id) as projects,
+ARRAY(SELECT tag_id FROM assets_in_tags WHERE assets_in_tags.asset_id=assets_out.asset_id) as tag_ids,
+ARRAY(SELECT project_id FROM assets_in_projects WHERE assets_in_projects.asset_id=assets_out.asset_id) as project_ids,
+ARRAY(SELECT to_asset_id FROM assets_in_assets WHERE from_asset_id=assets_out.asset_id) as asset_ids
+FROM assets_out);
