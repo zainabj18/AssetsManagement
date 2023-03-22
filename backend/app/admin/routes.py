@@ -38,7 +38,7 @@ def extract_people(people):
                 }
         )
     return allPeople_listed
-
+@bp.route("/accountmanager", methods=["DELETE"])
 def deleteUsers():
     database = get_db()
     query = """DELETE FROM accounts;"""
