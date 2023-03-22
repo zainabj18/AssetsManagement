@@ -43,6 +43,33 @@ def test_project_list(client, db_conn):
 #         }
 
 
+def test_get_project(client, db_conn):
+    
+    with db_conn.connection as conn:
+        with conn.cursor() as cur:
+            cur.execute("""INSERT INTO projects(name, description, type) VALUES ('TestProject', 'This is a test project', 'PUBLIC') RETURNING id;""")
+            project_id = cur.fetchone()[0]
+
+    
+    res = client.get(f"/api/v1/project/{project_id}")
+
+    assert res.status_code == 200
+
+    expected_data = {
+        "projectName": "TestProject",
+        "projectDescription": "This is a test project",
+        "projectType": "PUBLIC",
+        "linkedAccounts": [1, 2, 3, 5, 6]
+    }
+    assert res.json == {"data": expected_data}
+
+   
+    with db_conn.connection as conn:
+        conn.execute("""DELETE FROM projects WHERE id = %s""", (project_id,))
+
+
+
+
 def test_project_route(client, db_conn):
     test_project = {
         "name": "Project1",
@@ -69,42 +96,82 @@ def test_project_route(client, db_conn):
         assert project["description"] == test_project["description"]
 
 
-def test_get_project_account(client,db_conn):
-    test_project = {
-        "name": "Project1",
-        "description": "New Project",
-        "accounts": [2,3]
+def test_update_project(client, db_conn):
+    q1 = """INSERT INTO accounts(first_name,last_name,username,hashed_password) VALUES ('john','mark','john123','321')"""
+    q2 = """INSERT INTO accounts(first_name,last_name,username,hashed_password) VALUES ('sam','johnstone','sam69','123')"""
+    q3 = """INSERT INTO projects(id,name,description,type) VALUES ('1','project1','newproject1','PUBLIC')"""
+    q4 = """INSERT INTO projects(id,name,description,type) VALUES ('2','project2','newproject2','PRIVATE')"""
+    with db_conn as conn: 
+        conn.execute(q1)
+        conn.execute(q2)
+        conn.execute(q3)
+        conn.execute(q4)
+
+    key = {
+        'id': 1,
+        'name': 'project1',
+        'description': 'newproject1',
+        'type': 'PUBLIC',
+        'private': True,
+        'selectedPeople': [1, 2]
     }
-    q1 = """INSERT INTO accounts(first_name,last_name,username,hashed_password) VALUES ('john','mark','john123','321')"""
-    q2 = """INSERT INTO accounts(first_name,last_name,username,hashed_password) VALUES ('sam','johnstone','sam69','123')"""
-    q3 = """INSERT INTO accounts(first_name,last_name,username,hashed_password) VALUES ('Taka','Minamino','taka12','690')"""
-    with db_conn as conn: 
-        conn.execute(q1)
-        conn.execute(q2)
-        conn.execute(q3)
-    client.post("/api/v1/project/new", json=test_project)
-    res = client.get("/api/v1/project/")
-    assert res.json["data"][0]["accounts"][0]["username"] == 'john123'
-    assert res.json["data"][0]["accounts"][1]["username"] == 'sam69'
 
-def test_get_people(client,db_conn):
-   
-    q1 = """INSERT INTO accounts(first_name,last_name,username,hashed_password) VALUES ('john','mark','john123','321')"""
-    q2 = """INSERT INTO accounts(first_name,last_name,username,hashed_password) VALUES ('sam','johnstone','sam69','123')"""
-    q3 = """INSERT INTO accounts(first_name,last_name,username,hashed_password) VALUES ('Taka','Minamino','taka12','690')"""
-    with db_conn as conn: 
-        conn.execute(q1)
-        conn.execute(q2)
-        conn.execute(q3)
-    res = client.get("/api/v1/project/allPeople")
-    assert res.json["data"][1]["username"] == 'john123'
-    assert res.json["data"][2]["username"] == 'sam69'
-    assert res.json["data"][3]["username"] == 'taka12'
+    response = client.post("/api/v1/project/changeProjects", json=key)
 
-    assert res.json["data"][1]["lastName"] == 'mark'
-    assert res.json["data"][2]["lastName"] == 'johnstone'
-    assert res.json["data"][3]["lastName"] == 'Minamino'
+    print(response.get_json())
 
-    assert res.json["data"][1]["firstName"] == 'john'
-    assert res.json["data"][2]["firstName"] == 'sam'
-    assert res.json["data"][3]["firstName"] == 'Taka'
+    assert response.status_code == 200
+
+    with db_conn as conn:
+        cursor = conn.cursor()
+        query = """SELECT * FROM projects WHERE id=%s"""
+        cursor.execute(query, (1,))
+        result = cursor.fetchone()
+
+        
+        column_names = [desc[0] for desc in cursor.description]
+
+       
+        result_as_dict = dict(zip(column_names, result))
+
+        assert result_as_dict['name'] == key['name']
+        assert result_as_dict['description'] == key['description']
+        assert result_as_dict['type'] == key['type']
+
+        query = """SELECT account_id FROM people_in_projects WHERE project_id=%s ORDER BY account_id"""
+        cursor.execute(query, (1,))
+        results = cursor.fetchall()
+
+       
+        results_as_dicts = [dict(zip(column_names, row)) for row in results]
+
+        account_ids = [row['account_id'] for row in results_as_dicts]
+
+
+
+
+# def test_get_project_with_people(client, db_conn):
+#     # Add test data to the database
+#     q1 = """INSERT INTO accounts(first_name, last_name, username, hashed_password) VALUES ('John', 'Doe', 'johndoe', 'password')"""
+#     q2 = """INSERT INTO projects(id, name, description, type) VALUES ('1', 'Project 1', 'Description of project 1', 'PUBLIC')"""
+#     q3 = """INSERT INTO people_in_projects(project_id, account_id) VALUES ('1', '1')"""
+#     with db_conn as conn: 
+#         conn.execute(q1)
+#         conn.execute(q2)
+#         conn.execute(q3)
+
+#     # Send GET request to /api/v1/project/1
+#     response = client.get('/api/v1/project/1')
+
+#     # Check that the response status code is 200 OK
+#     assert response.status_code == 200
+
+#     # Check that the response includes the expected project details
+#     expected_project_data = {
+#         "projectName": "Project 1",
+#         "projectDescription": "Description of project 1",
+#         "projectType": "PUBLIC",
+#         "peopleInProject": [{"firstName": "John", "lastName": "Doe", "username": "johndoe"}]
+#     }
+#     assert response.json()['data'] == expected_project_data
+    
