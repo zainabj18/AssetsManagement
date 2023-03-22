@@ -1,10 +1,11 @@
 from unittest import mock
 from psycopg import Error
 from psycopg.rows import dict_row
-from app.db import UserRole, DataAccess
+from app.db import UserRole, DataAccess,Models
 from app.schemas.factories import TagInDBFactory
 import pytest
-
+import os
+from collections import defaultdict
 def create_tags_in_db(db_conn,size=1,**kwargs):
     tags=TagInDBFactory.batch(size,**kwargs)
     tags_in_db=[]
@@ -199,8 +200,8 @@ def test_tag_copy_to_requires_tag_id(valid_client):
                 "msg": "field required",
                 "type": "value_error.missing",
             } in res.json["data"]
-    assert res.json["error"]=="Failed to copy to tag from the data provided"
-    assert res.json["msg"]=="Data provided is invalid"
+    assert res.json["msg"]=="Failed to copy to tag from the data provided"
+ 
 
 def test_tag_copy_to_requires_assest_ids_list(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={})
@@ -210,8 +211,8 @@ def test_tag_copy_to_requires_assest_ids_list(valid_client):
                 "msg": "field required",
                 "type": "value_error.missing",
             } in res.json["data"]
-    assert res.json["error"]=="Failed to copy to tag from the data provided"
-    assert res.json["msg"]=="Data provided is invalid"
+    assert res.json["msg"]=="Failed to copy to tag from the data provided"
+ 
 
 def test_tag_copy_to_requires_tag_id_int(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={"to_tag_id":"j"})
@@ -221,8 +222,8 @@ def test_tag_copy_to_requires_tag_id_int(valid_client):
                 "msg": "value is not a valid integer",
                 "type": "type_error.integer",
             } in res.json["data"]
-    assert res.json["error"]=="Failed to copy to tag from the data provided"
-    assert res.json["msg"]=="Data provided is invalid"
+    assert res.json["msg"]=="Failed to copy to tag from the data provided"
+ 
 
 def test_tag_copy_to_requires_assest_ids_list(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={"assest_ids":"j"})
@@ -232,8 +233,8 @@ def test_tag_copy_to_requires_assest_ids_list(valid_client):
                 "msg": 'value is not a valid list',
                 "type": "type_error.list",
             } in res.json["data"]
-    assert res.json["error"]=="Failed to copy to tag from the data provided"
-    assert res.json["msg"]=="Data provided is invalid"
+    assert res.json["msg"]=="Failed to copy to tag from the data provided"
+ 
 
 def test_tag_copy_to_requires_assest_ids_list_ints(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={"assest_ids":["j",1]})
@@ -243,13 +244,14 @@ def test_tag_copy_to_requires_assest_ids_list_ints(valid_client):
                 "msg":'value is not a valid integer',
                 "type": "type_error.integer",
             } in res.json["data"]
-    assert res.json["error"]=="Failed to copy to tag from the data provided"
-    assert res.json["msg"]=="Data provided is invalid"
+    assert res.json["msg"]=="Failed to copy to tag from the data provided"
+ 
 
 def test_tag_copy_to_requires_valid_to_tag_id(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={"to_tag_id":1,"assest_ids":[1]})
+    print(res.json)
     assert res.status_code == 400
-    assert res.json=={'data': 1, 'error': "Tag 1 doesn't exist", 'msg': 'Data provided is invalid'}
+    assert res.json=={'msg': "Tag 1 doesn't exist"}
 
 
 @pytest.mark.parametrize(
@@ -260,8 +262,8 @@ def test_tag_copy_to_requires_valid_to_tag_id(valid_client):
 @pytest.mark.parametrize(
     "valid_client",
     [
-        ({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC}),
-        ({"account_type": UserRole.USER, "account_privileges": DataAccess.PUBLIC}),
+        ({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.CONFIDENTIAL}),
+        ({"account_type": UserRole.USER, "account_privileges": DataAccess.CONFIDENTIAL}),
     ],
     indirect=True,
 )
@@ -274,6 +276,16 @@ def test_tag_copy_db_change(valid_client,db_conn,new_assets):
     with db_conn.cursor() as cur:
         cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":100})
         assert asset_ids==[row[0] for row in cur.fetchall()]
+    for asset_id in asset_ids:
+        res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
+        assert res.status_code == 200
+        assert res.json["data"][0]["accountID"]==1
+        assert res.json["data"][0]["action"]=="CHANGE"
+        assert res.json["data"][0]["diff"]["changed"][0]==["tag_ids",[],[100]]
+        assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
+        assert res.json["data"][0]["objectID"]==asset_id
+        assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
+    
 
 def test_tag_copy_with_invalid_asset_id(valid_client,db_conn,new_assets):
     create_tags_in_db(db_conn,1,id=100,name="tag100")
@@ -302,32 +314,6 @@ def test_tag_copy_with_mixed_asset_id(valid_client,db_conn,new_assets):
         asset_ids_in_tag=[row[0] for row in cur.fetchall()]
         assert asset_ids==asset_ids_in_tag
         assert 10000000 not in asset_ids_in_tag
-
-
-def test_tag_copy_db_error_tag_in_db(valid_client):
-    with mock.patch(
-        "app.tag.routes.tag_in_db", side_effect=Error("Fake error executing query")
-    ) as p:
-        res = valid_client.post("/api/v1/tag/copy", json={"to_tag_id":1,"assest_ids":[1]})
-        assert res.status_code == 500
-        p.assert_called()
-        assert res.json == {
-            "error": "Database Error",
-            "msg": "Fake error executing query",
-        }
-
-def test_tag_copy_db_error_add_asset_to_tag(valid_client, db_conn):
-    with mock.patch(
-        "app.tag.routes.add_asset_to_tag", side_effect=Error("Fake error executing query")
-    ) as p:
-        create_tags_in_db(db_conn,1,id=100,name="tag100")
-        res = valid_client.post("/api/v1/tag/copy", json={"to_tag_id":100,"assest_ids":[1]})
-        assert res.status_code == 500
-        p.assert_called()
-        assert res.json == {
-            "error": "Database Error",
-            "msg": "Fake error executing query",
-        }
 
 @pytest.mark.parametrize(
     "new_assets",
@@ -365,8 +351,8 @@ def test_tag_remove_to_requires_to_tag_id(valid_client):
                 "msg": "field required",
                 "type": "value_error.missing",
             } in res.json["data"]
-    assert res.json["error"]=="Failed to move to tag from the data provided"
-    assert res.json["msg"]=="Data provided is invalid"
+    assert res.json["msg"]=="Failed to remove to tag from the data provided"
+ 
 
 def test_tag_remove_to_requires_assest_ids_list(valid_client):
     res = valid_client.post("/api/v1/tag/remove", json={})
@@ -376,8 +362,8 @@ def test_tag_remove_to_requires_assest_ids_list(valid_client):
                 "msg": "field required",
                 "type": "value_error.missing",
             } in res.json["data"]
-    assert res.json["error"]=="Failed to move to tag from the data provided"
-    assert res.json["msg"]=="Data provided is invalid"
+    assert res.json["msg"]=="Failed to remove to tag from the data provided"
+ 
 
 def test_tag_remove_to_requires_to_tag_id_int(valid_client):
     res = valid_client.post("/api/v1/tag/remove", json={"to_tag_id":"j"})
@@ -387,8 +373,8 @@ def test_tag_remove_to_requires_to_tag_id_int(valid_client):
                 "msg": "value is not a valid integer",
                 "type": "type_error.integer",
             } in res.json["data"]
-    assert res.json["error"]=="Failed to move to tag from the data provided"
-    assert res.json["msg"]=="Data provided is invalid"
+    assert res.json["msg"]=="Failed to remove to tag from the data provided"
+ 
 
 def test_tag_remove_to_requires_assest_ids_list(valid_client):
     res = valid_client.post("/api/v1/tag/remove", json={"assest_ids":"j"})
@@ -398,8 +384,8 @@ def test_tag_remove_to_requires_assest_ids_list(valid_client):
                 "msg": 'value is not a valid list',
                 "type": "type_error.list",
             } in res.json["data"]
-    assert res.json["error"]=="Failed to move to tag from the data provided"
-    assert res.json["msg"]=="Data provided is invalid"
+    assert res.json["msg"]=="Failed to remove to tag from the data provided"
+ 
 
 def test_tag_remove_to_requires_assest_ids_list_ints(valid_client):
     res = valid_client.post("/api/v1/tag/remove", json={"assest_ids":["j",1]})
@@ -409,13 +395,13 @@ def test_tag_remove_to_requires_assest_ids_list_ints(valid_client):
                 "msg":'value is not a valid integer',
                 "type": "type_error.integer",
             } in res.json["data"]
-    assert res.json["error"]=="Failed to move to tag from the data provided"
-    assert res.json["msg"]=="Data provided is invalid"
+    assert res.json["msg"]=="Failed to remove to tag from the data provided"
+ 
 
 def test_tag_remove_to_requires_valid_to_tag_id(valid_client):
     res = valid_client.post("/api/v1/tag/remove", json={"to_tag_id":1,"assest_ids":[1]})
     assert res.status_code == 400
-    assert res.json=={'data': 1, 'error': "Tag 1 doesn't exist", 'msg': 'Data provided is invalid'}
+    assert res.json=={'msg': "Tag 1 doesn't exist"}
 
 
 
@@ -427,8 +413,8 @@ def test_tag_remove_to_requires_valid_to_tag_id(valid_client):
 @pytest.mark.parametrize(
     "valid_client",
     [
-        ({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC}),
-        ({"account_type": UserRole.USER, "account_privileges": DataAccess.PUBLIC}),
+        ({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.CONFIDENTIAL}),
+        ({"account_type": UserRole.USER, "account_privileges": DataAccess.CONFIDENTIAL}),
     ],
     indirect=True,
 )
@@ -444,6 +430,15 @@ def test_tag_remove_db_change(valid_client,db_conn,new_assets):
             assert res.json=={"msg":"Removed assets from tag"}
             cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":tag})
             assert [row[0] for row in cur.fetchall()]==[]
+        for asset_id in asset_ids:
+            res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
+            assert res.status_code == 200
+            assert res.json["data"][0]["accountID"]==1
+            assert res.json["data"][0]["action"]=="CHANGE"
+            assert res.json["data"][0]["diff"]["changed"][0]==["tag_ids",[tag],[]]
+            assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
+            assert res.json["data"][0]["objectID"]==asset_id
+            assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
 
 @pytest.mark.parametrize(
     "new_assets",
@@ -484,31 +479,6 @@ def test_tag_remove_with_mixed_asset_id(valid_client,db_conn,new_assets):
             cur.execute("""SELECT asset_id FROM assets_in_tags WHERE tag_id=%(id)s;""", {"id":tag})
             assert []==[row[0] for row in cur.fetchall()]
 
-def test_tag_remove_db_error_tag_in_db(valid_client):
-    with mock.patch(
-        "app.tag.routes.tag_in_db", side_effect=Error("Fake error executing query")
-    ) as p:
-        res = valid_client.post("/api/v1/tag/remove", json={"to_tag_id":1,"assest_ids":[1]})
-        assert res.status_code == 500
-        p.assert_called()
-        assert res.json == {
-            "error": "Database Error",
-            "msg": "Fake error executing query",
-        }
-
-def test_tag_remove_db_error_delete_asset_in_tag(valid_client, db_conn):
-    with mock.patch(
-        "app.tag.routes.delete_asset_in_tag", side_effect=Error("Fake error executing query")
-    ) as p:
-        create_tags_in_db(db_conn,1,id=100,name="tag100")
-        res = valid_client.post("/api/v1/tag/remove", json={"to_tag_id":100,"assest_ids":[1]})
-        assert res.status_code == 500
-        p.assert_called()
-        assert res.json == {
-            "error": "Database Error",
-            "msg": "Fake error executing query",
-        }
-
 
 @pytest.mark.parametrize(
     "new_assets",
@@ -536,3 +506,20 @@ def test_tag_viewer_cannot_remove(valid_client):
         "msg": "Your account is forbidden to access this please speak to your admin",
     }
 
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100,"add_to_db":True}],
+    indirect=True,
+)
+def test_tag_view_assets(valid_client,new_assets):
+    tags=defaultdict(list)
+    for asset in new_assets:
+        for tag in asset.tag_ids:
+            tags[tag].append(asset.asset_id)
+    for tag in tags:
+        res = valid_client.get(f"/api/v1/tag/assets/{tag}")
+        assert res.status_code == 200
+        assert len(res.json["data"]["assets"])==len(tags[tag])
+        for asset in res.json["data"]["assets"]:
+            assert asset["assetID"] in tags[tag]

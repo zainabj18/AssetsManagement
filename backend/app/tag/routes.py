@@ -2,74 +2,9 @@ from app.db import get_db, UserRole,Actions,Models
 from app.schemas import TagBase,TagBulkRequest
 from app.core.utils import protected,model_creator,audit_log_event
 from flask import Blueprint, jsonify, request
-from psycopg import Error
-from psycopg.errors import UniqueViolation
-from psycopg.rows import dict_row
-from pydantic import ValidationError
-import json
 from . import services
 
 bp = Blueprint("tag", __name__, url_prefix="/tag")
-
-def create_tag(db, tag_dict):
-    with db.connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-        INSERT INTO tags (name)
-VALUES (%(name)s) RETURNING id;""",
-                tag_dict,
-            )
-            return cur.fetchone()[0]
-
-def update_tag(db,tag_dict):
-    with db.connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-            UPDATE tags 
-            SET name=%(name)s WHERE id=%(id)s ;""",
-                tag_dict,
-            )
-
-def add_asset_to_tag(db,asset_ids,tag_id):
-    with db.connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-            INSERT INTO assets_in_tags(asset_id,tag_id)
-SELECT asset_id,%(tag_id)s AS tag_id FROM assets
-WHERE asset_id = ANY(%(asset_ids)s) ON CONFLICT DO NOTHING;
-            """,{"tag_id":tag_id,"asset_ids":asset_ids})
-
-def delete_asset_in_tag(db,asset_ids,tag_id):
-    with db.connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-            DELETE FROM assets_in_tags WHERE asset_id = ANY(%(asset_ids)s) AND tag_id=%(tag_id)s;
-            """,{"tag_id":tag_id,"asset_ids":asset_ids})
-
-
-
-def list_tags(db):
-    with db.connection() as conn:
-        with conn.cursor(row_factory=dict_row) as cur:
-            cur.execute("""SELECT * FROM tags ORDER BY name;""")
-            return cur.fetchall()
-
-def tag_in_db(db,id):
-    with db.connection() as conn:
-        with conn.cursor(row_factory=dict_row) as cur:
-            cur.execute("""SELECT id FROM tags WHERE id=%(id)s;""",{"id": id})
-            return cur.fetchall()!=[]
-
-
-def delete_tag(db, id):
-    with db.connection() as db_conn:
-        with db_conn.cursor() as cur:
-            cur.execute(
-                """DELETE FROM tags WHERE id=%(id)s;""",
-                {"id": id},
-            )
 
 
 @bp.route("/", methods=["POST"])
@@ -95,7 +30,7 @@ def list(user_id, access_level):
 @protected(role=UserRole.USER)
 def delete(id, user_id, access_level):
     db = get_db()
-    services.abort_tag_not_exists(db=db,tag_id=id)
+    services.tag_in_db(db=db,tag_id=id)
     services.delete_tag(db, id)
     audit_log_event(db,Models.TAGS,user_id,id,{},Actions.DELETE)
     return {}, 200
@@ -103,108 +38,46 @@ def delete(id, user_id, access_level):
 @bp.route("/<id>", methods=["PATCH"])
 @protected(role=UserRole.ADMIN)
 def update(id, user_id, access_level):
-    try:
-        tag = TagBase(**request.json)
-    except ValidationError as e:
-        return (
-            jsonify(
-                {
-                    "msg": "Data provided is invalid",
-                    "data": e.errors(),
-                    "error": "Failed to create tag from the data provided",
-                }
-            ),
-            400,
-        )
-    try:
-        db = get_db()
-        update_tag(db,tag.dict())
-        with db.connection() as db_conn:
-            with db_conn.cursor() as cur:
-                cur.execute(
-                    """
-                INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
-            VALUES (4,%(account_id)s,%(tag_id)s,%(diff)s,%(action)s);""",
-                    {"account_id":user_id,"tag_id":id,"diff":json.dumps({}),"action":Actions.CHANGE},
-                )
-        
-    except UniqueViolation as e:
-        return {"msg": f"Tag {tag.name} already exists", "error": "Database Error"}, 500
-    except Error as e:
-        return {"msg": str(e), "error": "Database Error"}, 500
-    return {}, 200
+    services.tag_in_db(db=db,tag_id=id)
+    tag=model_creator(model=TagBase,err_msg="Failed to create tag from the data provided",**request.json)
+    tag.id = id
+    db = get_db()
+    services.update_tag(db=db,tag=tag)
+    audit_log_event(db,Models.TAGS,user_id,id,{},Actions.CHANGE)
+    return {"msg": "Tag Updated"}, 200
 
 @bp.route("/copy", methods=["POST"])
 @protected(role=UserRole.USER)
 def copy(user_id, access_level):
-    try:
-        tag_copy = TagBulkRequest(**request.json)
-    except ValidationError as e:
-        return (
-            jsonify(
-                {
-                    "msg": "Data provided is invalid",
-                    "data": e.errors(),
-                    "error": "Failed to copy to tag from the data provided",
-                }
-            ),
-            400,
-        )
-    try:
-        db=get_db()
-        if not tag_in_db(db,tag_copy.to_tag_id):
-            return {"msg": "Data provided is invalid","data":tag_copy.to_tag_id,"error": f"Tag {tag_copy.to_tag_id} doesn't exist"},400
-        add_asset_to_tag(db=db,asset_ids=tag_copy.assest_ids,tag_id=tag_copy.to_tag_id)
-    except Error as e:
-        return {"msg": str(e), "error": "Database Error"}, 500
+    tag_copy=model_creator(model=TagBulkRequest,err_msg="Failed to copy to tag from the data provided",**request.json)
+    db=get_db()
+    if not services.tag_in_db(db,tag_copy.to_tag_id,abort=False):
+        return {"msg": f"Tag {tag_copy.to_tag_id} doesn't exist"},400
+    services.add_asset_to_tag(db=db,asset_ids=tag_copy.assest_ids,tag_id=tag_copy.to_tag_id)
+    for id in tag_copy.assest_ids:
+        audit_log_event(db,Models.ASSETS,user_id,id,{"changed":[["tag_ids",[],[tag_copy.to_tag_id]]]},Actions.CHANGE)
     return {"msg":"Copied assets to tag"}, 200
 
 
 @bp.route("/remove", methods=["POST"])
 @protected(role=UserRole.USER)
 def remove(user_id, access_level):
-    try:
-        tag_remove = TagBulkRequest(**request.json)
-    except ValidationError as e:
-        return (
-            jsonify(
-                {
-                    "msg": "Data provided is invalid",
-                    "data": e.errors(),
-                    "error": "Failed to move to tag from the data provided",
-                }
-            ),
-            400,
-        )
-    try:
-        db=get_db()
-        if not tag_in_db(db,tag_remove.to_tag_id):
-            return {"msg": "Data provided is invalid","data":tag_remove.to_tag_id,"error": f"Tag {tag_remove.to_tag_id} doesn't exist"},400
-        delete_asset_in_tag(db,tag_remove.assest_ids,tag_remove.to_tag_id)
-    except Error as e:
-        return {"msg": str(e), "error": "Database Error"}, 500
+    tag_remove=model_creator(model=TagBulkRequest,err_msg="Failed to remove to tag from the data provided",**request.json)
+    db=get_db()
+    if not services.tag_in_db(db,tag_remove.to_tag_id,abort=False):
+        return {"msg": f"Tag {tag_remove.to_tag_id} doesn't exist"},400
+    services.delete_asset_in_tag(db,tag_remove.assest_ids,tag_remove.to_tag_id)
+    for id in tag_remove.assest_ids:
+        audit_log_event(db,Models.ASSETS,user_id,id,{"changed":[["tag_ids",[tag_remove.to_tag_id],[]]]},Actions.CHANGE)
     return {"msg":"Removed assets from tag"}, 200
 
-# @bp.route("/assets/<id>", methods=["GET"])
-# @protected(role=UserRole.VIEWER)
-# def tags_summary(id, user_id, access_level):
-#     db = get_db()
-#     assets_json = []
-#     with db.connection() as db_conn:
-#         with db_conn.cursor(row_factory=class_row(Attribute)) as cur:
-#             cur.execute(
-#                 """SELECT * FROM flatten_assets WHERE %(tag_id)s=ANY(flatten_assets.tag_ids) ORDER BY asset_id;""",
-#                 {"tag_id": id},
-#             )
-#             assets = cur.fetchall()
-#         # gets the type name for each assset
-#         with db_conn.cursor(row_factory=dict_row) as cur:
-#             cur.execute(
-#                 """SELECT name FROM tags WHERE id=%(id)s;""",
-#                 {"id": id},
-#             )
-#             tag = cur.fetchone()
- 
-#             res = jsonify({"data": {"tag": tag, "assets": assets_json}})
-#     return res
+@bp.route("/assets/<id>", methods=["GET"])
+@protected(role=UserRole.VIEWER)
+def tags_summary(id, user_id, access_level):
+    db = get_db()
+    services.tag_in_db(db=db,tag_id=id)
+    tag_name=services.fetch_tag_name(db=db,tag_id=id)
+    assets=services.fetch_assets_in_tag(db=db,tag_id=id)
+    res = jsonify({"data": {"tag":tag_name , "assets":assets}})
+    return res
 

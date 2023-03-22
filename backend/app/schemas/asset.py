@@ -55,7 +55,6 @@ class AssetBaseInDB(AssetBase):
     last_modified_at: Optional[datetime]
     is_selected: Optional[bool]=Field(None, alias="isSelected")
     class Config:
-        extra = Extra.allow
         allow_population_by_field_name = True
 
 class AssetSummary(BaseModel):
