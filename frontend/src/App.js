@@ -52,6 +52,7 @@ function App() {
 					<Route path="projects/" element={<SubLayout name="Projects"/>}>
 						<Route index element={<ProjectViewer/>} />
 						<Route path="new" element={<CreateProject />} />
+						<Route path=":id" element={<CreateProject />} />
 					</Route>
 
 					<Route path="tags/" element={<Tags />}>

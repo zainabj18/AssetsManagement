@@ -163,6 +163,7 @@ def get_id(id):
 @bp.route ("/changeProjects", methods=["POST"])
 def change_project():
     js = request.json
+    print(js)
     db = get_db()
     query = """DELETE FROM people_in_projects WHERE project_id=%(project_id)s """
     key = {"project_id": js["id"]}
@@ -170,8 +171,9 @@ def change_project():
        conn.execute(query,key)
     if (js["private"]):
         query = """INSERT INTO people_in_projects (project_id, account_id) VALUES (%(project_id)s, %(account_id)s)"""
-        for person_id in  js['selectedPeople'] :
-            key = {"project_id": person_id,"account_id": js["id"]}
+        for person_id in js['selectedPeople'] :
+            key = {"project_id": js["id"],"account_id": person_id}
+            conn.execute(query, key)
     
     
     return{"msg": ""}, 200
@@ -317,11 +319,6 @@ def delete_people(id):
         with conn.cursor() as cur:
             cur.execute(
                 """DELETE FROM people_in_projects WHERE account_id = %(account_id)s;""",
-                {"account_id": id},
-            )
-
-            cur.execute(
-                """DELETE FROM accounts WHERE account_id = %(account_id)s;""",
                 {"account_id": id},
             )
 

@@ -126,35 +126,24 @@ def test_update_project(client, db_conn):
     }
 
     response = client.post("/api/v1/project/changeProjects", json=key)
-
-    print(response.get_json())
-
     assert response.status_code == 200
 
     with db_conn as conn:
         cursor = conn.cursor()
         query = """SELECT * FROM projects WHERE id=%s"""
         cursor.execute(query, (1,))
-        result = cursor.fetchone()
-
-        
+        result = cursor.fetchone()      
         column_names = [desc[0] for desc in cursor.description]
-
-       
         result_as_dict = dict(zip(column_names, result))
-
         assert result_as_dict['name'] == key['name']
         assert result_as_dict['description'] == key['description']
         assert result_as_dict['type'] == key['type']
 
-        query = """SELECT account_id FROM people_in_projects WHERE project_id=%s ORDER BY account_id"""
-        cursor.execute(query, (1,))
-        results = cursor.fetchall()
-
-       
-        results_as_dicts = [dict(zip(column_names, row)) for row in results]
-
-        account_ids = [row['account_id'] for row in results_as_dicts]
+    with db_conn as conn:
+        query = """SELECT account_id FROM people_in_projects WHERE project_id=%(id)s"""
+        x = conn.execute(query, {"id": 1})
+        results = x.fetchall()
+        print(results)
 
 
 

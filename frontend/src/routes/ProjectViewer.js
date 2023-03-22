@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import {deleteProject, fetchProjects, fetchPeople, deletePeople, projectType} from '../api.js';
 import { useEffect } from 'react';
 import {NavLink} from 'react-router-dom';
+import { Link as RouteLink } from 'react-router-dom';
 
 
 
@@ -91,6 +92,7 @@ const ProjectViewer = () => {
 						<Tr>
 							<Th color='Black'>Name</Th>
 							<Th color='Black'>Description</Th>
+							<Th color='Black'>People</Th>
 						</Tr>
 					</Thead>
 					<Tbody>			
@@ -110,7 +112,7 @@ const ProjectViewer = () => {
 										);
 									})}</Td>
 									<Td><Button
-										left={0}
+						
 										colorScheme='red' 
 										variant={'solid'}
 										onClick={() => handleDelete(index)}
@@ -127,6 +129,9 @@ const ProjectViewer = () => {
 
 											);
 										})}
+									</Td>
+									<Td>
+										<RouteLink to={'./' + projects.projectID}><Button>View project</Button></RouteLink>
 									</Td>
 								</Tr>
 							);

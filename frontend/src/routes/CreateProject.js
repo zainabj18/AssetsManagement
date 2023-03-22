@@ -56,6 +56,7 @@ const CreateProject = () => {
 			}
 			else {
 				set_toggle.toggle();
+				navigate('../');
 			}
 		});
 	};
@@ -85,20 +86,13 @@ const CreateProject = () => {
  	*/
 
 	const addProject = () => {
-		if (id !== null){
-			updateProject({id: id,private: !isPublic,selectedPeople: selectedPeople });
-			navigate('../');
+		if (isProjectNameIn(newName, projects)) {
+			setFormError('This project name is already used');
+		}else{
+			createProject({ name: newName, description: newDescription, accounts: selectedPeople }).then(_ => {
+				navigate('../');
+			});
 		}
-		else {
-			if (isProjectNameIn(newName, projects)) {
-				setFormError('This project name is already used');
-			}else{
-				createProject({ name: newName, description: newDescription, accounts: selectedPeople }).then(_ => {
-					navigate('../');
-				});
-			}
-		}
-
 	};
 
 	/**
@@ -129,7 +123,6 @@ const CreateProject = () => {
  	* @returns {void}
  	*/
 	const adjustSelectedPeople = (checked, value) => {
-		console.log(value);
 		let list = selectedPeople;
 		if (checked){
 			list.push(value);
@@ -151,12 +144,11 @@ const CreateProject = () => {
 		if (id){
 			async function load_project() {
 				let data = await getProjectByID(id);
-				console.log(data);
+				console.log(data.data);
 				setNewName(data.data.projectName);
 				setNewDescription(data.data.projectDescription);
 			}
 			load_project();
-			console.log(id);
 		}else{
 			
 
@@ -170,7 +162,6 @@ const CreateProject = () => {
 		}
 		async function load_allPeople() {
 			let data = await fetchPeople();
-			console.log(data);
 			setAllPeople(data.data);
 		}
 		load_allPeople();
@@ -180,7 +171,6 @@ const CreateProject = () => {
 	/**
  	* The code below returns a functional component that renders a form for adding or editing a project.
  	*/
-	console.log(newName,newDescription);
 	return (<Flex w='100%' minH='80vh' alignItems={'stretch'} p={2} border>
 		
 		<Box w='100%' minH='100%' bg='white' alignItems='left'>
@@ -194,7 +184,7 @@ const CreateProject = () => {
 						defaultValue={newName}
 						onChange={(event) => setNewName(event.target.value)}
 						name="name"
-						isDisabled = {newName !== ''}
+						isDisabled = {id !== undefined}
 	
 					/>
 					<FormErrorMessage>{formError}</FormErrorMessage>
@@ -205,13 +195,13 @@ const CreateProject = () => {
 					defaultValue={newDescription}
 					onChange={(event) => changeDescription(event.target.value)}
 					name="description"
-					isDisabled = {newDescription !== ''}
+					isDisabled = {id !== undefined}
 				/>
 				
-				<Checkbox
+				{!id && <Checkbox
 					onChange={(e) => publicToggle.toggle()}>
 						Private
-				</Checkbox>
+				</Checkbox>}
 			
       			{!isPublic && <>
 					<Text>Add People To Project</Text>
@@ -242,7 +232,7 @@ const CreateProject = () => {
 			</VStack>
 					
 			<HStack>
-				<Button onClick={addProject}>Save Project</Button>
+				{id === undefined && < Button onClick={addProject}>Save Project</Button>}
 				{id && (
 					<Button 						
 						colorScheme='red' 

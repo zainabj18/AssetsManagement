@@ -25,7 +25,6 @@ export const createTag = async (tag) => {
 	return await axios.post('/tag/', { 'name': tag }).then(res => res.data);
 };
 export const removeFromTag = async (id, assets) => {
-	console.log(assets, 'hello');
 	return await axios.post('/tag/remove', { 'toTagID': id, 'assetIDs': assets }).then(res => res.data);
 };
 export const copyToTag = async (id, assets) => {
@@ -57,30 +56,24 @@ export const deletePeople = async (id) => {
 	return await axios.post(`/project/delete/people/${id}`).then(res => res.data);
 };
 export const createProject = async (project) => {
-	console.log(project);
 	return await axios.post('/project/new', project).then(res => res.data);
 };
 
 export const updateProject = async (updateData) => {
-	console.log(updateData);
 	return await axios.post('/project/changeProjects', updateData).then(res => res.data);
 };
 
 
 
 export const fetchPeopleinProject = async (id) => {
-	console.log(id, 'hello');
 	return await axios.get(`/project/allPeople/${id}`).then(res => res.data);
 };export const fetchPeople = async () => {
-	console.log('hello');
 	return await axios.get('/project/allPeople').then(res => res.data);
 };
 export const getProjectType = async () => {
-	console.log('hey');
 	return await axios.get('/project/projectType').then(res => res.data);
 };
 export const getProjectByID = async (id) => {
-	console.log('hey');
 	return await axios.get(`/project/${id}`).then(res => res.data);
 };
 
