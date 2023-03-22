@@ -20,7 +20,6 @@ import AttributeViewer from './routes/AttributeViewer';
 import ProjectViewer from './routes/ProjectViewer';
 import TypeEditor from './routes/TypeEditor';
 import Logs from './routes/Logs';
-import GraphView from './routes/GraphView';
 import AsssetGraph from './routes/assets/AssetGraph';
 import AssetRelationGraph from './routes/assets/AssetRelationGraph';
 import Comments from './routes/assets/Comments';
