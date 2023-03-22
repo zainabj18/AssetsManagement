@@ -187,7 +187,7 @@ def get_allAttributes():
         res = conn.execute(query)
         allAttributes = res.fetchall()
         allAttributes_listed = extract_attributes(allAttributes)
-        return json.dumps(allAttributes_listed)
+        return {"data":allAttributes_listed}
 
 
 @bp.route("/allTypes", methods=["GET"])
@@ -221,7 +221,7 @@ def get_allTypes():
                 "metadata": attributes
             }
         )
-    return json.dumps(allTypes_listed), 200
+    return {"data":allTypes_listed}
 
 
 @bp.route("/delete/<id>", methods=["POST"])

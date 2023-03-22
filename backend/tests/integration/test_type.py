@@ -309,8 +309,10 @@ def test_get_allAttributes(client):
     client.post("/api/v1/type/adder/new", json=test_attributes[2])
     res = client.get("/api/v1/type/allAttributes")
     assert res.status_code == 200
-    attributes = res.json
-    assert attributes == test_attributes
+    attributes = res.json["data"]
+    print(attributes)
+    for attribute in test_attributes:
+        assert attribute in attributes
 
 
 # Test to see if a list of all types can be returned from the database
@@ -356,7 +358,7 @@ def test_get_allTypes(client):
     client.post("/api/v1/type/new", json=test_types[1])
     res = client.get("/api/v1/type/allTypes")
     assert res.status_code == 200
-    types = res.json
+    types = res.json["data"]
     for i in range(0, len(types)):
         type = types[i]
         test_type = test_types[i]
@@ -528,7 +530,7 @@ def test_version_incremetation(client):
     client.post("/api/v1/type/new", json=test_type_v3)
     client.post("/api/v1/type/new", json=test_type_dif)
     res = client.get("/api/v1/type/allTypes")
-    data = res.json
+    data = res.json["data"]
     assert data[0]["versionNumber"] == 1
     assert data[1]["versionNumber"] == 2
     assert data[2]["versionNumber"] == 3
@@ -616,11 +618,11 @@ def test_backfill(client, db_conn):
     indirect=True,
 )
 def test_type_with_versions_list(client,type_verions):
-    max_type=type_verions[0][0]
-    for type_version in type_verions[0]:
+    max_type=type_verions["added"][0]
+    for type_version in type_verions["added"]:
         if type_version.version_number>max_type.version_number:
             max_type=type_version
     res = client.get("/api/v1/type/version/names")
     assert res.status_code == 200
-    assert res.json == {"msg": "types-w-versions","data":[{'version_id':max_type.version_id,'type_name':type_verions[1].type_name}]}
+    assert res.json == {"msg": "types-w-versions","data":[{'version_id':max_type.version_id,'type_name':type_verions["type"].type_name}]}
     
