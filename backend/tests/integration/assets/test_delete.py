@@ -1,6 +1,6 @@
 import pytest
 import json
-from app.db import Models
+from app.db import Models,UserRole,DataAccess
 
 def check_db_references(db_conn,asset_id):
     with db_conn.cursor() as cur:
@@ -88,3 +88,31 @@ def test_delete_with_links(valid_client, new_assets,db_conn):
     assert res.status_code == 200
     check_db_references(db_conn=db_conn,asset_id=first_asset_id)
 
+
+def test_delete_get_invalid_id(valid_client):
+    res = valid_client.delete(f"/api/v1/asset/{1}")
+    assert res.status_code == 404
+    assert res.json=={'msg': "Asset doesn't exist"}
+
+@pytest.mark.parametrize(
+    "valid_client",
+    [
+        ({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC})
+    ],
+    indirect=True,
+)
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_new_assets_get_account_privileges_check(valid_client, new_assets):
+    new_assets[0].classification=DataAccess.CONFIDENTIAL
+    data = json.loads(new_assets[0].json(by_alias=True))
+    res = valid_client.post("/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    asset_id = res.json["data"]
+    res = valid_client.delete(f"/api/v1/asset/{asset_id}")
+    assert res.status_code == 403
+    assert res.json=={'msg': 'Your account is forbidden to access this please speak to your admin'}
