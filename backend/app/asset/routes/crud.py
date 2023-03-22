@@ -1,8 +1,7 @@
-from app.core.utils import protected,run_query,QueryResult,audit_log_event
+from app.core.utils import protected,audit_log_event
 from app.db import DataAccess, UserRole, get_db,Actions,Models
-from app.schemas import Asset, Attribute, AssetOut,FilterSearch,QueryOperation,AttributeBase,Project,Log,QueryJoin,AssetBaseInDB
-from flask import Blueprint, jsonify, request
-from psycopg.rows import class_row, dict_row
+from app.schemas import Asset
+from flask import Blueprint, request
 import json
 from .. import services,utils
 from app.core.utils import model_creator
@@ -131,43 +130,3 @@ def delete(id,user_id, access_level):
     services.delete_asset(db=db,asset_id=id)
     audit_log_event(db,Models.ASSETS,user_id,id,{},Actions.DELETE)
     return {}, 200
-
-#TODO:Moves to tags
-@bp.route("/tags/summary/<id>", methods=["GET"])
-@protected(role=UserRole.VIEWER)
-def tags_summary(id, user_id, access_level):
-    db = get_db()
-    assets_json = []
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=class_row(Attribute)) as cur:
-            cur.execute(
-                """SELECT assets.* FROM assets
-INNER JOIN assets_in_tags ON assets.asset_id=assets_in_tags.asset_id WHERE soft_delete=0 AND tag_id=%(tag_id)s ORDER BY assets.asset_id;""",
-                {"tag_id": id},
-            )
-            assets = cur.fetchall()
-        # gets the type name for each assset
-        with db_conn.cursor(row_factory=dict_row) as cur:
-            cur.execute(
-                """SELECT name FROM tags WHERE id=%(id)s;""",
-                {"id": id},
-            )
-            tag = cur.fetchone()
-            if tag:
-                tag=tag["name"]
-            else:
-                return {"msg":"No tag id found"},400
-            for a in assets:
-                if a.classification <= access_level:
-                    cur.execute(
-                        """SELECT CONCAT(type_name,'-',version_number) AS type_name,type_version.* FROM type_version
-INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(version_id)s;""",
-                        {"version_id": a.version_id},
-                    )
-                    type = cur.fetchone()["type_name"]
-                    aj = json.loads(a.json(by_alias=True))
-                    aj["type"] = type
-                    assets_json.append(aj)
-            res = jsonify({"data": {"tag": tag, "assets": assets_json}})
-    return res
-

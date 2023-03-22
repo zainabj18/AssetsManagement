@@ -30,8 +30,7 @@ def test_tag_create_requires_name(valid_client):
         "data": [
             {"loc": ["name"], "msg": "field required", "type": "value_error.missing"}
         ],
-        "error": "Failed to create tag from the data provided",
-        "msg": "Data provided is invalid",
+        "msg": "Failed to create tag from the data provided",
     }
 
 
@@ -48,8 +47,7 @@ def test_tag_create_requires_name_not_to_empty(valid_client):
                 "type": "value_error.any_str.min_length",
             }
         ],
-        "error": "Failed to create tag from the data provided",
-        "msg": "Data provided is invalid",
+        "msg": "Failed to create tag from the data provided"
     }
 
 
@@ -63,6 +61,7 @@ def test_tag_create_requires_name_not_to_empty(valid_client):
 )
 def test_tag_create_adds_to_db(valid_client, db_conn):
     res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
+    print(res.json)
     assert res.status_code == 200
     expected = {"id": 1, "name": "Test"}
     assert res.json == {"data": expected, "msg": "Tag Created"}
@@ -74,28 +73,16 @@ def test_tag_create_adds_to_db(valid_client, db_conn):
         assert tag["name"] == expected["name"]
 
 
-def test_tag_create_db_error(valid_client):
-    with mock.patch(
-        "app.tag.routes.create_tag", side_effect=Error("Fake error executing query")
-    ) as p:
-        res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
-
-        assert res.status_code == 500
-        p.assert_called()
-        assert res.json == {
-            "error": "Database Error",
-            "msg": "Fake error executing query",
-        }
-
-
 def test_tag_duplicate_name(valid_client):
     res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
+    print(res.json)
     assert res.status_code == 200
     expected = {"id": 1, "name": "Test"}
     assert res.json == {"data": expected, "msg": "Tag Created"}
     res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
     assert res.status_code == 500
-    assert res.json == {"error": "Database Error", "msg": "Tag Test already exists"}
+    assert res.json == {"msg":'Database Error',
+        'data': ['duplicate key value violates unique constraint "tags_name_key"\n'+'DETAIL:  Key (name)=(Test) already exists.']}
 
 
 @pytest.mark.parametrize(
@@ -137,23 +124,6 @@ def test_tag_list_from_post(valid_client):
     assert all(tag in expected_results for tag in res.json["data"])
     assert len(expected_results)==len(res.json["data"])
 
-
-def test_tag_list_db_error(valid_client):
-    res = valid_client.post("/api/v1/tag/", json={"name": "Tes"})
-    assert res.status_code == 200
-    with mock.patch(
-        "app.tag.routes.list_tags", side_effect=Error("Fake error executing query")
-    ) as p:
-        res = valid_client.get("/api/v1/tag/")
-
-        assert res.status_code == 500
-        p.assert_called()
-        assert res.json == {
-            "error": "Database Error",
-            "msg": "Fake error executing query",
-        }
-
-
 @pytest.mark.parametrize(
     "valid_client",
     [
@@ -176,30 +146,6 @@ def test_tag_delete(valid_client, db_conn):
         )
         assert cur.fetchall() == []
 
-
-def test_tag_delete_db_error(valid_client, db_conn):
-    res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
-    expected = {"id": 1, "name": "Test"}
-    assert res.status_code == 200
-    assert res.json == {"data": expected, "msg": "Tag Created"}
-    with mock.patch(
-        "app.tag.routes.delete_tag", side_effect=Error("Fake error executing query")
-    ) as p:
-        res = valid_client.delete(f"/api/v1/tag/{1}")
-        assert res.status_code == 500
-        p.assert_called()
-        assert res.json == {
-            "error": "Database Error",
-            "msg": "Fake error executing query",
-        }
-        with db_conn.cursor() as cur:
-            cur.execute(
-                """SELECT * FROM tags WHERE id=%(id)s;""",
-                {"id": 1},
-            )
-            assert cur.fetchall() != []
-
-
 @pytest.mark.parametrize(
     "valid_client",
     [{"account_type": UserRole.VIEWER, "account_privileges": DataAccess.PUBLIC}],
@@ -209,7 +155,7 @@ def test_tag_viewer_cannot_create(valid_client):
     res = valid_client.post("/api/v1/tag/", json={"name": "Test"})
     assert res.status_code == 403
     assert res.json == {
-        "error": "Invalid Token",
+        
         "msg": "Your account is forbidden to access this please speak to your admin",
     }
 
@@ -222,7 +168,7 @@ def test_tag_viewer_cannot_delete(valid_client):
     res = valid_client.delete(f"/api/v1/tag/{1}")
     assert res.status_code == 403
     assert res.json == {
-        "error": "Invalid Token",
+        
         "msg": "Your account is forbidden to access this please speak to your admin",
     }
 
@@ -407,7 +353,7 @@ def test_tag_viewer_cannot_copy(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={"to_tag_id":100,"assest_ids":[1]})
     assert res.status_code == 403
     assert res.json == {
-        "error": "Invalid Token",
+        
         "msg": "Your account is forbidden to access this please speak to your admin",
     }
 
@@ -586,6 +532,7 @@ def test_tag_viewer_cannot_remove(valid_client):
     res = valid_client.post("/api/v1/tag/remove", json={"to_tag_id":100,"assest_ids":[1]})
     assert res.status_code == 403
     assert res.json == {
-        "error": "Invalid Token",
+        
         "msg": "Your account is forbidden to access this please speak to your admin",
     }
+

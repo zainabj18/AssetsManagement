@@ -1,15 +1,15 @@
-from app.db import get_db, UserRole,Actions
+from app.db import get_db, UserRole,Actions,Models
 from app.schemas import TagBase,TagBulkRequest
-from app.core.utils import protected
+from app.core.utils import protected,model_creator,audit_log_event
 from flask import Blueprint, jsonify, request
 from psycopg import Error
 from psycopg.errors import UniqueViolation
 from psycopg.rows import dict_row
 from pydantic import ValidationError
 import json
+from . import services
 
 bp = Blueprint("tag", __name__, url_prefix="/tag")
-
 
 def create_tag(db, tag_dict):
     with db.connection() as conn:
@@ -75,65 +75,29 @@ def delete_tag(db, id):
 @bp.route("/", methods=["POST"])
 @protected(role=UserRole.USER)
 def create(user_id, access_level):
-    try:
-        tag = TagBase(**request.json)
-    except ValidationError as e:
-        return (
-            jsonify(
-                {
-                    "msg": "Data provided is invalid",
-                    "data": e.errors(),
-                    "error": "Failed to create tag from the data provided",
-                }
-            ),
-            400,
-        )
+    tag=model_creator(model=TagBase,err_msg="Failed to create tag from the data provided",**request.json)
     db = get_db()
-    try:
-        id = create_tag(db, tag.dict())
-    except UniqueViolation as e:
-        return {"msg": f"Tag {tag.name} already exists", "error": "Database Error"}, 500
-    except Error as e:
-        return {"msg": str(e), "error": "Database Error"}, 500
+    id=services.insert_tag_to_db(db=db,tag=tag)["id"]
     tag.id = id
-    with db.connection() as db_conn:
-        with db_conn.cursor() as cur:
-            cur.execute(
-                """
-            INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
-        VALUES (4,%(account_id)s,%(tag_id)s,%(diff)s,%(action)s);""",
-                {"account_id":user_id,"tag_id":id,"diff":json.dumps({}),"action":Actions.ADD},
-            )
+    audit_log_event(db,Models.TAGS,user_id,id,{},Actions.ADD)
     return jsonify({"msg": "Tag Created", "data": tag.dict()})
 
 
 @bp.route("/", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def list(user_id, access_level):
-    try:
-        db = get_db()
-        tags = list_tags(db)
-    except Error as e:
-        return {"msg": str(e), "error": "Database Error"}, 500
-    return jsonify({"msg": "tags", "data": tags})
+    db = get_db()
+    tags = services.list_tags(db)
+    return {"msg": "tags", "data": tags}
 
 
 @bp.route("/<id>", methods=["DELETE"])
 @protected(role=UserRole.USER)
 def delete(id, user_id, access_level):
-    try:
-        db = get_db()
-        delete_tag(db, id)
-        with db.connection() as db_conn:
-            with db_conn.cursor() as cur:
-                cur.execute(
-                    """
-                INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
-            VALUES (4,%(account_id)s,%(tag_id)s,%(diff)s,%(action)s);""",
-                    {"account_id":user_id,"tag_id":id,"diff":json.dumps({}),"action":Actions.DELETE},
-                )
-    except Error as e:
-        return {"msg": str(e), "error": "Database Error"}, 500
+    db = get_db()
+    services.abort_tag_not_exists(db=db,tag_id=id)
+    services.delete_tag(db, id)
+    audit_log_event(db,Models.TAGS,user_id,id,{},Actions.DELETE)
     return {}, 200
 
 @bp.route("/<id>", methods=["PATCH"])
@@ -220,3 +184,27 @@ def remove(user_id, access_level):
     except Error as e:
         return {"msg": str(e), "error": "Database Error"}, 500
     return {"msg":"Removed assets from tag"}, 200
+
+# @bp.route("/assets/<id>", methods=["GET"])
+# @protected(role=UserRole.VIEWER)
+# def tags_summary(id, user_id, access_level):
+#     db = get_db()
+#     assets_json = []
+#     with db.connection() as db_conn:
+#         with db_conn.cursor(row_factory=class_row(Attribute)) as cur:
+#             cur.execute(
+#                 """SELECT * FROM flatten_assets WHERE %(tag_id)s=ANY(flatten_assets.tag_ids) ORDER BY asset_id;""",
+#                 {"tag_id": id},
+#             )
+#             assets = cur.fetchall()
+#         # gets the type name for each assset
+#         with db_conn.cursor(row_factory=dict_row) as cur:
+#             cur.execute(
+#                 """SELECT name FROM tags WHERE id=%(id)s;""",
+#                 {"id": id},
+#             )
+#             tag = cur.fetchone()
+ 
+#             res = jsonify({"data": {"tag": tag, "assets": assets_json}})
+#     return res
+

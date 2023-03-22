@@ -13,14 +13,10 @@ def abort_asset_not_exists(db:ConnectionPool,asset_id:int):
       db: A object for managing connections to the db.
       asset_id:The asset_id that need checking in the db.
     """
-    with db.connection() as db_conn:
-        with db_conn.cursor() as cur:
-            cur.execute(
-                """SELECT asset_id FROM assets WHERE asset_id=%(id)s AND soft_delete=0;""",
-                {"id": asset_id},
-            )
-            if cur.fetchone() is None:
-                abort(404,description={"msg": "Asset doesn't exist"})
+    results=run_query(db,"""SELECT asset_id FROM assets WHERE asset_id=%(id)s AND soft_delete=0;""",
+                {"id": asset_id},return_type=QueryResult.ONE)
+    if results is None:
+        abort(404,description={"msg": "Asset doesn't exist"})
 
 def abort_insufficient(db:ConnectionPool,asset_id:int,access_level:DataAccess):
     """Checks that an asset can be viewed by account if not aborts.

@@ -68,10 +68,16 @@ def run_query(db, query, params=None,row_factory=dict_row,return_type=None):
                     cur.execute(query)
                 else:
                     cur.execute(query, params)
+                
                 db_conn.commit()
+                print("I get here")
+
                 match return_type:
                     case QueryResult.ONE:
-                        return cur.fetchone()
+                        i=cur.fetchone()
+                        print("I get 3")
+                        print(i)
+                        return i
                     case QueryResult.ALL:
                         return cur.fetchall()
                     case QueryResult.ALL_JSON:
