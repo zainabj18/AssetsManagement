@@ -8,7 +8,6 @@ const AssetTable = ({assets,setSelectedAssets,preSelIDs,cols}) => {
 	const [colours,setColors]=useState({});
 	const columns =useMemo(()=>
 	{ 
-		console.log('new cols needed');
 		let orginal={
 			'assetID':{
 				header: 'Asset ID',
@@ -19,7 +18,7 @@ const AssetTable = ({assets,setSelectedAssets,preSelIDs,cols}) => {
 				header: 'Asset Name',
 				canFilter:true
 			},
-			'type':{
+			'type_name':{
 				header: 'Asset Type',
 				canFilter:true
 			},
