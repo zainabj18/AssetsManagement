@@ -1,6 +1,6 @@
 import { Box, Flex, HStack, Input, useBoolean, VStack, } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { Outlet, useOutletContext } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { fetchTags } from '../api';
 import CustomNavLink from '../components/CustomNavLink';
 import NewTag from '../components/NewTag';
