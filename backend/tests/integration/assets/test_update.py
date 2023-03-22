@@ -478,3 +478,42 @@ def test_patch_assets_change_assets(valid_client, new_assets,db_conn):
     assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
     assert res.json["data"][0]["objectID"]==asset_id
     assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
+
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 2}],
+    indirect=True,
+)
+def test_patch_assets_change_metadata(valid_client, new_assets,db_conn,type_verions):
+    orignal_attribute_ids=[a.attribute_id for a in new_assets[0].metadata]
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post(f"/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    asset_id=res.json["data"]
+    data["version_id"]=type_verions["added"][0].version_id
+    data["metadata"]=[json.loads(a.json(by_alias=True)) for a in type_verions["added"][0].attributes]
+    res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
+    assert res.status_code == 200
+    assert res.json=={"msg": "Updated asset"}
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT attribute_id FROM attributes_values WHERE attributes_values.asset_id=%(asset_id)s;""",{"asset_id":asset_id})
+        attributes_in_db=[row["attribute_id"] for row in cur.fetchall()]
+        assert set(attributes_in_db)==set(type_verions["added"][0].attribute_ids)
+    added_attributes_ids=set(type_verions["added"][0].attribute_ids)-set(orignal_attribute_ids)
+    removed_attributes_ids=set(orignal_attribute_ids)-set(type_verions["added"][0].attribute_ids)
+    res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
+    assert res.status_code == 200
+    assert res.json["data"][0]["accountID"]==1
+    assert res.json["data"][0]["action"]=="CHANGE"
+    assert len(res.json["data"][0]["diff"]["added"])==len(added_attributes_ids)
+    assert len(res.json["data"][0]["diff"]["removed"])==len(removed_attributes_ids)
+    assert res.json["data"][0]["diff"]["changed"][0]==["version_id",new_assets[0].version_id,type_verions["added"][0].version_id]
+    assert res.json["data"][0]["logID"]==2
+    assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
+    assert res.json["data"][0]["objectID"]==asset_id
+    assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]

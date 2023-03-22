@@ -365,6 +365,7 @@ def add_asset_metadata_to_db(db:ConnectionPool,asset_id:int,metadata:List[Attrib
       asset_id: The asset's id to add.
       metadata: A list of attributes to add to the db.
     """
+    print("running",len(metadata))
     for attribute in metadata:
         run_query(db,"""
                 INSERT INTO attributes_values (asset_id,attribute_id,attribute_value)
@@ -375,6 +376,8 @@ def add_asset_metadata_to_db(db:ConnectionPool,asset_id:int,metadata:List[Attrib
                         "value": attribute.attribute_value,
                     },
                 )
+
+    print(run_query(db,"""SELECT * FROM attributes_values WHERE attributes_values.asset_id=%(asset_id)s;""",{"asset_id":asset_id},return_type=QueryResult.ALL))
         
 def fetch_asset(db:ConnectionPool,asset_id:int):
     """Fetches an asset's with all its metadata and attributes from db.
@@ -486,7 +489,7 @@ def delete_attributes_from_asset(db:ConnectionPool,attributes:List[int],asset_id
       attributes: The list of attributes ids to deleted.
       asset_id: The asset id to remove the attributes from.
     """
-    return run_query(db,"""DELETE FROM attributes_values WHERE attribute_id = ANY(%(attributes)s) AND asset_id=%(asset_id)s;""",{"tag_ids":attributes,"asset_id":asset_id})
+    return run_query(db,"""DELETE FROM attributes_values WHERE attribute_id = ANY(%(attributes)s) AND asset_id=%(asset_id)s;""",{"attributes":attributes,"asset_id":asset_id})
 
 
 def delete_assets_from_asset(db:ConnectionPool,asset_ids:List[int],asset_id:int):

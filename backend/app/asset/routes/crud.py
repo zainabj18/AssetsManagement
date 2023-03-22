@@ -80,24 +80,21 @@ def get_upgrade(id,user_id, access_level):
 @bp.route("/<id>", methods=["PATCH"])
 @protected(role=UserRole.VIEWER)
 def update(id, user_id, access_level):
-
     db = get_db()
     utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
     new_asset=model_creator(model=Asset,err_msg="Failed to create asset from the data provided",**request.json)
     old_asset=Asset(**services.fetch_asset(db=db,asset_id=id).dict())
-    print(new_asset.tag_ids)
-    print(old_asset.tag_ids)
     diff=utils.asset_differ(old_asset.dict(by_alias=True),new_asset.dict(by_alias=True))
     utils.add_asset_to_db(db=db,data=request.json,asset_id=id)
-    print(diff)
     tags_removed=list(set(old_asset.tag_ids)-set(new_asset.tag_ids))
     projects_removed=list(set(old_asset.project_ids)-set(new_asset.project_ids))
     assets_removed=list(set(old_asset.asset_ids)-set(new_asset.asset_ids))
+    attributes_removed=list(set([a.attribute_id for a in old_asset.metadata])-set([a.attribute_id for a in new_asset.metadata]))
     services.delete_tags_from_asset(db=db,asset_id=id,tags=tags_removed)
     services.delete_projects_from_asset(db=db,asset_id=id,projects=projects_removed)
     services.delete_assets_from_asset(db=db,asset_id=id,asset_ids=assets_removed)
+    services.delete_attributes_from_asset(db=db,asset_id=id,attributes=attributes_removed)
     audit_log_event(db,Models.ASSETS,user_id,id,diff,Actions.CHANGE)
-    print(diff)
     return {"msg": "Updated asset"}
 
 

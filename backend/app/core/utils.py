@@ -68,6 +68,7 @@ def run_query(db, query, params=None,row_factory=dict_row,return_type=None):
                     cur.execute(query)
                 else:
                     cur.execute(query, params)
+                db_conn.commit()
                 match return_type:
                     case QueryResult.ONE:
                         return cur.fetchone()
