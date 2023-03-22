@@ -1,6 +1,6 @@
 import { Box, Flex, HStack, Input, useBoolean, VStack, } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useOutletContext } from 'react-router-dom';
 import { fetchTags } from '../api';
 import CustomNavLink from '../components/CustomNavLink';
 import NewTag from '../components/NewTag';
@@ -21,6 +21,8 @@ const Tags = () => {
 		}
 	 };
 
+	const [update, setUpdate] = useBoolean();
+
 	useEffect(() => {
 		fetchTags().then((res)=>{
 			console.log('here');
@@ -28,7 +30,7 @@ const Tags = () => {
 			setResults(res.data);
 		}
 		);
-	}, [trigger]);
+	}, [trigger, update]);
 	
 	return (<Flex w='100%' minH='80vh' alignItems={'stretch'} p={2} border>
 		<Box w='30%' minH='100%' bg='gray.300' p={4} color='black' align={'top'}>
@@ -47,7 +49,7 @@ const Tags = () => {
 			</VStack>
 		</Box>
 		<Box w='70%' minH='100%' bg='white'>
-			<Outlet />
+			<Outlet context={[update, setUpdate]}/>
 		</Box> 
 	</Flex>
 	);
