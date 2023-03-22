@@ -44,6 +44,7 @@ def get_projects(db):
                 })
     return allProjects
 
+
 """
 Returns dictionaries containing information about each person in the input list of people.
 
@@ -136,6 +137,39 @@ def people_list():
     db = get_db()
     data = get_projects(db)
     return {"msg": "projects", "data": data}
+
+@bp.route ("/<id>", methods=["GET"])
+def get_id(id):
+    db = get_db()
+    query = """SELECT name, description, type FROM projects WHERE id=%(id)s """
+    key = {"id": id}
+    with db.connection() as conn:
+       res = conn.execute(query,key)
+       project = res.fetchall()[0]
+       data = {
+                    "projectName":project[0],
+                    "projectDescription":project[1],
+                    "projectType": project[2]
+                }
+    return {"data": data}, 200
+
+@bp.route ("/changeProjects", methods=["POST"])
+def change_project():
+    js = request.json
+    db = get_db()
+    query = """DELETE FROM people_in_projects WHERE project_id=%(project_id)s """
+    key = {"project_id": js["id"]}
+    with db.connection() as conn:
+       conn.execute(query,key)
+    if (js["private"]):
+        query = """INSERT INTO people_in_projects (project_id, account_id) VALUES (%(project_id)s, %(account_id)s)"""
+        for person_id in  js['selectedPeople'] :
+            key = {"project_id": person_id,"account_id": js["id"]}
+    
+    
+    return{"msg": ""}, 200
+
+
 
 """
 Creates a new project with the data provided in the POST request and inserts it into the database.
