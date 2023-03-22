@@ -16,7 +16,7 @@ const MyResponsiveNetwork = ({ data /* see data tab */ }) => (
 	<ResponsiveNetwork
 		data={data}
 		margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
-		linkDistance={100}
+		linkDistance={20}
 		linkColor={function (e) { return ((e.target.size < 5) ? 'orange' : 'blue'); }}
 		nodeSize={function (n) {
 			let size = 25 * n.size;
@@ -30,12 +30,13 @@ const MyResponsiveNetwork = ({ data /* see data tab */ }) => (
 		nodeTooltip={ToolTip}
 		onClick={(e) => console.log(e)}
 		centeringStrength={0.1}
-		repulsivity={500}
+		repulsivity={300}
 		inactiveNodeSize={4}
 		activeNodeSize={50}
-		linkBlendMode={'luminosity'}
+		linkBlendMode={'hard'}
 		motionConfig={'slow'}
-	/>
+		style={{ viewBox: '0 0 50 20', width: '500px', height: '300px' }}></ResponsiveNetwork>
+
 );
 
 const AsssetGraph = () => {
@@ -49,7 +50,7 @@ const AsssetGraph = () => {
 		});
 	}, []);
 
-	return (data && <div style={{ height: '1000px', width: '100vw'}}>
+	return (data && <div style={{ height: '100vw', width: '100vw', overflow: 'scroll' }}>
 		<MyResponsiveNetwork data={data} />
 	</div>);
 };
