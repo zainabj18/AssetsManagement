@@ -1,23 +1,33 @@
-import { Box, Container, HStack} from '@chakra-ui/react';
-import { Outlet } from 'react-router-dom';
-import CustomNavLink from './CustomNavLink';
+import { Container,Tabs,TabList,TabPanels,Tab} from '@chakra-ui/react';
+import { useState } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
 
 const AssetOverview=() => {
+	const navigate = useNavigate();
+	const [tabs, setTabs] = useState([{to:'./',name:'Attributes'},
+		{to:'./classification',name:'Classification'},
+		{to:'./type',name:'Type'},
+		{to:'./tags',name:'Tags'},
+		{to:'./projects',name:'Projects'},
+		{to:'./outgoing',name:'Outgoing Asset Links'},
+		{to:'./incomming',name:'Incomming Asset Links'},
+		{to:'./comments',name:'Comments'},
+		{to:'./logs',name:'Logs'}]);
 	return ( 
 		<Container minW="100%">
-			<HStack spacing={2} p={4}>
-				<CustomNavLink to={'./'}>Attributes</CustomNavLink>
-				<CustomNavLink to={'./classification'}>Classification</CustomNavLink>
-				<CustomNavLink to={'./type'}>Type</CustomNavLink>
-				<CustomNavLink to={'./tags'}>Tags</CustomNavLink>
-				<CustomNavLink to={'./projects'}>Projects</CustomNavLink>
-				<CustomNavLink to={'./outgoing'}>Outgoing Asset Links</CustomNavLink>
-				<CustomNavLink to={'./incomming'}>Incomming Asset Links</CustomNavLink>
-				<CustomNavLink to={'./logs'}>Logs</CustomNavLink>
-			</HStack>
-			<Box minW="100%">
-				<Outlet />
-			</Box>
+			<Tabs isFitted variant='enclosed' onChange={(e)=>navigate(tabs[e].to)} bg={'white'}>
+				<TabList>
+					{tabs.map((tab,index)=>{
+						return (
+							<Tab _selected={{bg: 'blue.100' }} key={index}>{tab.name}</Tab>);
+					})}
+				</TabList>
+				<TabPanels bg="blue.100">
+					<Outlet />	
+				</TabPanels>
+			</Tabs>
+			
+
 		</Container>);
 };
  

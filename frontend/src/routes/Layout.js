@@ -1,4 +1,4 @@
-import { Outlet,redirect} from 'react-router-dom';
+import { Navigate, Outlet,redirect} from 'react-router-dom';
 import { Container, Heading, VStack,Spinner } from '@chakra-ui/react';
 import useAuth from '../hooks/useAuth';
 import { useEffect } from 'react';
@@ -12,8 +12,11 @@ const Layout = () => {
 		}
 	},[loggedIn,user]);
 	return (
+	
 		<VStack minW="100vw" minH={'100vh'} p={2} m={4}>
-
+			{!user && 
+				<Navigate to="/login" replace={true}/>
+			}
 			<Heading>Code Groover Assets Metadata Repository</Heading>
 			<Header />
 

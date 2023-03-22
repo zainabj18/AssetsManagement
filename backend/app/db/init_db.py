@@ -2,7 +2,7 @@ import os
 import json
 import click
 from psycopg.rows import class_row
-from app.db import close_db, get_db
+from app.db import close_db, get_db,Models,UserRole,DataAccess
 from flask import current_app
 from werkzeug.security import generate_password_hash
 from app.schemas.factories import AssetFactory,TypeVersionFactory,ProjectFactory,TagFactory,TypeFactory
@@ -18,15 +18,28 @@ def init_db():
         conn.execute(
             """
         INSERT INTO accounts (username, hashed_password, account_type,account_privileges)
-VALUES (%(username)s,%(password)s,'ADMIN','CONFIDENTIAL');""",
+VALUES (%(username)s,%(password)s,%(account_type)s,%(account_privileges)s);""",
             {
                 "username": current_app.config["DEFAULT_SUPERUSER_USERNAME"],
                 "password": generate_password_hash(
                     current_app.config["DEFAULT_SUPERUSER_USERNAME"]
                 ),
+                "account_type":max(UserRole),
+                "account_privileges":max(DataAccess)
+
             },
         )
-    # closes db so when next need a new pool will be created to map enums
+        for model in Models:
+            conn.execute(
+                """
+            INSERT INTO tracked_models(model_id,model_name)
+    VALUES (%(model_id)s,%(model_name)s);""",
+                {
+                    "model_id":model.value,
+                    "model_name":model.name.lower(),
+                },
+            )
+    #closes db so when next need a new pool will be created to map enums
     close_db()
 
 def generate_assets(existing_version_ids,db_conn,batch_result,added_assets):

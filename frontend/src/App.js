@@ -27,6 +27,7 @@ import AttributeViewer from './routes/AttributeViewer';
 import ProjectViewer from './routes/ProjectViewer';
 import TypeEditor from './routes/TypeEditor';
 import Logs from './routes/Logs';
+import Comments from './routes/assets/Comments';
 //TODO:Wrap in error boundary
 function App() {
 
@@ -40,6 +41,7 @@ function App() {
 						<Route path="new" element={<CreateAsset />} />
 						<Route path=":id" element={<AssetOverview />}>
 							<Route index element={<AssetViewer canEdit={true} isNew={false}/>} />	
+							<Route path="comments" element={<Comments />} />	
 							<Route path="logs" element={<AssetLogs />} />	
 							<Route path="tags" element={<RelatedTags />} />	
 							<Route path="projects" element={<RelatedProjects />} />	

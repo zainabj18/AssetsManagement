@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, List, Optional
 
-from app.db import DataAccess
+from app.db import DataAccess,Actions
 from pydantic import BaseModel, Field, ValidationError, root_validator, validator,Extra
 from enum import Enum
 
@@ -11,6 +11,23 @@ class QueryOperation(Enum):
     HAS="HAS"
     AND="AND"
     OR="OR"
+
+class Log(BaseModel):
+    log_id: int = Field(..., alias="logID")
+    account_id: int = Field(..., alias="accountID")
+    object_id:int = Field(..., alias="objectID")
+    model_id:int = Field(..., alias="modelID")
+    model_name:Optional[str] = Field(None, alias="modelName")
+    username:Optional[str]
+    action:Actions
+    date:datetime
+    class Config:
+        allow_population_by_field_name = True
+        extra = Extra.allow
+        json_encoders = {
+            Actions: lambda a: str(a.name),
+        }
+
 
 class AttributeSearcher(BaseModel):
     attribute_id: Any = Field(..., alias="attributeID")
@@ -50,8 +67,19 @@ class Attribute_Model(BaseModel):
     class Config:
         allow_population_by_field_name = True
 
+class Comment(BaseModel):
+    comment: str=Field(...,min_length=1)
+    class Config:
+        allow_population_by_field_name = True
 
-
+class CommentOut(Comment):
+    comment_id:int
+    asset_id:int= Field(..., alias="assetID")
+    account_id:int= Field(..., alias="accountID")
+    datetime:datetime
+    username:Optional[str]
+    class Config:
+        allow_population_by_field_name = True
 class Attribute(Attribute_Model):
     attribute_value: Any = Field(None, alias="attributeValue")
     # cast string to correct type based on attribute type

@@ -23,9 +23,15 @@ const Header = () => {
 				<CustomNavLink to="tags/">
 				Tags
 				</CustomNavLink>
-				{(user && user.userRole==='ADMIN') && <CustomNavLink to="accounts/">
+				{(user && user.userRole==='ADMIN') && <>
+					<CustomNavLink to="accounts/">
 				Accounts
-				</CustomNavLink>}
+					</CustomNavLink>
+					<CustomNavLink to="logs/">
+				Logs
+					</CustomNavLink>
+				
+				</>}
 			</HStack>
 			<Spacer />
 			<HStack>

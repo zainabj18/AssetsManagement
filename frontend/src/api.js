@@ -174,6 +174,17 @@ export const makeBackfill = async (data) => {
 	return await axios.post('type/backfill', data).then(res => res.data);
 };
 
+export const fetchComments = async (id) => {
+	return await axios.get(`/asset/comment/${id}`).then(res => res.data);
+};
+export const addComment = async (id,comment) => {
+	console.log(comment);
+	return await axios.post(`/asset/comment/${id}`,comment).then(res => res.data);
+};
+
+export const deleteComment = async (id,comment_id) => {
+	return await axios.delete(`/asset/comment/${id}/remove/${comment_id}`).then(res => res.data);
+};
 export const createUser = async (id) => {
 	return await axios.post('/auth/register', id).then(res => res.data);
 };

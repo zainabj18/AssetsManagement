@@ -1,11 +1,13 @@
-from app.core.utils import protected
-from app.db import DataAccess, UserRole, get_db,Actions
-from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model,Project
+from app.core.utils import protected,run_query,model_creator,QueryResult
+from app.db import DataAccess, UserRole, get_db,Actions,Models
+from app.schemas import Asset, AssetBaseInDB, AssetOut, AttributeInDB,FilterSearch,QueryOperation,Attribute_Model,Project,Comment,CommentOut,Log
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
 from pydantic import ValidationError
+from psycopg import Error
 from app.auth.routes import get_user_by_id
 from itertools import chain
+from flask import abort
 bp = Blueprint("asset", __name__, url_prefix="/asset")
 import json
 def asset_differ(orginal,new):
@@ -314,6 +316,7 @@ INNER JOIN types ON types.type_id=type_version.type_id WHERE version_id=%(versio
 @bp.route("/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def view(id, user_id, access_level):
+    #TODO view if none
     db = get_db()
     asset=fetch_asset(db,id,access_level)
     
@@ -466,24 +469,20 @@ SET value = EXCLUDED.value""",
             
     return {}, 200
 
+
+def get_asset_logs(db,asset_id):
+    return run_query(db,"""SELECT audit_logs.*, username FROM audit_logs
+                INNER JOIN accounts ON accounts.account_id=audit_logs.account_id
+WHERE object_id=%(asset_id)s AND model_id=%(model_id)s
+ORDER BY date DESC;""",
+                {"asset_id": asset_id,"model_id":int(Models.ASSETS)},return_type=QueryResult.ALL,row_factory=class_row(Log))
+
+
 @bp.route("/logs/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def logs(id, user_id, access_level):
     db = get_db()
-    with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=dict_row) as cur:
-            cur.execute(
-                """SELECT * FROM audit_logs
-WHERE object_id=%(asset_id)s AND model_id=1
-ORDER BY date ASC;""",
-                {"asset_id": id},
-            )
-            logs = cur.fetchall()
-            print(logs)
-            for log in logs:
-                if username := get_user_by_id(db,log["account_id"]):
-                    username = username[0]
-                log["username"]=username
+    logs =[json.loads(c.json(by_alias=True)) for c in get_asset_logs(db,id)]
     return {"data":logs}
 
 @bp.route("/tags/summary/<id>", methods=["GET"])
@@ -851,3 +850,67 @@ WHERE asset_id=%(asset_id)s;""",
                 if not attribute in new_attributes:
                     removed_attributes_names.append(attribute.attribute_name)
             return {"msg":"upgrade needed","data":[added_attributes,removed_attributes_names,max_version["version_id"]],"canUpgrade":True}
+def abort_asset_not_exists(db,id):
+    with db.connection() as db_conn:
+        with db_conn.cursor() as cur:
+            cur.execute(
+                """SELECT asset_id FROM assets WHERE asset_id=%(id)s AND soft_delete=0;""",
+                {"id": id},
+            )
+            if cur.fetchone() is None:
+                res=jsonify({"msg": "Asset doesn't exist",
+      
+                "data": []
+            })
+                res.status_code=400
+                abort(res)
+
+def insert_comment_to_db(db,comment:Comment,user_id,asset_id):
+    return run_query(db,"""INSERT INTO comments(asset_id,account_id,comment)
+                 VALUES(%(asset_id)s,%(account_id)s,%(comment)s);""",{"asset_id": asset_id,"account_id":user_id,"comment":comment.comment})
+
+
+def delete_comment_db(db,comment_id):
+    return run_query(db,"""DELETE FROM comments WHERE comment_id = %(comment_id)s;""",{"comment_id": comment_id})
+
+def fetch_asset_comments(db,asset_id):
+    return run_query(db,"""
+    SELECT comments.*,username FROM comments
+INNER JOIN accounts ON accounts.account_id=comments.account_id
+    WHERE asset_id=%(asset_id)s ORDER BY datetime;""",{"asset_id": asset_id},return_type=QueryResult.ALL,row_factory=class_row(CommentOut))
+
+def audit_log_event(db,model_id,account_id,object_id,diff_dict,action):
+    return run_query(db,"""
+                INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
+        VALUES (%(model_id)s,%(account_id)s,%(object_id)s,%(diff)s,%(action)s);""",
+        {"model_id":model_id,"account_id":account_id,"object_id":object_id,"diff":json.dumps(diff_dict),"action":action})
+
+@bp.route("/comment/<id>", methods=["POST"])
+@protected(role=UserRole.USER)
+def add_comment(id,user_id, access_level):
+    print(request.json)
+    comment=model_creator(Comment,"Failed to add comment from the data provided",**request.json)
+    print(type(comment))
+    db = get_db()
+    #TODO:Keep db open
+    abort_asset_not_exists(db,id)
+    print(db,comment,user_id,id)
+    insert_comment_to_db(db,comment,user_id,id)
+    audit_log_event(db,Models.ASSETS,user_id,id,{"added":["comment"]},Actions.ADD)
+    return {"msg": "Comment added"},200
+
+@bp.route("/comment/<id>", methods=["GET"])
+@protected(role=UserRole.VIEWER)
+def fetch_comments(id,user_id, access_level):
+    db = get_db()
+    abort_asset_not_exists(db,id)
+    comments=[json.loads(c.json(by_alias=True)) for c in fetch_asset_comments(db,id)]
+    return {"msg": "Comments","data":comments},200
+
+@bp.route("/comment/<id>/remove/<comment_id>", methods=["DELETE"])
+@protected(role=UserRole.ADMIN)
+def delete_comment(id,comment_id,user_id, access_level):
+    db = get_db()
+    delete_comment_db(db,comment_id)
+    audit_log_event(db,Models.ASSETS,user_id,id,{"removed":[f"comment-{comment_id}"]},Actions.ADD)
+    return {"msg": "Comment deleted"},200

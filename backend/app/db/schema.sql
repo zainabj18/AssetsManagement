@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS type_version_link CASCADE;
 DROP TABLE IF EXISTS type_version CASCADE;
 DROP TABLE IF EXISTS tracked_models CASCADE;
 DROP TABLE IF EXISTS audit_logs CASCADE;
-
+DROP TABLE IF EXISTS comments CASCADE;
 
 CREATE TYPE actions AS ENUM ('ADD', 'CHANGE', 'DELETE');
 CREATE TYPE account_role AS ENUM ('VIEWER', 'USER', 'ADMIN');
@@ -92,7 +92,7 @@ CREATE TABLE attributes
 	asset_id SERIAL,
 	name VARCHAR NOT NULL UNIQUE,
 	link VARCHAR NOT NULL,
-    version_id INTEGER,
+    version_id INTEGER NOT NULL,
     description VARCHAR NOT NULL,
 	classification data_classification NOT NULL DEFAULT 'PUBLIC',
 	created_at timestamp NOT NULL DEFAULT now(),
@@ -100,6 +100,19 @@ CREATE TABLE attributes
 	soft_delete INTEGER DEFAULT 0,
 	FOREIGN KEY (version_id) REFERENCES type_version(version_id),
 	PRIMARY KEY (asset_id)
+);
+
+ 
+ CREATE TABLE comments
+(
+	comment_id SERIAL,
+	asset_id INTEGER NOT NULL,
+	account_id INTEGER NOT NULL,
+	comment VARCHAR NOT NULL,
+	datetime timestamp NOT NULL DEFAULT now(),
+	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
+	FOREIGN KEY (account_id) REFERENCES accounts(account_id),
+	PRIMARY KEY (comment_id)
 );
 
  CREATE TABLE assets_in_tags
@@ -190,11 +203,3 @@ CREATE TABLE audit_logs
 	FOREIGN KEY (model_id) REFERENCES tracked_models(model_id),
 	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
  );
-
- INSERT INTO tracked_models(model_id,model_name) 
- VALUES
- (1,'assets'),
- (2,'projects'),
- (3,'type'),
- (4,'tags'),
- (5,'accounts');
