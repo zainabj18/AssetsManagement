@@ -3,69 +3,17 @@ from app.db import DataAccess, UserRole, get_db,Actions,Models
 from app.schemas import Asset, Attribute, AssetOut,FilterSearch,QueryOperation,AttributeBase,Project,Log,QueryJoin,AssetBaseInDB
 from flask import Blueprint, jsonify, request
 from psycopg.rows import class_row, dict_row
-from pydantic import ValidationError
-from itertools import chain
 import json
 from .. import services,utils
 from app.core.utils import model_creator
 bp = Blueprint("asset", __name__, url_prefix="/asset")
 
-
-
-def asset_differ(orginal,new):
-    removed=list(set(orginal.keys())-set(new.keys()))
-    changed=[]
-    added=list(set(new.keys())-set(orginal.keys()))
-    for key in orginal:
-        if key in new:
-            if key=="metadata":
-                old_values_dict={}
-                new_values_dict={}
-                for at in orginal["metadata"]:
-                    print(at)
-                    old_values_dict[at["attributeID"]]=at
-                for at in new["metadata"]:
-                    new_values_dict[at["attributeID"]]=at
-                metadata_removed=list(set(old_values_dict.keys())-set(new_values_dict.keys()))
-                metadata_added=list(set(new_values_dict.keys())-set(old_values_dict.keys()))
-                for attribute in metadata_removed:
-                    name=old_values_dict[attribute]["attributeName"]
-                    removed.append(f"metadata-{attribute}-{name}")
-                for attribute in metadata_added:
-                    name=new_values_dict[attribute]["attributeName"]
-                    added.append(f"metadata-{attribute}-{name}")
-                print(old_values_dict)
-                print(new_values_dict)
-                for key in old_values_dict:
-                    if key in new_values_dict:
-                        if old_values_dict[key]["attributeValue"]!=new_values_dict[key]["attributeValue"]:
-                            name=old_values_dict[key]["attributeName"]
-                            changed.append((f"metadata-{key}-{name}",old_values_dict[key]["attributeValue"],new_values_dict[key]["attributeValue"]))    
-            elif orginal[key]!=new[key]:
-                if isinstance(orginal[key],list) and isinstance(new[key],list):
-                    list_removed=list(set(orginal[key])-set(new[key]))
-                    list_added=list(set(new[key])-set(orginal[key]))
-                    changed.append((key,tuple(list_removed),tuple(list_added)))   
-                else:
-                    changed.append((key,orginal[key],new[key]))    
-
-    return {"added":added,"removed":removed,"changed":changed}
-
-
 @bp.route("/", methods=["POST"])
 @protected(role=UserRole.USER)
 def create(user_id, access_level):
-    asset=model_creator(model=Asset,err_msg="Failed to create asset from the data provided",**request.json)
     db = get_db()
-    db_asset = asset.dict()
-    utils.check_asset_dependencies(db=db,version_id=asset.version_id,assets=asset.asset_ids)
-    utils.check_asset_metatadata(db=db,version_id=asset.version_id,metadata=asset.metadata)
-    asset_id =  services.add_asset_to_db(db=db,**db_asset)["asset_id"]
-    services.add_asset_tags_to_db(db=db,asset_id=asset_id,tags=asset.tag_ids)
-    services.add_asset_projects_to_db(db=db,asset_id=asset_id,projects=asset.project_ids)
-    services.add_asset_assets_to_db(db=db,asset_id=asset_id,assets=asset.asset_ids)
-    services.add_asset_metadata_to_db(db=db,asset_id=asset_id,metadata=asset.metadata)
-    audit_log_event(db,Models.ASSETS,user_id,asset_id,{"added":list(db_asset.keys())},Actions.ADD)
+    asset_id=utils.add_asset_to_db(db=db,data=request.json)
+    audit_log_event(db,Models.ASSETS,user_id,asset_id,{"added":list(Asset.schema(by_alias=True)["properties"].keys())},Actions.ADD)
     return {"msg": "Added asset", "data": asset_id}, 201
 
 @bp.route("/classifications", methods=["GET"])
@@ -129,6 +77,110 @@ def get_upgrade(id,user_id, access_level):
             removed_attributes_names.append(attribute["attributeName"])
     return {"msg":"upgrade needed","data":{"addedAttributes":added_attributes,"removedAttributesNames":removed_attributes_names,"dependsOn":new_dependencies_names,"maxVersion":results["max_version_id"]}}
 
+@bp.route("/<id>", methods=["PATCH"])
+@protected(role=UserRole.VIEWER)
+def update(id, user_id, access_level):
+
+    db = get_db()
+    utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
+    new_asset=model_creator(model=Asset,err_msg="Failed to create asset from the data provided",**request.json)
+    old_asset=Asset(**services.fetch_asset(db=db,asset_id=id).dict())
+    
+    diff=utils.asset_differ(old_asset.dict(by_alias=True),new_asset.dict(by_alias=True))
+    utils.add_asset_to_db(db=db,data=request.json,asset_id=id)
+    tags_removed=set(old_asset.tag_ids)-set(new_asset.tag_ids)
+    print(diff)
+    audit_log_event(db,Models.ASSETS,user_id,id,diff,Actions.CHANGE)
+    #services.delete_assets_from_asset(db=db,asset_ids=new_asset.asset_ids,asset_id=id)
+    #services.delete_projects_from_asset(db=db,projects=new_asset.)
+#     with db.connection() as conn:
+#         with conn.cursor() as cur:
+            
+#             cur.execute(
+#                 """SELECT version_id FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",
+#                 {"asset_ids":asset["assets"]})
+#             asset_types=set([x[0] for x in cur.fetchall()])
+#             cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(type_id)s;""",{"type_id": asset["version_id"]})
+#             dependents= set([x[0] for x in cur.fetchall()])
+#             if not asset_types.issuperset(dependents):
+#                 return (
+#                     jsonify(
+#                         {
+#                             "msg": "Missing dependencies",
+#                             "data": f"Must inlcude assets with type {dependents}",
+#                             "error": "Failed to create asset from the data provided",
+#                         }
+#                     ),
+#                     400,
+#                 )
+#             cur.execute(
+#                     """
+#                 INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
+#         VALUES (1,%(account_id)s,%(asset_id)s,%(diff)s,%(action)s);""",
+#                     {"account_id":user_id,"asset_id":asset["asset_id"],"diff":json.dumps(diff_dict),"action":Actions.CHANGE},
+#                 )
+#             print(asset)
+#             cur.execute(
+#                 """
+#             UPDATE assets 
+#             SET name=%(name)s,link=%(link)s,description=%(description)s,version_id=%(version_id)s,classification=%(classification)s,last_modified_at=now() WHERE asset_id=%(asset_id)s ;""",
+#                 asset,
+#             )
+#             cur.execute("""
+#             DELETE FROM assets_in_tags WHERE tag_id = ANY(%(tag_ids)s) AND asset_id=%(asset_id)s;
+#             """,{"tag_ids":tags_removed,"asset_id":asset["asset_id"]})
+#             cur.execute("""
+#             DELETE FROM assets_in_projects WHERE project_id = ANY(%(project_ids)s) AND asset_id=%(asset_id)s;
+#             """,{"project_ids":projects_removed,"asset_id":asset["asset_id"]})
+#             cur.execute("""
+#             DELETE FROM assets_in_assets WHERE to_asset_id = ANY(%(asset_ids)s) AND from_asset_id=%(asset_id)s;
+#             """,{"asset_ids":assets_removed,"asset_id":asset["asset_id"]})
+#             for a in assets_added:
+#                 cur.execute(
+#                     """
+#                 INSERT INTO assets_in_assets (from_asset_id,to_asset_id)
+#         VALUES (%(from_asset_id)s,%(to_asset_id)s);""",
+#                     {"from_asset_id": asset["asset_id"], "to_asset_id": a},
+#                 )
+#             for tag in tags_added:
+#                 cur.execute(
+#                     """
+#                 INSERT INTO assets_in_tags (asset_id,tag_id)
+#         VALUES (%(asset_id)s,%(tag_id)s);""",
+#                     {"asset_id": asset["asset_id"], "tag_id": tag},
+#                 )
+#             # add asset to projects to db
+#             for project in projects_added:
+#                 cur.execute(
+#                     """
+#                 INSERT INTO assets_in_projects (asset_id,project_id)
+#         VALUES (%(asset_id)s,%(project_id)s);""",
+#                     {"asset_id": asset["asset_id"], "project_id": project},
+#                 )
+# DELETE metadata values
+#             # updates metadatat values
+#             print(asset["metadata"],"hello")
+#             for attribute in asset["metadata"]:
+#                 # cur.execute(
+#                 #     """
+#                 # UPDATE attributes_values 
+#                 # SET value=%(attributeValue)s WHERE asset_id=%(asset_id)s AND attribute_id=%(attributeID)s;""",
+#                 #     {"asset_id": id, **attribute},
+#                 # )
+#                 cur.execute(
+#                     """
+#                 INSERT INTO attributes_values (asset_id,attribute_id,attribute_value)
+#         VALUES (%(asset_id)s,%(attributeID)s,%(attributeValue)s) ON CONFLICT (asset_id,attribute_id) DO UPDATE
+# SET value = EXCLUDED.value""",
+#                     {
+#                         "asset_id": id,
+#                         **attribute
+#                     },
+#                 )
+            
+    return {"msg": "Updated asset"}
+
+
 
 @bp.route("/<id>", methods=["DELETE"])
 def delete(id):
@@ -141,114 +193,6 @@ def delete(id):
                 {"id": id, "del": 1},
             )
     return {}, 200
-
-
-@bp.route("/<id>", methods=["PATCH"])
-@protected(role=UserRole.VIEWER)
-def update(id, user_id, access_level):
-    db = get_db()
-    asset = dict(**request.json)
-    del asset['created_at']
-    del asset['last_modified_at']
-    orgignal_asset=services.fetch_asset(db,id,access_level)
-    orgignal_asset=json.loads(orgignal_asset.json(by_alias=True,exclude={'created_at', 'last_modified_at'}))
-    orgignal_asset["tags"]=[tag["id"]for tag in orgignal_asset["tags"]]
-    orgignal_asset["projects"]=[project["projectID"]for project in orgignal_asset["projects"]]
-    orgignal_asset["assets"]=[a["asset_id"]for a in orgignal_asset["assets"]]
-    projects_removed=list(set(orgignal_asset["projects"])-set(asset["projects"]))
-    projects_added=list(set(asset["projects"])-set(orgignal_asset["projects"]))
-    assets_removed=list(set(orgignal_asset["assets"])-set(asset["assets"]))
-    assets_added=list(set(asset["assets"])-set(orgignal_asset["assets"]))
-    tags_removed=list(set(orgignal_asset["tags"])-set(asset["tags"]))
-    tags_added=list(set(asset["tags"])-set(orgignal_asset["tags"]))
-    diff_dict=asset_differ(orgignal_asset,asset)
-    with db.connection() as conn:
-        with conn.cursor() as cur:
-            
-            cur.execute(
-                """SELECT version_id FROM assets WHERE asset_id=ANY(%(asset_ids)s);""",
-                {"asset_ids":asset["assets"]})
-            asset_types=set([x[0] for x in cur.fetchall()])
-            cur.execute("""SELECT type_id_to FROM type_link WHERE type_id_from=%(type_id)s;""",{"type_id": asset["version_id"]})
-            dependents= set([x[0] for x in cur.fetchall()])
-            if not asset_types.issuperset(dependents):
-                return (
-                    jsonify(
-                        {
-                            "msg": "Missing dependencies",
-                            "data": f"Must inlcude assets with type {dependents}",
-                            "error": "Failed to create asset from the data provided",
-                        }
-                    ),
-                    400,
-                )
-            cur.execute(
-                    """
-                INSERT INTO audit_logs (model_id,account_id,object_id,diff,action)
-        VALUES (1,%(account_id)s,%(asset_id)s,%(diff)s,%(action)s);""",
-                    {"account_id":user_id,"asset_id":asset["asset_id"],"diff":json.dumps(diff_dict),"action":Actions.CHANGE},
-                )
-            print(asset)
-            cur.execute(
-                """
-            UPDATE assets 
-            SET name=%(name)s,link=%(link)s,description=%(description)s,version_id=%(version_id)s,classification=%(classification)s,last_modified_at=now() WHERE asset_id=%(asset_id)s ;""",
-                asset,
-            )
-            cur.execute("""
-            DELETE FROM assets_in_tags WHERE tag_id = ANY(%(tag_ids)s) AND asset_id=%(asset_id)s;
-            """,{"tag_ids":tags_removed,"asset_id":asset["asset_id"]})
-            cur.execute("""
-            DELETE FROM assets_in_projects WHERE project_id = ANY(%(project_ids)s) AND asset_id=%(asset_id)s;
-            """,{"project_ids":projects_removed,"asset_id":asset["asset_id"]})
-            cur.execute("""
-            DELETE FROM assets_in_assets WHERE to_asset_id = ANY(%(asset_ids)s) AND from_asset_id=%(asset_id)s;
-            """,{"asset_ids":assets_removed,"asset_id":asset["asset_id"]})
-            for a in assets_added:
-                cur.execute(
-                    """
-                INSERT INTO assets_in_assets (from_asset_id,to_asset_id)
-        VALUES (%(from_asset_id)s,%(to_asset_id)s);""",
-                    {"from_asset_id": asset["asset_id"], "to_asset_id": a},
-                )
-            for tag in tags_added:
-                cur.execute(
-                    """
-                INSERT INTO assets_in_tags (asset_id,tag_id)
-        VALUES (%(asset_id)s,%(tag_id)s);""",
-                    {"asset_id": asset["asset_id"], "tag_id": tag},
-                )
-            # add asset to projects to db
-            for project in projects_added:
-                cur.execute(
-                    """
-                INSERT INTO assets_in_projects (asset_id,project_id)
-        VALUES (%(asset_id)s,%(project_id)s);""",
-                    {"asset_id": asset["asset_id"], "project_id": project},
-                )
-            # updates metadatat values
-            print(asset["metadata"],"hello")
-            for attribute in asset["metadata"]:
-                # cur.execute(
-                #     """
-                # UPDATE attributes_values 
-                # SET value=%(attributeValue)s WHERE asset_id=%(asset_id)s AND attribute_id=%(attributeID)s;""",
-                #     {"asset_id": id, **attribute},
-                # )
-                cur.execute(
-                    """
-                INSERT INTO attributes_values (asset_id,attribute_id,attribute_value)
-        VALUES (%(asset_id)s,%(attributeID)s,%(attributeValue)s) ON CONFLICT (asset_id,attribute_id) DO UPDATE
-SET value = EXCLUDED.value""",
-                    {
-                        "asset_id": id,
-                        **attribute
-                    },
-                )
-            
-    return {}, 200
-
-
 
 #TODO:Moves to tags
 @bp.route("/tags/summary/<id>", methods=["GET"])

@@ -1,8 +1,10 @@
 from . import services
+import json 
 from psycopg_pool import ConnectionPool
-from app.schemas import Attribute
+from app.schemas import Attribute,Asset,Diff
 from typing import List
 from flask import abort
+from app.core.utils import model_creator
 
 def can_view_asset(db,asset_id,access_level):
     services.abort_asset_not_exists(db=db,asset_id=asset_id)
@@ -43,7 +45,6 @@ def asset_differ(orginal,new):
                 old_values_dict={}
                 new_values_dict={}
                 for at in orginal["metadata"]:
-                    print(at)
                     old_values_dict[at["attributeID"]]=at
                 for at in new["metadata"]:
                     new_values_dict[at["attributeID"]]=at
@@ -55,8 +56,6 @@ def asset_differ(orginal,new):
                 for attribute in metadata_added:
                     name=new_values_dict[attribute]["attributeName"]
                     added.append(f"metadata-{attribute}-{name}")
-                print(old_values_dict)
-                print(new_values_dict)
                 for key in old_values_dict:
                     if key in new_values_dict:
                         if old_values_dict[key]["attributeValue"]!=new_values_dict[key]["attributeValue"]:
@@ -70,4 +69,18 @@ def asset_differ(orginal,new):
                 else:
                     changed.append((key,orginal[key],new[key]))    
 
-    return {"added":added,"removed":removed,"changed":changed}
+    return json.loads(Diff(added=added,removed=removed,changed=changed).json())
+def add_asset_to_db(db:ConnectionPool,data:dict,asset_id=None):
+    asset=model_creator(model=Asset,err_msg="Failed to create asset from the data provided",**data)
+    db_asset = asset.dict()
+    check_asset_dependencies(db=db,version_id=asset.version_id,assets=asset.asset_ids)
+    check_asset_metatadata(db=db,version_id=asset.version_id,metadata=asset.metadata)
+    if asset_id is None:
+        asset_id =services.add_asset_to_db(db=db,**db_asset)["asset_id"]
+    else:
+        services.update_asset(db=db,asset_id=asset_id,**db_asset)
+    services.add_asset_tags_to_db(db=db,asset_id=asset_id,tags=asset.tag_ids)
+    services.add_asset_projects_to_db(db=db,asset_id=asset_id,projects=asset.project_ids)
+    services.add_asset_assets_to_db(db=db,asset_id=asset_id,assets=asset.asset_ids)
+    services.add_asset_metadata_to_db(db=db,asset_id=asset_id,metadata=asset.metadata)
+    return asset_id

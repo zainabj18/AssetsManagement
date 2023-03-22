@@ -246,6 +246,26 @@ def add_asset_to_db(db:ConnectionPool,name:str,link:str,version_id:int,descripti
                 {"name":name,"link":link,"version_id":version_id,"description":description,"classification":classification},return_type=QueryResult.ONE)
 
 
+def update_asset(db:ConnectionPool,name:str,link:str,version_id:int,description:str,classification:Union[str,DataAccess],asset_id:int,**kwargs):
+    """Updates asset in db.
+
+    Args:
+      db: A object for managing connections to the db.
+      name: The name of the asset.
+      link: The link of the asset.
+      version_id: The version_id of the asset.
+      description: The description of the asset.
+      classification: The classification of the asset.
+      asset_id: The asset id to update.
+
+    Returns:
+      A dictionary containing they key asset_id.
+    """
+    return run_query(db,"""
+    UPDATE assets 
+SET name=%(name)s,link=%(link)s,description=%(description)s,version_id=%(version_id)s,classification=%(classification)s,last_modified_at=now() WHERE asset_id=%(asset_id)s ;""",
+                {"name":name,"link":link,"version_id":version_id,"description":description,"classification":classification,"asset_id":asset_id})
+
 
 def fetch_version_dependencies(db:ConnectionPool,version_id:int):
     """Find the version's dependencies.
@@ -305,7 +325,7 @@ def add_asset_tags_to_db(db:ConnectionPool,asset_id:int,tags:List[int]):
     for tag in tags:
         run_query(db,"""
                 INSERT INTO assets_in_tags (asset_id,tag_id)
-        VALUES (%(asset_id)s,%(tag_id)s);""",
+        VALUES (%(asset_id)s,%(tag_id)s) ON CONFLICT DO NOTHING;""",
                     {"asset_id": asset_id, "tag_id": tag})
         
 def add_asset_projects_to_db(db:ConnectionPool,asset_id:int,projects:List[int]):
@@ -319,7 +339,7 @@ def add_asset_projects_to_db(db:ConnectionPool,asset_id:int,projects:List[int]):
     for project in projects:
         run_query(db, """
                 INSERT INTO assets_in_projects (asset_id,project_id)
-        VALUES (%(asset_id)s,%(project_id)s);""",
+        VALUES (%(asset_id)s,%(project_id)s) ON CONFLICT DO NOTHING;""",
                     {"asset_id": asset_id, "project_id": project}
                 )
 
@@ -334,7 +354,7 @@ def add_asset_assets_to_db(db:ConnectionPool,asset_id:int,assets:List[int]):
     for asset in assets:
         run_query(db,  """
                 INSERT INTO assets_in_assets (from_asset_id,to_asset_id)
-        VALUES (%(from_asset_id)s,%(to_asset_id)s);""",
+        VALUES (%(from_asset_id)s,%(to_asset_id)s) ON CONFLICT DO NOTHING;""",
                     {"from_asset_id": asset_id, "to_asset_id": asset})
 
 def add_asset_metadata_to_db(db:ConnectionPool,asset_id:int,metadata:List[Attribute]):
@@ -348,14 +368,14 @@ def add_asset_metadata_to_db(db:ConnectionPool,asset_id:int,metadata:List[Attrib
     for attribute in metadata:
         run_query(db,"""
                 INSERT INTO attributes_values (asset_id,attribute_id,attribute_value)
-        VALUES (%(asset_id)s,%(attribute_id)s,%(value)s);""",
+        VALUES (%(asset_id)s,%(attribute_id)s,%(value)s) ON CONFLICT (asset_id,attribute_id) DO UPDATE SET attribute_value = EXCLUDED.attribute_value;""",
                     {
                         "asset_id": asset_id,
                         "attribute_id": attribute.attribute_id,
                         "value": attribute.attribute_value,
                     },
                 )
-
+        
 def fetch_asset(db:ConnectionPool,asset_id:int):
     """Fetches an asset's with all its metadata and attributes from db.
 
@@ -437,3 +457,44 @@ def fetch_versions_attributes(db:ConnectionPool,version_id:int):
         INNER JOIN attributes ON attributes.attribute_id=attributes_in_types.attribute_id
         WHERE type_version=%(type_version)s;""",{"type_version":version_id},return_type=QueryResult.ALL_JSON,row_factory=class_row(AttributeInDB))
 
+
+def delete_projects_from_asset(db:ConnectionPool,projects:List[int],asset_id:int):
+    """Deletes the realtionship between projects and an asset.
+
+    Args:
+      db: A object for managing connections to the db.
+      projects: The list of projects to deleted.
+      asset_id: The asset id to remove the projects from.
+    """
+    return run_query(db,"""DELETE FROM assets_in_projects WHERE project_id = ANY(%(project_ids)s) AND asset_id=%(asset_id)s;""",{"project_ids":projects,"asset_id":asset_id})
+
+def delete_tags_from_asset(db:ConnectionPool,tags:List[int],asset_id:int):
+    """Deletes the realtionship between tags and an asset.
+
+    Args:
+      db: A object for managing connections to the db.
+      tags: The list of tags to deleted.
+      asset_id: The asset id to remove the tags from.
+    """
+    return run_query(db,"""DELETE FROM assets_in_tags WHERE tag_id = ANY(%(tag_ids)s) AND asset_id=%(asset_id)s;""",{"tag_ids":tags,"asset_id":asset_id})
+
+def delete_attributes_from_asset(db:ConnectionPool,attributes:List[int],asset_id:int):
+    """Deletes the realtionship between attributes and an asset.
+
+    Args:
+      db: A object for managing connections to the db.
+      attributes: The list of attributes ids to deleted.
+      asset_id: The asset id to remove the attributes from.
+    """
+    return run_query(db,"""DELETE FROM attributes_values WHERE attribute_id = ANY(%(attributes)s) AND asset_id=%(asset_id)s;""",{"tag_ids":attributes,"asset_id":asset_id})
+
+
+def delete_assets_from_asset(db:ConnectionPool,asset_ids:List[int],asset_id:int):
+    """Deletes the realtionship between assets and an asset.
+
+    Args:
+      db: A object for managing connections to the db.
+      asset_ids: The list of assets ids to deleted.
+      asset_id: The asset id to remove the tags from.
+    """
+    return run_query(db,"""DELETE FROM assets_in_assets WHERE to_asset_id = ANY(%(asset_ids)s) AND from_asset_id=%(asset_id)s;""",{"asset_ids":asset_ids,"asset_id":asset_id})

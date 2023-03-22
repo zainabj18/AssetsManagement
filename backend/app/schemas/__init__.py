@@ -5,4 +5,4 @@ from .type import Type,TypeBase,TypeVersion
 from .tag import TagBase,TagBulkRequest,TagInDB
 from .user import UserBase, UserCreate, UserInDB,People
 from .project import Project
-from .log import Log
+from .log import Log,Diff

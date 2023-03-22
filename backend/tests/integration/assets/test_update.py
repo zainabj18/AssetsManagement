@@ -1,12 +1,16 @@
 import pytest
 import json
-from app.db import DataAccess,UserRole
+import os
+from app.db import DataAccess,UserRole,Models
+from psycopg.rows import dict_row
+from datetime import datetime
+
 @pytest.mark.parametrize(
     "new_assets",
     [{"batch_size": 1,"add_to_db":True}],
     indirect=True,
 )
-def test_upgrade_not_availiable(db_conn,valid_client,new_assets,type_verions):
+def test_upgrade_not_availiable(valid_client,new_assets):
     res = valid_client.get(f"/api/v1/asset/upgrade/{new_assets[0].asset_id}")
     assert res.status_code == 200
     assert res.json["msg"] == "no upgrade needed"
@@ -69,9 +73,7 @@ SET type_id = %(type_id)s WHERE version_id=%(version_id)s""",
         # check new version id given
         assert res.json["data"]["maxVersion"]==lastest_type_version.version_id
 
-
-
-def test_new_assets_get_invalid_id(valid_client):
+def test_upgrade_assets_get_invalid_id(valid_client):
     res = valid_client.get(f"/api/v1/asset/upgrade/{1}")
     assert res.status_code == 404
     assert res.json=={'msg': "Asset doesn't exist"}
@@ -89,7 +91,7 @@ def test_new_assets_get_invalid_id(valid_client):
     [{"batch_size": 1}],
     indirect=True,
 )
-def test_new_assets_get_account_privileges_check(valid_client, new_assets):
+def test_upgrade_assets_get_account_privileges_check(valid_client, new_assets):
     new_assets[0].classification=DataAccess.CONFIDENTIAL
     data = json.loads(new_assets[0].json(by_alias=True))
     res = valid_client.post("/api/v1/asset/", json=data)
@@ -99,4 +101,150 @@ def test_new_assets_get_account_privileges_check(valid_client, new_assets):
     res = valid_client.get(f"/api/v1/asset/upgrade/{asset_id}")
     assert res.status_code == 403
     assert res.json=={'msg': 'Your account is forbidden to access this please speak to your admin'}
+
+def test_patch_assets_not_in_db(valid_client, new_assets, db_conn):
+    data = json.loads(new_assets[0].json())
+    res = valid_client.patch(f"/api/v1/asset/{1}", json=data)
+    assert res.status_code == 404
+    assert res.json=={'msg': "Asset doesn't exist"}
+
+@pytest.mark.parametrize(
+    "valid_client",
+    [
+        ({"account_type": UserRole.ADMIN, "account_privileges": DataAccess.PUBLIC})
+    ],
+    indirect=True,
+)
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_upgrade_assets_get_account_privileges_check(valid_client, new_assets):
+    new_assets[0].classification=DataAccess.CONFIDENTIAL
+    data = json.loads(new_assets[0].json(by_alias=True))
+    res = valid_client.post("/api/v1/asset/", json=data)
+    print(res.json)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    asset_id = res.json["data"]
+    res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
+    assert res.status_code == 403
+    assert res.json=={'msg': 'Your account is forbidden to access this please speak to your admin'}
+
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_patch_assets(valid_client, new_assets):
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post(f"/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    asset_id=res.json["data"]
+    res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
+    assert res.status_code == 200
+    assert res.json=={"msg": "Updated asset"}
+
+@pytest.mark.parametrize(
+    "field",
+    ["name","link","description"],
+)
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_patch_assets_change_fields(valid_client, new_assets,db_conn,field):
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post(f"/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    asset_id=res.json["data"]
+    prev_value=data[field]
+    new_value=data[field]+'a'
+    data[field]=new_value
+    res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
+    assert res.status_code == 200
+    assert res.json=={"msg": "Updated asset"}
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT * FROM assets WHERE asset_id=%(asset_id)s;""",{"asset_id":asset_id})
+        asset=cur.fetchone()
+        assert asset[field]==new_value
+        assert asset["last_modified_at"]>asset["created_at"]
+        assert asset["last_modified_at"]<datetime.now()
+    res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
+    assert res.status_code == 200
+    assert res.json["data"][0]["accountID"]==1
+    assert res.json["data"][0]["action"]=="CHANGE"
+    assert res.json["data"][0]["diff"]["added"]==[]
+    assert res.json["data"][0]["diff"]["removed"]==[]
+    assert res.json["data"][0]["diff"]["changed"][0]==[field,prev_value,new_value]
+    assert res.json["data"][0]["logID"]==2
+    assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
+    assert res.json["data"][0]["objectID"]==asset_id
+    assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+def test_patch_assets_change_classification(valid_client, new_assets,db_conn):
+    new_assets[0].classification=DataAccess.CONFIDENTIAL
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post(f"/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    asset_id=res.json["data"]
+    data["classification"]="PUBLIC"
+    res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
+    assert res.status_code == 200
+    assert res.json=={"msg": "Updated asset"}
+    with db_conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """SELECT * FROM assets WHERE asset_id=%(asset_id)s;""",{"asset_id":asset_id})
+        asset=cur.fetchone()
+        assert asset["classification"]==DataAccess.PUBLIC
+        assert asset["last_modified_at"]>asset["created_at"]
+        assert asset["last_modified_at"]<datetime.now()
+    res = valid_client.get(f"/api/v1/asset/logs/{asset_id}")
+    assert res.status_code == 200
+    assert res.json["data"][0]["accountID"]==1
+    assert res.json["data"][0]["action"]=="CHANGE"
+    assert res.json["data"][0]["diff"]["added"]==[]
+    assert res.json["data"][0]["diff"]["removed"]==[]
+    assert res.json["data"][0]["diff"]["changed"][0]==["classification","CONFIDENTIAL","PUBLIC"]
+    assert res.json["data"][0]["logID"]==2
+    assert res.json["data"][0]["modelID"]==int(Models.ASSETS)
+    assert res.json["data"][0]["objectID"]==asset_id
+    assert res.json["data"][0]["username"]==os.environ["DEFAULT_SUPERUSER_USERNAME"]
+
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 1}],
+    indirect=True,
+)
+@pytest.mark.parametrize(
+    "type_verions",
+    [{"size": 1,"add_to_db": True}],
+    indirect=True,
+)
+def test_patch_assets_change_version_id(valid_client, new_assets,db_conn,type_verions):
+    data = json.loads(new_assets[0].json())
+    res = valid_client.post(f"/api/v1/asset/", json=data)
+    assert res.status_code == 201
+    assert res.json["msg"] == "Added asset"
+    assert res.json["data"]
+    asset_id=res.json["data"]
+    data["version_id"]=type_verions["added"][0].version_id
+    res = valid_client.patch(f"/api/v1/asset/{asset_id}", json=data)
+    assert res.json['msg']=='Missing required attributes'
+  
 
