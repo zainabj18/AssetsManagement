@@ -128,7 +128,9 @@ def get_types():
     db = get_db()
     with db.connection() as conn:
         res = conn.execute(query)
-        types = extract_name_id(res.fetchall())
+        types = res.fetchall()
+        for i, tup in enumerate(types):
+            types[i] = {"id": tup[0], "name": tup[1]}
         data = []
         for type in types:
             version_id = type["id"]
