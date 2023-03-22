@@ -14,7 +14,7 @@ const AttributeViewer = () => {
 	useEffect(() => {
 		async function load_allAttributes() {
 			let data = await fetchAllAttributes(res => res.data);
-			set_attributes(data);
+			set_attributes(data.data);
 		}
 		load_allAttributes();
 	}, [toggle]);
