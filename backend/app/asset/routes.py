@@ -900,7 +900,7 @@ def add_comment(id,user_id, access_level):
     return {"msg": "Comment added"},200
 
 @bp.route("/comment/<id>", methods=["GET"])
-@protected(role=UserRole.USER)
+@protected(role=UserRole.VIEWER)
 def fetch_comments(id,user_id, access_level):
     db = get_db()
     abort_asset_not_exists(db,id)
