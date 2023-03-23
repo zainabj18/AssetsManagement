@@ -1,6 +1,6 @@
 import json
 from app.db import get_db
-from flask import Blueprint
+from flask import Blueprint, request
 from enum import Enum
 
 
@@ -40,8 +40,9 @@ def extract_people(people):
     return allPeople_listed
 @bp.route("/accountmanager", methods=["DELETE"])
 def deleteUsers():
+    id = request.args.get('id')
     database = get_db()
-    query = """DELETE FROM accounts;"""
+    query = """DELETE FROM accounts WHERE account_id = %(id)s;"""
     with database.connection() as conn:
-        conn.execute(query)
+        conn.execute(query, {"id":id})
     return {"message":"Users deleted successfully"}, 200
