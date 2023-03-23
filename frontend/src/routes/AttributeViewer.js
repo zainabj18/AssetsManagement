@@ -1,13 +1,11 @@
 import {
-	Button,
-	HStack,
-	VStack,
-	Text,
-	useBoolean,
+	Button, useBoolean,
+	TableContainer, Table, TableCaption, Thead, Tbody, Th, Tr, Td, VStack
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import useAuth from '../hooks/useAuth';
 import { deleteAttribute, fetchAllAttributes, } from '../api';
+import AttributeModal from '../components/AttributeModal';
 
 const AttributeViewer = () => {
 	const { user } = useAuth();
@@ -16,7 +14,7 @@ const AttributeViewer = () => {
 	useEffect(() => {
 		async function load_allAttributes() {
 			let data = await fetchAllAttributes(res => res.data);
-			set_attributes(data);
+			set_attributes(data.data);
 		}
 		load_allAttributes();
 	}, [toggle]);
@@ -37,21 +35,38 @@ const AttributeViewer = () => {
 
 	return (
 		<VStack>
-			<Text>Attribute Viewer</Text>
-			<VStack>
-				{attributes.map((attributes) => {
-					return (
-						<HStack key={attributes.attributeID}>
-							<Text>{attributes.attributeName}</Text>
-							{
-								(user && user.userRole === 'ADMIN') &&
-								<Button onClick={() => deleteThis(attributes)}>Delete</Button>
-							}
-						</HStack>
+			<TableContainer>
+				<Table>
+					<TableCaption placement='top'>Attribute Viewer</TableCaption>
+					<Thead>
+						<Tr>
+							<Th>Name</Th>
+							<Th>Type</Th>
+							<Th>Is Optional</Th>
+							<Th>Delete</Th>
+						</Tr>
+					</Thead>
+					<Tbody>
+						{attributes.map((attributes) => {
+							return (
+								<Tr key={attributes.attributeID}>
+									<Td>{attributes.attributeName}</Td>
+									<Td>{attributes.attributeType}</Td>
+									<Td>{attributes.validation.isOptional.toString()}</Td>
+									<Td>
+										{
+											(user && user.userRole === 'ADMIN') &&
+											<Button onClick={() => deleteThis(attributes)}>Delete</Button>
+										}
+									</Td>
+								</Tr>
 
-					);
-				})}
-			</VStack>
+							);
+						})}
+					</Tbody>
+				</Table>
+			</TableContainer>
+			<AttributeModal showModalButtonText='New' load_allAttributes_setter={set_toggle}/>
 		</VStack>
 	);
 };

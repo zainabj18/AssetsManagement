@@ -1,10 +1,20 @@
-from enum import Enum
+from enum import Enum,auto,IntEnum
 from functools import total_ordering
 
 from flask import current_app, g
 from psycopg.types.enum import EnumInfo, register_enum
 from psycopg_pool import ConnectionPool
+class Actions(Enum):
+    ADD = auto()
+    CHANGE =auto()
+    DELETE =auto()
 
+class Models(IntEnum):
+    ACCOUNTS=auto()
+    ASSETS = auto()
+    PROJECTS =auto()
+    TAGS=auto()
+    TYPES=auto()
 
 @total_ordering
 class UserRole(Enum):
@@ -46,6 +56,7 @@ class DataAccess(Enum):
 def custom_pool_config(conn):
     register_enum(EnumInfo.fetch(conn, "account_role"), conn, UserRole)
     register_enum(EnumInfo.fetch(conn, "data_classification"), conn, DataAccess)
+    register_enum(EnumInfo.fetch(conn, "actions"), conn, Actions)
     return conn
 
 

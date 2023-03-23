@@ -20,29 +20,15 @@ list: A list of dictionaries where each dictionary represents a project.
 """
 def get_projects(db):
     with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=dict_row) as cur:
+        with db_conn.cursor() as cur:
             cur.execute("""SELECT * FROM projects;""")
-            query = """SELECT id, name, description FROM projects"""
-            with db.connection() as conn:
-                res = conn.execute(query)
-                pList = res.fetchall()
+            pList = cur.fetchall()
             allProjects = []
             for project in pList:
-                query = """SELECT username, accounts.account_id
-                FROM people_in_projects
-                INNER JOIN accounts ON accounts.account_id = people_in_projects.account_id
-                WHERE project_id = %(project_id)s;"""
-                key = {"project_id":project[0]}
-                res = db_conn.execute(query, key)
-                people = res.fetchall()
-                accounts = []
-                for account in people:
-                    accounts.append({"username": account[0], "account_id": account[1]})
                 allProjects.append({
                     "projectID": project[0],
                     "projectName":project[1],
-                    "projectDescription":project[2],
-                    "accounts": accounts
+                    "projectDescription":project[2]
                 })
     return allProjects
 
@@ -147,22 +133,14 @@ def people_list():
 @bp.route ("/<id>", methods=["GET"])
 def get_id(id):
     db = get_db()
-    query = """SELECT name, description, type FROM projects WHERE id=%(id)s """
-    query1 = """SELECT account_id FROM people_in_projects WHERE project_id=%(id)s"""
+    query = """SELECT name, description FROM projects WHERE id=%(id)s """
     key = {"id": id}
     with db.connection() as conn:
         res = conn.execute(query,key)
         project = res.fetchall()[0]
-        res = conn.execute(query1,key)
-        accounts =  res.fetchall()
-        for i, tup in enumerate(accounts):
-            accounts[i] = tup[0]
-        print(project)
         data = {
                     "projectName":project[0],
                     "projectDescription":project[1],
-                    "projectType": project[2],
-                    "linkedAccounts": accounts
                 }
     return {"data": data}, 200
 

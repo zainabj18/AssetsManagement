@@ -13,7 +13,7 @@ const AssetOverview=() => {
 				<CustomNavLink to={'./projects'}>Projects</CustomNavLink>
 				<CustomNavLink to={'./outgoing'}>Outgoing Asset Links</CustomNavLink>
 				<CustomNavLink to={'./incomming'}>Incomming Asset Links</CustomNavLink>
-				<CustomNavLink to={'./logs'}>Logs</CustomNavLink>
+				<CustomNavLink to={'./graph'}>Related Assets Graph View</CustomNavLink>
 			</HStack>
 			<Box minW="100%">
 				<Outlet />

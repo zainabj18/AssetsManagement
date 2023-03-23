@@ -2,7 +2,7 @@ import { Button, ButtonGroup, Heading, Text, useBoolean, VStack } from '@chakra-
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { deleteProject, fetchAssetsinProject} from '../../api';
-import AssetTable from '../../components/AssetTable';
+import AssetTable from '../../components/assets/AssetTable';
 import useAuth from '../../hooks/useAuth';
 
 const ProjectViewer = () => {

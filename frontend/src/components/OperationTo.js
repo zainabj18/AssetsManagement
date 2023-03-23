@@ -1,7 +1,7 @@
 import { Button, Heading, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 import { useState } from 'react';
 import { createTag, fetchTags } from '../api';
-import SearchSelect from './SearchSelect';
+import SearchSelect from './assets/formfields/SearchSelect';
 
 const OperationTo = ({actionFunc,actionName}) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
