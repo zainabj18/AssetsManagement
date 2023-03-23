@@ -4,6 +4,7 @@ from app.core.config import settings
 from app.project.routes import bp as project_bp
 from app.tag.routes import bp as tag_bp
 from app.type.routes import bp as type_bp
+from app.admin.routes import bp as admin_bp
 from app.graphs.routes import bp as graph_bp
 from flask import Blueprint
 
@@ -64,4 +65,5 @@ bp.register_blueprint(asset_bp)
 bp.register_blueprint(type_bp)
 bp.register_blueprint(tag_bp)
 bp.register_blueprint(project_bp)
+bp.register_blueprint(admin_bp)
 bp.register_blueprint(graph_bp)
