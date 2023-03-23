@@ -202,7 +202,7 @@ const AssetSearcher = ({ filerFunc }) => {
 			{searchData['attributes'].map((input, index) => {
 				console.log(input);
 				return (
-					<HStack key={index} marginY={5} paddingY={5} display={'flex'} flexDirection='column' width={'90%'} gap={4} overflowY='scroll'>
+					<HStack key={index} marginY={5} paddingY={5} display={'flex'} flexDirection='column' width={'90%'} gap={4} overflowY='auto'>
 						<Select name='attributeID' value={input.attributeID} onChange={event => handleFormChange(index, event)} border={'1px solid'} width={'80%'}>
 							{attributes.map((attribute, index) => {
 								return <option value={attribute.attributeID}>{attribute.attributeName}</option>;
