@@ -52,7 +52,7 @@ const AdminManager = () => {
 	};
 
 	return (
-		<VStack display={'flex'} width='60vw' justifyContent={'flex-start'} alignItems='flex-start' overflow={'hidden'} rounded='2xl'>
+		<VStack display={'flex'} width='60vw' justifyContent={'flex-start'} alignItems='flex-start' overflow='auto' rounded='2xl'>
 			<Box width={'100%'} alignSelf='center' bg='white' marginY={5} rounded='2xl' height={'80vh'}>
 				<Heading fontWeight={'bold'} textAlign='center' paddingY='5px'>AdminManager</Heading>
 				{inputField.map((search, index) => {
