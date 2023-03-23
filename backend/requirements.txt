@@ -31,6 +31,7 @@ Flask==2.2.2
 Flask-Cors==3.0.10
 fqdn==1.5.1
 greenlet==2.0.1
+gunicorn==20.1.0
 idna==3.4
 iniconfig==2.0.0
 ipykernel==6.21.1
@@ -69,7 +70,10 @@ nbformat==5.7.3
 nest-asyncio==1.5.6
 notebook==6.5.2
 notebook_shim==0.2.2
+numpy==1.24.2
+openapi-schema-pydantic==1.2.4
 packaging==23.0
+pandas==1.5.3
 pandocfilters==1.5.0
 parso==0.8.3
 pathspec==0.11.0
@@ -94,6 +98,7 @@ PyJWT==2.6.0
 pyrsistent==0.19.3
 pytest==7.2.1
 pytest-env==0.8.1
+pytest-rerunfailures==11.1.2
 python-dateutil==2.8.2
 python-dotenv==0.21.0
 python-json-logger==2.0.4
@@ -103,7 +108,6 @@ pyzmq==25.0.0
 qtconsole==5.4.0
 QtPy==2.3.0
 requests==2.28.2
-pytest-rerunfailures==11.1.2
 rfc3339-validator==0.1.4
 rfc3986-validator==0.1.1
 Send2Trash==1.8.0
