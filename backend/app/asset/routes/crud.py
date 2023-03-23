@@ -45,6 +45,15 @@ def get_classifications(user_id, access_level):
 @bp.route("/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def view(id, user_id, access_level):
+    """View an asset from db
+
+    Args:
+      user_id: The id of the user making the request.
+      access_level: The access_level of the user.
+    
+    Returns:
+      A an asset in json form.
+    """
     db = get_db()
     utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
     asset=services.fetch_asset(db,id)
@@ -53,18 +62,45 @@ def view(id, user_id, access_level):
 @bp.route("/summary", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def summary(user_id, access_level):
+    """View all assets in db
+
+    Args:
+      user_id: The id of the user making the request.
+      access_level: The access_level of the user.
+    
+    Returns:
+      All assets in json form.
+    """
     db = get_db()
     return {"data": services.fetch_assets_summary(db=db,classification=access_level)}
 
 @bp.route("/my", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def my_assets(user_id, access_level):
+    """Gets users assets from db
+
+    Args:
+      user_id: The id of the user making the request.
+      access_level: The access_level of the user.
+    
+    Returns:
+      A all assets in json form
+    """
     db = get_db()
     return {"data": services.fetch_assets_summary(db=db,classification=access_level,account_id=user_id)}
 
 @bp.route("projects/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def list_asset_project(id,user_id, access_level):
+    """Gets all projects linked to an asset
+
+    Args:
+      user_id: The id of the user making the request.
+      access_level: The access_level of the user.
+    
+    Returns:
+      A all projects in json form
+    """
     db = get_db()
     utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
     projects=services.fetch_assets_projects_selected(db=db,asset_id=id)
@@ -73,6 +109,15 @@ def list_asset_project(id,user_id, access_level):
 @bp.route("links/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def list_asset_links(id,user_id, access_level):
+    """Gets all assets linked to an asset
+
+    Args:
+      user_id: The id of the user making the request.
+      access_level: The access_level of the user.
+    
+    Returns:
+      A all assets in json form
+    """
     db = get_db()
     utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
     assets=services.fetch_assets_asssets_selected(db=db,asset_id=id,classification=access_level)
@@ -81,6 +126,15 @@ def list_asset_links(id,user_id, access_level):
 @bp.route("/upgrade/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def get_upgrade(id,user_id, access_level):
+    """Gets upgrade config for an asset
+
+    Args:
+      user_id: The id of the user making the request.
+      access_level: The access_level of the user.
+    
+    Returns:
+      A dict of upgrade options.
+    """
     db = get_db()
     utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
     results=services.fetch_asset_current_and_max_versions(db=db,asset_id=id)
@@ -103,6 +157,15 @@ def get_upgrade(id,user_id, access_level):
 @bp.route("/<id>", methods=["PATCH"])
 @protected(role=UserRole.VIEWER)
 def update(id, user_id, access_level):
+    """Updates an assset in the db
+
+    Args:
+      user_id: The id of the user making the request.
+      access_level: The access_level of the user.
+    
+    Returns:
+      A msg saying asset updated
+    """
     db = get_db()
     utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
     new_asset=model_creator(model=Asset,err_msg="Failed to create asset from the data provided",**request.json)
@@ -124,6 +187,13 @@ def update(id, user_id, access_level):
 @bp.route("/<id>", methods=["DELETE"])
 @protected(role=UserRole.USER)
 def delete(id,user_id, access_level):
+    """
+    Deletes an assset from db.
+
+    Args:
+      user_id: The id of the user making the request.
+      access_level: The access_level of the user.
+    """
     db = get_db()
     utils.can_view_asset(db=db,asset_id=id,access_level=access_level)
     dependencies=services.fetch_asset_dependencies(db=db,asset_id=id)
