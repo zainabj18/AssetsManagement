@@ -5,8 +5,6 @@ from flask import Flask, Response
 from flasgger import Swagger
 def create_app(config_class=settings):
     app = Flask(__name__)
-    print(settings)
-    Swagger(app)
     app.config.from_object(config_class)
     app.register_blueprint(api_bp)
     app.teardown_appcontext(close_db)

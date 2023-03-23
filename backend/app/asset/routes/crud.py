@@ -20,12 +20,12 @@ def create(user_id, access_level):
       A msg saying asset added.
     """
     db = get_db()
-    asset_id=utils.add_asset_to_db(db=db,data=request.json)
+    asset_id=utils.add_asset_to_db(db=db,data=request.json,account_id=user_id)
     audit_log_event(db,Models.ASSETS,user_id,asset_id,{"added":list(Asset.schema(by_alias=True)["properties"].keys())},Actions.ADD)
     return {"msg": "Added asset", "data": asset_id}, 201
 
 @bp.route("/classifications", methods=["GET"])
-@protected(role=UserRole.USER)
+@protected(role=UserRole.VIEWER)
 def get_classifications(user_id, access_level):
     """Gets all classifications from db.
 
@@ -53,6 +53,12 @@ def view(id, user_id, access_level):
 @bp.route("/summary", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def summary(user_id, access_level):
+    db = get_db()
+    return {"data": services.fetch_assets_summary(db=db,classification=access_level)}
+
+@bp.route("/my", methods=["GET"])
+@protected(role=UserRole.VIEWER)
+def my_assets(user_id, access_level):
     db = get_db()
     return {"data": services.fetch_assets_summary(db=db,classification=access_level)}
 
@@ -102,7 +108,7 @@ def update(id, user_id, access_level):
     new_asset=model_creator(model=Asset,err_msg="Failed to create asset from the data provided",**request.json)
     old_asset=Asset(**services.fetch_asset_flattend(db=db,asset_id=id).dict())
     diff=utils.asset_differ(old_asset.dict(by_alias=True),new_asset.dict(by_alias=True))
-    utils.add_asset_to_db(db=db,data=request.json,asset_id=id)
+    utils.add_asset_to_db(db=db,data=request.json,asset_id=id,account_id=user_id)
     tags_removed=list(set(old_asset.tag_ids)-set(new_asset.tag_ids))
     projects_removed=list(set(old_asset.project_ids)-set(new_asset.project_ids))
     assets_removed=list(set(old_asset.asset_ids)-set(new_asset.asset_ids))

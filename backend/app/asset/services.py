@@ -13,7 +13,7 @@ def abort_asset_not_exists(db:ConnectionPool,asset_id:int):
       db: A object for managing connections to the db.
       asset_id:The asset_id that need checking in the db.
     """
-    results=run_query(db,"""SELECT asset_id FROM assets WHERE asset_id=%(id)s AND soft_delete=0;""",
+    results=run_query(db,"""SELECT asset_id FROM assets WHERE asset_id=%(id)s;""",
                 {"id": asset_id},return_type=QueryResult.ONE)
     if results is None:
         abort(404,description={"msg": "Asset doesn't exist"})
@@ -25,7 +25,7 @@ def abort_insufficient(db:ConnectionPool,asset_id:int,access_level:DataAccess):
       db: A object for managing connections to the db.
       asset_id:The asset_id that need checking in the db.
     """
-    results=run_query(db,"""SELECT asset_id FROM assets WHERE asset_id=%(id)s AND soft_delete=0 AND classification<=%(access_level)s;""",
+    results=run_query(db,"""SELECT asset_id FROM assets WHERE asset_id=%(id)s AND classification<=%(access_level)s;""",
                 {"id": asset_id,"access_level":access_level},return_type=QueryResult.ONE)
     if results is None:
       abort(403)
@@ -222,7 +222,7 @@ ORDER BY date DESC;""",
 
 
 
-def add_asset_to_db(db:ConnectionPool,name:str,link:str,version_id:int,description:str,classification:Union[str,DataAccess],**kwargs):
+def add_asset_to_db(db:ConnectionPool,name:str,link:str,version_id:int,description:str,classification:Union[str,DataAccess],account_id:int,**kwargs):
     """Inserts asset into db.
 
     Args:
@@ -232,14 +232,15 @@ def add_asset_to_db(db:ConnectionPool,name:str,link:str,version_id:int,descripti
       version_id: The version_id of the new asset.
       description: The description of the new asset.
       classification: The classification of the new asset.
+      account_id: The account for the asset to be associated too.
 
     Returns:
       A dictionary containing they key asset_id.
     """
     return run_query(db,"""
-            INSERT INTO assets (name,link,version_id,description, classification)
-    VALUES (%(name)s,%(link)s,%(version_id)s,%(description)s,%(classification)s)  RETURNING asset_id;""",
-                {"name":name,"link":link,"version_id":version_id,"description":description,"classification":classification},return_type=QueryResult.ONE)
+            INSERT INTO assets (name,link,version_id,description, classification,account_id)
+    VALUES (%(name)s,%(link)s,%(version_id)s,%(description)s,%(classification)s,%(account_id)s)  RETURNING asset_id;""",
+                {"name":name,"link":link,"version_id":version_id,"description":description,"classification":classification,"account_id":account_id},return_type=QueryResult.ONE)
 
 
 def update_asset(db:ConnectionPool,name:str,link:str,version_id:int,description:str,classification:Union[str,DataAccess],asset_id:int,**kwargs):
@@ -392,18 +393,22 @@ def fetch_asset_flattend(db:ConnectionPool,asset_id:int):
     return run_query(db, """SELECT * FROM flatten_assets WHERE asset_id=%(asset_id)s""",
                     {"asset_id": asset_id},row_factory=class_row(AssetOut),return_type=QueryResult.ONE)
 
-def fetch_assets_summary(db:ConnectionPool,classification:DataAccess):
+def fetch_assets_summary(db:ConnectionPool,classification:DataAccess,account_id=None):
     """Fetches all asset's from db.
 
     Args:
       db: A object for managing connections to the db.
       classification: The max classification level to view.
     """
-    return run_query(db, """SELECT assets.*,type_names_versions.type_name FROM assets
+    query=sql.Composed([sql.SQL("""SELECT assets.*,type_names_versions.type_name FROM assets
 INNER JOIN type_names_versions ON type_names_versions.version_id=assets.version_id 
-WHERE classification<=%(classification)s
-ORDER BY asset_id;""",
-                    {"classification": classification},row_factory=class_row(AssetBaseInDB),return_type=QueryResult.ALL_JSON)
+WHERE classification<=%(classification)s""")])
+    if account_id is not None:
+        query+=sql.SQL(" AND account_id =%(account_id)s")
+    query+=sql.SQL(" ORDER BY asset_id")
+
+    return run_query(db,query,
+                    {"classification": classification,"account_id":account_id},row_factory=class_row(AssetBaseInDB),return_type=QueryResult.ALL_JSON)
              
       
 
