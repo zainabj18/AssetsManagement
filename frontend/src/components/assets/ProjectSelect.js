@@ -26,7 +26,7 @@ import CustomTable from '../CustomTable';
 
 
 
-function ProjectSelect({setSelected,projectin}) {
+function ProjectSelect({setSelected,projectin,preSelIDs}) {
 	const { isOpen, onClose,onOpen, } = useDisclosure();
 	const [selected,setAssetSelected] = useState([]); 
 	const columns = useMemo(
@@ -65,7 +65,7 @@ function ProjectSelect({setSelected,projectin}) {
 				<ModalCloseButton />
 				<ModalBody >
 					{projectin && 
-						<CustomTable rows={projectin} cols={columns}  setSelectedRows={setAssetSelected} preSelIDs={selected}/>
+						<CustomTable rows={projectin} cols={columns}  setSelectedRows={setAssetSelected} preSelIDs={preSelIDs}/>
 					}
 				</ModalBody>
 				<ModalFooter>

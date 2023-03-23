@@ -100,22 +100,16 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 		console.log(data);
 		if (setSelectedRows){
 			let preSelected=[];
-			let row=[];
-			for (let i = 0; i < data.length; i++) {
-				let obj=data[i];
-				if (obj.hasOwnProperty('isSelected')&obj.isSelected){
-					preSelected.push(i);
-					row.push(obj);
-				}
-			}
+		
 			for (let i = 0; i < preSelIDs.length; i++) {
-				let obj=data[i];
 				preSelected.push(i);
-				row.push(obj);
 			}
-			setSelected(preSelected);
-			setSelectedRows(row);
+			console.log('hello in custome table ');
+			console.log(preSelIDs);
+			setSelected(preSelIDs);
 		}
+		
+	
 		setCurrnetPage(0);
 	}, [rows,cols]);
 	

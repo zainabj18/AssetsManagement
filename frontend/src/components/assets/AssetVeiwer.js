@@ -439,13 +439,16 @@ const AssetViewer = () => {
 						<FormLabel>Related Assets</FormLabel>
 						<Wrap spacing={4}>
 							{assets.map((value, key) => (
+				
 								<WrapItem key={key}>
+									{console.log(value)}
+									{console.log(value.name)}
 									<Tag key={key} variant='brand'>
 										<TagLabel>{assetsList[value].name}</TagLabel>
 									</Tag>
 								</WrapItem>
 							))}
-							{!isDisabled &&   <AssetSelect setSelected={setAssets} assetsin={assetsList} />}
+							{!isDisabled &&   <AssetSelect setAssetSelected={setAssets} assetsin={assetsList} />}
 						</Wrap>
 						{dependencies.length>0 && <Alert status='info' flexDirection='column' alignItems='right'>
 							<AlertIcon alignSelf='left'/>

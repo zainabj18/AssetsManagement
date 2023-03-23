@@ -26,19 +26,26 @@ import AssetTable from './AssetTable';
 
 
 
-function AssetSelect({setSelected,assetsin}) {
+function AssetSelect({setAssetSelected,assetsin}) {
 	const { isOpen, onClose,onOpen, } = useDisclosure();
-	const [selected,setAssetSelected] = useState([]); 
-
+	const [selected,setSelected] = useState([]); 
 	const save=()=>{
 		console.log('Selected',selected);
-		setSelected(selected);
+		setAssetSelected(selected);
 		onClose();
 	};
 
 	useEffect(() => {
-		console.log('I am assets');
-	  console.log(assetsin);
+		let preSelected=[];
+		for (let i = 0; i < assetsin.length; i++) {
+			let obj=assetsin[i];
+			if (obj.hasOwnProperty('isSelected')&&obj.isSelected){
+				preSelected.push(i);
+			}
+		}
+		console.log('assset select');
+		console.log(preSelected);
+		setSelected(preSelected);
 	}, [assetsin]);
 	
 
@@ -50,7 +57,7 @@ function AssetSelect({setSelected,assetsin}) {
 				<ModalHeader>Asset Select</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody >
-					{assetsin && <AssetTable assets={assetsin} setSelectedAssets={setAssetSelected} preSelIDs={selected}/>}
+					{assetsin && <AssetTable assets={assetsin} setSelectedAssets={setSelected} preSelIDs={selected}/>}
 				</ModalBody>
 				<ModalFooter>
 					<HStack>
