@@ -6,7 +6,7 @@ import UserMenuButton from './UserMenuButton';
 const Header = () => {
 	const {user} = useAuth();
 	return ( 
-		<Flex w={'70%'} height={9}>
+		<Flex w={'70%'}>
 			<HStack>
 				<CustomNavLink to="assets/" >
 				Assets
