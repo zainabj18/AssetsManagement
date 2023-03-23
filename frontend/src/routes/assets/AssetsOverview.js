@@ -36,7 +36,7 @@ const AssetsOverview = () => {
 			</div>
 			<Button onClick={() => naviagte('./new')} width='50%' paddingY={6} alignSelf='center'>Create Asset</Button>
 		</div>
-		<div style={{ width: '20vw', overflow: 'scroll', height: '70vh' }}>
+		<div style={{ width: '20vw', overflow: 'auto', height: '70vh' }}>
 			<AssetSearcher filerFunc={handleFilter} />
 		</div>
 	</VStack>);
