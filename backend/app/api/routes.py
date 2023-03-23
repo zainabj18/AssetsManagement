@@ -54,16 +54,7 @@ def invalid_request(e):
 
 @bp.errorhandler(422)
 def unporcessible(e):
-    errors=[]
-    res={}
-    res["msg"]=e.description["msg"]
-    for error in e.description["data"]:
-        name=[]
-        for x in error["loc"]:
-            name.append(str(x))
-        errors.append('-'.join(name)+" "+error["msg"])
-    res["data"]=errors
-    return res, 422
+    return e.description, 422
 
 @bp.errorhandler(404)
 def resouce_not_found(e):

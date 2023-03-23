@@ -109,7 +109,17 @@ const AssetViewer = () => {
 
 		}
 		if (err.response.status===422){
-			setErrors(err.response.data.data);
+			let errors=[];
+			console.log(err.response.data.data);
+			for (let i = 0; i < err.response.data.data.length; i++) {
+				console.log(err.response.data);
+				let name=Object.values(err.response.data.data[i]['loc'].toString());
+				name=name.concat(' '+err.response.data.data[i]['msg']);
+				errors.push(name);
+			}
+			console.log(errors);
+
+			setErrors(errors);
 		}
 	}
 	const handleMetadataChange = (attributeName, attribute_value) => {
@@ -214,11 +224,7 @@ const AssetViewer = () => {
 				
 			}
 		}
-		for (const [key, value] of Object.entries(assetSate.metadata)){
-			if(!value.validation.isOptional  && ((!(value.hasOwnProperty('attributeValue'))) || (value.hasOwnProperty('attributeValue') && value.attributeValue.length===0))){
-				errs.push(value.attributeName);
-			}
-		}
+		
 
 		if (projects.length===0){
 			errs.push('project(s) is required');
@@ -242,10 +248,6 @@ const AssetViewer = () => {
 				console.log(assetObj);
 				updateAsset(id,assetObj).then(res=>
 					console.log('re')
-
-
-
-
 				).catch(err=>{
 					console.log(err);
 					addToast('Unable to create asset',err);
