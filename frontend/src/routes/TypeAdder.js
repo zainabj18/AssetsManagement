@@ -67,7 +67,7 @@ const TypeAdder = () => {
 	};
 
 	return (
-		<VStack width="90vw" >
+		<VStack width="90vw" height={'80vh'} overflow="scroll" >
 
 			<Text>TypeAdder</Text>
 			<FormControl isRequired isInvalid={new_typeName_errorMessage !== ''}>

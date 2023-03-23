@@ -25,6 +25,7 @@ const TypeViewer = () => {
 		}
 		load_allTypes();
 	}, [toggle]);
+	console.log("hif",highest)
 
 	const deleteThis = (type) => {
 		let text = 'Waring!\nThis will delete all versions of this type';
@@ -59,6 +60,7 @@ const TypeViewer = () => {
 					</Thead>
 					<Tbody>
 						{types.map((types, index) => {
+							
 							return (
 								<Tr key={types.versionId}>
 									<Td>{types.typeName}</Td>
