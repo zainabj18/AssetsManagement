@@ -22,4 +22,4 @@ const AssetOverview = () => {
 };
 
 export default AssetOverview
-	;
+;
