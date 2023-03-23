@@ -49,8 +49,13 @@ const User = () => {
 				
 			} catch (error) {
 				setSuccess(false);
-				if (error.response.status === 400) {
-					setError({ error: error.response.data.error, msg: error.response.data.data[0].msg });
+				if (error.response && error.response.status === 400) {
+					const data = error.response.data.data;
+					if (data && data.length > 0 && data[0].msg) {
+						setError({ error: error.response.data.error, msg: data[0].msg });
+					} else {
+						setError({ error: error.response.data.error, msg: error.response.data.msg });
+					}
 				} else {
 					console.error(error);
 				}
