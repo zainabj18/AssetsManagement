@@ -45,7 +45,7 @@ function AssetSelect({setSelected,assetsin}) {
 		<Button onClick={onOpen}>Select Assets</Button>
 		<Modal isOpen={isOpen} onClose={onClose} size={'full'}>
 			<ModalOverlay />
-			<ModalContent>
+			<ModalContent bgGradient= "linear(to-l, #4E65FF, #92EFFD)">
 				<ModalHeader>Asset Select</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody >

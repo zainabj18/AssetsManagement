@@ -16,6 +16,12 @@ def create(user_id, access_level):
     tag.id = id
     audit_log_event(db,Models.TAGS,user_id,id,{},Actions.ADD)
     return jsonify({"msg": "Tag Created", "data": tag.dict()})
+"""
+List the names of all the available types with their latest version number.
+
+Returns:
+    A JSON response with the list of names and their latest version number.
+"""
 
 
 @bp.route("/", methods=["GET"])
@@ -24,6 +30,13 @@ def list(user_id, access_level):
     db = get_db()
     tags = services.list_tags(db)
     return {"msg": "tags", "data": tags}
+
+"""
+List the names of all the available types with their latest version number.
+
+Returns:
+    A JSON response with the list of names and their latest version number.
+"""
 
 
 @bp.route("/<id>", methods=["DELETE"])
@@ -34,6 +47,14 @@ def delete(id, user_id, access_level):
     services.delete_tag(db, id)
     audit_log_event(db,Models.TAGS,user_id,id,{},Actions.DELETE)
     return {}, 200
+
+"""
+List the names of all the available types with their latest version number.
+
+Returns:
+    A JSON response with the list of names and their latest version number.
+"""
+
 
 @bp.route("/<id>", methods=["PATCH"])
 @protected(role=UserRole.ADMIN)
@@ -58,7 +79,12 @@ def copy(user_id, access_level):
         audit_log_event(db,Models.ASSETS,user_id,id,{"changed":[["tag_ids",[],[tag_copy.to_tag_id]]]},Actions.CHANGE)
     return {"msg":"Copied assets to tag"}, 200
 
-
+"""_summary_
+ Parameters:
+    id : The ID all the assets that belong to the same project .
+    Returns:
+        json data
+"""
 @bp.route("/remove", methods=["POST"])
 @protected(role=UserRole.USER)
 def remove(user_id, access_level):

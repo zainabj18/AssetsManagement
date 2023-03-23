@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import TypeMethodManager from '../components/TypeMethodManager';
 import { fetchAllAttributes } from '../api';
 
-const AttributeSelection = ({ selectedAttributes_state, set_selectedAttributes_state, load_attribute_trigger, isInvalid, isRequired, width }) => {
+const AttributeSelection = ({ selectedAttributes_state, set_selectedAttributes_state, load_attribute_trigger, isInvalid, isRequired, width = '30vw', height = '70vh' }) => {
 
 	useEffect(() => {
 		async function load_allAttributes() {
@@ -57,21 +57,23 @@ const AttributeSelection = ({ selectedAttributes_state, set_selectedAttributes_s
 
 
 	return (
-		<FormControl isRequired={isRequired} isInvalid={isInvalid} width={width}>
+		<FormControl isRequired={isRequired} isInvalid={isInvalid} width={width} height={height} overflow='auto'>
 			<FormLabel>Select Attributes</FormLabel>
 			<FormErrorMessage>At least 1 attribute must be selected</FormErrorMessage>
-			{allAttributes.map((attribute, index) => {
-				return (
-					<VStack key={attribute.attributeName} align="left">
+			<VStack align="left">
+				{allAttributes.map((attribute, index) => {
+					return (
 						<Checkbox
+							key={attribute.attributeName}
+							marginY={2}
 							isChecked={checkChecked(attribute.attributeName)}
 							value={attribute.attributeName}
 							onChange={(e) => ajustSelectedAttributes(e.target.checked, index)}
 						> {attribute.attributeName}
 						</Checkbox>
-					</VStack>
-				);
-			})}
+					);
+				})}
+			</VStack>
 		</FormControl>
 	);
 };

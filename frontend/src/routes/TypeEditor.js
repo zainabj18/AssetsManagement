@@ -3,7 +3,7 @@ import {
 	ModalHeader, ModalCloseButton, ModalBody, ModalFooter,
 	useDisclosure,
 	Input,
-	Checkbox, FormControl, FormLabel, FormErrorMessage, HStack
+	Checkbox, FormControl, FormLabel, FormErrorMessage, HStack, Box
 } from '@chakra-ui/react';
 import { useEffect, useState, Fragment } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -217,143 +217,149 @@ const TypeEditor = () => {
 	};
 
 	return (
-		<VStack width='80%'>
-			<Heading as='h1' size='2xl'>Type: {type.typeName}</Heading>
-			<Heading as='h2' size='1xl'>Version: {type.versionNumber}</Heading>
-			<HStack width='100%'>
-				<AttributeSelection
-					selectedAttributes_state={selectedAttributes}
-					set_selectedAttributes_state={set_selectedAttributes}
-					load_attribute_trigger={load_attribute_trigger}
-					isInvalid={selectedAttributes_hasError}
-					width='30%'
-				/>
-				<SelectedAttributesList selectedAttributes_state={selectedAttributes} />
-			</HStack>
-			<TypeSelection
-				selectedTypes_state={selectedTypes}
-				set_selectedTypes_state={set_selectedTypes}
-				excludeIds={[type.typeId]}
-			/>
-			<AttributeModal
-				showModalButtonText='Create New Attribute'
-				load_allAttributes_setter={set_load_attribute_trigger}
-			/>
-			<Checkbox
-				isDisabled={!canBackfill}
-				isChecked={canBackfill && wantsToBackfill}
-				onChange={(e) => set_wantsToBackfill(e.target.checked)}
-			>Backfill Data</Checkbox>
-			<Button onClick={saveType}>Save</Button>
+		<Box width='90vw' height={'80vh'} overflowY='scroll' backgroundColor={'white'} rounded={15}>
+			<VStack>
+				<Heading as='h1' size='2xl' paddingTop={5}> {type.typeName}</Heading>
+				<Heading as='h2' size='1xl'>Version: {type.versionNumber}</Heading>
+				<HStack width='80vw' display={'flex'} flexDirection="row" alignItems={'flex-start'} justifyContent='flex-start' padding={5}>
+					<AttributeSelection
+						selectedAttributes_state={selectedAttributes}
+						set_selectedAttributes_state={set_selectedAttributes}
+						load_attribute_trigger={load_attribute_trigger}
+						isInvalid={selectedAttributes_hasError}
+						height='50vh'
+					/>
+					<SelectedAttributesList selectedAttributes_state={selectedAttributes} />
+					<TypeSelection
+						selectedTypes_state={selectedTypes}
+						set_selectedTypes_state={set_selectedTypes}
+						excludeIds={[type.typeId]}
+						height='50vh'
+					/>
+				</HStack>
+				<HStack>
+					<AttributeModal
+						showModalButtonText='Create New Attribute'
+						load_allAttributes_setter={set_load_attribute_trigger}
+					/>
+					<Checkbox
+						isDisabled={!canBackfill}
+						isChecked={canBackfill && wantsToBackfill}
+						onChange={(e) => set_wantsToBackfill(e.target.checked)}
+					>Backfill Data</Checkbox>
+					<Button onClick={saveType}>Save</Button>
+				</HStack>
 
-			<Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose} variant="popup">
-				<ModalOverlay />
-				<ModalContent>
-					<ModalHeader>Backfill Data</ModalHeader>
-					<ModalCloseButton />
-					<ModalBody>
-						{new_selectedAttributes.length > 0 && new_selectedAttributes.map((attribute, index) => {
-							let typeName = attribute.attributeType;
-							if (typeName === 'list') {
-								return (
-									<Fragment key={index}>
-										<List
-											insertInto_new_attribute_data={insertInto_new_attribute_data}
-											attribute={attribute}
-											attributeIndex={index}
-											isInvalid={new_attribute_data_errorMessages[index] !== ''}
-											errorMessage={new_attribute_data_errorMessages[index]}
-										/>
-									</Fragment>
-								);
-							}
-							if (typeName === 'num_lmt') {
-								return (
-									<Fragment key={index}>
-										<Num_Lmt
-											new_attribute_data={new_attribute_data}
-											insertInto_new_attribute_data={insertInto_new_attribute_data}
-											attribute={attribute}
-											attributeIndex={index}
-											isInvalid={new_attribute_data_errorMessages[index] !== ''}
-											errorMessage={new_attribute_data_errorMessages[index]}
-										/>
-									</Fragment>
-								);
-							}
-							if (typeName === 'options') {
-								return (
-									<Fragment key={index}>
-										<Options
-											new_attribute_data={new_attribute_data}
-											insertInto_new_attribute_data={insertInto_new_attribute_data}
-											attribute={attribute}
-											attributeIndex={index}
-											isInvalid={new_attribute_data_errorMessages[index] !== ''}
-											errorMessage={new_attribute_data_errorMessages[index]}
-										/>
-									</Fragment>
-								);
-							}
-							if (typeName === 'datetime-local') {
-								return (
-									<FormControl key={index} isInvalid={new_attribute_data_errorMessages[index] !== ''}>
-										<FormLabel>{attribute.attributeName}</FormLabel>
-										<FormErrorMessage>{new_attribute_data_errorMessages[index]}</FormErrorMessage>
-										<Input
-											type='datetime-local'
-											onChange={(e) => default_backfillHandleChange(e.target.value, index)}
-										/>
-									</FormControl>
-								);
-							}
-							if (typeName === 'number') {
-								return (
-									<FormControl key={index} isInvalid={new_attribute_data_errorMessages[index] !== ''}>
-										<FormLabel>{attribute.attributeName}</FormLabel>
-										<FormErrorMessage>{new_attribute_data_errorMessages[index]}</FormErrorMessage>
-										<Input
-											type='number'
-											defaultValue={new_attribute_data[index]}
-											onChange={(e) => default_backfillHandleChange(e.target.value, index)}
-										/>
-									</FormControl>
-								);
-							}
-							if (typeName === 'checkbox') {
-								return (
-									<FormControl key={index} isInvalid={new_attribute_data_errorMessages[index] !== ''}>
-										<FormLabel>{attribute.attributeName}</FormLabel>
-										<FormErrorMessage>{new_attribute_data_errorMessages[index]}</FormErrorMessage>
-										<Checkbox
-											type='checkbox'
-											onChange={(e) => default_backfillHandleChange(e.target.checked, index)}
-										>Select</Checkbox>
-									</FormControl>
-								);
-							}
-							if (typeName === 'text') {
-								return (
-									<FormControl key={index} isInvalid={new_attribute_data_errorMessages[index] !== ''}>
-										<FormLabel>{attribute.attributeName}</FormLabel>
-										<FormErrorMessage>{new_attribute_data_errorMessages[index]}</FormErrorMessage>
-										<Input
-											type='text'
-											placeholder='Enter Text'
-											onChange={(e) => default_backfillHandleChange(e.target.value, index)}
-										/>
-									</FormControl>
-								);
-							}
-						})}
-					</ModalBody>
-					<ModalFooter>
-						<Button onClick={backfill}>Confirm</Button>
-						<Button onClick={onClose}>Cancel</Button>
-					</ModalFooter>
-				</ModalContent>
-			</Modal>
-		</VStack>
+
+				<Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose} variant="popup">
+					<ModalOverlay />
+					<ModalContent>
+						<ModalHeader>Backfill Data</ModalHeader>
+						<ModalCloseButton />
+						<ModalBody>
+							{new_selectedAttributes.length > 0 && new_selectedAttributes.map((attribute, index) => {
+								let typeName = attribute.attributeType;
+								if (typeName === 'list') {
+									return (
+										<Fragment key={index}>
+											<List
+												insertInto_new_attribute_data={insertInto_new_attribute_data}
+												attribute={attribute}
+												attributeIndex={index}
+												isInvalid={new_attribute_data_errorMessages[index] !== ''}
+												errorMessage={new_attribute_data_errorMessages[index]}
+											/>
+										</Fragment>
+									);
+								}
+								if (typeName === 'num_lmt') {
+									return (
+										<Fragment key={index}>
+											<Num_Lmt
+												new_attribute_data={new_attribute_data}
+												insertInto_new_attribute_data={insertInto_new_attribute_data}
+												attribute={attribute}
+												attributeIndex={index}
+												isInvalid={new_attribute_data_errorMessages[index] !== ''}
+												errorMessage={new_attribute_data_errorMessages[index]}
+											/>
+										</Fragment>
+									);
+								}
+								if (typeName === 'options') {
+									return (
+										<Fragment key={index}>
+											<Options
+												new_attribute_data={new_attribute_data}
+												insertInto_new_attribute_data={insertInto_new_attribute_data}
+												attribute={attribute}
+												attributeIndex={index}
+												isInvalid={new_attribute_data_errorMessages[index] !== ''}
+												errorMessage={new_attribute_data_errorMessages[index]}
+											/>
+										</Fragment>
+									);
+								}
+								if (typeName === 'datetime-local') {
+									return (
+										<FormControl key={index} isInvalid={new_attribute_data_errorMessages[index] !== ''}>
+											<FormLabel>{attribute.attributeName}</FormLabel>
+											<FormErrorMessage>{new_attribute_data_errorMessages[index]}</FormErrorMessage>
+											<Input
+												type='datetime-local'
+												onChange={(e) => default_backfillHandleChange(e.target.value, index)}
+											/>
+										</FormControl>
+									);
+								}
+								if (typeName === 'number') {
+									return (
+										<FormControl key={index} isInvalid={new_attribute_data_errorMessages[index] !== ''}>
+											<FormLabel>{attribute.attributeName}</FormLabel>
+											<FormErrorMessage>{new_attribute_data_errorMessages[index]}</FormErrorMessage>
+											<Input
+												type='number'
+												defaultValue={new_attribute_data[index]}
+												onChange={(e) => default_backfillHandleChange(e.target.value, index)}
+											/>
+										</FormControl>
+									);
+								}
+								if (typeName === 'checkbox') {
+									return (
+										<FormControl key={index} isInvalid={new_attribute_data_errorMessages[index] !== ''}>
+											<FormLabel>{attribute.attributeName}</FormLabel>
+											<FormErrorMessage>{new_attribute_data_errorMessages[index]}</FormErrorMessage>
+											<Checkbox
+												type='checkbox'
+												onChange={(e) => default_backfillHandleChange(e.target.checked, index)}
+											>Select</Checkbox>
+										</FormControl>
+									);
+								}
+								if (typeName === 'text') {
+									return (
+										<FormControl key={index} isInvalid={new_attribute_data_errorMessages[index] !== ''}>
+											<FormLabel>{attribute.attributeName}</FormLabel>
+											<FormErrorMessage>{new_attribute_data_errorMessages[index]}</FormErrorMessage>
+											<Input
+												type='text'
+												placeholder='Enter Text'
+												onChange={(e) => default_backfillHandleChange(e.target.value, index)}
+											/>
+										</FormControl>
+									);
+								}
+							})}
+						</ModalBody>
+						<ModalFooter>
+							<Button onClick={backfill}>Confirm</Button>
+							<Button onClick={onClose}>Cancel</Button>
+						</ModalFooter>
+					</ModalContent>
+				</Modal>
+			</VStack>
+		</Box>
 	);
 };
 

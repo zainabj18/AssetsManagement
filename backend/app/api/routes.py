@@ -21,12 +21,27 @@ def index():
 
 from app.core.utils import protected
 from app.db import UserRole, get_db 
-
-from psycopg.rows import dict_row
-from app.auth.routes import get_user_by_id
 from app.core.utils import protected,run_query,model_creator,QueryResult
 from app.schemas import Log
 from psycopg.rows import class_row
+
+"""
+Retrieve audit logs from the database for a given user and access level.
+
+Args:
+    user_id (int): The ID of the user for which to retrieve audit logs.
+    access_level (str): The access level of the user for which to retrieve audit logs.
+
+Returns:
+    A dictionary containing a list of audit logs for the specified user and access level:
+    - 'data': a list of dictionaries, where each dictionary represents a single audit log and has the following keys:
+        - 'model_name': the name of the tracked model associated with the audit log
+        - 'object_id': the ID of the object associated with the audit log
+        - 'date': the date and time the audit log was generated
+        - 'account_id': the ID of the user associated with the audit log
+        - 'action': the action that was performed on the tracked model
+        - 'username': the username of the user associated with the audit log
+"""
 @bp.route("/logs", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def logs(user_id, access_level):
@@ -38,6 +53,17 @@ INNER JOIN accounts ON audit_logs.account_id=accounts.account_id
 ORDER BY date ASC;""",return_type=QueryResult.ALL_JSON,row_factory=class_row(Log))
     return {"data":logs}
 
+"""
+Handle HTTP 401 Unauthorized errors.
+
+Args:
+    e (HTTPException): The HTTP 401 Unauthorized error that was raised.
+
+Returns:
+    A tuple containing the error message and the HTTP status code to be returned to the client:
+    - The error message is obtained from the 'description' attribute of the HTTPException object.
+    - The HTTP status code is set to 401.
+"""
 
 @bp.errorhandler(401)
 def unathorised(e):

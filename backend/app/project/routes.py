@@ -130,6 +130,24 @@ def people_list():
     return {"msg": "projects", "data": data}
 
 
+"""
+    Creates a new project in the database, based on the JSON data provided in the request body.
+
+    If the data is invalid or cannot be used to create a project, returns a JSON error response with
+    status code 400.
+
+    If the project is successfully created, returns a JSON success response with status code 200.
+
+    The JSON data should have the following keys:
+    - "name": a string with the name of the project
+    - "description": a string with a description of the project
+
+    Example JSON data:
+    {
+        "name": "Project X",
+        "description": "A project about X",
+    }
+"""
 @bp.route ("/<id>", methods=["GET"])
 def get_id(id):
     db = get_db()
@@ -195,14 +213,16 @@ def create():
 
 
 """
-This function deletes a project with the given id and all associated people from the database.
+#Remove Projects from database
+Delete a project with the given id from the database, along with all associated people and assets in projects.
 
-Parameters:
-id (str): the id of the project to be deleted
+:param id: The id of the project to be deleted.
+:type id: str
 
-Returns:
-A dictionary containing a message and a boolean indicating whether the deletion was allowed.
+:return: A dictionary containing the message indicating the success or failure of the deletion and a boolean flag indicating whether or not the deletion was allowed.
+:rtype: dict
 """
+
 @bp.route("/delete/<id>", methods=["POST"])
 def delete_project_and_people(id):
     db = get_db()

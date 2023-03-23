@@ -79,13 +79,16 @@ const FormField = ({
 					submitOnBlur={true}
 					alignItems='left' 
 					alignContent='left'
+					paddingBottom={1}
+					paddingRight={5}
+					// border={'1px solid'}
 					onSubmit={(e) => {
 						handleSumbit(e);
 					}}
 					value={value}
 				>
 		
-					<EditablePreview background={value.length?'blue.100':undefined} px={6} minW={'100%'} alignItems='left'
+					<EditablePreview background={value.length?'blue.100':undefined} px={2} minW={'100%'} alignItems='left'
 						alignContent='left' textAlign='left' />
 				
 					{isTextarea ? <EditableTextarea  onChange={e=>{setValue(e.target.value);}} textAlign='left' />:<Input type={fieldType} as={EditableInput} onChange={e=>{validate(e);}}  textAlign='left' />}

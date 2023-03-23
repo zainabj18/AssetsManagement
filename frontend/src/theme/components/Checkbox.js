@@ -2,11 +2,12 @@ import { checkboxAnatomy } from '@chakra-ui/anatomy';
 import { createMultiStyleConfigHelpers } from '@chakra-ui/react';
 
 const { definePartsStyle, defineMultiStyleConfig } =
-  createMultiStyleConfigHelpers(checkboxAnatomy.keys);
+	createMultiStyleConfigHelpers(checkboxAnatomy.keys);
 
 const baseStyle = definePartsStyle({
 	control: {
-		borderColor:'blue.800'
+		borderColor: '#0a2861',
+		color: '#000'
 	},
 });
 
