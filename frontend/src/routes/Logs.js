@@ -1,7 +1,6 @@
 import { Link, NavLink, Outlet,redirect} from 'react-router-dom';
 import { Container, Heading, VStack,Spinner } from '@chakra-ui/react';
 import { useEffect, useMemo, useState } from 'react';
-import Header from '../components/Header';
 import { fetchLogs } from '../api';
 import CustomTable from '../components/CustomTable';
 
@@ -17,7 +16,7 @@ const Logs = () => {
 				header: 'Action',
 				canFilter:true
 			},
-			'model_name':{
+			'modelName':{
 				header: 'Object Type',
 				canFilter:true
 			},
@@ -25,10 +24,10 @@ const Logs = () => {
 				header: 'Username',
 				canFilter:true
 			},
-			'object_id':{
-				header: 'Username',
+			'objectID':{
+				header: 'ObjectID',
 				canFilter:true,
-				Cell:(rowID,value)=><Link to={`/${rowID.model_name}/${value}`} as={NavLink}>{value}</Link>
+				Cell:(row,value)=><Link to={`/${row.modelName}/${value}`} as={NavLink}>{value}</Link>
 			}
 		};
 		return orginal;
