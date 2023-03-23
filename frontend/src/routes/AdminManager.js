@@ -63,7 +63,7 @@ const AdminManager = () => {
 					);
 				})}
 				<Stack pt={35}>
-					<div style={{ height: '60vh', overflow: 'scroll', width: '100%', borderRadius: 10 }}>
+					<div style={{ height: '60vh', overflow: 'auto', width: '100%', borderRadius: 10 }}>
 						<TableContainer>
 							<Table variant='simple' size={'lg'}>
 								<Thead>
