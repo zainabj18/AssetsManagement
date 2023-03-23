@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { VStack, Text, Input, Stack, Button, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Link,}
+import { VStack, Text, Input, Stack, Button, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Link, }
 	from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import useAuth from '../hooks/useAuth';
@@ -14,20 +14,20 @@ const AdminManager = () => {
 		if (user && user.userRole !== 'ADMIN') {
 			navigate('../');
 		}
-		
+
 		async function loadUsers() {
 			let data = await getUsers(res => res.data);
 			setUsers(data.data);
 		}
 		loadUsers();
-	},[]);
+	}, []);
 
 	const [searchText, setSearchText] = useState('');
-	const [inputField, setInputField] = useState([{ username: ''}]);
+	const [inputField, setInputField] = useState([{ username: '' }]);
 	const [users, setUsers] = useState([]);
-	const [deleteuser, setDeleteUser] = useState([{delete: ''}]);
+	const [deleteuser, setDeleteUser] = useState([{ delete: '' }]);
 
-	const handleFormChange =  (index, event) => {
+	const handleFormChange = (index, event) => {
 		let data = [...inputField];
 		data[index][event.target.name] = event.target.value;
 		setInputField(data);
@@ -35,15 +35,20 @@ const AdminManager = () => {
 	};
 
 	const deleteUser = async (userIdToDelete) => {
-		try {
-			await deleteUserAcc(userIdToDelete);
-			let data = [...deleteuser];
-			const indexToDelete = data.findIndex(user => user.id === userIdToDelete);
-			data.splice(indexToDelete, 1);
-			setDeleteUser(data);
-			window.location.reload();
-		} catch (error) {
-			console.error(error);
+		if (userIdToDelete === 1) {
+			alert('Can not delete admin account.');
+		}
+		else {
+			try {
+				await deleteUserAcc(userIdToDelete);
+				let data = [...deleteuser];
+				const indexToDelete = data.findIndex(user => user.id === userIdToDelete);
+				data.splice(indexToDelete, 1);
+				setDeleteUser(data);
+				window.location.reload();
+			} catch (error) {
+				console.error(error);
+			}
 		}
 	};
 
@@ -52,7 +57,7 @@ const AdminManager = () => {
 			<Text>AdminManager</Text>
 			{inputField.map((search, index) => {
 				return (
-					<Stack spacing={3} key = {index}>
+					<Stack spacing={3} key={index}>
 						<Input placeholder='username search' size='lg' type='text' width={800} top={25} onChange={event => handleFormChange(index, event)} name="username" />
 					</Stack>
 				);
