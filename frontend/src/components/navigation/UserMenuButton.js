@@ -4,6 +4,7 @@ import { FaUserCircle } from 'react-icons/fa';
 import { MdLogout } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
+import CustomNavLink from '../CustomNavLink';
 const UserMenuButton = () => {
 	const {user,logout} = useAuth();
 	let naviagte=useNavigate();
@@ -25,9 +26,10 @@ const UserMenuButton = () => {
 					<Badge>{user.userRole}</Badge>
 					<Badge>{user.userPrivileges}</Badge>
 				</HStack>
-				<MenuItem>View profile</MenuItem>
-				<MenuItem>View related assets</MenuItem>
-				<MenuItem>View related projects</MenuItem>
+			
+				<MenuItem as={CustomNavLink} to="/assets/my">View related assets</MenuItem>
+	
+				
 			</MenuGroup>
 			<MenuDivider />
 			<MenuItem onClick={logout} icon={<MdLogout />}>Logout</MenuItem>

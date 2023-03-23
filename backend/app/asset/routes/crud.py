@@ -60,7 +60,7 @@ def summary(user_id, access_level):
 @protected(role=UserRole.VIEWER)
 def my_assets(user_id, access_level):
     db = get_db()
-    return {"data": services.fetch_assets_summary(db=db,classification=access_level)}
+    return {"data": services.fetch_assets_summary(db=db,classification=access_level,account_id=user_id)}
 
 @bp.route("projects/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
