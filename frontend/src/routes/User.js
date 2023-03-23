@@ -2,9 +2,11 @@ import { Box, Button, Center, FormControl, FormLabel, HStack, Heading, Input, Se
 import { React, useEffect, useState } from 'react';
 import useAuth from '../hooks/useAuth';
 import { createUser } from '../api';
+import { useNavigate } from 'react-router';
 
 const User = () => {
 	const { user } = useAuth();
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		console.log(user);
@@ -25,11 +27,9 @@ const User = () => {
 
 	const saveUser = async (e) => {
 		e.preventDefault();
-
 		const isFormValid = inputFields.every((field) => {
 			return field.first_name !== '' && field.last_name !== '' && field.username !== '' && field.password !== '' && field.confirmPassword !== '';
 		});
-
 		if (isFormValid) {
 			const userData = {
 				first_name: inputFields[0].first_name,
@@ -40,13 +40,12 @@ const User = () => {
 				account_privileges: inputFields[0].account_privileges,
 				account_type: inputFields[0].account_type
 			};
-
 			try {
 				const response = await createUser(userData);
 				console.log(response.data);
 				setSuccess(true);
 				setError(false);
-
+				navigate('../');
 			} catch (error) {
 				setSuccess(false);
 				if (error.response && error.response.status === 400) {
