@@ -68,8 +68,8 @@ const AdminManager = () => {
 	};
 
 	return (
-		<VStack display={"flex"} width="80vw" justifyContent={"flex-start"} alignItems="flex-start" overflow={"hidden"}>
-			<Box  width={'72vw'} alignSelf="center" bg="white" marginY={5}>
+		<VStack display={"flex"} width="60vw" justifyContent={"flex-start"}  alignItems="flex-start" overflow={"hidden"} rounded="2xl">
+			<Box  width={'100%'} alignSelf="center" bg="white" marginY={5} rounded="2xl" height={'80vh'}>
 			<Heading fontWeight={"bold"}  textAlign="center" paddingY="5px">AdminManager</Heading>
 			{inputField.map((search, index) => {return (
 				<Stack spacing={3} color={'black'}>
@@ -77,7 +77,7 @@ const AdminManager = () => {
 				</Stack>
 			);})}
 			<Stack pt={35}>
-				<div style={{height:'50vh',overflow:"scroll",width:"100%"}}>
+				<div style={{height:'60vh',overflow:"scroll",width:"100%",borderRadius:10}}>
 					<Table size={'lg'}>
 						<Thead>
 							<Tr>
@@ -127,7 +127,7 @@ const AdminManager = () => {
 													<AccordionIcon />
 												</AccordionButton>
 											</h2>
-											<AccordionPanel pb={4} borderTop={'1px solid black'}>
+											<AccordionPanel pb={4} borderTop={'1px solid black'} display="flex">
 												<Button bg='#80aaff' color='#000'  marginRight={1} onClick={accountDetails}>View Account Details</Button>
 												<Button bg='#80aaff' color='#000'  marginRight={2} onClick={pass_func}>Change Password</Button>
 												<Button bg='#80aaff' color='#000' onClick={handleRelatedProjects}>View Related Projects</Button>
@@ -151,7 +151,7 @@ const AdminManager = () => {
 													<AccordionIcon />
 												</AccordionButton>
 											</h2>
-											<AccordionPanel pb={4} borderTop={'1px solid black'}>
+											<AccordionPanel pb={4} borderTop={'1px solid black'} display="flex">
 												<Button bg='#80aaff' color='#000'  marginRight={1} onClick={accountDetails}>View Account Details</Button>
 												<Button bg='#80aaff' color='#000'  marginRight={2} onClick={pass_func}>Change Password</Button>
 												<Button bg='#80aaff' color='#000' onClick={handleRelatedProjects}>View Related Projects</Button>
@@ -175,7 +175,7 @@ const AdminManager = () => {
 													<AccordionIcon />
 												</AccordionButton>
 											</h2>
-											<AccordionPanel pb={4} borderTop={'1px solid black'} >
+											<AccordionPanel pb={4} borderTop={'1px solid black'} display="flex" >
 												<Button bg='#80aaff' color='#000'  marginRight={1} onClick={accountDetails}>View Account Details</Button>
 												<Button bg='#80aaff' color='#000'  marginRight={2} onClick={pass_func}>Change Password</Button>
 												<Button bg='#80aaff' color='#000' onClick={handleRelatedProjects}>View Related Projects</Button>
