@@ -224,7 +224,11 @@ const AssetViewer = () => {
 				
 			}
 		}
-		
+		for (const [key, value] of Object.entries(assetSate.metadata)){
+			if(!value.validation.isOptional &&  value.attributeType!=='checkbox' &&((!(value.hasOwnProperty('attributeValue'))) || (value.hasOwnProperty('attributeValue') && value.attributeValue.length===0))){
+				errs.push(value.attributeName);
+			}
+		}
 
 		if (projects.length===0){
 			errs.push('project(s) is required');
@@ -248,6 +252,10 @@ const AssetViewer = () => {
 				console.log(assetObj);
 				updateAsset(id,assetObj).then(res=>
 					console.log('re')
+
+
+
+
 				).catch(err=>{
 					console.log(err);
 					addToast('Unable to create asset',err);
