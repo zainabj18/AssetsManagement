@@ -4,7 +4,7 @@ import CustomNavLink from './CustomNavLink';
 
 const AssetOverview = () => {
 	return (
-		<Container minW='100%'>
+		<Container minW='100%' borderRadius="10px" borderSize="10px">
 			<HStack spacing={2} p={4}>
 				<CustomNavLink to={'./'}>Attributes</CustomNavLink>
 				<CustomNavLink to={'./classification'}>Classification</CustomNavLink>
@@ -22,4 +22,4 @@ const AssetOverview = () => {
 };
 
 export default AssetOverview
-	;
+;

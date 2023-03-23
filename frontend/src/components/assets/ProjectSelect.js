@@ -66,7 +66,9 @@ function ProjectSelect({setProjectSelect,projectin}) {
 
 	return (<>
 		<Button onClick={onOpen}>Select Projects</Button>
+		
 		<Modal isOpen={isOpen} onClose={onClose} size={'full'}>
+
 			<ModalOverlay />
 			<ModalContent>
 				<ModalHeader>Project Select</ModalHeader>
@@ -82,8 +84,9 @@ function ProjectSelect({setProjectSelect,projectin}) {
 					</HStack>	
 				</ModalFooter>
 			</ModalContent>
-			
+
 		</Modal>
+
 	</>
 	);
 }

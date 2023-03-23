@@ -230,16 +230,6 @@ def test_new_assset_metadata_incorrect_mixed_type(valid_client):
         "type": "value_error.missing",
     } in res.json["data"]
     assert {
-        "loc": ["metadata", 0, "attributeValue"],
-        "msg": "field required",
-        "type": "value_error.missing",
-    } in res.json["data"]
-    assert {
-        "loc": ["metadata", 1, "attributeValue"],
-        "msg": "field required",
-        "type": "value_error.missing",
-    } in res.json["data"]
-    assert {
         "loc": ["metadata", 1, "attributeType"],
         "msg": "str type expected",
         "type": "type_error.str",

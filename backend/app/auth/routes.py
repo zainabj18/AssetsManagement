@@ -12,9 +12,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-# TODO:Add to a common_func in db
-
-
 def create_user(db, user):
     with db.connection() as conn:
         conn.execute(
@@ -160,7 +157,7 @@ def login():
         value=token,
         secure=True,
         httponly=True,
-        expires=datetime.utcnow() + timedelta(minutes=30),
+        expires=datetime.utcnow() + timedelta(hours=6),
     )
     return resp
 

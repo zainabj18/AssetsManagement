@@ -65,7 +65,7 @@ const AdminManager = () => {
 				<Stack pt={35}>
 					<div style={{ height: '60vh', overflow: 'auto', width: '100%', borderRadius: 10 }}>
 						<TableContainer>
-							<Table variant='simple'>
+							<Table>
 								<Thead>
 									<Tr>
 										<Th>First Name</Th>
@@ -83,9 +83,9 @@ const AdminManager = () => {
 												<Td>{user.firstName}</Td>
 												<Td>{user.lastName}</Td>
 												<Td>{user.username}</Td>
-												<Td><Badge bg={user.userRole}>{user.userRole}</Badge></Td>
-												<Td><Badge bg={user.userRole}>{user.userPrivileges}</Badge></Td>
-												<Td><Button variant='ghost' onClick={() => deleteUser(user.accountID)}>Delete User</Button></Td>
+												<Td><Badge bg={user.userRole} color="white">{user.userRole}</Badge></Td>
+												<Td><Badge bg={user.userRole} color="white">{user.userPrivileges}</Badge></Td>
+												<Td><Button variant='solid' onClick={() => deleteUser(user.accountID)}>Delete User</Button></Td>
 											</Tr>
 										);
 									})}

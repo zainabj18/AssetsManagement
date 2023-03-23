@@ -114,7 +114,7 @@ CREATE TABLE attributes
 	comment VARCHAR NOT NULL,
 	datetime timestamp NOT NULL DEFAULT now(),
 	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
-	FOREIGN KEY (account_id) REFERENCES accounts(account_id),
+	FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE SET NULL,
 	PRIMARY KEY (comment_id)
 );
 

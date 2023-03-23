@@ -2,7 +2,7 @@ import { Menu,MenuButton,MenuList,Button,MenuItem,MenuGroup,MenuDivider, Badge, 
 import { useEffect } from 'react';
 import { FaUserCircle } from 'react-icons/fa';
 import { MdLogout } from 'react-icons/md';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import CustomNavLink from '../CustomNavLink';
 const UserMenuButton = () => {
@@ -15,19 +15,19 @@ const UserMenuButton = () => {
 
 	}, [user]);
 	
-	return (user &&( <Menu>
+	return (user &&( <Menu bg="white">
 		<MenuButton as={Button} colorScheme='pink' leftIcon={<FaUserCircle size={18} />}>
 			{user.username}
 		</MenuButton>
 
-		<MenuList color='#000' >
+		<MenuList color='white' >
 			<MenuGroup title='Profile'>
-				<HStack>
-					<Badge bg={user.userRole}>{user.userRole}</Badge>
-					<Badge bg={user.userPrivileges}>{user.userPrivileges}</Badge>
+				<HStack p={1}>
+					<Badge bg={user.userRole} color="white">{user.userRole}</Badge>
+					<Badge bg={user.userPrivileges} color="white">{user.userPrivileges}</Badge>
 				</HStack>
 			
-				<MenuItem as={CustomNavLink} to="/assets/my">View related assets</MenuItem>
+				<MenuItem as={NavLink} to="/assets/my">My assets</MenuItem>
 	
 				
 			</MenuGroup>

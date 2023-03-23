@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Editable, EditableInput, EditablePreview, Input, Tooltip, useBoolean, useEditableControls, VStack } from '@chakra-ui/react';
+import { Button, ButtonGroup, Editable, EditableInput, EditablePreview, Input, Tooltip, useBoolean, useEditableControls, useToast, VStack } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { copyToTag, deleteTag, fetchAssetsinTag, removeFromTag, updateTag } from '../../api';
@@ -22,35 +22,47 @@ const TagViewer = () => {
 	const [trigger, setTrigger] = useBoolean();
 	const { id } = useParams();
 	const [update, setUpdate] = useOutletContext();
+	const toast = useToast();
 
 	let navigate = useNavigate();
 
 	const getAssetIDs = () => {
 		return selectedAssets.map(
-			(rowID) => { return assetsin[rowID].asset_id; });
+			(rowID) => { return assetsin[rowID].assetID; });
 	};
 	const handleRemove = () => {
 		let assetIDs = getAssetIDs();
-		removeFromTag(id, assetIDs).then((res) => { console.log(res); setTrigger.toggle(); setUpdate.toggle(); });
+		removeFromTag(id, assetIDs).then((res) => { console.log(res); setTrigger.toggle(); setUpdate.toggle(); }).catch(err=>toast({
+			title: 'An error has occured'
+		  }));;
 	};
 	const handleCopy = (tag) => {
 		let assetIDs = getAssetIDs();
-		copyToTag(tag, assetIDs).then((res) => { console.log(res); setTrigger.toggle(); setUpdate.toggle(); });
+		copyToTag(tag, assetIDs).then((res) => { console.log(res); setTrigger.toggle(); setUpdate.toggle(); }).catch(err=>toast({
+			title: 'An error has occured'
+		  }));;
 	};
 	const handleMove = (tag) => {
 		let assetIDs = getAssetIDs();
-		copyToTag(tag, assetIDs).then((res) => { removeFromTag(id, assetIDs); setTrigger.toggle(); setUpdate.toggle(); });
+		copyToTag(tag, assetIDs).then((res) => { removeFromTag(id, assetIDs); setTrigger.toggle(); setUpdate.toggle(); }).catch(err=>toast({
+			title: 'An error has occured'
+		  }));;
 	};
 	const handleDelete = () => {
-		deleteTag(id).then((res) => { console.log(res); });
+		deleteTag(id).then((res) => {navigate(0);}).catch(err=>toast({
+			title: 'An error has occured'
+		  }));;
 		setTrigger.toggle();
 		setUpdate.toggle();
 		navigate('/tags');
 	};
 
 	const handleRename = (t) => {
-		updateTag(id, { id: id, name: t });
-		navigate(0);
+		updateTag(id, { id: id, name: t }).then(
+			res=>navigate(0)
+		).catch(err=>toast({
+			title: 'An error has occured'
+		  }));
 	};
 	useEffect(() => {
 		fetchAssetsinTag(id).then((res) => {

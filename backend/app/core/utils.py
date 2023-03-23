@@ -63,7 +63,7 @@ def audit_log_event(db,model_id,account_id,object_id,diff_dict,action):
 def run_query(db, query, params=None,row_factory=dict_row,return_type=None):
     try:
         with db.connection() as db_conn:
-            with db_conn.cursor(row_factory=row_factory) as cur:    
+            with db_conn.cursor(row_factory=row_factory) as cur:   
                 if params == None:
                     cur.execute(query)
                 else:

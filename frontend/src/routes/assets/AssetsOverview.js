@@ -1,6 +1,6 @@
-import { Button, VStack } from '@chakra-ui/react';
+import { Button, Heading, HStack, VStack } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { fetchAssetSummary, filterAssets } from '../../api';
 import AssetSearcher from '../../components/assets/AssetSearcher';
 import AssetTable from '../../components/assets/AssetTable';
@@ -33,8 +33,13 @@ const AssetsOverview = () => {
 		<div style={{ width: '75vw', flexDirection: 'column', justifyContent: 'center', display: 'flex' }} >
 			<div style={{ width: '75vw', overflow: 'hidden' }}>
 				<AssetTable assets={results} setSelectedAssets={null} preSelIDs={[]} />
+				
 			</div>
-			<Button onClick={() => naviagte('./new')} width='50%' paddingY={6} alignSelf='center'>Create Asset</Button>
+			<VStack>
+				<NavLink to="./graph"><Heading>View Graph</Heading></NavLink>
+				<Button onClick={() => naviagte('./new')} width='50%' paddingY={6} alignSelf='center'>Create Asset</Button>
+			</VStack>
+			
 		</div>
 		<div style={{ width: '20vw', overflow: 'auto', height: '70vh' }}>
 			<AssetSearcher filerFunc={handleFilter} />

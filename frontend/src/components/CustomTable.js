@@ -151,7 +151,7 @@ function CustomTable({ setSelectedRows, rows, cols, preSelIDs }) {
 					)}
 				</Tbody>
 			</Table>
-			<HStack>
+			<HStack p={4}>
 				<IconButton
 					icon={<ArrowLeftIcon />}
 					onClick={(e) => updatePage(-1)}
