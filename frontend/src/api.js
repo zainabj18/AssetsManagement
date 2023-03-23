@@ -62,22 +62,12 @@ export const createProject = async (project) => {
 export const updateProject = async (updateData) => {
 	return await axios.post('/project/changeProjects', updateData).then(res => res.data);
 };
-
-
-
-export const fetchPeopleinProject = async (id) => {
-	return await axios.get(`/project/allPeople/${id}`).then(res => res.data);
-};export const fetchPeople = async () => {
-	return await axios.get('/project/allPeople').then(res => res.data);
-};
 export const getProjectType = async () => {
 	return await axios.get('/project/projectType').then(res => res.data);
 };
 export const getProjectByID = async (id) => {
 	return await axios.get(`/project/${id}`).then(res => res.data);
 };
-
-
 export const fetchAllTypes = async () => {
 	return await axios.get('/type/allTypes').then(res => res.data);
 };
@@ -158,4 +148,6 @@ export const deleteType = async (id) => {
 export const deleteAttribute = async (id) => {
 	return await axios.post(`/type/attribute/delete/${id}`).then(res => res.data);
 };
-
+export const fetchAssetsinProject = async (id) => {
+	return await axios.get(`/project/assets/${id}`).then(res => res.data);
+};

@@ -1,10 +1,10 @@
 import { Button, ButtonGroup, Editable, EditableInput, EditablePreview, Heading,IconButton,Input,Tooltip,useBoolean,useEditableControls,VStack } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { copyToTag,deleteTag, fetchAssetsinTag, removeFromTag, updateTag } from '../api';
-import AssetTable from '../components/AssetTable';
-import OperationTo from '../components/OperationTo';
-import useAuth from '../hooks/useAuth';
+import { copyToTag,deleteTag, fetchAssetsinTag, removeFromTag, updateTag } from '../../api';
+import AssetTable from '../../components/AssetTable';
+import OperationTo from '../../components/OperationTo';
+import useAuth from '../../hooks/useAuth';
 
 const SaveControl = () => {
 	const {
