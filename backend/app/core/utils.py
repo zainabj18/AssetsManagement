@@ -86,14 +86,15 @@ def run_query(db, query, params=None,row_factory=dict_row,return_type=None):
         abort(500,{"msg": "Database Error","data":[str(e)]})
 
 def model_creator(model,err_msg,*args, **kwargs):
+
     try:
-        try:
-            obj = model(*args, **kwargs)
-        except ValidationError as e:
-            abort(400,{"msg": err_msg,
-                    "data": e.errors()
-                })
-    except:
+        obj = model(*args, **kwargs)
+    except ValidationError as e:
+        print("hello")
+        abort(422,{"msg": err_msg,
+                "data": e.errors()
+            })
+    except :
         abort(400,{"msg": "Data provided is invalid",
                     "data": ["Invalid data"]
                 })

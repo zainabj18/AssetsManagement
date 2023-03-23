@@ -75,14 +75,25 @@ const AssetViewer = () => {
 	};
 
 	function addToast(description,err) {
+		console.log(err);
 		if (err.response) {
-			toast({
-				title: err.response.status+' '+ err.response.statusText,
-				description: description,
-				status: 'error',
-				isClosable: true,
-				position:'bottom-left'
-			});}
+			if(err.response.status===400||err.response.status===422){
+				toast({
+					title: err.response.status+' '+ err.response.statusText,
+					description: err.response.data.msg,
+					status: 'warning',
+					isClosable: true,
+					duration: 9000,
+					position:'bottom-left'
+				});}
+			else{
+				toast({
+					title: err.response.status+' '+ err.response.statusText,
+					description: description,
+					status: 'error',
+					isClosable: true,
+					position:'bottom-left'
+				});}}
 		else{
 			toast({
 				title: 'An error has occured',
@@ -92,6 +103,9 @@ const AssetViewer = () => {
 				position:'bottom-left'
 			});
 
+		}
+		if (err.response.status===422){
+			setErrors(err.response.data.data);
 		}
 	}
 	const handleMetadataChange = (attributeName, attribute_value) => {
@@ -149,8 +163,10 @@ const AssetViewer = () => {
 				version_id: attribute_value,
 				metadata:res.metadata,
 			}));
+			console.log('depednecnuezs');
 			console.log(res);
-			setDependencies(res.dependsOn);
+			setDependencies(res.dependsOnNames);
+			console.log(res.dependsOn);
 			setTrigger.toggle();
 		});
 	
@@ -160,15 +176,16 @@ const AssetViewer = () => {
 		navigate('/assets');
 	};
 
+
 	const handleUpgrade = (e) => {
 		console.log(upgradeData);
-		let newMetadata=assetSate.metadata.filter((attribute) => !(attribute.attributeName in upgradeData[1]));
+		let newMetadata=assetSate.metadata.filter((attribute) => !(attribute.attributeName in upgradeData['removedAttributesNames']));
 		console.log(newMetadata);
-		newMetadata=[...newMetadata,...upgradeData[0]];
+		newMetadata=[...newMetadata,...upgradeData['addedAttributes']];
 		console.log(newMetadata);
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
-			version_id:upgradeData[2],
+			version_id:upgradeData['maxVersion'],
 			metadata: newMetadata,
 		}));
 		setUpgradeable(false);
@@ -219,16 +236,20 @@ const AssetViewer = () => {
 			
 			if (id){
 				console.log(assetObj);
-				updateAsset(id,assetObj).then(
-					res=>fetchAsset(id).then((res)=>{
-						navigate(0);}).catch(err=>{
-						addToast('Unable to view asset',err);
-						navigate('/assets');}
-					));
+				updateAsset(id,assetObj).then().catch(err=>{
+					console.log(err);
+					addToast('Unable to create asset',err);
+				}
+				);
 
 			}else{
+				console.log('bye');
 				createAsset(assetObj).then(
-					res=>navigate(`../${res.data}`)).catch((err) => {
+
+					res=>{
+						console.log('hello');
+						navigate(`../${res.data}`);}).catch((err) => {
+					console.log('I gete here');
 					addToast('Unable to create asset',err);});
 			}
 		}else{
@@ -286,8 +307,9 @@ const AssetViewer = () => {
 
 			fetchAssetUpgradeOptions(id).then(
 				(res)=>{
-					setUpgradeable(res.canUpgrade);
+					setUpgradeable(!Array.isArray(res.data));
 					setUpgradeData(res.data);
+					console.log('I am upgrade');
 					console.log(res.data);
 				}
 			).catch((err) => {
@@ -377,15 +399,20 @@ const AssetViewer = () => {
 							<AlertDescription>
 								
 								
-								{upgradeData[1].length>0 && <Fragment>
+								{upgradeData['removedAttributesNames'].length>0 && <Fragment>
 									The following attributes will be removed:
 									<UnorderedList>
-										{upgradeData[1].map((value, key)=><ListItem key={key}>{value}</ListItem>)}
+										{upgradeData['removedAttributesNames'].map((value, key)=><ListItem key={key}>{value}</ListItem>)}
 									</UnorderedList></Fragment>}
-								{upgradeData[0].length>0 && <Fragment>
+								{upgradeData['addedAttributes'].length>0 && <Fragment>
 									The following attributes will be added:
 									<UnorderedList>
-										{upgradeData[0].map((value, key)=><ListItem key={key}>{value.attributeName}</ListItem>)}
+										{upgradeData['addedAttributes'].map((value, key)=><ListItem key={key}>{value.attributeName}</ListItem>)}
+									</UnorderedList></Fragment>}
+								{upgradeData['dependsOn'].length>0 && <Fragment>
+									The following dependencies are needed:
+									<UnorderedList>
+										{upgradeData['dependsOn'].map((value, key)=><ListItem key={key}>{value}</ListItem>)}
 									</UnorderedList></Fragment>}
 							</AlertDescription>
 						
@@ -424,7 +451,7 @@ const AssetViewer = () => {
 							<AlertIcon alignSelf='left'/>
 							<AlertTitle>The related assets must include assets of types: </AlertTitle>
 							<AlertDescription ><UnorderedList>
-								{dependencies.map((value, key)=><ListItem key={key}>{value.type_name}</ListItem>)}
+								{dependencies.map((value, key)=><ListItem key={key}>{value}</ListItem>)}
 							</UnorderedList></AlertDescription>
 						</Alert>}
 					</FormControl>
