@@ -27,6 +27,7 @@ services:
         - PROD_POSTGRES_USER=dbmanager
         - PROD_POSTGRES_PASSWORD=dbmanager
         - PROD_POSTGRES_DB=assets
+        - POSTGRES_DATABASE_URI=postgresql://dbmanager:dbmanager@db:5432/testing_assets
       volumes:
         - ./backend:/usr/src/repo-app
       ports:
