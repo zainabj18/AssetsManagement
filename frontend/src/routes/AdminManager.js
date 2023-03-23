@@ -93,7 +93,7 @@ const AdminManager = () => {
 				</TableContainer>
 			</Stack>
 			<Stack>
-				<Link href='/user'><Button right={370} colorScheme={'blue'} size={'lg'}>New</Button></Link>
+				<Link href='./new'><Button right={370} colorScheme={'blue'} size={'lg'}>New</Button></Link>
 			</Stack>
 		</VStack>
 	);

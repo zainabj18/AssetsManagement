@@ -63,8 +63,10 @@ function App() {
 							<Route path="attributes" element={<AttributeViewer />} />
 							<Route path=":id" element={<TypeEditor />} />
 						</Route>
-						<Route path="accounts" element={<AdminManager />} />
-						<Route path="user" element={<User />} />
+						<Route path="accounts/">
+							<Route index element={<AdminManager />} />
+							<Route path="new" element={<User />} />
+						</Route>
 						<Route path="logs" element={<Logs />} />
 					</Route>
 					<Route path="*" element={<NoMatch />} />
