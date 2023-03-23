@@ -41,3 +41,40 @@ Frontend React
 -/theme hold all the addtional styling ontop of chakra
 
 -/App.js holds all the routes
+
+
+To run install docker and docker compose
+
+Then to run app
+
+docker compose  up --build 
+
+To init db
+
+docker exec backend python -m flask init-db
+
+Go to http://localhost:3000
+
+To run the tests
+
+docker exec backend python -m pytest --reruns 5 --reruns-delay 1
+
+
+OR
+
+Download postgres and run /db/init.sql to create the users and db
+
+
+Example .env to be added to the backend folder
+
+DEV_POSTGRES_HOST="localhost"
+DEV_POSTGRES_USER="dbmanager"
+DEV_POSTGRES_PASSWORD="dbmanager"
+DEV_POSTGRES_DB="assets"
+DEV_DEBUG=true
+DEV_SECRET_KEY="TOJAZMiFQOq1PIoImUaltg"
+PROD_POSTGRES_HOST="localhost"
+PROD_POSTGRES_USER="dbmanager"
+PROD_POSTGRES_PASSWORD="dbmanager"
+PROD_POSTGRES_DB="assets"
+
