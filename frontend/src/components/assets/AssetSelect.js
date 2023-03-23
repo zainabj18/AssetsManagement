@@ -43,8 +43,6 @@ function AssetSelect({setAssetSelected,assetsin}) {
 				preSelected.push(i);
 			}
 		}
-		console.log('assset select');
-		console.log(preSelected);
 		setSelected(preSelected);
 	}, [assetsin]);
 	

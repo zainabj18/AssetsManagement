@@ -432,7 +432,7 @@ const AssetViewer = () => {
 									</Tag>
 								</WrapItem>
 							))}
-							{!isDisabled && <ProjectSelect setSelected={setProjects}  projectin={projectList} />}
+							{!isDisabled && <ProjectSelect setProjectSelect={setProjects}  projectin={projectList} />}
 						</Wrap>}
 					</FormControl>
 					<FormControl>

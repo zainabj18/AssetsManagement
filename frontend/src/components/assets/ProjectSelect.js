@@ -26,9 +26,9 @@ import CustomTable from '../CustomTable';
 
 
 
-function ProjectSelect({setSelected,projectin,preSelIDs}) {
+function ProjectSelect({setProjectSelect,projectin}) {
 	const { isOpen, onClose,onOpen, } = useDisclosure();
-	const [selected,setAssetSelected] = useState([]); 
+	const [selected,setSelected] = useState([]); 
 	const columns = useMemo(
 		() => {return {
 			'projectID':{
@@ -48,11 +48,19 @@ function ProjectSelect({setSelected,projectin,preSelIDs}) {
 
 	const save=()=>{
 		console.log('Selected project',selected);
-		setSelected(selected);
+		setProjectSelect(selected);
 		onClose();
 	};
 
 	useEffect(() => {
+		let preSelected=[];
+		for (let i = 0; i < projectin.length; i++) {
+			let obj=projectin[i];
+			if (obj.hasOwnProperty('isSelected')&&obj.isSelected){
+				preSelected.push(i);
+			}
+		}
+		setSelected(preSelected);
 	}, [projectin]);
 	
 
@@ -65,7 +73,7 @@ function ProjectSelect({setSelected,projectin,preSelIDs}) {
 				<ModalCloseButton />
 				<ModalBody >
 					{projectin && 
-						<CustomTable rows={projectin} cols={columns}  setSelectedRows={setAssetSelected} preSelIDs={preSelIDs}/>
+						<CustomTable rows={projectin} cols={columns}  setSelectedRows={setSelected} preSelIDs={selected}/>
 					}
 				</ModalBody>
 				<ModalFooter>
