@@ -95,6 +95,34 @@ def test_new_assets_get_summary(valid_client, new_assets):
         assert datetime.fromisoformat(saved_asset["created_at"])<datetime.now()
         assert datetime.fromisoformat(saved_asset["last_modified_at"])<datetime.now()
 
+@pytest.mark.parametrize(
+    "new_assets",
+    [{"batch_size": 100}],
+    indirect=True,
+)
+def test_new_assets_get_summary_my(valid_client, new_assets):
+    added_assets=[]
+    for asset in new_assets:
+        data = json.loads(asset.json(by_alias=True))
+        res = valid_client.post("/api/v1/asset/", json=data)
+        assert res.status_code == 201
+        assert res.json["msg"] == "Added asset"
+        asset_id = res.json["data"]
+        data["asset_id"]=asset_id
+        added_assets.append(data)
+    res = valid_client.get("/api/v1/asset/my")
+    assert res.status_code == 200
+    saved_assets = res.json["data"]
+    assert len(saved_assets)==len(added_assets)
+    for index,saved_asset in enumerate(saved_assets):
+        assert saved_asset["name"] == added_assets[index]["name"]
+        assert saved_asset["link"] == str(added_assets[index]["link"])
+        assert saved_asset["description"] == str(added_assets[index]["description"])
+        assert saved_asset["classification"] == str(added_assets[index]["classification"])
+        assert saved_asset["version_id"] ==added_assets[index]["version_id"]
+        assert datetime.fromisoformat(saved_asset["created_at"])<datetime.now()
+        assert datetime.fromisoformat(saved_asset["last_modified_at"])<datetime.now()
+
 
 def test_new_assets_get_summary_no_assets(valid_client):
     res = valid_client.get("/api/v1/asset/summary")

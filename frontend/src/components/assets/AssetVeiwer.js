@@ -24,9 +24,7 @@ import {
 	AlertDescription,
 	UnorderedList,
 	ListItem,
-	Editable,
-	EditablePreview,
-	EditableInput,
+	useToast
 } from '@chakra-ui/react';
 import { Fragment } from 'react';
 import { useEffect, useState } from 'react';
@@ -34,19 +32,20 @@ import { redirect, useNavigate, useParams } from 'react-router-dom';
 
 import axios from 'axios';
 import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset, updateAsset, fetchAssetLinks, fetchAssetSummary, fetchTypesNamesVersionList, fetchAssetUpgradeOptions } from '../../api';
-import ProjectSelect from '../ProjectSelect';
+
 import useAuth from '../../hooks/useAuth';
 import AssetSelect from './AssetSelect';
+import ProjectSelect from './ProjectSelect';
 import NumFormField from './formfields/NumFormField';
 import FormField from './formfields/FormField';
 import SearchSelect from './formfields/SearchSelect';
 import SelectFormField from './formfields/SelectFormField';
 import ListFormField from './formfields/ListFormField';
+import FormErrors from './FormErrors';
+import MetadataFields from './MetadataFields';
+import AssetsStats from './Stats';
 
 
-const FormErrors = () => {
-	
-};
 const AssetViewer = () => {
 	const { id } = useParams();
 	const {user} = useAuth();
@@ -66,6 +65,7 @@ const AssetViewer = () => {
 	const [types,setTypes]=useState([]);
 	const [upgradeable,setUpgradeable]=useState(false);
 	const [upgradeData,setUpgradeData]=useState(undefined);
+	const toast = useToast();
 	
 	const handleChange = (attribute_name, attribute_value) => {
 		setAssetState((prevAssetState) => ({
@@ -74,6 +74,54 @@ const AssetViewer = () => {
 		}));
 	};
 
+	function addToast(description,err) {
+		console.log(err);
+		if (err.response) {
+			if(err.response.status===400||err.response.status===422||err.response.status===500){
+				let msg = err.response.data.msg;
+				if (msg===undefined){
+					msg=description;
+				}
+				toast({
+					title: err.response.status+' '+ err.response.statusText,
+					description: msg,
+					status: 'warning',
+					isClosable: true,
+					duration: 9000,
+					position:'bottom-left'
+				});}
+			else{
+				toast({
+					title: err.response.status+' '+ err.response.statusText,
+					description: description,
+					status: 'error',
+					isClosable: true,
+					position:'bottom-left'
+				});}}
+		else{
+			toast({
+				title: 'An error has occured',
+				description: description,
+				status: 'error',
+				isClosable: true,
+				position:'bottom-left'
+			});
+
+		}
+		if (err.response.status===422){
+			let errors=[];
+			console.log(err.response.data.data);
+			for (let i = 0; i < err.response.data.data.length; i++) {
+				console.log(err.response.data);
+				let name=Object.values(err.response.data.data[i]['loc'].toString());
+				name=name.concat(' '+err.response.data.data[i]['msg']);
+				errors.push(name);
+			}
+			console.log(errors);
+
+			setErrors(errors);
+		}
+	}
 	const handleMetadataChange = (attributeName, attribute_value) => {
 		console.log(attribute_value);
 		console.log('I am name');
@@ -129,10 +177,11 @@ const AssetViewer = () => {
 				version_id: attribute_value,
 				metadata:res.metadata,
 			}));
+			console.log('depednecnuezs');
 			console.log(res);
-			setDependencies(res.dependsOn);
+			setDependencies(res.dependsOnNames);
+			console.log(res.dependsOn);
 			setTrigger.toggle();
-
 		});
 	
 	};
@@ -141,15 +190,20 @@ const AssetViewer = () => {
 		navigate('/assets');
 	};
 
+
 	const handleUpgrade = (e) => {
 		console.log(upgradeData);
-		let newMetadata=assetSate.metadata.filter((attribute) => !(attribute.attributeName in upgradeData[1]));
+		console.log(upgradeData['removedAttributesNames']);
+		let newMetadata=assetSate.metadata.filter((attribute) => !(upgradeData['removedAttributesNames'].includes(attribute.attributeName)));
+		
 		console.log(newMetadata);
-		newMetadata=[...newMetadata,...upgradeData[0]];
+		console.log('filer');
+		console.log(newMetadata);
+		newMetadata=[...newMetadata,...upgradeData['addedAttributes']];
 		console.log(newMetadata);
 		setAssetState((prevAssetState) => ({
 			...prevAssetState,
-			version_id:upgradeData[2],
+			version_id:upgradeData['maxVersion'],
 			metadata: newMetadata,
 		}));
 		setUpgradeable(false);
@@ -163,17 +217,30 @@ const AssetViewer = () => {
 		let errs=[];
 		for (const field of REQUIRED_FIELDS){
 			console.log(field);
-			if ((!assetSate.hasOwnProperty(field)) ||  ((!assetSate.hasOwnProperty(field)) && assetSate[field].length===0)){
-				errs.push(field+' is required');
+			console.log(assetSate.hasOwnProperty(field));
+			if ((!assetSate.hasOwnProperty(field)) ||  ((assetSate.hasOwnProperty(field)) && assetSate[field].length===0)){
+				if (field==='version_id'){
+					errs.push('type is required');
+				}else{
+					errs.push(field+' is required');
+
+				}
+				
 			}
 		}
+		for (const [key, value] of Object.entries(assetSate.metadata)){
+			if(!value.validation.isOptional &&  value.attributeType!=='checkbox' &&((!(value.hasOwnProperty('attributeValue'))) || (value.hasOwnProperty('attributeValue') && value.attributeValue.length===0))){
+				errs.push(value.attributeName+' is required');
+			}
+		}
+
 		if (projects.length===0){
 			errs.push('project(s) is required');
 		}
 		if (errs.length===0){
 			console.log('Sending data');
 			
-			let projectIDs=projects.map(p=>p.projectID);
+			let projectIDs=projects.map(p=>projectList[p].projectID);
 			let tagIDs=assetSate.tags.map(t=>t.id);
 			let assetIDs=assets.map(a=>assetsList[a].assetID);
 			let assetObj={
@@ -187,22 +254,27 @@ const AssetViewer = () => {
 			
 			if (id){
 				console.log(assetObj);
-				updateAsset(id,assetObj).then(
-					res=>fetchAsset(id).then((res)=>{
-						setAssetState(res.data);}).catch(err=>{
-						navigate('/assets');}
-					)).catch(err=>console.log(err));
+				updateAsset(id,assetObj).then(res=>
+					navigate(0)
+				).catch(err=>{
+					console.log(err);
+					addToast('Unable to create asset',err);
+				}
+				);
 
 			}else{
+				console.log('bye');
 				createAsset(assetObj).then(
-				
-					res=>navigate(`../${res.data}`)).catch(err=>console.log(err));
+
+					res=>{
+						console.log('hello');
+						navigate(`../${res.data}`);}).catch((err) => {
+					console.log('I gete here');
+					addToast('Unable to create asset',err);});
 			}
-			
 		}else{
 			setErrors(errs);
 		}
-		// naviagte back to assets
 	};
 
 	useEffect(() => {
@@ -210,26 +282,32 @@ const AssetViewer = () => {
 			navigate('/');
 		}
 		fetchAssetClassifications().then((data)=>{
-			setClassifications(data.data);}).catch((err) => {console.log(err);});
+			setClassifications(data.data);}).catch((err) => {
+			addToast('Unable to get classifications',err);});
 
 		fetchTypesNamesVersionList().then((data)=>{
 			console.log(data,'I am types');
-			setTypes(data.data);}).catch((err) => {console.log(err,'types eroro');});
+			setTypes(data.data);}).catch((err) => {
+			addToast('Unable to get types',err);});
 		if (id) {
 			fetchAsset(id).then((res)=>{
-				console.log(res.data);
-				setAssetState(res.data);}).catch(err=>{
-				navigate('/assets');}
-			);
+				setAssetState(res.data);});
 			if (user.userRole==='VIEWER'){
 				setIsDisabled(true);
 			}
 			fetchAssetProjects(id).then(
 				(res)=>{
-					console.log(res.data);
+					let rowIDs=res.data.map((val,index)=>index);
+					rowIDs =rowIDs.filter((rowID) => res.data[rowID].isSelected);
+					setProjects(rowIDs);
 					setProjectList(res.data);
 				}
-			);
+			).catch((err) => {
+				toast({
+					title: 'An error occurred.',
+					description: 'Unable to get projects',
+					status: 'error',
+				});});
 			fetchAssetLinks(id).then(
 				(res)=>{
 					console.log(res.data,'I am assets');
@@ -241,18 +319,21 @@ const AssetViewer = () => {
 							preSelected.push(i);
 						}
 					}
-					console.log(preSelected,'pre selected');
+
 					setAssets(preSelected);
 				}
-			);
+			).catch((err) => {
+				addToast('Unable to get asset links',err);});
 
 			fetchAssetUpgradeOptions(id).then(
 				(res)=>{
-					setUpgradeable(res.canUpgrade);
+					setUpgradeable(!Array.isArray(res.data));
 					setUpgradeData(res.data);
+					console.log('I am upgrade');
 					console.log(res.data);
 				}
-			);
+			).catch((err) => {
+				addToast('Unable to get upgrade options',err);});
 		} else {
 			if (!user||user.userRole==='VIEWER'){
 				navigate('/assets');
@@ -260,17 +341,17 @@ const AssetViewer = () => {
 			fetchProjects().then(
 				(res)=>{
 					setProjectList(res.data);
+					
 				}
-			);
+			).catch((err) => {
+				addToast('Unable to get projects',err);});
 
 			fetchAssetSummary().then(
 				(res)=>{
-			
 					setAssetsList(res.data);
-
 				}
-
-			);
+			).catch((err) => {
+				addToast('Unable to get assets',err);});
 			setAssetState({
 				name: '',
 				link: '',
@@ -283,19 +364,14 @@ const AssetViewer = () => {
 				metadata: [],
 			});
 		}
+		
 	}, [id,user]);
 	
 
 	return assetSate ? (
 		<Box p={4} width={'60vw'} height={'80vh'} overflow="scroll">
 			{assetSate && <VStack maxW='100%'>
-				{errors.length && <Alert status='error' flexDirection='column' alignItems='right'>
-					<AlertIcon alignSelf='center'/>
-					<AlertTitle>Invalid Form</AlertTitle>
-					<AlertDescription ><UnorderedList>
-						{errors.map((value, key)=><ListItem key={key}>{value}</ListItem>)}
-					</UnorderedList></AlertDescription>
-				</Alert>}
+				<FormErrors errors={errors} />
 				<VStack minW='100%' bg="white" color="blue.800" alignItems='left' 
 					alignContent='left' p={6} borderRadius={6}>
 					<Heading size={'2xl'} >Asset Attributes</Heading>
@@ -345,15 +421,20 @@ const AssetViewer = () => {
 							<AlertDescription>
 								
 								
-								{upgradeData[1].length>0 && <Fragment>
+								{upgradeData['removedAttributesNames'].length>0 && <Fragment>
 									The following attributes will be removed:
 									<UnorderedList>
-										{upgradeData[1].map((value, key)=><ListItem key={key}>{value}</ListItem>)}
+										{upgradeData['removedAttributesNames'].map((value, key)=><ListItem key={key}>{value}</ListItem>)}
 									</UnorderedList></Fragment>}
-								{upgradeData[0].length>0 && <Fragment>
+								{upgradeData['addedAttributes'].length>0 && <Fragment>
 									The following attributes will be added:
 									<UnorderedList>
-										{upgradeData[0].map((value, key)=><ListItem key={key}>{value.attributeName}</ListItem>)}
+										{upgradeData['addedAttributes'].map((value, key)=><ListItem key={key}>{value.attributeName}</ListItem>)}
+									</UnorderedList></Fragment>}
+								{upgradeData['dependsOn'].length>0 && <Fragment>
+									The following dependencies are needed:
+									<UnorderedList>
+										{upgradeData['dependsOn'].map((value, key)=><ListItem key={key}>{value}</ListItem>)}
 									</UnorderedList></Fragment>}
 							</AlertDescription>
 						
@@ -363,34 +444,39 @@ const AssetViewer = () => {
 					</FormControl>
 					<FormControl>
 						<FormLabel>Projects</FormLabel>
+						{projectList.length>=projects.length && 
 						<Wrap spacing={4}>
 							{projects.map((value, key) => (
 								<WrapItem key={key}>
 									<Tag key={key} variant='brand'>
-										<TagLabel>{value.projectName}</TagLabel>
+										{console.log(projectList[value].projectName)}
+										<TagLabel>{projectList[value].projectName}</TagLabel>
 									</Tag>
 								</WrapItem>
 							))}
-							{!isDisabled && <ProjectSelect setSelectedProjects={setProjects}  projects={projectList} />}
-						</Wrap>
+							{!isDisabled && <ProjectSelect setProjectSelect={setProjects}  projectin={projectList} />}
+						</Wrap>}
 					</FormControl>
 					<FormControl>
 						<FormLabel>Related Assets</FormLabel>
 						<Wrap spacing={4}>
 							{assets.map((value, key) => (
+				
 								<WrapItem key={key}>
+									{console.log(value)}
+									{console.log(value.name)}
 									<Tag key={key} variant='brand'>
 										<TagLabel>{assetsList[value].name}</TagLabel>
 									</Tag>
 								</WrapItem>
 							))}
-							{!isDisabled &&   <AssetSelect setSelected={setAssets} assetsin={assetsList} />}
+							{!isDisabled &&   <AssetSelect setAssetSelected={setAssets} assetsin={assetsList} />}
 						</Wrap>
 						{dependencies.length>0 && <Alert status='info' flexDirection='column' alignItems='right'>
 							<AlertIcon alignSelf='left'/>
 							<AlertTitle>The related assets must include assets of types: </AlertTitle>
 							<AlertDescription ><UnorderedList>
-								{dependencies.map((value, key)=><ListItem key={key}>{value.type_name}</ListItem>)}
+								{dependencies.map((value, key)=><ListItem key={key}>{value}</ListItem>)}
 							</UnorderedList></AlertDescription>
 						</Alert>}
 					</FormControl>
@@ -446,57 +532,12 @@ const AssetViewer = () => {
 				</VStack>
 
 				<Divider size='xl'/>
-				<VStack minW='100%' bg="white" color="blue.800"alignItems='left' marginY={5}
-					alignContent='left' p={6} borderRadius={6}>
-					<Heading size={'md'}>Type Attributes:</Heading>
-		
-
-					{assetSate.metadata && assetSate.metadata.map((value, key) => {
-						switch(value.attributeType) {
-						case 'list':
-							console.log('I am here');
-							return (
-								<Fragment key={key}> 
-									<ListFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:[]} validation={value.validation} onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount} isDisabled={isDisabled}/>
-								</Fragment>);
-						case 'num_lmt':
-							return (
-								<Fragment key={key}> 
-									<NumFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:value.validation.min} validation={value.validation}  onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount} isDisabled={isDisabled}/>
-								</Fragment>);
-						case 'options':
-							return (
-								<Fragment key={key}> 
-									<SelectFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:[]} validation={value.validation} onChangeHandler={handleMetadataChange} isDisabled={isDisabled}/>
-								</Fragment>);
-						default:
-							return (<Fragment key={key}>
-								<FormField
-									fieldName={value.attributeName}
-									fieldType={value.attributeType}
-									fieldDefaultValue={value.attributeValue?value.attributeValue:''}
-									isDisabled={isDisabled}
-									onSubmitHandler={handleMetadataChange}
-									trigger={trigger}
-									setErrorCount={setErrorCount}
-									validation={value.validation}
-								/>
-							</Fragment>);
-					  }
-					})}
-				</VStack>
+				<MetadataFields assetSate={assetSate} isDisabled={isDisabled} handleMetadataChange={handleMetadataChange} trigger={trigger} setErrorCount={setErrorCount}/>
 			</VStack>}
 			
-			{id && (<StatGroup>
-				<Stat>
-					<StatLabel>Created At</StatLabel>
-					<StatNumber>{assetSate.created_at}</StatNumber>
-				</Stat>
-				<Stat>
-					<StatLabel>Last Modified</StatLabel>
-					<StatNumber>{assetSate.last_modified_at}</StatNumber>
-				</Stat>
-			</StatGroup>)}
+			{id && (<AssetsStats created_at={assetSate.created_at} last_modified_at={assetSate.last_modified_at}/>
+			
+			)}
 			
 			{!isDisabled  && <Button onClick={createNewAsset} marginY={5}>Sumbit</Button>}
 			{id && !isDisabled && <Button onClick={handleDelete}>Delete</Button>}

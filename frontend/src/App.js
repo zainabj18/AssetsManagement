@@ -26,6 +26,7 @@ import Comments from './routes/assets/Comments';
 import { ErrorBoundary } from 'react-error-boundary';
 import { fetchRelatedClassification, fetchRelatedFrom, fetchRelatedProjects, fetchRelatedTags, fetchRelatedTo, fetchRelatedType } from './api';
 import ErrorFallback from './routes/ErrorFallback';
+import MyAssets from './routes/assets/MyAssets';
 
 function App() {
 	return (
@@ -38,6 +39,7 @@ function App() {
 							<Route index element={<AssetsOverview />} />
 							<Route path="new" element={<AssetViewer />} />
 							<Route path="graph" element={<AsssetGraph />} />
+							<Route path="my" element={<MyAssets />} />
 							<Route path=":id" element={<AssetOverview />}>
 								<Route index element={<AssetViewer />} />
 								<Route path="comments" element={<Comments />} />

@@ -63,7 +63,7 @@ def audit_log_event(db,model_id,account_id,object_id,diff_dict,action):
 def run_query(db, query, params=None,row_factory=dict_row,return_type=None):
     try:
         with db.connection() as db_conn:
-            with db_conn.cursor(row_factory=row_factory) as cur:    
+            with db_conn.cursor(row_factory=row_factory) as cur:   
                 if params == None:
                     cur.execute(query)
                 else:
@@ -86,10 +86,17 @@ def run_query(db, query, params=None,row_factory=dict_row,return_type=None):
         abort(500,{"msg": "Database Error","data":[str(e)]})
 
 def model_creator(model,err_msg,*args, **kwargs):
+
     try:
         obj = model(*args, **kwargs)
     except ValidationError as e:
-        abort(400,{"msg": err_msg,
+        print("hello")
+        abort(422,{"msg": err_msg,
                 "data": e.errors()
             })
+    except :
+        abort(400,{"msg": "Data provided is invalid",
+                    "data": ["Invalid data"]
+                })
+
     return obj

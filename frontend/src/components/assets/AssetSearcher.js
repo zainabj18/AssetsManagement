@@ -1,7 +1,7 @@
 import { Radio, RadioGroup, Select, Stack, VStack } from '@chakra-ui/react';
 import { HStack } from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
-import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Input, Button } from '@chakra-ui/react';
+import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Input, Button,Text } from '@chakra-ui/react';
 import { Checkbox } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { fetchAllAttributes, fetchTags, fetchTypesNamesVersionList } from '../../api';
@@ -125,6 +125,7 @@ const AssetSearcher = ({ filerFunc }) => {
 	return (
 		<Box display={'flex'} flexDirection='column' width={'100%'} >
 			<Accordion defaultIndex={[0]} allowMultiple>
+				<Text> Filter results join</Text>
 				<RadioButtons name='operation' changeFunc={handleToggle} />
 				<AccordionItem>
 
@@ -197,6 +198,8 @@ const AssetSearcher = ({ filerFunc }) => {
 					</AccordionPanel>
 				</AccordionItem>
 			</Accordion>
+			<Text> Filter by Attributes</Text>
+
 			<RadioButtons name='attributeOperation' changeFunc={handleToggle} />
 
 			{searchData['attributes'].map((input, index) => {
@@ -231,7 +234,7 @@ const AssetSearcher = ({ filerFunc }) => {
 				);
 			})}
 			<HStack display={'flex'} justifyContent='space-between'>
-				<Button onClick={addFields}>Add More</Button>
+				<Button onClick={addFields}>Add Attributes</Button>
 				<Button onClick={filter}>Filter</Button>
 			</HStack>
 		</Box>

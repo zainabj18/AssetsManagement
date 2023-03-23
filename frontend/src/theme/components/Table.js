@@ -6,9 +6,9 @@ const { definePartsStyle, defineMultiStyleConfig } =
 
 const baseStyle = definePartsStyle({
 	table: {
-		mt:'4',
+		mt:'10',
 		// borderWidth:'10px',
-		height:'43vh',
+		maxHeight:'43vh',
 	  	width: '100%'
 	}});
 const brandPrimary = definePartsStyle({
@@ -34,7 +34,7 @@ const brandPrimary = definePartsStyle({
 			},
 			'&:nth-of-type(even)': {
 				td: {
-					bg:'blue.100',
+					bg:'blue.200',
 					color:'blue.900'
 				}
 			}

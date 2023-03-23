@@ -69,13 +69,13 @@ def asset_differ(orginal,new):
                 else:
                     changed.append((key,orginal[key],new[key]))    
     return json.loads(Diff(added=added,removed=removed,changed=changed).json())
-def add_asset_to_db(db:ConnectionPool,data:dict,asset_id=None):
+def add_asset_to_db(db:ConnectionPool,data:dict,account_id:int,asset_id:int=None):
     asset=model_creator(model=Asset,err_msg="Failed to create asset from the data provided",**data)
     db_asset = asset.dict()
     check_asset_dependencies(db=db,version_id=asset.version_id,assets=asset.asset_ids)
     check_asset_metatadata(db=db,version_id=asset.version_id,metadata=asset.metadata)
     if asset_id is None:
-        asset_id =services.add_asset_to_db(db=db,**db_asset)["asset_id"]
+        asset_id =services.add_asset_to_db(db=db,account_id=account_id,**db_asset)["asset_id"]
     else:
         services.update_asset(db=db,asset_id=asset_id,**db_asset)
     services.add_asset_tags_to_db(db=db,asset_id=asset_id,tags=asset.tag_ids)

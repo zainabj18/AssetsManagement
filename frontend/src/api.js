@@ -123,6 +123,11 @@ export const deleteAsset = async (id) => {
 export const fetchAssetSummary = async () => {
 	return await axios.get('/asset/summary').then(res => res.data);
 };
+
+export const fetchMyAssetSummary = async () => {
+	return await axios.get('/asset/my').then(res => res.data);
+};
+
 export const updateAsset = async (id, asset) => {
 	return await axios.patch(`/asset/${id}`, asset).then(res => res.data);
 };

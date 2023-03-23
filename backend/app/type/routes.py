@@ -172,17 +172,20 @@ def get_type(id):
     res = make_query(database, query, {"id": id})
     attributes = extract_attributes(res.fetchall())
 
-    query = """SELECT type_version_to FROM type_version_link WHERE type_version_from = %(id)s;"""
+    query = """SELECT version_id,type_name FROM type_names_versions
+WHERE version_id IN (SELECT type_version_to FROM type_version_link WHERE type_version_from=%(id)s);"""
     res = make_query(database, query, {"id": id})
-    depends_on = [value[0] for value in res.fetchall()]
-
+    rows=res.fetchall()
+    depends_on = [value[0] for value in rows]
+    depends_on_names = [value[1] for value in rows]
     return {
         "typeId": type[0],
         "typeName": type[1],
         "versionId": type[2],
         "versionNumber": type[3],
         "metadata": attributes,
-        "dependsOn": depends_on
+        "dependsOn": depends_on,
+        "dependsOnNames": depends_on_names
     }, 200
 
 

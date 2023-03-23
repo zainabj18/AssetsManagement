@@ -39,6 +39,7 @@ def insert_tag_to_db(db:ConnectionPool,tag:TagBase):
       db: A object for managing connections to the db.
       tag: An object represnetation of the tag.
     """
+    print(tag)
     return run_query(db, """
         INSERT INTO tags (name) VALUES (%(name)s) RETURNING id;""",{"name":tag.name},return_type=QueryResult.ONE)
 
@@ -68,7 +69,7 @@ def update_tag(db:ConnectionPool,tag:TagBase):
       db: A object for managing connections to the db.
       tag: An object represnetation of the tag.
     """
-    return run_query(
+    return run_query(db,
                 """
             UPDATE tags 
             SET name=%(name)s WHERE id=%(id)s ;""",

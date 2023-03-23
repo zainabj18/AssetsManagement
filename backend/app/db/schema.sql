@@ -99,7 +99,8 @@ CREATE TABLE attributes
 	classification data_classification NOT NULL DEFAULT 'PUBLIC',
 	created_at timestamp NOT NULL DEFAULT now(),
 	last_modified_at timestamp NOT NULL DEFAULT now(),
-	soft_delete INTEGER DEFAULT 0,
+	account_id INTEGER,
+	FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE SET NULL,
 	FOREIGN KEY (version_id) REFERENCES type_version(version_id),
 	PRIMARY KEY (asset_id)
 );
@@ -113,7 +114,7 @@ CREATE TABLE attributes
 	comment VARCHAR NOT NULL,
 	datetime timestamp NOT NULL DEFAULT now(),
 	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
-	FOREIGN KEY (account_id) REFERENCES accounts(account_id),
+	FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE SET NULL,
 	PRIMARY KEY (comment_id)
 );
 
@@ -143,18 +144,6 @@ CREATE TABLE attributes_values
  	PRIMARY KEY (attribute_id, asset_id),
 	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
  	FOREIGN KEY (attribute_id) REFERENCES attributes(attribute_id)
- );
-
-CREATE TABLE asset_logs
- (
- 	log_id SERIAL,
-	account_id INTEGER,
- 	asset_id INTEGER,
-	diff JSON,
-	date timestamp NOT NULL DEFAULT now(),
- 	PRIMARY KEY (log_id),
-	FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
-	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
  );
 
 
@@ -193,7 +182,7 @@ CREATE TABLE audit_logs
 	date timestamp NOT NULL DEFAULT now(),
  	PRIMARY KEY (log_id),
 	FOREIGN KEY (model_id) REFERENCES tracked_models(model_id),
-	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
+	FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE SET NULL
  );
 --VIEWS 
 DROP VIEW IF EXISTS flatten_assets;

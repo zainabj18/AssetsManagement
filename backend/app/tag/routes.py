@@ -12,6 +12,7 @@ bp = Blueprint("tag", __name__, url_prefix="/tag")
 def create(user_id, access_level):
     tag=model_creator(model=TagBase,err_msg="Failed to create tag from the data provided",**request.json)
     db = get_db()
+    
     id=services.insert_tag_to_db(db=db,tag=tag)["id"]
     tag.id = id
     audit_log_event(db,Models.TAGS,user_id,id,{},Actions.ADD)

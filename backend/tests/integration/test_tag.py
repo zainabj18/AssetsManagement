@@ -24,7 +24,7 @@ def create_tags_in_db(db_conn,size=1,**kwargs):
 
 def test_tag_create_requires_name(valid_client):
     res = valid_client.post("/api/v1/tag/", json={})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert res.json == {
         "data": [
             {"loc": ["name"], "msg": "field required", "type": "value_error.missing"}
@@ -36,7 +36,7 @@ def test_tag_create_requires_name(valid_client):
 def test_tag_create_requires_name_not_to_empty(valid_client):
 
     res = valid_client.post("/api/v1/tag/", json={"name": ""})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert res.json == {
         "data": [
             {
@@ -190,7 +190,7 @@ def test_tag_delete_with_assets(valid_client, new_assets,db_conn):
 
 def test_tag_copy_to_requires_tag_id(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert {
                 "loc": ["toTagID"],
                 "msg": "field required",
@@ -201,7 +201,7 @@ def test_tag_copy_to_requires_tag_id(valid_client):
 
 def test_tag_copy_to_requires_assest_ids_list(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert {
                 "loc": ["assetIDs"],
                 "msg": "field required",
@@ -212,7 +212,7 @@ def test_tag_copy_to_requires_assest_ids_list(valid_client):
 
 def test_tag_copy_to_requires_tag_id_int(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={"to_tag_id":"j"})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert {
                 "loc": ["toTagID"],
                 "msg": "value is not a valid integer",
@@ -223,7 +223,7 @@ def test_tag_copy_to_requires_tag_id_int(valid_client):
 
 def test_tag_copy_to_requires_assest_ids_list(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={"assest_ids":"j"})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert {
                 "loc": ["assetIDs"],
                 "msg": 'value is not a valid list',
@@ -234,7 +234,7 @@ def test_tag_copy_to_requires_assest_ids_list(valid_client):
 
 def test_tag_copy_to_requires_assest_ids_list_ints(valid_client):
     res = valid_client.post("/api/v1/tag/copy", json={"assest_ids":["j",1]})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert {
                 "loc": ['assetIDs', 0],
                 "msg":'value is not a valid integer',
@@ -340,7 +340,7 @@ def test_tag_viewer_cannot_copy(valid_client):
 
 def test_tag_remove_to_requires_to_tag_id(valid_client):
     res = valid_client.post("/api/v1/tag/remove", json={})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert {
                 "loc": ["toTagID"],
                 "msg": "field required",
@@ -351,7 +351,7 @@ def test_tag_remove_to_requires_to_tag_id(valid_client):
 
 def test_tag_remove_to_requires_assest_ids_list(valid_client):
     res = valid_client.post("/api/v1/tag/remove", json={})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert {
                 "loc": ["assetIDs"],
                 "msg": "field required",
@@ -362,7 +362,7 @@ def test_tag_remove_to_requires_assest_ids_list(valid_client):
 
 def test_tag_remove_to_requires_to_tag_id_int(valid_client):
     res = valid_client.post("/api/v1/tag/remove", json={"to_tag_id":"j"})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert {
                 "loc": ["toTagID"],
                 "msg": "value is not a valid integer",
@@ -373,7 +373,7 @@ def test_tag_remove_to_requires_to_tag_id_int(valid_client):
 
 def test_tag_remove_to_requires_assest_ids_list(valid_client):
     res = valid_client.post("/api/v1/tag/remove", json={"assest_ids":"j"})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert {
                 "loc": ["assetIDs"],
                 "msg": 'value is not a valid list',
@@ -384,7 +384,7 @@ def test_tag_remove_to_requires_assest_ids_list(valid_client):
 
 def test_tag_remove_to_requires_assest_ids_list_ints(valid_client):
     res = valid_client.post("/api/v1/tag/remove", json={"assest_ids":["j",1]})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert {
                 "loc": ['assetIDs', 0],
                 "msg":'value is not a valid integer',

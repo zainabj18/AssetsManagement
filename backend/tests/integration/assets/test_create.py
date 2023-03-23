@@ -5,7 +5,7 @@ from  datetime import datetime
 from app.schemas.factories import AttributeFactory
 def test_new_assset_requires_name(valid_client):
     res = valid_client.post("/api/v1/asset/", json={})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert res.json["msg"] == "Failed to create asset from the data provided"
     assert {
         "loc": ["name"],
@@ -16,7 +16,7 @@ def test_new_assset_requires_name(valid_client):
 
 def test_new_assset_requires_link(valid_client):
     res = valid_client.post("/api/v1/asset/", json={})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
@@ -28,7 +28,7 @@ def test_new_assset_requires_link(valid_client):
 
 def test_new_assset_requires_version_id(valid_client):
     res = valid_client.post("/api/v1/asset/", json={})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
@@ -40,7 +40,7 @@ def test_new_assset_requires_version_id(valid_client):
 
 def test_new_assset_requires_description(valid_client):
     res = valid_client.post("/api/v1/asset/", json={})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
@@ -52,7 +52,7 @@ def test_new_assset_requires_description(valid_client):
 
 def test_new_assset_requires_classification(valid_client):
     res = valid_client.post("/api/v1/asset/", json={})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
@@ -63,7 +63,7 @@ def test_new_assset_requires_classification(valid_client):
 
 def test_new_assset_requires_projects(valid_client):
     res = valid_client.post("/api/v1/asset/", json={})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
@@ -75,7 +75,7 @@ def test_new_assset_requires_projects(valid_client):
 
 def test_new_assset_requires_tags(valid_client):
     res = valid_client.post("/api/v1/asset/", json={})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
@@ -87,7 +87,7 @@ def test_new_assset_requires_tags(valid_client):
 
 def test_new_assset_optional_assets(valid_client):
     res = valid_client.post("/api/v1/asset/", json={})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
@@ -98,7 +98,7 @@ def test_new_assset_optional_assets(valid_client):
 
 def test_new_assset_requires_metadata(valid_client):
     res = valid_client.post("/api/v1/asset/", json={})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
@@ -117,7 +117,7 @@ def test_new_assset_requires_metadata(valid_client):
 )
 def test_new_assset_string_types_incorect(valid_client, attribute, json):
     res = valid_client.post("/api/v1/asset/", json=json)
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
@@ -203,7 +203,7 @@ def test_new_assset_metadata_incorrect_integer(valid_client):
 )
 def test_new_assset_tyes_correct(valid_client, attribute, json):
     res = valid_client.post("/api/v1/asset/", json=json)
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert res.json["msg"] == "Failed to create asset from the data provided"
     
     assert {
@@ -226,16 +226,6 @@ def test_new_assset_metadata_incorrect_mixed_type(valid_client):
     } in res.json["data"]
     assert {
         "loc": ["metadata", 0, "attributeType"],
-        "msg": "field required",
-        "type": "value_error.missing",
-    } in res.json["data"]
-    assert {
-        "loc": ["metadata", 0, "attributeValue"],
-        "msg": "field required",
-        "type": "value_error.missing",
-    } in res.json["data"]
-    assert {
-        "loc": ["metadata", 1, "attributeValue"],
         "msg": "field required",
         "type": "value_error.missing",
     } in res.json["data"]

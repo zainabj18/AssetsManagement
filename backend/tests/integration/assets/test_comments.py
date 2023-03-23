@@ -10,7 +10,7 @@ from datetime import datetime,timedelta
 )
 def test_comment_add_requires_comment(valid_client, new_assets):
     res = valid_client.post(f"/api/v1/asset/comment/{new_assets[0].asset_id}",json={})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert res.json["msg"]=="Failed to add comment from the data provided"
     assert res.json["error"]=="Invalid data"
     assert {
@@ -26,7 +26,7 @@ def test_comment_add_requires_asset_in_db(valid_client):
 
 def test_comment_add_requires_comment(valid_client):
     res = valid_client.post(f"/api/v1/asset/comment/{1}",json={})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert res.json["msg"]=="Failed to add comment from the data provided"
     assert {
         "loc": ["comment"],
@@ -36,7 +36,7 @@ def test_comment_add_requires_comment(valid_client):
 
 def test_comment_require_not_empty(valid_client):
     res = valid_client.post(f"/api/v1/asset/comment/{1}",json={"comment":""})
-    assert res.status_code == 400
+    assert res.status_code == 422
     assert res.json["msg"]=="Failed to add comment from the data provided"
     assert {'ctx': {'limit_value': 1}, 'loc': ['comment'], 'msg': 'ensure this value has at least 1 characters', 'type': 'value_error.any_str.min_length'} in res.json["data"]
 

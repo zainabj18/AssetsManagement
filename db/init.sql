@@ -1,0 +1,6 @@
+CREATE DATABASE assets;
+CREATE DATABASE testing_assets;
+CREATE USER dbmanager WITH PASSWORD 'dbmanager';
+ALTER USER dbmanager WITH SUPERUSER;
+GRANT ALL PRIVILEGES ON DATABASE assets TO dbmanager;
+GRANT ALL PRIVILEGES ON DATABASE testing_assets TO dbmanager;

@@ -22,40 +22,61 @@ import {
 	Input,
 	VStack,
 } from '@chakra-ui/react';
-import AssetTable from './AssetTable';
+import CustomTable from '../CustomTable';
 
 
 
-function AssetSelect({setAssetSelected,assetsin}) {
+function ProjectSelect({setProjectSelect,projectin}) {
 	const { isOpen, onClose,onOpen, } = useDisclosure();
 	const [selected,setSelected] = useState([]); 
+	const columns = useMemo(
+		() => {return {
+			'projectID':{
+				header: 'Project ID',
+				canFilter:true
+			},
+			'projectName':{
+				header: 'Project Name',
+				canFilter:true
+			},
+			'projectDescription':{
+				header: 'Project Decription',
+				canFilter:true
+			}
+		};},[]
+	);
+
 	const save=()=>{
-		console.log('Selected',selected);
-		setAssetSelected(selected);
+		console.log('Selected project',selected);
+		setProjectSelect(selected);
 		onClose();
 	};
 
 	useEffect(() => {
 		let preSelected=[];
-		for (let i = 0; i < assetsin.length; i++) {
-			let obj=assetsin[i];
+		for (let i = 0; i < projectin.length; i++) {
+			let obj=projectin[i];
 			if (obj.hasOwnProperty('isSelected')&&obj.isSelected){
 				preSelected.push(i);
 			}
 		}
 		setSelected(preSelected);
-	}, [assetsin]);
+	}, [projectin]);
 	
 
 	return (<>
-		<Button onClick={onOpen}>Select Assets</Button>
+		<Button onClick={onOpen}>Select Projects</Button>
+		
 		<Modal isOpen={isOpen} onClose={onClose} size={'full'}>
+
 			<ModalOverlay />
-			<ModalContent bgGradient= "linear(to-l, #4E65FF, #92EFFD)">
-				<ModalHeader>Asset Select</ModalHeader>
+			<ModalContent>
+				<ModalHeader>Project Select</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody >
-					{assetsin && <AssetTable assets={assetsin} setSelectedAssets={setSelected} preSelIDs={selected}/>}
+					{projectin && 
+						<CustomTable rows={projectin} cols={columns}  setSelectedRows={setSelected} preSelIDs={selected}/>
+					}
 				</ModalBody>
 				<ModalFooter>
 					<HStack>
@@ -63,10 +84,11 @@ function AssetSelect({setAssetSelected,assetsin}) {
 					</HStack>	
 				</ModalFooter>
 			</ModalContent>
-			
+
 		</Modal>
+
 	</>
 	);
 }
 
-export default AssetSelect;
+export default ProjectSelect;

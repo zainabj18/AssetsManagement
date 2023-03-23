@@ -26,11 +26,11 @@ function CustomTable({ setSelectedRows, rows, cols, preSelIDs }) {
 	const [query, setQuery] = useState('');
 	const [filters, setFilter] = useState({});
 	const data = useMemo(
-		() =>
-			rows.map((value, index) => {
-				let filertedVals = (Object.fromEntries(Object.keys(cols).map(k => [k, value[k]])));
-				return { ...filertedVals, rowID: index };
-			}),
+		() => 
+			rows.map((value,index)=>{
+				let filertedVals=(Object.fromEntries(Object.keys(cols).map(k => [k, value[k]])));
+				let isSelected=value.hasOwnProperty('isSelected')&value.isSelected;
+				return {...filertedVals,rowID:index,rows,isSelected:isSelected};}),
 		[rows]);
 
 	const columns = cols;
@@ -100,25 +100,20 @@ function CustomTable({ setSelectedRows, rows, cols, preSelIDs }) {
 	};
 
 	useEffect(() => {
-		console.log('new table');
-		if (setSelectedRows) {
-			let preSelected = [];
-			let row = [];
-			for (let i = 0; i < data.length; i++) {
-				let obj = data[i];
-				if (obj.hasOwnProperty('isSelected') & obj.isSelected) {
-					preSelected.push(i);
-					row.push(obj);
-				}
-			}
+		console.log('new table hello');
+		console.log(data);
+		if (setSelectedRows){
+			let preSelected=[];
+		
 			for (let i = 0; i < preSelIDs.length; i++) {
-				let obj = data[i];
 				preSelected.push(i);
-				row.push(obj);
 			}
-			setSelected(preSelected);
-			setSelectedRows(row);
+			console.log('hello in custome table ');
+			console.log(preSelIDs);
+			setSelected(preSelIDs);
 		}
+		
+	
 		setCurrnetPage(0);
 	}, [rows, cols]);
 
@@ -156,7 +151,7 @@ function CustomTable({ setSelectedRows, rows, cols, preSelIDs }) {
 					)}
 				</Tbody>
 			</Table>
-			<HStack>
+			<HStack p={4}>
 				<IconButton
 					icon={<ArrowLeftIcon />}
 					onClick={(e) => updatePage(-1)}

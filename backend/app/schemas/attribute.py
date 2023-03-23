@@ -1,5 +1,5 @@
 
-from typing import Any
+from typing import Any,Optional
 from pydantic import BaseModel, Field, root_validator
 
 class AttributeBase(BaseModel):
@@ -16,7 +16,7 @@ class AttributeInDB(AttributeBase):
         allow_population_by_field_name = True  
 
 class Attribute(AttributeInDB):
-    attribute_value: Any = Field(..., alias="attributeValue")
+    attribute_value:Optional[Any]= Field(None, alias="attributeValue")
     # cast string to correct type based on attribute type
 
     @root_validator

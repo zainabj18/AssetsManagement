@@ -17,8 +17,8 @@ def init_db():
             conn.execute(f.read())
         conn.execute(
             """
-        INSERT INTO accounts (username, hashed_password, account_type,account_privileges)
-VALUES (%(username)s,%(password)s,%(account_type)s,%(account_privileges)s);""",
+        INSERT INTO accounts (first_name,last_name,username, hashed_password, account_type,account_privileges)
+VALUES ('admin','admin',%(username)s,%(password)s,%(account_type)s,%(account_privileges)s);""",
             {
                 "username": current_app.config["DEFAULT_SUPERUSER_USERNAME"],
                 "password": generate_password_hash(

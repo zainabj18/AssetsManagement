@@ -43,7 +43,7 @@ const Layout = () => {
 				</Box>
 			</Box>
 
-			<Box maxW={'full'} alignContent='center' display={'flex'} justifyContent='center' flexDirection={'column'} width={'60vw'}  >
+			<Box maxW={'full'} alignContent='center' display={'flex'} justifyContent='center' flexDirection={'column'} width={'70vw'} >
 				<Outlet />
 			</Box>
 		</VStack>

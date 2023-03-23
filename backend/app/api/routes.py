@@ -7,7 +7,6 @@ from app.type.routes import bp as type_bp
 from app.admin.routes import bp as admin_bp
 from app.graphs.routes import bp as graph_bp
 from flask import Blueprint
-
 bp = Blueprint("api", __name__, url_prefix=settings.APPLICATION_ROOT_URL)
 
 
@@ -54,15 +53,15 @@ ORDER BY date ASC;""",return_type=QueryResult.ALL_JSON,row_factory=class_row(Log
     return {"data":logs}
 
 """
-Handle HTTP 401 Unauthorized errors.
+Handle HTTP errors.
 
 Args:
-    e (HTTPException): The HTTP 401 Unauthorized error that was raised.
+    e (HTTPException): The HTTP error that was raised via abort.
 
 Returns:
     A tuple containing the error message and the HTTP status code to be returned to the client:
     - The error message is obtained from the 'description' attribute of the HTTPException object.
-    - The HTTP status code is set to 401.
+    - The HTTP status code is set to the respective http codes.
 """
 
 @bp.errorhandler(401)
@@ -78,6 +77,10 @@ def unathorised(e):
 @bp.errorhandler(400)
 def invalid_request(e):
     return e.description, 400
+
+@bp.errorhandler(422)
+def unporcessible(e):
+    return e.description, 422
 
 @bp.errorhandler(404)
 def resouce_not_found(e):

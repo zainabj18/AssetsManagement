@@ -63,7 +63,6 @@ function Login() {
 					<FormControl marginTop={5}>
 						<FormLabel>Username</FormLabel>
 						<Input
-							bg='#fff'
 							border={'1px solid gray'}
 							paddingY={6}
 							type='text'
@@ -76,7 +75,6 @@ function Login() {
 						<FormLabel>Password</FormLabel>
 						<InputGroup >
 							<Input
-								bg='#fff'
 								border={'1px solid gray'}
 								paddingY={6}
 								type={show ? 'text' : 'password'}
@@ -90,7 +88,7 @@ function Login() {
 							</InputRightElement>
 						</InputGroup>
 					</FormControl>
-					{authError && (<Alert status='error'>
+					{authError && (<Alert status='error' color='black'>
 						<AlertIcon />
 						<AlertTitle>{authError.error}</AlertTitle>
 						<AlertDescription>{authError.msg}</AlertDescription>
