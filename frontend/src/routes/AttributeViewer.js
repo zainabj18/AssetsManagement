@@ -14,7 +14,7 @@ const AttributeViewer = () => {
 	useEffect(() => {
 		async function load_allAttributes() {
 			let data = await fetchAllAttributes(res => res.data);
-			set_attributes(data);
+			set_attributes(data.data);
 		}
 		load_allAttributes();
 	}, [toggle]);
@@ -34,8 +34,8 @@ const AttributeViewer = () => {
 	};
 
 	return (
-		<VStack height={"85vh"}>
-		<div style={{height:"72vh",overflow:'scroll'}}>
+		<VStack height={'85vh'}>
+			<div style={{ height: '72vh', overflow: 'scroll' }}>
 				<Table>
 					{/* <TableCaption placement='top'>Attribute Viewer</TableCaption> */}
 					<Thead zIndex={999}>
@@ -56,7 +56,7 @@ const AttributeViewer = () => {
 									<Td>
 										{
 											(user && user.userRole === 'ADMIN') &&
-											<div style={{background:'#0a2861',padding:5,borderRadius:5,color:"#fff"}}   onClick={() => deleteThis(attributes)}>Delete</div >
+											<div style={{ background: '#0a2861', padding: 5, borderRadius: 5, color: '#fff' }} onClick={() => deleteThis(attributes)}>Delete</div >
 										}
 									</Td>
 								</Tr>
@@ -65,8 +65,8 @@ const AttributeViewer = () => {
 						})}
 					</Tbody>
 				</Table>
-				</div>
-			<AttributeModal showModalButtonText='New' load_allAttributes_setter={set_toggle}/>
+			</div>
+			<AttributeModal showModalButtonText='New' load_allAttributes_setter={set_toggle} />
 		</VStack>
 	);
 };
