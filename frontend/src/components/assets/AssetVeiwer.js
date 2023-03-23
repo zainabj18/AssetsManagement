@@ -193,7 +193,11 @@ const AssetViewer = () => {
 
 	const handleUpgrade = (e) => {
 		console.log(upgradeData);
-		let newMetadata=assetSate.metadata.filter((attribute) => !(attribute.attributeName in upgradeData['removedAttributesNames']));
+		console.log(upgradeData['removedAttributesNames']);
+		let newMetadata=assetSate.metadata.filter((attribute) => !(upgradeData['removedAttributesNames'].includes(attribute.attributeName)));
+		
+		console.log(newMetadata);
+		console.log('filer');
 		console.log(newMetadata);
 		newMetadata=[...newMetadata,...upgradeData['addedAttributes']];
 		console.log(newMetadata);
@@ -226,7 +230,7 @@ const AssetViewer = () => {
 		}
 		for (const [key, value] of Object.entries(assetSate.metadata)){
 			if(!value.validation.isOptional &&  value.attributeType!=='checkbox' &&((!(value.hasOwnProperty('attributeValue'))) || (value.hasOwnProperty('attributeValue') && value.attributeValue.length===0))){
-				errs.push(value.attributeName);
+				errs.push(value.attributeName+' is required');
 			}
 		}
 
@@ -251,11 +255,7 @@ const AssetViewer = () => {
 			if (id){
 				console.log(assetObj);
 				updateAsset(id,assetObj).then(res=>
-					console.log('re')
-
-
-
-
+					navigate(0)
 				).catch(err=>{
 					console.log(err);
 					addToast('Unable to create asset',err);
