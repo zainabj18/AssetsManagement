@@ -34,9 +34,10 @@ import { redirect, useNavigate, useParams } from 'react-router-dom';
 
 import axios from 'axios';
 import { createTag, fetchTypesList, fetchAsset, fetchAssetClassifications, fetchProjects, fetchTags, fetchType, createAsset, fetchAssetProjects, deleteAsset, updateAsset, fetchAssetLinks, fetchAssetSummary, fetchTypesNamesVersionList, fetchAssetUpgradeOptions } from '../../api';
-import ProjectSelect from '../ProjectSelect';
+
 import useAuth from '../../hooks/useAuth';
 import AssetSelect from './AssetSelect';
+import ProjectSelect from './ProjectSelect';
 import NumFormField from './formfields/NumFormField';
 import FormField from './formfields/FormField';
 import SearchSelect from './formfields/SearchSelect';
@@ -173,7 +174,7 @@ const AssetViewer = () => {
 		if (errs.length===0){
 			console.log('Sending data');
 			
-			let projectIDs=projects.map(p=>p.projectID);
+			let projectIDs=projects.map(p=>projectList[p].projectID);
 			let tagIDs=assetSate.tags.map(t=>t.id);
 			let assetIDs=assets.map(a=>assetsList[a].assetID);
 			let assetObj={
@@ -226,7 +227,11 @@ const AssetViewer = () => {
 			}
 			fetchAssetProjects(id).then(
 				(res)=>{
-					console.log(res.data);
+					let rowIDs=res.data.map((val,index)=>index);
+					rowIDs =rowIDs.filter((rowID) => res.data[rowID].isSelected);
+					
+					console.log(rowIDs);
+					setProjects(rowIDs);
 					setProjectList(res.data);
 				}
 			);
@@ -260,6 +265,7 @@ const AssetViewer = () => {
 			fetchProjects().then(
 				(res)=>{
 					setProjectList(res.data);
+					
 				}
 			);
 
@@ -283,6 +289,7 @@ const AssetViewer = () => {
 				metadata: [],
 			});
 		}
+		
 	}, [id,user]);
 	
 
@@ -361,16 +368,18 @@ const AssetViewer = () => {
 					</FormControl>
 					<FormControl>
 						<FormLabel>Projects</FormLabel>
+						{projectList.length>=projects.length && 
 						<Wrap spacing={4}>
 							{projects.map((value, key) => (
 								<WrapItem key={key}>
 									<Tag key={key} variant='brand'>
-										<TagLabel>{value.projectName}</TagLabel>
+										{console.log(projectList[value].projectName)}
+										<TagLabel>{projectList[value].projectName}</TagLabel>
 									</Tag>
 								</WrapItem>
 							))}
-							{!isDisabled && <ProjectSelect setSelectedProjects={setProjects}  projects={projectList} />}
-						</Wrap>
+							{!isDisabled && <ProjectSelect setSelected={setProjects}  assetsin={projectList} />}
+						</Wrap>}
 					</FormControl>
 					<FormControl>
 						<FormLabel>Related Assets</FormLabel>
