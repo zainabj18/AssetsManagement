@@ -133,7 +133,7 @@ const AssetSearcher = ({ filerFunc }) => {
 					</AccordionButton>
 
 					<AccordionPanel pb={4}>
-						<VStack align={'left'} overflowY='scroll' maxH='70vh' >
+						<VStack align={'left'}>
 							{classifications.map((classification) => {
 								return (
 
@@ -147,7 +147,7 @@ const AssetSearcher = ({ filerFunc }) => {
 								<AccordionIcon />
 							</AccordionButton>
 
-							<AccordionPanel pb={4} overflowY='scroll' maxH='70vh' >
+							<AccordionPanel pb={4}>
 								<VStack align={'left'}>
 									{types.map((type) => {
 										return (
@@ -164,7 +164,7 @@ const AssetSearcher = ({ filerFunc }) => {
 								<AccordionIcon />
 							</AccordionButton>
 
-							<AccordionPanel pb={4} overflowY='scroll' maxH='70vh' >
+							<AccordionPanel pb={4}>
 								<RadioButtons name='tagOperation' changeFunc={handleToggle} />
 								<VStack align={'left'}>
 									{tags.map((tag) => {
@@ -182,7 +182,7 @@ const AssetSearcher = ({ filerFunc }) => {
 								<AccordionIcon />
 							</AccordionButton>
 
-							<AccordionPanel pb={4} overflowY='scroll' maxH='70vh' >
+							<AccordionPanel pb={4}>
 								<RadioButtons name='projectOperation' changeFunc={handleToggle} />
 								<VStack align={'left'}>
 
