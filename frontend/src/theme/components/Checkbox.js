@@ -6,7 +6,8 @@ const { definePartsStyle, defineMultiStyleConfig } =
 
 const baseStyle = definePartsStyle({
 	control: {
-		borderColor:'#0a2861 '
+		borderColor:'#0a2861',
+		color:"#000"
 	},
 });
 

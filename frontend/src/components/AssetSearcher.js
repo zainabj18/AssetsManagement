@@ -187,8 +187,9 @@ const AssetSearcher = ({filerFunc}) => {
 								<VStack align={'left'}>
 									
 									{projects.map((project) => {
+										console.log("project",project)
 										return ( 
-											<Checkbox  onChange={(e) => handleCheckBoxChange('projects',project.id,e.target.checked)}>{project.name}</Checkbox>
+											<Checkbox sx={{color:"#000"}}  style={{color:"#000"}}onChange={(e) => handleCheckBoxChange('projects',project.id,e.target.checked)}> {project.projectName}</Checkbox>
 										);
 									})}
 								</VStack>
