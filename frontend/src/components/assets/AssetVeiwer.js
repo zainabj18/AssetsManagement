@@ -77,10 +77,14 @@ const AssetViewer = () => {
 	function addToast(description,err) {
 		console.log(err);
 		if (err.response) {
-			if(err.response.status===400||err.response.status===422){
+			if(err.response.status===400||err.response.status===422||err.response.status===500){
+				let msg = err.response.data.msg;
+				if (msg===undefined){
+					msg=description;
+				}
 				toast({
 					title: err.response.status+' '+ err.response.statusText,
-					description: err.response.data.msg,
+					description: msg,
 					status: 'warning',
 					isClosable: true,
 					duration: 9000,
@@ -211,7 +215,7 @@ const AssetViewer = () => {
 			}
 		}
 		for (const [key, value] of Object.entries(assetSate.metadata)){
-			if(!value.validation.isOptional &&  value.attributeType!=='checkbox' &&((!(value.hasOwnProperty('attributeValue'))) || (value.hasOwnProperty('attributeValue') && value.attributeValue.length===0))){
+			if(!value.validation.isOptional  && ((!(value.hasOwnProperty('attributeValue'))) || (value.hasOwnProperty('attributeValue') && value.attributeValue.length===0))){
 				errs.push(value.attributeName);
 			}
 		}
@@ -236,7 +240,13 @@ const AssetViewer = () => {
 			
 			if (id){
 				console.log(assetObj);
-				updateAsset(id,assetObj).then().catch(err=>{
+				updateAsset(id,assetObj).then(res=>
+					console.log('re')
+
+
+
+
+				).catch(err=>{
 					console.log(err);
 					addToast('Unable to create asset',err);
 				}
