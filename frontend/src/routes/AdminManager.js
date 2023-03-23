@@ -24,7 +24,6 @@ const AdminManager = () => {
 
 	const [searchText, setSearchText] = useState('');
 	const [inputField, setInputField] = useState([{ username: ''}]);
-	const [relatedprojects] = useState([{ relatedproj: '' }]);
 	const [users, setUsers] = useState([]);
 	const [deleteuser, setDeleteUser] = useState([{delete: ''}]);
 
@@ -33,11 +32,6 @@ const AdminManager = () => {
 		data[index][event.target.name] = event.target.value;
 		setInputField(data);
 		setSearchText(data[0].username);
-	};
-
-	const handleRelatedProjects = (e) => {
-		e.preventDefault();
-		console.log(relatedprojects);
 	};
 
 	const deleteUser = async (userIdToDelete) => {
@@ -85,7 +79,6 @@ const AdminManager = () => {
 										<Td>{user.userRole}</Td>
 										<Td>{user.userPrivileges}</Td>
 										<Td><Button variant='ghost' onClick={() => deleteUser(user.accountID)}>Delete User</Button></Td>
-										<Td><Button onClick={handleRelatedProjects} variant='ghost'>View Related Projects</Button></Td>	
 									</Tr>
 								);
 							})}
