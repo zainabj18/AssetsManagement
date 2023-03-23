@@ -56,7 +56,7 @@ const AttributeViewer = () => {
 									<Td>
 										{
 											(user && user.userRole === 'ADMIN') &&
-											<div style={{background:'#ed7966',padding:5,borderRadius:5,color:"#fff"}}   onClick={() => deleteThis(attributes)}>Delete</div >
+											<div style={{background:'#0a2861',padding:5,borderRadius:5,color:"#fff"}}   onClick={() => deleteThis(attributes)}>Delete</div >
 										}
 									</Td>
 								</Tr>
