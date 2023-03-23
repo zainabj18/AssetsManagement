@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
-import { Box, Heading, VStack, Input, Stack, Button, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Link, } from '@chakra-ui/react';
+import { Box, Heading, VStack, Input, Stack, Button, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Link, Badge} from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import { getUsers, deleteUserAcc } from '../api';
 
@@ -58,14 +58,14 @@ const AdminManager = () => {
 				{inputField.map((search, index) => {
 					return (
 						<Stack spacing={3} color={'black'} key={index}>
-							<Input bg='white' placeholder='search' alignSelf={'center'} width={'90%'} type='text' border={'1px solid'} top={25} placeholder='username search' onChange={event => handleFormChange(index, event)} name='username' />
+							<Input bg='white' placeholder='Search Username' alignSelf={'center'} width={'90%'} type='text' border={'1px solid'} top={25} onChange={event => handleFormChange(index, event)} name='username' />
 						</Stack>
 					);
 				})}
 				<Stack pt={35}>
 					<div style={{ height: '60vh', overflow: 'auto', width: '100%', borderRadius: 10 }}>
 						<TableContainer>
-							<Table variant='simple' size={'lg'}>
+							<Table variant='simple'>
 								<Thead>
 									<Tr>
 										<Th>First Name</Th>
@@ -83,8 +83,8 @@ const AdminManager = () => {
 												<Td>{user.firstName}</Td>
 												<Td>{user.lastName}</Td>
 												<Td>{user.username}</Td>
-												<Td>{user.userRole}</Td>
-												<Td>{user.userPrivileges}</Td>
+												<Td><Badge bg={user.userRole}>{user.userRole}</Badge></Td>
+												<Td><Badge bg={user.userRole}>{user.userPrivileges}</Badge></Td>
 												<Td><Button variant='ghost' onClick={() => deleteUser(user.accountID)}>Delete User</Button></Td>
 											</Tr>
 										);
