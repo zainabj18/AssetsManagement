@@ -6,6 +6,8 @@ import {
 	HStack, VStack,
 	Text,
 	useBoolean,
+	Box,
+	Heading,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -67,41 +69,48 @@ const TypeAdder = () => {
 	};
 
 	return (
-		<VStack width="90vw" height={'80vh'} overflow="scroll" >
+		<Box width='90vw' height={'80vh'} overflowY='scroll' backgroundColor={'white'} rounded={15}>
+			<VStack>
+				<Heading>Create Type</Heading>
+				<FormControl isRequired isInvalid={new_typeName_errorMessage !== ''} width='30vw'>
+					<FormLabel>Name</FormLabel>
+					<Input type='text'
+						placeholder='Name'
+						onChange={(e) => set_typeName(e.target.value)}
+					/>
+					<FormErrorMessage>{new_typeName_errorMessage}</FormErrorMessage>
+				</FormControl>
 
-			<Text>TypeAdder</Text>
-			<FormControl isRequired isInvalid={new_typeName_errorMessage !== ''}>
-				<FormLabel>Name</FormLabel>
-				<Input type='text'
-					placeholder='Name'
-					onChange={(e) => set_typeName(e.target.value)}
-				/>
-				<FormErrorMessage>{new_typeName_errorMessage}</FormErrorMessage>
-			</FormControl>
+				<HStack width='80vw' display={'flex'} flexDirection="row" alignItems={'flex-start'} justifyContent='flex-start' padding={5}>
+					<AttributeSelection
+						height='50vh'
+						selectedAttributes_state={selectedAttributes}
+						set_selectedAttributes_state={set_selectedAttributes}
+						load_attribute_trigger={load_attribute_trigger}
+						isInvalid={selectedAttributes_hasError}
+						isRequired='true'
+					/>
+					<SelectedAttributesList
+						selectedAttributes_state={selectedAttributes}
+						height={'50vh'}
+					/>
 
-			<HStack width='80vw' display={'flex'} flexDirection="row" alignItems={'flex-start'} justifyContent='flex-start' padding={5}>
-				<AttributeSelection
-					width='30%'
-					selectedAttributes_state={selectedAttributes}
-					set_selectedAttributes_state={set_selectedAttributes}
-					load_attribute_trigger={load_attribute_trigger}
-					isInvalid={selectedAttributes_hasError}
-					isRequired='true'
-				/>
-				<SelectedAttributesList selectedAttributes_state={selectedAttributes} />
-			</HStack>
+					<TypeSelection
+						selectedTypes_state={selectedTypes}
+						set_selectedTypes_state={set_selectedTypes}
+						height={'50vh'}
+					/>
+				</HStack>
 
-			<TypeSelection
-				selectedTypes_state={selectedTypes}
-				set_selectedTypes_state={set_selectedTypes}
-			/>
-
-			<AttributeModal
-				showModalButtonText="Add"
-				load_allAttributes_setter={set_load_attribute_trigger}
-			/>
-			<Button onClick={saveType}>Save</Button>
-		</VStack >
+				<HStack>
+					<AttributeModal
+						showModalButtonText="Create Attribute"
+						load_allAttributes_setter={set_load_attribute_trigger}
+					/>
+					<Button onClick={saveType}>Save</Button>
+				</HStack>
+			</VStack >
+		</Box>
 	);
 };
 

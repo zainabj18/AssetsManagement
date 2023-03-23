@@ -3,10 +3,10 @@ import {
 	Heading,
 } from '@chakra-ui/react';
 
-const SelectedAttributesList = ({ selectedAttributes_state }) => {
+const SelectedAttributesList = ({ selectedAttributes_state, width = '30vw', height = '70vw' }) => {
 	return (
-		<div >
-			<TableContainer>
+		<div style={{ height:{height}, overflow: 'auto'}}>
+			<TableContainer width={width}>
 				<Heading placement='top' size="md">Selected Attributes</Heading>
 				<Table varient='simple'>
 					<Thead>

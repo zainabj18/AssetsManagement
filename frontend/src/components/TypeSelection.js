@@ -1,12 +1,12 @@
 import {
 	Checkbox,
-	FormControl, FormLabel,
+	FormControl, FormLabel, VStack,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { fetchTypesList } from '../api';
 import TypeMethodManager from './TypeMethodManager';
 
-const TypeSelection = ({ selectedTypes_state, set_selectedTypes_state, excludeIds = [] }) => {
+const TypeSelection = ({ selectedTypes_state, set_selectedTypes_state, excludeIds = [], width = '30vw', height = '70vw'}) => {
 
 	const [allTypes, set_allTypes] = useState([]);
 
@@ -51,23 +51,25 @@ const TypeSelection = ({ selectedTypes_state, set_selectedTypes_state, excludeId
 	};
 
 	return (
-		<FormControl>
+		<FormControl width={width} height={height} overflow='auto'>
 			<FormLabel fontSize={22} textAlign='center' alignSelf={'center'}>Depends On</FormLabel>
-			{allTypes.map((type) => {
-				return (
-					<Checkbox
-						marginX={2}
-						marfinY={1}
-						key={type.type_id}
-						isChecked={checkChecked(type.type_id)}
-						onChange={(e) => {
-							ajustSelectedTypes(e.target.checked, type.type_id);
-						}}
-					>
-						{type.type_name}
-					</Checkbox>
-				);
-			})}
+			<VStack>
+				{allTypes.map((type) => {
+					return (
+						<Checkbox
+							marginX={2}
+							marfinY={1}
+							key={type.type_id}
+							isChecked={checkChecked(type.type_id)}
+							onChange={(e) => {
+								ajustSelectedTypes(e.target.checked, type.type_id);
+							}}
+						>
+							{type.type_name}
+						</Checkbox>
+					);
+				})}
+			</VStack>
 		</FormControl>
 	);
 };
