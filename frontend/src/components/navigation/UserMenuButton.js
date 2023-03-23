@@ -23,8 +23,8 @@ const UserMenuButton = () => {
 		<MenuList color='white'>
 			<MenuGroup title='Profile'>
 				<HStack>
-					<Badge>{user.userRole}</Badge>
-					<Badge>{user.userPrivileges}</Badge>
+					<Badge bg={user.userRole}>{user.userRole}</Badge>
+					<Badge bg={user.userPrivileges}>{user.userPrivileges}</Badge>
 				</HStack>
 			
 				<MenuItem as={CustomNavLink} to="/assets/my">View related assets</MenuItem>
