@@ -1,5 +1,5 @@
 import { tableAnatomy } from '@chakra-ui/anatomy';
-import {createMultiStyleConfigHelpers } from '@chakra-ui/react';
+import {createMultiStyleConfigHelpers, position } from '@chakra-ui/react';
 
 const { definePartsStyle, defineMultiStyleConfig } =
   createMultiStyleConfigHelpers(tableAnatomy.keys);
@@ -7,7 +7,8 @@ const { definePartsStyle, defineMultiStyleConfig } =
 const baseStyle = definePartsStyle({
 	table: {
 		mt:'4',
-		borderWidth:'10px',
+		// borderWidth:'10px',
+		height:'43vh',
 	  	width: '100%'
 	}});
 const brandPrimary = definePartsStyle({
@@ -17,7 +18,9 @@ const brandPrimary = definePartsStyle({
 	thead:{
 		tr:{
 			bg:'blue.900',
-			color:'blue.100'
+			color:'blue.100',
+			position:'sticky',
+			top:0
 		}
 	},
 	tbody:{
@@ -25,7 +28,7 @@ const brandPrimary = definePartsStyle({
 			border:'none',
 			'&:nth-of-type(odd)': {
 				td:{
-					bg:'blue.200',
+					bg:'white',
 					color:'blue.900'
 				}
 			},
@@ -45,6 +48,7 @@ export const tableTheme = defineMultiStyleConfig({
 	variants: {
 		brand: brandPrimary,
 	},
+	border:'none',
 	defaultProps: {
 		size: 'sm',
 		variant: 'brand'

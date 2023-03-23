@@ -1,1 +1,1 @@
-from app.api.routes import bp
+from app.admin.routes import bp

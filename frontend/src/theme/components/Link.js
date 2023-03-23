@@ -2,14 +2,16 @@ const Link = {
 	variants: {
 		'nav': {
 			color: 'blue.800',
-			borderRadius:'5px',
-			p:'5px',
-			bgColor:'white',
-			_active:{
-				bgColor:'blue.900',
+			borderRadius: '10px',
+			p: '5px',
+			bgColor: 'white',
+			_active: {
+				bgColor: '#0a2861 ',
+				color: '#fff',
 			},
-			_hover:{
-				bgColor:'blue.200',
+			_hover: {
+				bgColor: '#0a2861  ',
+				color: '#fff',
 			}
 		}
 	},

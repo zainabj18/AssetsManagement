@@ -1,9 +1,9 @@
 import { Box, Flex, HStack, Input, useBoolean, VStack, } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { fetchTags } from '../api';
-import CustomNavLink from '../components/CustomNavLink';
-import NewTag from '../components/NewTag';
+import { fetchTags } from '../../api';
+import CustomNavLink from '../../components/CustomNavLink';
+import NewTag from '../../components/NewTag';
 
 const Tags = () => {
 	const [tags, setTags] = useState([]);
@@ -16,7 +16,7 @@ const Tags = () => {
 		if (value===''){
 			setResults(tags);
 		}else{
-			let filteredTag=tags.filter((t)=>t.name.toLowerCase().includes(value));
+			let filteredTag=tags.filter((t)=>t.name.toLowerCase().includes(value.toLowerCase()));
 			setResults(filteredTag);
 		}
 	 };
@@ -32,10 +32,10 @@ const Tags = () => {
 		);
 	}, [trigger, update]);
 	
-	return (<Flex w='100%' minH='80vh' alignItems={'stretch'} p={2} border>
-		<Box w='30%' minH='100%' bg='gray.300' p={4} color='black' align={'top'}>
+	return (<Box w='75vw' minH='80vh' display={'flex'} flexDirection="row" p={2} border alignSelf={'center'}>
+		<Box w='8wv' minH='100%' bg='gray.300' p={4} color='black' align={'top'}>
 			<HStack>
-				<Input type='text' placeholder='Search for tag ...' onChange={(e)=>{filter(e.target.value);}}/>
+				<Input type='text' placeholder='Search' onChange={(e)=>{filter(e.target.value);}}/>
 				<NewTag trigger={setTrigger}/>
 			</HStack>
 			<VStack p={2}>
@@ -48,10 +48,10 @@ const Tags = () => {
 				
 			</VStack>
 		</Box>
-		<Box w='70%' minH='100%' bg='white'>
+		<Box w='62vw' minH='100%' bg='white'>
 			<Outlet context={[update, setUpdate]}/>
 		</Box> 
-	</Flex>
+	</Box>
 	);
 };
  

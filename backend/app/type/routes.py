@@ -22,6 +22,18 @@ def get_types(db):
 
 bp = Blueprint("type", __name__, url_prefix="/type")
 
+"""Create a new Type in the database.
+
+    Extracts the Type object from the request JSON and uses it to create a new Type in the database. The Type object should
+    contain a "metadata" field with a list of Attribute objects and a "depends_on" field with a list of type IDs that this Type
+    depends on. 
+
+    Returns:
+        A dictionary with a "msg" key that indicates whether the operation was successful, and a status code.
+
+    Raises:
+        N/A
+"""
 
 @bp.route("/new", methods=["POST"])
 def add_type():
@@ -89,6 +101,12 @@ def list():
     db = get_db()
     return {"msg": "types", "data": get_types(db)}, 200
 
+"""
+List the names of all the available types with their latest version number.
+
+Returns:
+    A JSON response with the list of names and their latest version number.
+"""
 
 @bp.route("/version/names", methods=["GET"])
 def list_type_names_with_versions():
@@ -106,6 +124,12 @@ WHERE row_rank=1""")
             types=cur.fetchall()
 
     return {"msg": "types-w-versions", "data": types}, 200
+"""
+List the names of all the available types with their latest version number.
+
+Returns:
+    A JSON response with the list of names and their latest version number.
+"""
 
 @bp.route("/adder/new", methods=["POST"])
 def add_attribute():
@@ -117,6 +141,13 @@ def add_attribute():
     with database.connection() as conn:
         conn.execute(query, db_attribute)
     return {"msg": ""}, 200
+
+"""
+List the names of all the available types with their latest version number.
+
+Returns:
+    A JSON response with the list of names and their latest version number.
+"""
 
 
 @bp.route("/<id>", methods=["GET"])
@@ -192,7 +223,13 @@ def get_allAttributes():
         allAttributes_listed = extract_attributes(allAttributes)
         return {"data":allAttributes_listed}
 
-
+"""_summary_
+api:GET
+description: get all the types 
+    Returns:
+   
+        json data
+"""
 @bp.route("/allTypes", methods=["GET"])
 def get_allTypes():
     database = get_db()
@@ -226,6 +263,12 @@ def get_allTypes():
         )
     return {"data":allTypes_listed}
 
+"""
+List the names of all the available types with their latest version number.
+
+Returns:
+    A JSON response with the list of names and their latest version number.
+"""
 
 @bp.route("/delete/<id>", methods=["POST"])
 def delete_type(id):
@@ -274,7 +317,12 @@ def delete_type(id):
 
     return {"msg": "", "wasAllowed": canDo}, 200
 
-
+"""_summary_
+ Parameters:
+    id : The ID all the assets that belong to the same project .
+    Returns:
+        json data
+"""
 @bp.route("/attribute/delete/<id>", methods=["POST"])
 def delete_attribute(id):
     database = get_db()
@@ -302,6 +350,12 @@ def is_attr_name_in():
     is_in = res.fetchone()[0] > 0
     return {"data": is_in}, 200
 
+"""
+List the names of all the available types with their latest version number.
+
+Returns:
+    A JSON response with the list of names and their latest version number.
+"""
 
 @bp.route("/backfill", methods=["POST"])
 def backfill():

@@ -4,6 +4,8 @@ import {
 	Table, Thead, Tbody, Tr, Th, Td, TableContainer, TableCaption,
 	Text,
 	useBoolean,
+	background,
+	Box,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { Link as RouteLink } from 'react-router-dom';
@@ -43,62 +45,65 @@ const TypeViewer = () => {
 	};
 
 	return (
-		<VStack>
-			<TableContainer>
-				<Table varient='simple'>
-					<TableCaption placement='top'>Types</TableCaption>
-					<Thead>
-						<Tr>
-							<Th>Type</Th>
-							<Th>Version</Th>
-							<Th>Attributes</Th>
-							<Th>Attribute Data Type</Th>
-							<Th>Edit</Th>
-							<Th>Delete</Th>
-						</Tr>
-					</Thead>
-					<Tbody>
-						{types.map((types, index) => {
-							return (
-								<Tr key={types.versionId}>
-									<Td>{types.typeName}</Td>
-									<Td>{types.versionNumber}</Td>
-									<Td>
-										{types.metadata.map((metadata) => {
-											return (
-												<VStack key={metadata.attributeName}>
-													<Text>{metadata.attributeName}</Text>
-												</VStack>
-											);
-										})}
-									</Td>
-									<Td>
-										{types.metadata.map((metadata) => {
-											return (
-												<VStack key={metadata.attributeName}>
-													<Text>{metadata.attributeType}</Text>
-												</VStack>
-											);
-										})}
-									</Td>
-									<Td>
-										{highest[index] === types.versionNumber &&
-											<RouteLink to={`./${types.versionId}`}>
-												<Button>Edit</Button>
-											</RouteLink>
-										}
-									</Td>
-									<Td>
-										{highest[index] === types.versionNumber &&
-											<Button onClick={() => deleteThis(types)}>Delete</Button>
-										}
-									</Td>
-								</Tr>
-							);
-						})}
-					</Tbody>
-				</Table>
-			</TableContainer>
+		<VStack height={'85vh'} paddingBottom={5}>
+			<Box padding='4' backgroundColor='white' rounded='15'>
+				<Box style={{ height: '72vh', overflowY: 'auto' }}>
+					<Table varient='simple'>
+						<Thead>
+							<Tr>
+								<Th>Type</Th>
+								<Th>Version</Th>
+								<Th>Attributes</Th>
+								<Th>Attribute Data Type</Th>
+								<Th>Edit</Th>
+								<Th>Delete</Th>
+							</Tr>
+						</Thead>
+						<Tbody>
+							{types.map((types, index) => {
+
+								return (
+									<Tr key={types.versionId}>
+										<Td>{types.typeName}</Td>
+										<Td>{types.versionNumber}</Td>
+										<Td>
+											{types.metadata.map((metadata) => {
+												return (
+													<VStack key={metadata.attributeName}>
+														<Text>{metadata.attributeName}</Text>
+													</VStack>
+												);
+											})}
+										</Td>
+										<Td>
+											{types.metadata.map((metadata) => {
+												return (
+													<VStack key={metadata.attributeName}>
+														<Text>{metadata.attributeType}</Text>
+													</VStack>
+												);
+											})}
+										</Td>
+										<Td>
+											{highest[index] === types.versionNumber &&
+												<RouteLink to={`./${types.versionId}`}>
+													<Button>Edit</Button>
+												</RouteLink>
+											}
+										</Td>
+										<Td>
+											{highest[index] === types.versionNumber &&
+												<Button onClick={() => deleteThis(types)}>Delete</Button>
+											}
+										</Td>
+									</Tr>
+								);
+							})}
+						</Tbody>
+					</Table>
+				</Box>
+			</Box>
+
 			{(user && user.userRole === 'ADMIN') && <RouteLink to='adder'>
 				<Button>New</Button>
 			</RouteLink>}

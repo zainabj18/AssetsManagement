@@ -52,7 +52,16 @@ def get_user_by_id(db, user_id):
             )
             return cur.fetchone()
 
+"""
+    Creates a new user account in the database.
 
+    Args:
+    - db: Database object to execute the query against
+    - user: User object to create the account with
+
+    Returns: None
+    """
+    
 @bp.route("/register", methods=["POST"])
 def register():
     try:
@@ -91,7 +100,17 @@ def register():
 
     return {"msg": "User registered"}, 201
 
+"""
+Endpoint to handle user login.
 
+POST request with a JSON payload containing the 'username' and 'password' fields.
+Returns a JSON response with a message and data containing the user ID, username, user role, user privileges, and an access token cookie for the user.
+
+If the username or password is not provided or is an empty string, returns a 400 Bad Request error.
+If the user does not exist in the database, returns a 401 Unauthorized error.
+If there is a database connection error, returns a 500 Internal Server Error.
+If the provided password does not match the hashed password in the database, returns a 401 Unauthorized error.
+"""
 @bp.route("/login", methods=["POST"])
 def login():
     request_dict = dict(request.json)
