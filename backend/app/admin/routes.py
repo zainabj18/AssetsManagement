@@ -41,8 +41,10 @@ def extract_people(people):
 @bp.route("/accountmanager", methods=["DELETE"])
 def deleteUsers():
     id = request.args.get('id')
+    if (id == '1'):
+        return {"msg": "Can not delete admin account"}, 401
     database = get_db()
     query = """DELETE FROM accounts WHERE account_id = %(id)s;"""
     with database.connection() as conn:
         conn.execute(query, {"id":id})
-    return {"message":"Users deleted successfully"}, 200
+    return {"msg":"Users deleted successfully"}, 200
