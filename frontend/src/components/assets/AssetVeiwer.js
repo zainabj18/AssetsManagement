@@ -24,9 +24,7 @@ import {
 	AlertDescription,
 	UnorderedList,
 	ListItem,
-	Editable,
-	EditablePreview,
-	EditableInput,
+	useToast
 } from '@chakra-ui/react';
 import { Fragment } from 'react';
 import { useEffect, useState } from 'react';
@@ -43,11 +41,11 @@ import FormField from './formfields/FormField';
 import SearchSelect from './formfields/SearchSelect';
 import SelectFormField from './formfields/SelectFormField';
 import ListFormField from './formfields/ListFormField';
+import FormErrors from './FormErrors';
+import MetadataFields from './MetadataFields';
+import AssetsStats from './Stats';
 
 
-const FormErrors = () => {
-	
-};
 const AssetViewer = () => {
 	const { id } = useParams();
 	const {user} = useAuth();
@@ -67,6 +65,7 @@ const AssetViewer = () => {
 	const [types,setTypes]=useState([]);
 	const [upgradeable,setUpgradeable]=useState(false);
 	const [upgradeData,setUpgradeData]=useState(undefined);
+	const toast = useToast();
 	
 	const handleChange = (attribute_name, attribute_value) => {
 		setAssetState((prevAssetState) => ({
@@ -75,6 +74,26 @@ const AssetViewer = () => {
 		}));
 	};
 
+	function addToast(description,err) {
+		if (err.response) {
+			toast({
+				title: err.response.status+' '+ err.response.statusText,
+				description: description,
+				status: 'error',
+				isClosable: true,
+				position:'bottom-left'
+			});}
+		else{
+			toast({
+				title: 'An error has occured',
+				description: description,
+				status: 'error',
+				isClosable: true,
+				position:'bottom-left'
+			});
+
+		}
+	}
 	const handleMetadataChange = (attributeName, attribute_value) => {
 		console.log(attribute_value);
 		console.log('I am name');
@@ -133,7 +152,6 @@ const AssetViewer = () => {
 			console.log(res);
 			setDependencies(res.dependsOn);
 			setTrigger.toggle();
-
 		});
 	
 	};
@@ -164,10 +182,23 @@ const AssetViewer = () => {
 		let errs=[];
 		for (const field of REQUIRED_FIELDS){
 			console.log(field);
-			if ((!assetSate.hasOwnProperty(field)) ||  ((!assetSate.hasOwnProperty(field)) && assetSate[field].length===0)){
-				errs.push(field+' is required');
+			console.log(assetSate.hasOwnProperty(field));
+			if ((!assetSate.hasOwnProperty(field)) ||  ((assetSate.hasOwnProperty(field)) && assetSate[field].length===0)){
+				if (field==='version_id'){
+					errs.push('type is required');
+				}else{
+					errs.push(field+' is required');
+
+				}
+				
 			}
 		}
+		for (const [key, value] of Object.entries(assetSate.metadata)){
+			if(!value.validation.isOptional &&  value.attributeType!=='checkbox' &&((!(value.hasOwnProperty('attributeValue'))) || (value.hasOwnProperty('attributeValue') && value.attributeValue.length===0))){
+				errs.push(value.attributeName);
+			}
+		}
+
 		if (projects.length===0){
 			errs.push('project(s) is required');
 		}
@@ -191,19 +222,18 @@ const AssetViewer = () => {
 				updateAsset(id,assetObj).then(
 					res=>fetchAsset(id).then((res)=>{
 						navigate(0);}).catch(err=>{
+						addToast('Unable to view asset',err);
 						navigate('/assets');}
-					)).catch(err=>console.log(err));
+					));
 
 			}else{
 				createAsset(assetObj).then(
-				
-					res=>navigate(`../${res.data}`)).catch(err=>console.log(err));
+					res=>navigate(`../${res.data}`)).catch((err) => {
+					addToast('Unable to create asset',err);});
 			}
-			
 		}else{
 			setErrors(errs);
 		}
-		// naviagte back to assets
 	};
 
 	useEffect(() => {
@@ -211,17 +241,16 @@ const AssetViewer = () => {
 			navigate('/');
 		}
 		fetchAssetClassifications().then((data)=>{
-			setClassifications(data.data);}).catch((err) => {console.log(err);});
+			setClassifications(data.data);}).catch((err) => {
+			addToast('Unable to get classifications',err);});
 
 		fetchTypesNamesVersionList().then((data)=>{
 			console.log(data,'I am types');
-			setTypes(data.data);}).catch((err) => {console.log(err,'types eroro');});
+			setTypes(data.data);}).catch((err) => {
+			addToast('Unable to get types',err);});
 		if (id) {
 			fetchAsset(id).then((res)=>{
-				console.log(res.data);
-				setAssetState(res.data);}).catch(err=>{
-				navigate('/assets');}
-			);
+				setAssetState(res.data);});
 			if (user.userRole==='VIEWER'){
 				setIsDisabled(true);
 			}
@@ -229,12 +258,15 @@ const AssetViewer = () => {
 				(res)=>{
 					let rowIDs=res.data.map((val,index)=>index);
 					rowIDs =rowIDs.filter((rowID) => res.data[rowID].isSelected);
-					
-					console.log(rowIDs);
 					setProjects(rowIDs);
 					setProjectList(res.data);
 				}
-			);
+			).catch((err) => {
+				toast({
+					title: 'An error occurred.',
+					description: 'Unable to get projects',
+					status: 'error',
+				});});
 			fetchAssetLinks(id).then(
 				(res)=>{
 					console.log(res.data,'I am assets');
@@ -246,10 +278,11 @@ const AssetViewer = () => {
 							preSelected.push(i);
 						}
 					}
-					console.log(preSelected,'pre selected');
+
 					setAssets(preSelected);
 				}
-			);
+			).catch((err) => {
+				addToast('Unable to get asset links',err);});
 
 			fetchAssetUpgradeOptions(id).then(
 				(res)=>{
@@ -257,7 +290,8 @@ const AssetViewer = () => {
 					setUpgradeData(res.data);
 					console.log(res.data);
 				}
-			);
+			).catch((err) => {
+				addToast('Unable to get upgrade options',err);});
 		} else {
 			if (!user||user.userRole==='VIEWER'){
 				navigate('/assets');
@@ -267,16 +301,15 @@ const AssetViewer = () => {
 					setProjectList(res.data);
 					
 				}
-			);
+			).catch((err) => {
+				addToast('Unable to get projects',err);});
 
 			fetchAssetSummary().then(
 				(res)=>{
-			
 					setAssetsList(res.data);
-
 				}
-
-			);
+			).catch((err) => {
+				addToast('Unable to get assets',err);});
 			setAssetState({
 				name: '',
 				link: '',
@@ -296,13 +329,7 @@ const AssetViewer = () => {
 	return assetSate ? (
 		<Container p={4} maxW='100%'>
 			{assetSate && <VStack maxW='100%'>
-				{errors.length && <Alert status='error' flexDirection='column' alignItems='right'>
-					<AlertIcon alignSelf='center'/>
-					<AlertTitle>Invalid Form</AlertTitle>
-					<AlertDescription ><UnorderedList>
-						{errors.map((value, key)=><ListItem key={key}>{value}</ListItem>)}
-					</UnorderedList></AlertDescription>
-				</Alert>}
+				<FormErrors errors={errors} />
 				<VStack minW='100%' bg="white" color="blue.800" alignItems='left' 
 					alignContent='left' p={6} borderRadius={6}>
 					<Heading size={'2xl'} >Asset Attributes</Heading>
@@ -378,7 +405,7 @@ const AssetViewer = () => {
 									</Tag>
 								</WrapItem>
 							))}
-							{!isDisabled && <ProjectSelect setSelected={setProjects}  assetsin={projectList} />}
+							{!isDisabled && <ProjectSelect setSelected={setProjects}  projectin={projectList} />}
 						</Wrap>}
 					</FormControl>
 					<FormControl>
@@ -453,57 +480,12 @@ const AssetViewer = () => {
 				</VStack>
 
 				<Divider size='xl'/>
-				<VStack minW='100%' bg="gray.400" color="blue.800"alignItems='left' 
-					alignContent='left' p={6} borderRadius={6}>
-					<Heading size={'md'}>Type Attributes:</Heading>
-		
-
-					{assetSate.metadata && assetSate.metadata.map((value, key) => {
-						switch(value.attributeType) {
-						case 'list':
-							console.log('I am here');
-							return (
-								<Fragment key={key}> 
-									<ListFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:[]} validation={value.validation} onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount} isDisabled={isDisabled}/>
-								</Fragment>);
-						case 'num_lmt':
-							return (
-								<Fragment key={key}> 
-									<NumFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:value.validation.min} validation={value.validation}  onChangeHandler={handleMetadataChange} setErrorCount={setErrorCount} isDisabled={isDisabled}/>
-								</Fragment>);
-						case 'options':
-							return (
-								<Fragment key={key}> 
-									<SelectFormField fieldName={value.attributeName} fieldDefaultValue={value.attributeValue?value.attributeValue:[]} validation={value.validation} onChangeHandler={handleMetadataChange} isDisabled={isDisabled}/>
-								</Fragment>);
-						default:
-							return (<Fragment key={key}>
-								<FormField
-									fieldName={value.attributeName}
-									fieldType={value.attributeType}
-									fieldDefaultValue={value.attributeValue?value.attributeValue:''}
-									isDisabled={isDisabled}
-									onSubmitHandler={handleMetadataChange}
-									trigger={trigger}
-									setErrorCount={setErrorCount}
-									validation={value.validation}
-								/>
-							</Fragment>);
-					  }
-					})}
-				</VStack>
+				<MetadataFields assetSate={assetSate} isDisabled={isDisabled} handleMetadataChange={handleMetadataChange} trigger={trigger} setErrorCount={setErrorCount}/>
 			</VStack>}
 			
-			{id && (<StatGroup>
-				<Stat>
-					<StatLabel>Created At</StatLabel>
-					<StatNumber>{assetSate.created_at}</StatNumber>
-				</Stat>
-				<Stat>
-					<StatLabel>Last Modified</StatLabel>
-					<StatNumber>{assetSate.last_modified_at}</StatNumber>
-				</Stat>
-			</StatGroup>)}
+			{id && (<AssetsStats created_at={assetSate.created_at} last_modified_at={assetSate.last_modified_at}/>
+			
+			)}
 			
 			{!isDisabled  && <Button onClick={createNewAsset}>Sumbit</Button>}
 			{id && !isDisabled && <Button onClick={handleDelete}>Delete</Button>}
