@@ -128,7 +128,7 @@ function CustomTable({ setSelectedRows, rows, cols, preSelIDs }) {
 		{rows.length > 0 ? (<TableContainer maxW={'100%'} p={4}>
 			<Input onChange={(e) => { setQuery(e.target.value); }} placeholder='Search' bg='white' border='1px solid' />
 			<Table>
-				<Thead border={'1px solid red'} position='sticky' top={0}>
+				<Thead border={'1px solid'} position='sticky' top={0}>
 					<Tr key={'header'} >
 						{setSelectedRows && <Th bg='#0a2861'>
 							<Checkbox isChecked={data.length === selected.length}
