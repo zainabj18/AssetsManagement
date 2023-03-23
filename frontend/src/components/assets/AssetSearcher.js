@@ -117,7 +117,7 @@ const AssetSearcher = ({filerFunc}) => {
 				{attributeID: -1, attributeName: 'name', attributeType: 'text', validation: null},
 				{attributeID: -2, attributeName: 'link', attributeType: 'text', validation: null},
 				{attributeID: -3, attributeName: 'description', attributeType: 'text', validation: null}];
-			setAttributes([...intial,...res]);
+			setAttributes([...intial,...res.data]);
 			
 		});
 	}, []);

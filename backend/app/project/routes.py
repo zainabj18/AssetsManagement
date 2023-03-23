@@ -2,41 +2,51 @@ import json
 from app.db import get_db
 from app.schemas import Project
 from flask import Blueprint, jsonify, request
-from psycopg import Error
 from psycopg.rows import dict_row
 from pydantic import ValidationError
+from psycopg.rows import class_row
+from app.schemas.asset import AssetBaseInDB
 
 bp = Blueprint("project", __name__, url_prefix="/project")
 
+"""
+This function retrieves all the projects from the database along with their corresponding accounts, and returns them in a list format.
 
+Args:
+db (object): The database object that represents the connection to the database.
+
+Returns:
+list: A list of dictionaries where each dictionary represents a project.
+"""
 def get_projects(db):
     with db.connection() as db_conn:
-        with db_conn.cursor(row_factory=dict_row) as cur:
+        with db_conn.cursor() as cur:
             cur.execute("""SELECT * FROM projects;""")
-            query = """SELECT id, name, description FROM projects"""
-            with db.connection() as conn:
-                res = conn.execute(query)
-                pList = res.fetchall()
+            pList = cur.fetchall()
             allProjects = []
             for project in pList:
-                query = """SELECT username, accounts.account_id
-                FROM people_in_projects
-                INNER JOIN accounts ON accounts.account_id = people_in_projects.account_id
-                WHERE project_id = %(project_id)s;"""
-                key = {"project_id":project[0]}
-                res = db_conn.execute(query, key)
-                people = res.fetchall()
-                accounts = []
-                for account in people:
-                    accounts.append({"username": account[0], "account_id": account[1]})
                 allProjects.append({
                     "projectID": project[0],
                     "projectName":project[1],
-                    "projectDescription":project[2],
-                    "accounts": accounts
+                    "projectDescription":project[2]
                 })
     return allProjects
 
+
+"""
+Returns dictionaries containing information about each person in the input list of people.
+
+Parameters:
+people: A list of tuples containing information about each person.
+
+Returns:
+allPeople_listed: A list of dictionaries, where each dictionary represents a person and their information.
+The dictionary has the following keys:
+    - accountID: The unique account ID of the person.
+    - firstName: The first name of the person.
+    - lastName: The last name of the person.
+    - username: The username of the person.
+"""
 def extract_people(people):
     allPeople_listed = []
     for person in people:
@@ -50,6 +60,18 @@ def extract_people(people):
         )
     return allPeople_listed
 
+
+"""
+Adds a person to a project in the database.
+
+Parameters:
+db (DatabaseConnection): An instance of the database connection object.
+id (int): The ID of the project.
+account_id (int): The ID of the person to add to the project.
+
+Returns:
+None
+"""
 def add_people_to_project(db,id,account_id):
     with db.connection() as conn:
         with conn.cursor() as cur:
@@ -58,32 +80,80 @@ def add_people_to_project(db,id,account_id):
             VALUES(%(project_id)s,%(account_id)s);
             """,{"account_id":account_id,"project_id":id})
 
+
+"""
+Delete a person from a project.
+
+Parameters:
+db (object): The database connection object.
+account_id (int): The account ID of the person to delete.
+id (int): The ID of the project to remove the person from.
+
+Returns:
+None
+"""
+def delete_people_in_project(db,account_id,id):
+    with db.connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+            DELETE FROM people_in_projects WHERE account_id = ANY(%(account_id)s)) AND id=%(id)s;
+            """,{"account_id":account_id,"id":id})
+            
+
+"""
+Returns a list of all people associated with projects in the database.
+
+Parameters:
+db: The database instance.
+
+Returns:
+A list of dictionaries containing the account_id of each person associated with projects in the database.
+"""
 def list_people(db):
     with db.connection() as conn:
         with conn.cursor(row_factory=dict_row) as cur:
             cur.execute("""SELECT account_id FROM people_in_projects;""")
             return cur.fetchall()
-
-# def get_people(db):
-#     with db.connection() as db_conn:
-#         with db_conn.cursor(row_factory=dict_row) as cur:
-#             cur.execute("""SELECT * FROM people_in_projects;""")
-#             return cur.fetchall()
         
-# def get_user_by_project(db):
-#     with db.connection() as db_conn:
-#         with db_conn.cursor(row_factory=dict_row) as cur:
-#             cur.execute(
-#                 """SELECT projects.id, projects.name, account.username FROM projects INNER JOIN people_in_projects ON projects.id = people_in_projects.project_id INNER JOIN accounts ON people_in_projects.account_id = accounts.account_id;"""
-#             )
-#             return cur.fetchall()
 
+"""
+This function handles the GET request for the '/people' endpoint, which returns a list of projects from the database.
+It calls the 'get_projects' function to retrieve the data from the database and returns it in JSON format.
+
+Returns:
+A dictionary in JSON format containing a message indicating success and a list of project data.
+"""
 @bp.route("/", methods=["GET"])
 def people_list():
     db = get_db()
     data = get_projects(db)
     return {"msg": "projects", "data": data}
 
+
+@bp.route ("/<id>", methods=["GET"])
+def get_id(id):
+    db = get_db()
+    query = """SELECT name, description FROM projects WHERE id=%(id)s """
+    key = {"id": id}
+    with db.connection() as conn:
+        res = conn.execute(query,key)
+        project = res.fetchall()[0]
+        data = {
+                    "projectName":project[0],
+                    "projectDescription":project[1],
+                }
+    return {"data": data}, 200
+
+
+"""
+Creates a new project with the data provided in the POST request and inserts it into the database.
+Also inserts the associated accounts into the people_in_projects table.
+
+Returns:
+JSON response: {"msg": "The user have created a new project"} with HTTP status code 200 on success.
+JSON response: {"msg": "Data provided is invalid", "data": e.errors(), "error": "Failed to create asset from the data provided"} with HTTP status code 400 on validation error.
+JSON response: {"msg": "Data provided is invalid", "data": None, "error": "Failed to create asset from the data provided"} with HTTP status code 400 on other exceptions.
+"""
 @bp.route("/new", methods=["POST"])
 def create():
     db = get_db()
@@ -116,180 +186,51 @@ def create():
     
     db_project = project.dict()
     with db.connection() as conn:
-            res = conn.execute(
-                """INSERT INTO projects (name,description)VALUES (%(name)s,%(description)s) RETURNING id;""",
-                db_project,
-            )
-            id = res.fetchone()[0]
-    for person in request.json["accounts"]:
-        with db.connection() as conn:
             conn.execute(
-        """INSERT INTO people_in_projects (project_id, account_id) VALUES (%(project_id)s, %(account_id)s)""",
-        {"project_id" : id,
-        "account_id": person}
-        )
+                """INSERT INTO projects (name,description)VALUES (%(name)s,%(description)s)""",
+                db_project
+            )
 
     return jsonify({"msg": "The user have created a new project"}), 200
 
 
+"""
+This function deletes a project with the given id and all associated people from the database.
 
-# @bp.route("/identify", methods=["GET"])
-# def identify():
-#     data = decode_token(request)
-#     db = get_db()
-#     try:
-#         if username := get_user_by_project(db, data["account_id"]):
-#             username = username[0]
-#     except Error as e:
-#         return {"msg": str(e), "error": "Database Connection Error"}, 500
+Parameters:
+id (str): the id of the project to be deleted
 
-#     resp = jsonify(
-#         {
-#             "msg": "found you",
-#             "data": {
-#                 "userID": data["account_id"],
-#                 "userRole": data["account_type"],
-#                 "username": username,
-#                 "userPrivileges": data["account_privileges"],
-#             },
-#         }
-#     )
-#     return resp
-
-#Remove Projects from database
+Returns:
+A dictionary containing a message and a boolean indicating whether the deletion was allowed.
+"""
 @bp.route("/delete/<id>", methods=["POST"])
-def delete_project(id):
-    database = get_db()
-    canDo = True
+def delete_project_and_people(id):
+    db = get_db()
+    with db.connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """DELETE FROM projects WHERE id = %(project_id)s;""",
+                {"project_id": id},
+            )
 
-    query = """SELECT COUNT(*) FROM people_in_projects WHERE project_id = (%(id)s);"""
-    with database.connection() as conn:
-        res = conn.execute(query, {"id": id})
-        if (res.fetchone()[0] > 0):
-            canDo = False
+    return {"msg": ""}, 200
 
-    query = """SELECT COUNT(*) FROM assets_in_projects WHERE project_id = (%(id)s);"""
-    with database.connection() as conn:
-        res = conn.execute(query, {"id": id})
-        if (res.fetchone()[0] > 0):
-            canDo = False
 
-    if canDo:
-        query = """DELETE FROM people_in_projects WHERE project_id = (%(id)s);"""
-        with database.connection() as conn:
-            conn.execute(query, {"id": id})
-
-        query = """DELETE FROM assets_in_projects WHERE project_id = (%(id)s);"""
-        with database.connection() as conn:
-            conn.execute(query, {"id": id})
-
-        query = """DELETE FROM projects WHERE id = (%(id)s);"""
-        with database.connection() as conn:
-            conn.execute(query, {"id": id})
-
-    return {"msg": "", "wasAllowed": canDo}, 200
-
-@bp.route("/allPeople", methods=["GET"])
-def get_allProjects():
-    database = get_db()
-    query = """SELECT account_id,first_name, last_name, username FROM accounts;"""
-    with database.connection() as conn:
-        res = conn.execute(query)
-        allPeople = res.fetchall()
-        allPeople_listed = extract_people(allPeople)
-        return {"data": allPeople_listed}, 200
-
-# @bp.route("/<id>", methods=["POST"])
-# def get_people_from_project(id):
-#     db = get_db()
-#     people = get_people(db)
-#     with db.connection() as conn:
-#             conn.execute(
-#                 "SELECT * FROM projects WHERE id = %(id)s"
-#             )
-#             project = conn.fetchone()
-#             if project is None:
-#                 return {"msg": "Project not found"}, 404
-            
-#             data = decode_token(request)
-#             conn.execute(
-#                 "INSERT INTO people_in_projects (project_id, account_id) VALUES (%(id)s, %(account_id)s)",
-#                 {"project_id": id, "account_id": data["account_id"]},
-#             )
-#             return {"msg": "People added to project successfully", "data": people}, 200
-
-# @bp.route("/people/<id>", methods=["POST"])
-# def add_people_to_project(id):
-#     db = get_db()
-#     try:
-#         account_id = request.json['account_id']
-#     except KeyError:
-#         return jsonify(
-#             {"msg": "Data provided is invalid", "data": None, "error": "Missing 'account_id' field"}
-#         ), 400
-    
-#     with db.connection() as conn:
-#         conn.execute(
-#             "SELECT * FROM projects WHERE id = %(id)s",
-#             {"id": id}
-#         )
-        
-#         project = conn.fetchone()
-#         if project is None:
-#             return {"msg": "Project not found"}, 404
-        
-#         conn.execute(
-#             "SELECT * FROM accounts WHERE account_id = %(account_id)s",
-#             {"account_id": account_id}
-#         )
-#         account = conn.fetchone()
-#         if account is None:
-#             return {"msg": "Account not found"}, 404
-        
-#         try:
-#             conn.execute(
-#                 "INSERT INTO people_in_projects (project_id, account_id) VALUES (%(project_id)s, %(account_id)s)",
-#                 {"project_id": id, "account_id": account_id}
-#             )
-#         except Error as e:
-#             return {"msg": str(e), "error": "Database Error"}, 500
-        
-#         return {"msg": "People added to project successfully"}, 200
-
-# @bp.route("/<id>/people", methods=["DELETE"])
-# def remove_people_from_project(id):
-#     db = get_db()
-#     try:
-#         account_id = request.json['account_id']
-#     except KeyError:
-#         return jsonify(
-#             {"msg": "Data provided is invalid", "data": None, "error": "Missing 'account_id' field"}
-#         ), 400
-    
-#     with db.connection() as conn:
-#         conn.execute(
-#             "SELECT * FROM projects WHERE id = %(id)s",
-#             {"id": id}
-#         )
-#         project = conn.fetchone()
-#         if project is None:
-#             return {"msg": "Project not found"}, 404
-        
-#         conn.execute(
-#             "SELECT * FROM accounts WHERE account_id = %(account_id)s",
-#             {"account_id": account_id}
-#         )
-#         account = conn.fetchone()
-
-#         if account is None:
-#             return {"msg": "Account not found"}, 404
-        
-#         try:
-#             conn.execute(
-#                 "DELETE FROM people_in_projects WHERE project_id = %(project_id)s AND account_id = %(account_id)s",
-#                 {"project_id": id, "account_id": account_id}
-#             )
-#         except Error as e:
-#             return {"msg": str(e), "error": "Database Error"}, 500
-        
-#         return {"msg": "People removed from project successfully"}, 200
+@bp.route("/assets/<id>", methods=['GET'])
+def get_assets_in_project(id):
+    query = """
+    SELECT *
+    FROM assets AS a
+    INNER JOIN assets_in_projects as ap ON a.asset_id = ap.asset_id
+    WHERE ap.project_id = %(id)s;
+    """
+    key = {"id" : id}
+    db = get_db()
+    with db.connection() as conn:
+        with conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
+            cur.execute(query, key)
+            assets = [json.loads(row.json(by_alias=True)) for row in cur.fetchall()]
+        res = conn.execute("""SELECT name, description FROM projects WHERE id = %(id)s""", {"id" : id})
+        project = res.fetchone()
+        project = {"name" : project[0], "description" : project[1]}
+    return {"data": {"assets": assets, "project": project}}, 200

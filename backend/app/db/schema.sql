@@ -13,6 +13,8 @@ DROP TABLE IF EXISTS assets_in_tags CASCADE;
 DROP TABLE IF EXISTS assets_in_projects CASCADE;
 DROP TABLE IF EXISTS attributes_values CASCADE;
 DROP TABLE IF EXISTS people_in_projects CASCADE;
+DROP TYPE IF EXISTS project_type;
+
 DROP TABLE IF EXISTS asset_logs CASCADE;
 DROP TABLE IF EXISTS assets_in_assets CASCADE;
 DROP TABLE IF EXISTS type_version_link CASCADE;
@@ -164,16 +166,6 @@ CREATE TABLE asset_logs
 	FOREIGN KEY (type_version_to) REFERENCES type_version(version_id),
 	PRIMARY KEY (type_version_from, type_version_to)
  );
-
-CREATE TABLE people_in_projects
-(
-	project_id INTEGER,
-	account_id INTEGER,
-
-	PRIMARY KEY (project_id, account_id),
-	FOREIGN KEY (project_id) REFERENCES projects(id),
-	FOREIGN KEY (account_id) REFERENCES accounts(account_id)
-);
 
  CREATE TABLE assets_in_assets
 (

@@ -1,9 +1,9 @@
 import { Box, Flex, HStack, Input, useBoolean, VStack, } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { fetchTags } from '../api';
-import CustomNavLink from '../components/CustomNavLink';
-import NewTag from '../components/NewTag';
+import { fetchTags } from '../../api';
+import CustomNavLink from '../../components/CustomNavLink';
+import NewTag from '../../components/NewTag';
 
 const Tags = () => {
 	const [tags, setTags] = useState([]);
@@ -16,7 +16,7 @@ const Tags = () => {
 		if (value===''){
 			setResults(tags);
 		}else{
-			let filteredTag=tags.filter((t)=>t.name.toLowerCase().includes(value));
+			let filteredTag=tags.filter((t)=>t.name.toLowerCase().includes(value.toLowerCase()));
 			setResults(filteredTag);
 		}
 	 };
