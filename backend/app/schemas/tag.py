@@ -1,12 +1,16 @@
+from typing import List, Optional
+
 from pydantic import BaseModel, Field
-from typing import Optional,List
+
 
 class TagBase(BaseModel):
     id: Optional[int]
     name: str = Field(..., min_length=1)
 
+
 class TagInDB(TagBase):
     id: int
+
 
 class TagBulkRequest(BaseModel):
     to_tag_id: int = Field(..., alias="toTagID")

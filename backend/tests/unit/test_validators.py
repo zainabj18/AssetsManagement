@@ -1,6 +1,7 @@
 import pytest
-from app.schemas import UserCreate
 from pydantic.error_wrappers import ValidationError
+
+from app.schemas import UserCreate
 
 
 def test_user_create_requires_same_password():

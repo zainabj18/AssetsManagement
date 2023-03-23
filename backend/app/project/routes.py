@@ -1,10 +1,11 @@
 import json
+
+from flask import Blueprint, jsonify, request
+from psycopg.rows import class_row, dict_row
+from pydantic import ValidationError
+
 from app.db import get_db
 from app.schemas import Project
-from flask import Blueprint, jsonify, request
-from psycopg.rows import dict_row
-from pydantic import ValidationError
-from psycopg.rows import class_row
 from app.schemas.asset import AssetBaseInDB
 
 bp = Blueprint("project", __name__, url_prefix="/project")
@@ -18,6 +19,8 @@ db (object): The database object that represents the connection to the database.
 Returns:
 list: A list of dictionaries where each dictionary represents a project.
 """
+
+
 def get_projects(db):
     with db.connection() as db_conn:
         with db_conn.cursor() as cur:
@@ -25,11 +28,13 @@ def get_projects(db):
             pList = cur.fetchall()
             allProjects = []
             for project in pList:
-                allProjects.append({
-                    "projectID": project[0],
-                    "projectName":project[1],
-                    "projectDescription":project[2]
-                })
+                allProjects.append(
+                    {
+                        "projectID": project[0],
+                        "projectName": project[1],
+                        "projectDescription": project[2],
+                    }
+                )
     return allProjects
 
 
@@ -47,16 +52,18 @@ The dictionary has the following keys:
     - lastName: The last name of the person.
     - username: The username of the person.
 """
+
+
 def extract_people(people):
     allPeople_listed = []
     for person in people:
         allPeople_listed.append(
-                { 
-                    "accountID": person[0],
-                    "firstName": person[1],
-                    "lastName": person[2],
-                    "username": person[3]
-                }
+            {
+                "accountID": person[0],
+                "firstName": person[1],
+                "lastName": person[2],
+                "username": person[3],
+            }
         )
     return allPeople_listed
 
@@ -72,13 +79,18 @@ account_id (int): The ID of the person to add to the project.
 Returns:
 None
 """
-def add_people_to_project(db,id,account_id):
+
+
+def add_people_to_project(db, id, account_id):
     with db.connection() as conn:
         with conn.cursor() as cur:
-            cur.execute("""
+            cur.execute(
+                """
             INSERT INTO people_in_projects(project_id,account_id)
             VALUES(%(project_id)s,%(account_id)s);
-            """,{"account_id":account_id,"project_id":id})
+            """,
+                {"account_id": account_id, "project_id": id},
+            )
 
 
 """
@@ -92,13 +104,18 @@ id (int): The ID of the project to remove the person from.
 Returns:
 None
 """
-def delete_people_in_project(db,account_id,id):
+
+
+def delete_people_in_project(db, account_id, id):
     with db.connection() as conn:
         with conn.cursor() as cur:
-            cur.execute("""
+            cur.execute(
+                """
             DELETE FROM people_in_projects WHERE account_id = ANY(%(account_id)s)) AND id=%(id)s;
-            """,{"account_id":account_id,"id":id})
-            
+            """,
+                {"account_id": account_id, "id": id},
+            )
+
 
 """
 Returns a list of all people associated with projects in the database.
@@ -109,12 +126,14 @@ db: The database instance.
 Returns:
 A list of dictionaries containing the account_id of each person associated with projects in the database.
 """
+
+
 def list_people(db):
     with db.connection() as conn:
         with conn.cursor(row_factory=dict_row) as cur:
             cur.execute("""SELECT account_id FROM people_in_projects;""")
             return cur.fetchall()
-        
+
 
 """
 This function handles the GET request for the '/people' endpoint, which returns a list of projects from the database.
@@ -123,6 +142,8 @@ It calls the 'get_projects' function to retrieve the data from the database and 
 Returns:
 A dictionary in JSON format containing a message indicating success and a list of project data.
 """
+
+
 @bp.route("/", methods=["GET"])
 def people_list():
     db = get_db()
@@ -148,18 +169,20 @@ def people_list():
         "description": "A project about X",
     }
 """
-@bp.route ("/<id>", methods=["GET"])
+
+
+@bp.route("/<id>", methods=["GET"])
 def get_id(id):
     db = get_db()
     query = """SELECT name, description FROM projects WHERE id=%(id)s """
     key = {"id": id}
     with db.connection() as conn:
-        res = conn.execute(query,key)
+        res = conn.execute(query, key)
         project = res.fetchall()[0]
         data = {
-                    "projectName":project[0],
-                    "projectDescription":project[1],
-                }
+            "projectName": project[0],
+            "projectDescription": project[1],
+        }
     return {"data": data}, 200
 
 
@@ -172,6 +195,8 @@ JSON response: {"msg": "The user have created a new project"} with HTTP status c
 JSON response: {"msg": "Data provided is invalid", "data": e.errors(), "error": "Failed to create asset from the data provided"} with HTTP status code 400 on validation error.
 JSON response: {"msg": "Data provided is invalid", "data": None, "error": "Failed to create asset from the data provided"} with HTTP status code 400 on other exceptions.
 """
+
+
 @bp.route("/new", methods=["POST"])
 def create():
     db = get_db()
@@ -201,13 +226,12 @@ def create():
             400,
         )
 
-    
     db_project = project.dict()
     with db.connection() as conn:
-            conn.execute(
-                """INSERT INTO projects (name,description)VALUES (%(name)s,%(description)s)""",
-                db_project
-            )
+        conn.execute(
+            """INSERT INTO projects (name,description)VALUES (%(name)s,%(description)s)""",
+            db_project,
+        )
 
     return jsonify({"msg": "The user have created a new project"}), 200
 
@@ -223,6 +247,7 @@ Delete a project with the given id from the database, along with all associated 
 :rtype: dict
 """
 
+
 @bp.route("/delete/<id>", methods=["POST"])
 def delete_project_and_people(id):
     db = get_db()
@@ -236,7 +261,7 @@ def delete_project_and_people(id):
     return {"msg": ""}, 200
 
 
-@bp.route("/assets/<id>", methods=['GET'])
+@bp.route("/assets/<id>", methods=["GET"])
 def get_assets_in_project(id):
     query = """
     SELECT *
@@ -244,13 +269,15 @@ def get_assets_in_project(id):
     INNER JOIN assets_in_projects as ap ON a.asset_id = ap.asset_id
     WHERE ap.project_id = %(id)s;
     """
-    key = {"id" : id}
+    key = {"id": id}
     db = get_db()
     with db.connection() as conn:
         with conn.cursor(row_factory=class_row(AssetBaseInDB)) as cur:
             cur.execute(query, key)
             assets = [json.loads(row.json(by_alias=True)) for row in cur.fetchall()]
-        res = conn.execute("""SELECT name, description FROM projects WHERE id = %(id)s""", {"id" : id})
+        res = conn.execute(
+            """SELECT name, description FROM projects WHERE id = %(id)s""", {"id": id}
+        )
         project = res.fetchone()
-        project = {"name" : project[0], "description" : project[1]}
+        project = {"name": project[0], "description": project[1]}
     return {"data": {"assets": assets, "project": project}}, 200

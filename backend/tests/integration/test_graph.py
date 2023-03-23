@@ -16,7 +16,7 @@ def populate_db_assets(db_conn, count):
         conn.execute(create_type_query)
         conn.execute(create_type_version_query)
         for i in range(0, count):
-            string = "asset" + str(i+1)
+            string = "asset" + str(i + 1)
             conn.execute(create_asset_query, {"name": string})
 
 
@@ -32,7 +32,7 @@ def populate_db_types(db_conn, count):
     """
     with db_conn as conn:
         for i in range(0, count):
-            conn.execute(create_type_query, {"name": ("type" + str(i+1))})
+            conn.execute(create_type_query, {"name": ("type" + str(i + 1))})
             conn.execute(create_type_version_query, {"type": i + 1})
 
 
@@ -52,15 +52,15 @@ def test_single_asset(client, db_conn):
     assert res.status_code == 200
     data = res.json["data"]
     assert data["points"] == [
-        {'id': 2, 'name': 'asset2'},
-        {'id': 3, 'name': 'asset3'},
-        {'id': 5, 'name': 'asset5'},
-        {'id': 1, 'name': 'asset1'}
+        {"id": 2, "name": "asset2"},
+        {"id": 3, "name": "asset3"},
+        {"id": 5, "name": "asset5"},
+        {"id": 1, "name": "asset1"},
     ]
     assert data["joins"] == [
-        {'from': 2, 'to': [3, 5]},
-        {'from': 1, 'to': [2]},
-        {'from': 5, 'to': [2]}
+        {"from": 2, "to": [3, 5]},
+        {"from": 1, "to": [2]},
+        {"from": 5, "to": [2]},
     ]
 
 
@@ -96,16 +96,16 @@ def test_all_types(client, db_conn):
     assert res.status_code == 200
     data = res.json["data"]
     assert data["points"] == [
-        {'id': 1, 'name': 'type1'},
-        {'id': 2, 'name': 'type2'},
-        {'id': 3, 'name': 'type3'},
-        {'id': 4, 'name': 'type4'},
-        {'id': 5, 'name': 'type5'}
+        {"id": 1, "name": "type1"},
+        {"id": 2, "name": "type2"},
+        {"id": 3, "name": "type3"},
+        {"id": 4, "name": "type4"},
+        {"id": 5, "name": "type5"},
     ]
     assert data["joins"] == [
-        {'from': 1, 'to': [2, 3]},
-        {'from': 2, 'to': [1, 4]},
-        {'from': 3, 'to': [2, 4, 5]},
-        {'from': 4, 'to': [1, 5]},
-        {'from': 5, 'to': [1]}
+        {"from": 1, "to": [2, 3]},
+        {"from": 2, "to": [1, 4]},
+        {"from": 3, "to": [2, 4, 5]},
+        {"from": 4, "to": [1, 5]},
+        {"from": 5, "to": [1]},
     ]

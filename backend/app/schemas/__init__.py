@@ -1,8 +1,19 @@
-from .asset import Asset,AssetBase,AssetBaseInDB,AssetOut,AttributeSearcher,FilterSearch,QueryOperation,QueryJoin,AssetFlattend,AssetSummary
-from .attribute import Attribute,AttributeBase,AttributeInDB
-from .comment import Comment,CommentOut
-from .type import Type,TypeBase,TypeVersion
-from .tag import TagBase,TagBulkRequest,TagInDB
-from .user import UserBase, UserCreate, UserInDB,People
+from .asset import (
+    Asset,
+    AssetBase,
+    AssetBaseInDB,
+    AssetFlattend,
+    AssetOut,
+    AssetSummary,
+    AttributeSearcher,
+    FilterSearch,
+    QueryJoin,
+    QueryOperation,
+)
+from .attribute import Attribute, AttributeBase, AttributeInDB
+from .comment import Comment, CommentOut
+from .log import Diff, Log
 from .project import Project
-from .log import Log,Diff
+from .tag import TagBase, TagBulkRequest, TagInDB
+from .type import Type, TypeBase, TypeVersion
+from .user import People, UserBase, UserCreate, UserInDB

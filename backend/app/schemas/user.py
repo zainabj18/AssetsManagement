@@ -1,7 +1,8 @@
 from typing import Optional
 
-from app.db import DataAccess, UserRole
 from pydantic import BaseModel, Field, SecretStr, validator
+
+from app.db import DataAccess, UserRole
 
 SPECIAL_CHARECTERS = list("$#@!*&")
 PASSWORD_MIN_LENGTH = 10
@@ -64,7 +65,8 @@ class UserCreate(UserBase):
             len(set(SPECIAL_CHARECTERS).intersection(set(pwd))) > 0
         ), f"password must contain a charecter from {SPECIAL_CHARECTERS}"
         return v
-    
+
+
 class People(BaseModel):
     account_id: Optional[int]
     username: str

@@ -1,13 +1,15 @@
-from datetime import datetime, timedelta
-from app.db import UserRole, DataAccess
-from app.schemas import Attribute
-from app.schemas.factories import TypeVersionFactory,TypeFactory,AttributeFactory
-import jwt
 import json
+from datetime import datetime, timedelta
+
+import jwt
 import pytest
-from app import create_app
-from app.db import get_db, init_db,create_assets
 from flask import current_app
+
+from app import create_app
+from app.db import DataAccess, UserRole, create_assets, get_db, init_db
+from app.schemas import Attribute
+from app.schemas.factories import AttributeFactory, TypeFactory, TypeVersionFactory
+
 
 @pytest.fixture
 def flask_app():
@@ -73,66 +75,68 @@ def expected_res(request):
 
 
 # creates a new asset object with supported db structure
-@pytest.fixture(params=[
-        {"batch_size":1,"add_to_db": False}
-    ])
+@pytest.fixture(params=[{"batch_size": 1, "add_to_db": False}])
 def new_assets(db_conn, request):
-    return create_assets(db_conn,request.param["batch_size"],request.param.get("add_to_db"))
-    
+    return create_assets(
+        db_conn, request.param["batch_size"], request.param.get("add_to_db")
+    )
 
-@pytest.fixture(params=[
-        {"size":1,"add_to_db": False}
-    ])
-def type_verions(db_conn,request):
-    batch_size=request.param["size"]
-    added_versions=[]
+
+@pytest.fixture(params=[{"size": 1, "add_to_db": False}])
+def type_verions(db_conn, request):
+    batch_size = request.param["size"]
+    added_versions = []
     with db_conn.cursor() as cur:
         cur.execute(
-                """SELECT version_id FROM type_version;""",
+            """SELECT version_id FROM type_version;""",
         )
-        versions_in_db=[row[0] for row in cur.fetchall()]
+        versions_in_db = [row[0] for row in cur.fetchall()]
         cur.execute(
-                """SELECT type_id FROM types;""",
+            """SELECT type_id FROM types;""",
         )
-        types_in_db=[row[0] for row in cur.fetchall()]
-    if types_in_db !=[]:
-        new_type_id=max(types_in_db)+1
+        types_in_db = [row[0] for row in cur.fetchall()]
+    if types_in_db != []:
+        new_type_id = max(types_in_db) + 1
     else:
-        new_type_id=1
-    new_type=TypeFactory.build(type_id=new_type_id,type_name=f'Test-{new_type_id}-{len(types_in_db)}')
-    verion_ids=set()
+        new_type_id = 1
+    new_type = TypeFactory.build(
+        type_id=new_type_id, type_name=f"Test-{new_type_id}-{len(types_in_db)}"
+    )
+    verion_ids = set()
     versions_in_db.append(0)
-    version_id_counter=max(versions_in_db)+1
-    batch_size_counter=batch_size
-    while len(added_versions)<batch_size:
-        batch_result = TypeVersionFactory.batch(size=batch_size_counter,type_id=new_type_id) 
+    version_id_counter = max(versions_in_db) + 1
+    batch_size_counter = batch_size
+    while len(added_versions) < batch_size:
+        batch_result = TypeVersionFactory.batch(
+            size=batch_size_counter, type_id=new_type_id
+        )
         for type_verion in batch_result:
             if type_verion.version_id not in verion_ids:
-                type_verion.version_id=version_id_counter
-                version_id_counter+=1
+                type_verion.version_id = version_id_counter
+                version_id_counter += 1
                 verion_ids.add(type_verion.version_id)
                 added_versions.append(type_verion)
-        batch_size_counter=batch_size-len(added_versions)
+        batch_size_counter = batch_size - len(added_versions)
     with db_conn.cursor() as cur:
-      
+
         cur.execute(
-                        """
+            """
                 INSERT INTO types (type_id,type_name)
             VALUES (%(type_id)s,%(type_name)s) ON CONFLICT (type_name) DO NOTHING;""",
-                        new_type.dict(),
-                    )
+            new_type.dict(),
+        )
         for type_version in added_versions:
             cur.execute(
-                                """
+                """
                         INSERT INTO type_version (version_id,version_number,type_id)
                     VALUES (%(version_id)s,%(version_number)s,%(type_id)s) RETURNING version_id;""",
-                                type_version.dict(),
-                            )
-            type_version.version_id=cur.fetchone()[0]
-            attributes=AttributeFactory.batch(size=20)
-            type_version.attributes=attributes
-            attribute_ids=[]
-            type_version.attribute_ids=attribute_ids
+                type_version.dict(),
+            )
+            type_version.version_id = cur.fetchone()[0]
+            attributes = AttributeFactory.batch(size=20)
+            type_version.attributes = attributes
+            attribute_ids = []
+            type_version.attribute_ids = attribute_ids
             for attribute in attributes:
                 attribute_in = attribute.dict(exclude={"validation_data"})
                 attribute_in["validation_data"] = json.dumps(attribute.validation_data)
@@ -144,7 +148,7 @@ def type_verions(db_conn,request):
                     attribute_in,
                 )
                 id = cur.fetchone()[0]
-                attribute.attribute_id=id
+                attribute.attribute_id = id
                 attribute_ids.append(id)
             for id in attribute_ids:
                 cur.execute(
@@ -154,4 +158,4 @@ def type_verions(db_conn,request):
                     {"attribute_id": id, "type_version": type_version.version_id},
                 )
         db_conn.commit()
-        return {"added":added_versions,"type":new_type}
+        return {"added": added_versions, "type": new_type}

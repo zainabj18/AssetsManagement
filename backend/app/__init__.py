@@ -1,8 +1,11 @@
+from flasgger import Swagger
+from flask import Flask, Response
+
 from app.api import bp as api_bp
 from app.core.config import settings
-from app.db import close_db, init_db_command,build_assets_command
-from flask import Flask, Response
-from flasgger import Swagger
+from app.db import build_assets_command, close_db, init_db_command
+
+
 def create_app(config_class=settings):
     app = Flask(__name__)
     Swagger(app)
