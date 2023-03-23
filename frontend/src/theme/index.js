@@ -19,6 +19,9 @@ const overrides = {
 		INTERNAL: 'orange',
 		RESTRICTED: 'brown',
 		CONFIDENTIAL: 'red',
+		ADMIN: 'red',
+		USER: 'orange',
+		VIEWER: 'green'
 	},
 	styles,
 	shadows:shadows,
