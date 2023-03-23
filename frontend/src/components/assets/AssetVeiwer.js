@@ -189,7 +189,7 @@ const AssetViewer = () => {
 				console.log(assetObj);
 				updateAsset(id,assetObj).then(
 					res=>fetchAsset(id).then((res)=>{
-						setAssetState(res.data);}).catch(err=>{
+						navigate(0);}).catch(err=>{
 						navigate('/assets');}
 					)).catch(err=>console.log(err));
 

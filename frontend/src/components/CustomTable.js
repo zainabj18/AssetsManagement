@@ -28,7 +28,8 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 		() => 
 			rows.map((value,index)=>{
 				let filertedVals=(Object.fromEntries(Object.keys(cols).map(k => [k, value[k]])));
-				return {...filertedVals,rowID:index};}),
+				let isSelected=value.hasOwnProperty('isSelected')&value.isSelected;
+				return {...filertedVals,rowID:index,rows,isSelected:isSelected};}),
 		[rows]);
 
 	const columns = cols;
@@ -95,7 +96,8 @@ function CustomTable({setSelectedRows,rows,cols,preSelIDs}) {
 	};
 
 	useEffect(() => {
-		console.log('new table');
+		console.log('new table hello');
+		console.log(data);
 		if (setSelectedRows){
 			let preSelected=[];
 			let row=[];

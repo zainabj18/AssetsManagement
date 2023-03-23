@@ -37,7 +37,8 @@ function AssetSelect({setSelected,assetsin}) {
 	};
 
 	useEffect(() => {
-	  console.log('here');
+		console.log('I am assets');
+	  console.log(assetsin);
 	}, [assetsin]);
 	
 
