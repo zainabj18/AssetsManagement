@@ -41,6 +41,7 @@ const AdminManager = () => {
 			const indexToDelete = data.findIndex(user => user.id === userIdToDelete);
 			data.splice(indexToDelete, 1);
 			setDeleteUser(data);
+			window.location.reload();
 		} catch (error) {
 			console.error(error);
 		}
