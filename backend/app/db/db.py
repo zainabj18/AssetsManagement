@@ -1,20 +1,24 @@
-from enum import Enum,auto,IntEnum
+from enum import Enum, IntEnum, auto
 from functools import total_ordering
 
 from flask import current_app, g
 from psycopg.types.enum import EnumInfo, register_enum
 from psycopg_pool import ConnectionPool
+
+
 class Actions(Enum):
     ADD = auto()
-    CHANGE =auto()
-    DELETE =auto()
+    CHANGE = auto()
+    DELETE = auto()
+
 
 class Models(IntEnum):
-    ACCOUNTS=auto()
+    ACCOUNTS = auto()
     ASSETS = auto()
-    PROJECTS =auto()
-    TAGS=auto()
-    TYPES=auto()
+    PROJECTS = auto()
+    TAGS = auto()
+    TYPES = auto()
+
 
 @total_ordering
 class UserRole(Enum):

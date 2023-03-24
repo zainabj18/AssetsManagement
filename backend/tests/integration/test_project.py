@@ -21,16 +21,21 @@ def test_project_list(client, db_conn):
     res = client.get("/api/v1/project/")
     assert res.status_code == 200
     for i in range(0, len(expected_projects)):
-         print(res.json["data"][i])
-         assert res.json["data"][i]["projectName"] == expected_projects[i]["name"]
-         assert res.json["data"][i]["projectDescription"] == expected_projects[i]["description"]
+        print(res.json["data"][i])
+        assert res.json["data"][i]["projectName"] == expected_projects[i]["name"]
+        assert (
+            res.json["data"][i]["projectDescription"]
+            == expected_projects[i]["description"]
+        )
 
 
 def test_get_project(client, db_conn):
     with db_conn.connection as conn:
         with conn.cursor() as cur:
-            cur.execute("""INSERT INTO projects(name, description) VALUES ('TestProject', 'This is a test project');""")
-    
+            cur.execute(
+                """INSERT INTO projects(name, description) VALUES ('TestProject', 'This is a test project');"""
+            )
+
     res = client.get("/api/v1/project/1")
 
     assert res.status_code == 200
@@ -39,10 +44,8 @@ def test_get_project(client, db_conn):
         "projectName": "TestProject",
         "projectDescription": "This is a test project",
     }
-    assert res.json['data']['projectName'] == expected_data['projectName']
-    assert res.json['data']['projectDescription'] == expected_data['projectDescription']
-
-
+    assert res.json["data"]["projectName"] == expected_data["projectName"]
+    assert res.json["data"]["projectDescription"] == expected_data["projectDescription"]
 
 
 def test_project_route(client, db_conn):

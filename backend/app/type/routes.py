@@ -1,9 +1,10 @@
 import json
 
-from app.db import get_db
-from app.schemas import AttributeBase, Type
 from flask import Blueprint, request
 from psycopg.rows import dict_row
+
+from app.db import get_db
+from app.schemas import AttributeBase, Type
 
 
 def make_query(db, query, params=None):
@@ -34,6 +35,7 @@ bp = Blueprint("type", __name__, url_prefix="/type")
     Raises:
         N/A
 """
+
 
 @bp.route("/new", methods=["POST"])
 def add_type():
@@ -72,8 +74,7 @@ def add_type():
     VALUES (%(attr_id)s, %(type_version)s)
     """
     for attribute in new_type.metadata:
-        params = {"type_version": type_version,
-                  "attr_id": attribute.attribute_id}
+        params = {"type_version": type_version, "attr_id": attribute.attribute_id}
         make_query(database, query, params)
 
     query = """
@@ -101,35 +102,42 @@ def list():
     db = get_db()
     return {"msg": "types", "data": get_types(db)}, 200
 
+
 """
 List the names of all the available types with their latest version number.
 
 Returns:
     A JSON response with the list of names and their latest version number.
 """
+
 
 @bp.route("/version/names", methods=["GET"])
 def list_type_names_with_versions():
     db = get_db()
     with db.connection() as db_conn:
         with db_conn.cursor(row_factory=dict_row) as cur:
-            cur.execute("""WITH ranked_types AS (
+            cur.execute(
+                """WITH ranked_types AS (
 SELECT *,
        rank() OVER (PARTITION BY type_id ORDER BY version_number DESC) as row_rank
 FROM type_version)
 
 SELECT version_id,type_name FROM ranked_types 
 INNER JOIN types ON types.type_id=ranked_types.type_id
-WHERE row_rank=1""")
-            types=cur.fetchall()
+WHERE row_rank=1"""
+            )
+            types = cur.fetchall()
 
     return {"msg": "types-w-versions", "data": types}, 200
+
+
 """
 List the names of all the available types with their latest version number.
 
 Returns:
     A JSON response with the list of names and their latest version number.
 """
+
 
 @bp.route("/adder/new", methods=["POST"])
 def add_attribute():
@@ -141,6 +149,7 @@ def add_attribute():
     with database.connection() as conn:
         conn.execute(query, db_attribute)
     return {"msg": ""}, 200
+
 
 """
 List the names of all the available types with their latest version number.
@@ -175,7 +184,7 @@ def get_type(id):
     query = """SELECT version_id,type_name FROM type_names_versions
 WHERE version_id IN (SELECT type_version_to FROM type_version_link WHERE type_version_from=%(id)s);"""
     res = make_query(database, query, {"id": id})
-    rows=res.fetchall()
+    rows = res.fetchall()
     depends_on = [value[0] for value in rows]
     depends_on_names = [value[1] for value in rows]
     return {
@@ -185,7 +194,7 @@ WHERE version_id IN (SELECT type_version_to FROM type_version_link WHERE type_ve
         "versionNumber": type[3],
         "metadata": attributes,
         "dependsOn": depends_on,
-        "dependsOnNames": depends_on_names
+        "dependsOnNames": depends_on_names,
     }, 200
 
 
@@ -221,7 +230,8 @@ def get_allAttributes():
         res = conn.execute(query)
         allAttributes = res.fetchall()
         allAttributes_listed = extract_attributes(allAttributes)
-        return {"data":allAttributes_listed}
+        return {"data": allAttributes_listed}
+
 
 """_summary_
 api:GET
@@ -230,6 +240,8 @@ description: get all the types
    
         json data
 """
+
+
 @bp.route("/allTypes", methods=["GET"])
 def get_allTypes():
     database = get_db()
@@ -258,10 +270,11 @@ def get_allTypes():
                 "typeId": type[1],
                 "typeName": type[2],
                 "versionNumber": type[3],
-                "metadata": attributes
+                "metadata": attributes,
             }
         )
-    return {"data":allTypes_listed}
+    return {"data": allTypes_listed}
+
 
 """
 List the names of all the available types with their latest version number.
@@ -269,6 +282,7 @@ List the names of all the available types with their latest version number.
 Returns:
     A JSON response with the list of names and their latest version number.
 """
+
 
 @bp.route("/delete/<id>", methods=["POST"])
 def delete_type(id):
@@ -282,13 +296,13 @@ def delete_type(id):
     for version_id in version_ids:
         query = """SELECT COUNT(*) FROM assets WHERE version_id = (%(id)s);"""
         res = make_query(database, query, {"id": version_id[0]})
-        if (res.fetchone()[0] > 0):
+        if res.fetchone()[0] > 0:
             canDo = False
             break
 
         query = """SELECT COUNT(*) FROM type_version_link WHERE type_version_to = (%(id)s);"""
         res = make_query(database, query, {"id": version_id[0]})
-        if (res.fetchone()[0] > 0):
+        if res.fetchone()[0] > 0:
             canDo = False
             break
 
@@ -317,12 +331,15 @@ def delete_type(id):
 
     return {"msg": "", "wasAllowed": canDo}, 200
 
+
 """_summary_
  Parameters:
     id : The ID all the assets that belong to the same project .
     Returns:
         json data
 """
+
+
 @bp.route("/attribute/delete/<id>", methods=["POST"])
 def delete_attribute(id):
     database = get_db()
@@ -350,12 +367,14 @@ def is_attr_name_in():
     is_in = res.fetchone()[0] > 0
     return {"data": is_in}, 200
 
+
 """
 List the names of all the available types with their latest version number.
 
 Returns:
     A JSON response with the list of names and their latest version number.
 """
+
 
 @bp.route("/backfill", methods=["POST"])
 def backfill():
@@ -381,7 +400,7 @@ def backfill():
     """
     latest_version = make_query(database, query, key).fetchone()[0]
 
-    if (latest_version == jason["version_id"]):
+    if latest_version == jason["version_id"]:
         return {"msg": "Given version is already the latest version."}, 400
 
     query_a = """
@@ -395,15 +414,12 @@ def backfill():
     """
 
     for asset_id in asset_ids:
-        key_a = {
-            "new_id": latest_version,
-            "asset_id": asset_id[0]
-        }
+        key_a = {"new_id": latest_version, "asset_id": asset_id[0]}
         for attribute in jason["attributes"]:
             key_b = {
                 "attribute_id": attribute["attributeID"],
                 "asset_id": asset_id[0],
-                "value": attribute["data"]
+                "value": attribute["data"],
             }
             make_query(database, query_b, key_b)
         make_query(database, query_a, key_a)

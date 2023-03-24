@@ -1,5 +1,6 @@
-from psycopg.rows import dict_row
 import pytest
+from psycopg.rows import dict_row
+
 
 def test_type_list(client, db_conn):
     expected_types = []
@@ -20,8 +21,6 @@ VALUES (%(type_name)s) RETURNING type_id;""",
     res = client.get("/api/v1/type/names")
     assert res.status_code == 200
     assert res.json == {"msg": "types", "data": expected_types}
-
-
 
 
 # Test to see if an attribute can be added to the database
@@ -74,7 +73,7 @@ def test_add_attribute_to_db_with_json(client, db_conn):
 def test_add_type_to_db(client, db_conn):
     test_metaData = {
         "attributeName": "programming Language(s)",
-        "attributeType": "text"
+        "attributeType": "text",
     }
     test_type = {
         "typeName": "framework",
@@ -82,10 +81,10 @@ def test_add_type_to_db(client, db_conn):
             {
                 "attributeID": 1,
                 "attributeName": test_metaData["attributeName"],
-                "attributeType": test_metaData["attributeType"]
+                "attributeType": test_metaData["attributeType"],
             }
         ],
-        "dependsOn": []
+        "dependsOn": [],
     }
     client.post("/api/v1/type/adder/new", json=test_metaData)
     res = client.post("/api/v1/type/new", json=test_type)
@@ -109,7 +108,7 @@ def test_add_type_to_db(client, db_conn):
 def test_add_type_with_dependencies(client, db_conn):
     test_metaData = {
         "attributeName": "programming Language(s)",
-        "attributeType": "text"
+        "attributeType": "text",
     }
     test_type_a = {
         "typeName": "framework",
@@ -117,41 +116,39 @@ def test_add_type_with_dependencies(client, db_conn):
             {
                 "attributeID": 1,
                 "attributeName": test_metaData["attributeName"],
-                "attributeType": test_metaData["attributeType"]
+                "attributeType": test_metaData["attributeType"],
             }
         ],
-        "dependsOn": []
+        "dependsOn": [],
     }
     test_type_b = {
         "typeName": "Web app",
         "metadata": [
             {
                 "attributeID": 1,
-                    "attributeName": test_metaData["attributeName"],
-                    "attributeType": test_metaData["attributeType"]
+                "attributeName": test_metaData["attributeName"],
+                "attributeType": test_metaData["attributeType"],
             }
         ],
-        "dependsOn": [1]
+        "dependsOn": [1],
     }
     test_type_c = {
         "typeName": "internet",
         "metadata": [
             {
                 "attributeID": 1,
-                    "attributeName": test_metaData["attributeName"],
-                    "attributeType": test_metaData["attributeType"]
+                "attributeName": test_metaData["attributeName"],
+                "attributeType": test_metaData["attributeType"],
             }
         ],
-        "dependsOn": [2, 1]
+        "dependsOn": [2, 1],
     }
     client.post("/api/v1/type/adder/new", json=test_metaData)
     client.post("/api/v1/type/new", json=test_type_a)
     client.post("/api/v1/type/new", json=test_type_b)
     client.post("/api/v1/type/new", json=test_type_c)
     with db_conn.cursor(row_factory=dict_row) as cur:
-        cur.execute(
-            """SELECT * FROM type_version_link"""
-        )
+        cur.execute("""SELECT * FROM type_version_link""")
         res = cur.fetchall()
         assert res[0]["type_version_from"] == 2
         assert res[0]["type_version_to"] == 1
@@ -165,7 +162,7 @@ def test_add_type_with_dependencies(client, db_conn):
 def test_no_self_dependencies(client):
     test_metaData = {
         "attributeName": "programming Language(s)",
-        "attributeType": "text"
+        "attributeType": "text",
     }
     test_type = {
         "typeName": "framework",
@@ -173,10 +170,10 @@ def test_no_self_dependencies(client):
             {
                 "attributeID": 1,
                 "attributeName": test_metaData["attributeName"],
-                "attributeType": test_metaData["attributeType"]
+                "attributeType": test_metaData["attributeType"],
             }
         ],
-        "dependsOn": [1]
+        "dependsOn": [1],
     }
     client.post("/api/v1/type/adder/new", json=test_metaData)
     res = client.post("/api/v1/type/new", json=test_type)
@@ -196,7 +193,7 @@ def test_get_type(client):
                 "validation": None,
             }
         ],
-        "dependsOn": []
+        "dependsOn": [],
     }
     client.post("/api/v1/type/adder/new", json=test_type["metadata"][0])
     client.post("/api/v1/type/new", json=test_type)
@@ -220,7 +217,7 @@ def test_get_type_with_dependencies(client):
                 "validation": None,
             }
         ],
-        "dependsOn": []
+        "dependsOn": [],
     }
     test_type_b = {
         "typeName": "documentation",
@@ -232,7 +229,7 @@ def test_get_type_with_dependencies(client):
                 "validation": None,
             }
         ],
-        "dependsOn": [1]
+        "dependsOn": [1],
     }
     test_type_c = {
         "typeName": "programming langauge",
@@ -244,7 +241,7 @@ def test_get_type_with_dependencies(client):
                 "validation": None,
             }
         ],
-        "dependsOn": [1, 2]
+        "dependsOn": [1, 2],
     }
     client.post("/api/v1/type/adder/new", json=test_type_a["metadata"][0])
     client.post("/api/v1/type/new", json=test_type_a)
@@ -271,7 +268,7 @@ def test_get_type_with_json(client):
                 "validation": {"min": 4, "max": 10},
             }
         ],
-        "dependsOn": []
+        "dependsOn": [],
     }
     client.post("/api/v1/type/adder/new", json=test_type["metadata"][0])
     client.post("/api/v1/type/new", json=test_type)
@@ -328,7 +325,7 @@ def test_get_allTypes(client):
                     "validation": None,
                 }
             ],
-            "dependsOn": []
+            "dependsOn": [],
         },
         {
             "typeId": 2,
@@ -347,7 +344,7 @@ def test_get_allTypes(client):
                     "validation": None,
                 },
             ],
-            "dependsOn": []
+            "dependsOn": [],
         },
     ]
     client.post("/api/v1/type/adder/new", json=test_types[0]["metadata"][0])
@@ -379,16 +376,14 @@ def test_delete_type(client, db_conn):
                 "validation": {"min": 4, "max": 10},
             }
         ],
-        "dependsOn": []
+        "dependsOn": [],
     }
     client.post("/api/v1/type/adder/new", json=test_type["metadata"][0])
     client.post("/api/v1/type/new", json=test_type)
     res = client.post("/api/v1/type/delete/1")
     assert res.status_code == 200
     with db_conn.cursor(row_factory=dict_row) as cur:
-        cur.execute(
-            """SELECT * FROM type_version WHERE version_id = 1"""
-        )
+        cur.execute("""SELECT * FROM type_version WHERE version_id = 1""")
         assert cur.fetchone() == None
 
 
@@ -396,7 +391,7 @@ def test_delete_type(client, db_conn):
 def test_delete_complex_type(client):
     test_metaData = {
         "attributeName": "programming Language(s)",
-        "attributeType": "text"
+        "attributeType": "text",
     }
     test_type_a = {
         "typeName": "framework",
@@ -404,21 +399,21 @@ def test_delete_complex_type(client):
             {
                 "attributeID": 1,
                 "attributeName": test_metaData["attributeName"],
-                "attributeType": test_metaData["attributeType"]
+                "attributeType": test_metaData["attributeType"],
             }
         ],
-        "dependsOn": []
+        "dependsOn": [],
     }
     test_type_b = {
         "typeName": "Web app",
         "metadata": [
             {
                 "attributeID": 1,
-                    "attributeName": test_metaData["attributeName"],
-                    "attributeType": test_metaData["attributeType"]
+                "attributeName": test_metaData["attributeName"],
+                "attributeType": test_metaData["attributeType"],
             }
         ],
-        "dependsOn": [1]
+        "dependsOn": [1],
     }
     client.post("/api/v1/type/adder/new", json=test_metaData)
     client.post("/api/v1/type/new", json=test_type_a)
@@ -435,7 +430,7 @@ def test_delete_complex_type(client):
 def test_delete_attribute(client):
     test_metaData = {
         "attributeName": "programming Language(s)",
-        "attributeType": "text"
+        "attributeType": "text",
     }
     test_type = {
         "typeName": "framework",
@@ -443,10 +438,10 @@ def test_delete_attribute(client):
             {
                 "attributeID": 1,
                 "attributeName": test_metaData["attributeName"],
-                "attributeType": test_metaData["attributeType"]
+                "attributeType": test_metaData["attributeType"],
             }
         ],
-        "dependsOn": []
+        "dependsOn": [],
     }
     client.post("/api/v1/type/adder/new", json=test_metaData)
     client.post("/api/v1/type/new", json=test_type)
@@ -464,12 +459,10 @@ def test_is_attr_name_in(client):
         "attributeType": "checkbox",
     }
     client.post("/api/v1/type/adder/new", json=test_attribute)
-    res = client.post("/api/v1/type/adder/isAttrNameIn",
-                      json={"name": "public"})
+    res = client.post("/api/v1/type/adder/isAttrNameIn", json={"name": "public"})
     assert res.status_code == 200
     assert res.data == b'{\n  "data": true\n}\n'
-    res = client.post("/api/v1/type/adder/isAttrNameIn",
-                      json={"name": "private"})
+    res = client.post("/api/v1/type/adder/isAttrNameIn", json={"name": "private"})
     assert res.data == b'{\n  "data": false\n}\n'
 
 
@@ -477,7 +470,7 @@ def test_is_attr_name_in(client):
 def test_version_incremetation(client):
     test_metaData = {
         "attributeName": "programming Language(s)",
-        "attributeType": "text"
+        "attributeType": "text",
     }
     test_type_v1 = {
         "typeName": "framework",
@@ -485,10 +478,10 @@ def test_version_incremetation(client):
             {
                 "attributeID": 1,
                 "attributeName": test_metaData["attributeName"],
-                "attributeType": test_metaData["attributeType"]
+                "attributeType": test_metaData["attributeType"],
             }
         ],
-        "dependsOn": []
+        "dependsOn": [],
     }
     test_type_v2 = {
         "typeName": "framework",
@@ -496,10 +489,10 @@ def test_version_incremetation(client):
             {
                 "attributeID": 1,
                 "attributeName": test_metaData["attributeName"],
-                "attributeType": test_metaData["attributeType"]
+                "attributeType": test_metaData["attributeType"],
             }
         ],
-        "dependsOn": []
+        "dependsOn": [],
     }
     test_type_v3 = {
         "typeName": "framework",
@@ -507,10 +500,10 @@ def test_version_incremetation(client):
             {
                 "attributeID": 1,
                 "attributeName": test_metaData["attributeName"],
-                "attributeType": test_metaData["attributeType"]
+                "attributeType": test_metaData["attributeType"],
             }
         ],
-        "dependsOn": []
+        "dependsOn": [],
     }
     test_type_dif = {
         "typeName": "libary",
@@ -518,10 +511,10 @@ def test_version_incremetation(client):
             {
                 "attributeID": 1,
                 "attributeName": test_metaData["attributeName"],
-                "attributeType": test_metaData["attributeType"]
+                "attributeType": test_metaData["attributeType"],
             }
         ],
-        "dependsOn": []
+        "dependsOn": [],
     }
     client.post("/api/v1/type/adder/new", json=test_metaData)
     client.post("/api/v1/type/new", json=test_type_v1)
@@ -540,22 +533,19 @@ def test_version_incremetation(client):
 def test_backfill(client, db_conn):
     test_metaData_a = {
         "attributeName": "programming Language(s)",
-        "attributeType": "text"
+        "attributeType": "text",
     }
-    test_metaData_b = {
-        "attributeName": "licence",
-        "attributeType": "text"
-    }
+    test_metaData_b = {"attributeName": "licence", "attributeType": "text"}
     test_type = {
         "typeName": "framework",
         "metadata": [
             {
                 "attributeID": 1,
                 "attributeName": test_metaData_a["attributeName"],
-                "attributeType": test_metaData_a["attributeType"]
+                "attributeType": test_metaData_a["attributeType"],
             }
         ],
-        "dependsOn": []
+        "dependsOn": [],
     }
     query_a = """
     INSERT INTO assets (name, link, version_id, description)
@@ -575,15 +565,12 @@ def test_backfill(client, db_conn):
 
     jason = {
         "version_id": 1,
-        "attributes": [{
-            "attributeID": 2,
-            "data": "I am some more text"
-        }]
+        "attributes": [{"attributeID": 2, "data": "I am some more text"}],
     }
     res_a = client.post("api/v1/type/backfill", json=jason)
     assert res_a.status_code == 200
     assert res_a.json == {"msg": ""}
-    
+
     query_c = """
     SELECT * FROM attributes_values;
     """
@@ -593,18 +580,15 @@ def test_backfill(client, db_conn):
     with db_conn as conn:
         res_b = conn.execute(query_c)
         res_c = conn.execute(query_d)
-        assert res_b.fetchone() == (1, 1, 'I am some text')
-        assert res_b.fetchone() == (2, 1, 'I am some more text')
+        assert res_b.fetchone() == (1, 1, "I am some text")
+        assert res_b.fetchone() == (2, 1, "I am some more text")
         assert res_b.fetchone() is None
         assert res_c.fetchone()[0] == 2
         assert res_c.fetchone() is None
-    
+
     jason = {
         "version_id": 2,
-        "attributes": [{
-            "attributeID": 2,
-            "data": "I am some more text"
-        }]
+        "attributes": [{"attributeID": 2, "data": "I am some more text"}],
     }
     res_d = client.post("api/v1/type/backfill", json=jason)
     assert res_d.status_code == 400
@@ -616,12 +600,19 @@ def test_backfill(client, db_conn):
     [{"size": 10}],
     indirect=True,
 )
-def test_type_with_versions_list(client,type_verions):
-    max_type=type_verions["added"][0]
+def test_type_with_versions_list(client, type_verions):
+    max_type = type_verions["added"][0]
     for type_version in type_verions["added"]:
-        if type_version.version_number>max_type.version_number:
-            max_type=type_version
+        if type_version.version_number > max_type.version_number:
+            max_type = type_version
     res = client.get("/api/v1/type/version/names")
     assert res.status_code == 200
-    assert res.json == {"msg": "types-w-versions","data":[{'version_id':max_type.version_id,'type_name':type_verions["type"].type_name}]}
-    
+    assert res.json == {
+        "msg": "types-w-versions",
+        "data": [
+            {
+                "version_id": max_type.version_id,
+                "type_name": type_verions["type"].type_name,
+            }
+        ],
+    }

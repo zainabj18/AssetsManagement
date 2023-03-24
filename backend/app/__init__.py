@@ -1,9 +1,12 @@
+from flasgger import Swagger
+from flask import Flask, Response
+from flask_cors import CORS
+
 from app.api import bp as api_bp
 from app.core.config import settings
-from app.db import close_db, init_db_command,build_assets_command
-from flask import Flask, Response
-from flasgger import Swagger
-from flask_cors import CORS
+from app.db import build_assets_command, close_db, init_db_command
+
+
 def create_app(config_class=settings):
     app = Flask(__name__)
     app.config.from_object(config_class)

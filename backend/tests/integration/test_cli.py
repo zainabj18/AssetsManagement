@@ -5,6 +5,7 @@ def test_init_db(flask_app):
         assert result.exit_code == 0
         assert "Database intialised" in result.output
 
+
 def test_build_assets(flask_app):
     with flask_app.app_context():
         runner = flask_app.test_cli_runner()

@@ -1,16 +1,18 @@
 from datetime import datetime, timedelta
 
 import jwt
-from app.core.utils import decode_token, protected
-from app.db import UserRole, get_db
-from app.schemas import UserCreate, UserInDB
 from flask import Blueprint, current_app, jsonify, request
 from psycopg import Error
 from psycopg.rows import class_row
 from pydantic.error_wrappers import ValidationError
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from app.core.utils import decode_token, protected
+from app.db import UserRole, get_db
+from app.schemas import UserCreate, UserInDB
+
 bp = Blueprint("auth", __name__, url_prefix="/auth")
+
 
 def create_user(db, user):
     with db.connection() as conn:
@@ -49,6 +51,7 @@ def get_user_by_id(db, user_id):
             )
             return cur.fetchone()
 
+
 """
     Creates a new user account in the database.
 
@@ -58,7 +61,8 @@ def get_user_by_id(db, user_id):
 
     Returns: None
     """
-    
+
+
 @bp.route("/register", methods=["POST"])
 def register():
     try:
@@ -97,6 +101,7 @@ def register():
 
     return {"msg": "User registered"}, 201
 
+
 """
 Endpoint to handle user login.
 
@@ -108,6 +113,8 @@ If the user does not exist in the database, returns a 401 Unauthorized error.
 If there is a database connection error, returns a 500 Internal Server Error.
 If the provided password does not match the hashed password in the database, returns a 401 Unauthorized error.
 """
+
+
 @bp.route("/login", methods=["POST"])
 def login():
     request_dict = dict(request.json)
@@ -216,8 +223,7 @@ def identify():
 
 @bp.route("/logout", methods=["DELETE"])
 def logout():
-    """Logs user out.
-    """
+    """Logs user out."""
     resp = jsonify({"msg": "logged out", "data": {}})
     resp.set_cookie("access-token", "", expires=0)
     return resp

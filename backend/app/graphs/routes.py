@@ -1,7 +1,10 @@
-from app.db import get_db
-from flask import Blueprint
 import math
+
 from colorutils import random_web
+from flask import Blueprint
+
+from app.db import get_db
+
 bp = Blueprint("graphs", __name__, url_prefix="/graph")
 
 
@@ -15,10 +18,13 @@ def remove_end(li):
 # Returns the json of a 2d list [[id, name]]
 def extract_name_id(li):
     for i, tup in enumerate(li):
-        li[i] = {"id": tup[0], "name": tup[1],"version_id": tup[2]}
+        li[i] = {"id": tup[0], "name": tup[1], "version_id": tup[2]}
     return li
 
-VERSION_ID_COLOURS_DICT={}
+
+VERSION_ID_COLOURS_DICT = {}
+
+
 @bp.route("/assets", methods=["GET"])
 def get_assets():
     query = """
@@ -44,10 +50,10 @@ def get_assets():
             asset_id = asset["id"]
             res = conn.execute(sub_query_1, {"from": asset_id})
             to = remove_end(res.fetchall())
-            
+
             if asset["version_id"] not in VERSION_ID_COLOURS_DICT:
-                VERSION_ID_COLOURS_DICT[asset["version_id"]]=random_web()
-            asset["color"]=VERSION_ID_COLOURS_DICT[asset["version_id"]]
+                VERSION_ID_COLOURS_DICT[asset["version_id"]] = random_web()
+            asset["color"] = VERSION_ID_COLOURS_DICT[asset["version_id"]]
             print(to)
             # for x in to:
             #     data.append({"source": asset_id, "target": x,"linkColor":"red"})
@@ -55,17 +61,21 @@ def get_assets():
             res = conn.execute(sub_query_2, {"to": asset_id})
             from_assets = remove_end(res.fetchall())
             for x in from_assets:
-                data.append({"source": x, "target": asset_id,"linkColor":"blue"})
-            asset["degree"]=len(from_assets)
-            asset["size"]=1+math.log(asset["degree"]+1)
+                data.append({"source": x, "target": asset_id, "linkColor": "blue"})
+            asset["degree"] = len(from_assets)
+            asset["size"] = 1 + math.log(asset["degree"] + 1)
     return {"nodes": assets, "links": data}, 200
+
 
 @bp.route("/asset/<id>", methods=["GET"])
 def get_asset(id):
     try:
         id = int(id)
     except ValueError:
-        return {"data": {"points": [], "joins": []}, "msg": "Given id was not an int."}, 400
+        return {
+            "data": {"points": [], "joins": []},
+            "msg": "Given id was not an int.",
+        }, 400
     query_from = """
     SELECT to_asset_id
     FROM assets_in_assets

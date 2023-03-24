@@ -1,12 +1,22 @@
-import os
 import json
+import os
+
 import click
-from psycopg.rows import class_row,dict_row
-from app.db import close_db, get_db,Models,UserRole,DataAccess
 from flask import current_app
+from psycopg.rows import class_row, dict_row
 from werkzeug.security import generate_password_hash
-from app.schemas.factories import AssetFactory,TypeVersionFactory,ProjectFactory,TagFactory,TypeFactory
+
+from app.db import DataAccess, Models, UserRole, close_db, get_db
 from app.schemas import AssetFlattend
+from app.schemas.factories import (
+    AssetFactory,
+    ProjectFactory,
+    TagFactory,
+    TypeFactory,
+    TypeVersionFactory,
+)
+
+
 def init_db():
     """
     Initialises db with superuser in it.
@@ -27,9 +37,8 @@ VALUES ('admin','admin',%(username)s,%(password)s,%(account_type)s,%(account_pri
                 "password": generate_password_hash(
                     current_app.config["DEFAULT_SUPERUSER_USERNAME"]
                 ),
-                "account_type":max(UserRole),
-                "account_privileges":max(DataAccess)
-
+                "account_type": max(UserRole),
+                "account_privileges": max(DataAccess),
             },
         )
         for model in Models:
@@ -38,14 +47,15 @@ VALUES ('admin','admin',%(username)s,%(password)s,%(account_type)s,%(account_pri
             INSERT INTO tracked_models(model_id,model_name)
     VALUES (%(model_id)s,%(model_name)s);""",
                 {
-                    "model_id":model.value,
-                    "model_name":model.name.lower(),
+                    "model_id": model.value,
+                    "model_name": model.name.lower(),
                 },
             )
-    #closes db so when next need a new pool will be created to map enums
+    # closes db so when next need a new pool will be created to map enums
     close_db()
 
-def generate_assets(existing_version_ids,db_conn,batch_result,added_assets):
+
+def generate_assets(existing_version_ids, db_conn, batch_result, added_assets):
     """
     Builds assets for testing.
     """
@@ -55,19 +65,19 @@ def generate_assets(existing_version_ids,db_conn,batch_result,added_assets):
             attribute_ids = []
             cur.execute(
                 """SELECT * FROM type_version WHERE version_id=%(version_id)s;""",
-                {"version_id":asset.version_id},
-                )
+                {"version_id": asset.version_id},
+            )
             # if no type_version already exists
             if cur.fetchall() != []:
                 continue
             existing_version_ids.add(asset.version_id)
-            new_type_version = TypeVersionFactory.build(version_id=asset.version_id) 
-            new_type=TypeFactory.build(type_id=new_type_version.type_id)
+            new_type_version = TypeVersionFactory.build(version_id=asset.version_id)
+            new_type = TypeFactory.build(type_id=new_type_version.type_id)
             # check if type already exists with id
             cur.execute(
                 """SELECT * FROM types WHERE type_id=%(type_id)s;""",
                 new_type.dict(),
-                )
+            )
             # if no type already exists
             if cur.fetchall() != []:
                 continue
@@ -80,13 +90,13 @@ def generate_assets(existing_version_ids,db_conn,batch_result,added_assets):
             cur.execute(
                 """SELECT version_id FROM type_version;""",
                 new_type.dict(),
-                )
+            )
             cur.execute(
-                    """
+                """
             INSERT INTO type_version (version_id,version_number,type_id)
         VALUES (%(version_id)s,%(version_number)s,%(type_id)s);""",
-                    new_type_version.dict(),
-                )
+                new_type_version.dict(),
+            )
             for attribute in asset.metadata:
                 db_attribute = attribute.dict(exclude={"validation_data"})
                 db_attribute["validation_data"] = json.dumps(attribute.validation_data)
@@ -118,8 +128,8 @@ def generate_assets(existing_version_ids,db_conn,batch_result,added_assets):
             for tag in asset.tag_ids:
                 t = TagFactory.build(id=tag)
                 cur.execute(
-                """SELECT * FROM tags WHERE id=%(id)s;""",
-                {"id": tag},
+                    """SELECT * FROM tags WHERE id=%(id)s;""",
+                    {"id": tag},
                 )
                 if cur.fetchall() == []:
                     cur.execute(
@@ -131,15 +141,16 @@ def generate_assets(existing_version_ids,db_conn,batch_result,added_assets):
             added_assets.append(asset)
             db_conn.commit()
 
-def create_assets(db_conn,batch_size=10,add_to_db=False):
-    added_assets=[]
-    existing_version_ids=set()
-    batch_size_counter=batch_size
-    while len(added_assets)<batch_size:
+
+def create_assets(db_conn, batch_size=10, add_to_db=False):
+    added_assets = []
+    existing_version_ids = set()
+    batch_size_counter = batch_size
+    while len(added_assets) < batch_size:
         batch_result = AssetFactory.batch(size=batch_size_counter)
-        generate_assets(existing_version_ids,db_conn,batch_result,added_assets)
-        batch_size_counter=batch_size-len(added_assets)
-    if (add_to_db):
+        generate_assets(existing_version_ids, db_conn, batch_result, added_assets)
+        batch_size_counter = batch_size - len(added_assets)
+    if add_to_db:
         with db_conn.cursor() as cur:
             for asset in added_assets:
                 cur.execute(
@@ -177,15 +188,13 @@ def create_assets(db_conn,batch_size=10,add_to_db=False):
                         },
                     )
                 db_conn.commit()
-    
- 
-    if (add_to_db):
+
+    if add_to_db:
         with db_conn.cursor(row_factory=class_row(AssetFlattend)) as cur:
             cur.execute("""SELECT * FROM flatten_assets;""")
             assets = cur.fetchall()
             return assets
     return added_assets
-
 
 
 @click.command("init-db")
@@ -195,9 +204,9 @@ def init_db_command():
 
 
 @click.command("build-assets")
-@click.option('--size', default=100)
+@click.option("--size", default=100)
 def build_assets_command(size):
     db = get_db()
     with db.connection() as conn:
-        create_assets(db_conn=conn,batch_size=size,add_to_db=True)
+        create_assets(db_conn=conn, batch_size=size, add_to_db=True)
     click.echo("Added assets")
