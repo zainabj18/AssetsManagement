@@ -188,6 +188,10 @@ def is_viewer(user_id, access_level):
 
 @bp.route("/identify", methods=["GET"])
 def identify():
+    """Identifies the user based on access token
+    Returns:
+        users details
+    """
     data = decode_token(request)
     db = get_db()
     try:
@@ -212,6 +216,8 @@ def identify():
 
 @bp.route("/logout", methods=["DELETE"])
 def logout():
+    """Logs user out.
+    """
     resp = jsonify({"msg": "logged out", "data": {}})
     resp.set_cookie("access-token", "", expires=0)
     return resp

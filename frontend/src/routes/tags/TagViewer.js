@@ -74,7 +74,7 @@ const TagViewer = () => {
 		;
 	}, [id, trigger, user]);
 
-	return (<VStack bg={'whiteAlpha.500'} h={'100%'} w={'100%'} p={2}>
+	return (<VStack bg={'whiteAlpha.500'} h={'100vh'} w={'100vw'} >
 		{tag && <Editable
 			textAlign="center"
 			submitOnBlur={false}

@@ -7,12 +7,26 @@ from flask import abort
 from app.core.utils import model_creator
 
 def can_view_asset(db,asset_id,access_level):
+    """Aborts when asset_id not in db or user can't view
+
+    Args:
+        db:A connection pool
+      asset_id: The asset id to check exists
+      access_level: The privilages of the user making the request.
+    """
     services.abort_asset_not_exists(db=db,asset_id=asset_id)
     services.abort_insufficient(db=db,access_level=access_level,asset_id=asset_id)
 def get_key_from_results(key,results):
     return [row[key] for row in results]
 
 def check_asset_dependencies(db:ConnectionPool,version_id:int,assets:List[int]):
+    """Check aseets dependencies are valid.
+
+    Args:
+        db:A connection pool
+        version_id: The version id of the asset
+        assets:The asset id that this asset depends upon.
+    """
     asset_versions=services.fetch_assets_versions(db=db,assets_ids=assets)
     asset_types=set(get_key_from_results("version_id",asset_versions))
     dependents=services.fetch_version_dependencies(db=db,version_id=version_id)
@@ -20,6 +34,13 @@ def check_asset_dependencies(db:ConnectionPool,version_id:int,assets:List[int]):
         abort(400, {"msg": "Missing dependencies", "data": get_key_from_results("type_name",dependents)})
 
 def check_asset_metatadata(db:ConnectionPool,version_id:int,metadata:List[Attribute]):
+    """Check aseets metadata is valid.
+
+    Args:
+        db:A connection pool
+        version_id: The version id of the asset
+        metadata:The list of metadata attributes.
+    """
     required_attributes=services.fetch_attributes_by_version(db=db,version_id=version_id,required=True)
     attribute_ids=set([attribute.attribute_id for attribute in metadata])
     required_attributes_names=[row["attribute_name"] for row in required_attributes]
@@ -35,7 +56,16 @@ def check_asset_metatadata(db:ConnectionPool,version_id:int,metadata:List[Attrib
                 "msg": "Addtional attributes",
                 "data": [f"Must only inlcude the following attrubutes {all_type_attributes_names}"],
             })
-def asset_differ(orginal,new):
+def asset_differ(orginal:dict,new:dict):
+    """Find the differences between two assets
+
+    Args:
+      orginal: The asset to reference.
+      new: The new asset to compare to
+    
+    Returns:
+      A dictionary of all the changes.
+    """
     removed=list(set(orginal.keys())-set(new.keys()))
     changed=[]
     added=list(set(new.keys())-set(orginal.keys()))
@@ -70,6 +100,16 @@ def asset_differ(orginal,new):
                     changed.append((key,orginal[key],new[key]))    
     return json.loads(Diff(added=added,removed=removed,changed=changed).json())
 def add_asset_to_db(db:ConnectionPool,data:dict,account_id:int,asset_id:int=None):
+    """Added/Update asset in db
+
+    Args:
+        db:A connection pool
+        data: The asset's data
+        account_id: The id of the person who made the request
+        asset_id:The asset id to update
+    Returns:
+        id of asset
+    """
     asset=model_creator(model=Asset,err_msg="Failed to create asset from the data provided",**data)
     db_asset = asset.dict()
     check_asset_dependencies(db=db,version_id=asset.version_id,assets=asset.asset_ids)

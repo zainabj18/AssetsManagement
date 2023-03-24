@@ -17,12 +17,6 @@ def create(user_id, access_level):
     tag.id = id
     audit_log_event(db,Models.TAGS,user_id,id,{},Actions.ADD)
     return jsonify({"msg": "Tag Created", "data": tag.dict()})
-"""
-List the names of all the available types with their latest version number.
-
-Returns:
-    A JSON response with the list of names and their latest version number.
-"""
 
 
 @bp.route("/", methods=["GET"])
@@ -32,12 +26,7 @@ def list(user_id, access_level):
     tags = services.list_tags(db)
     return {"msg": "tags", "data": tags}
 
-"""
-List the names of all the available types with their latest version number.
 
-Returns:
-    A JSON response with the list of names and their latest version number.
-"""
 
 
 @bp.route("/<id>", methods=["DELETE"])
@@ -49,12 +38,7 @@ def delete(id, user_id, access_level):
     audit_log_event(db,Models.TAGS,user_id,id,{},Actions.DELETE)
     return {}, 200
 
-"""
-List the names of all the available types with their latest version number.
 
-Returns:
-    A JSON response with the list of names and their latest version number.
-"""
 
 
 @bp.route("/<id>", methods=["PATCH"])
@@ -101,6 +85,9 @@ def remove(user_id, access_level):
 @bp.route("/assets/<id>", methods=["GET"])
 @protected(role=UserRole.VIEWER)
 def tags_summary(id, user_id, access_level):
+    """
+    Gets all assets in a tag
+    """
     db = get_db()
     services.tag_in_db(db=db,tag_id=id)
     tag_name=services.fetch_tag_name(db=db,tag_id=id)

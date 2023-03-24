@@ -8,6 +8,9 @@ from werkzeug.security import generate_password_hash
 from app.schemas.factories import AssetFactory,TypeVersionFactory,ProjectFactory,TagFactory,TypeFactory
 from app.schemas import AssetFlattend
 def init_db():
+    """
+    Initialises db with superuser in it.
+    """
     db = get_db(new=True)
     absolute_path = os.path.dirname(__file__)
     relative_path = "schema.sql"
@@ -43,7 +46,10 @@ VALUES ('admin','admin',%(username)s,%(password)s,%(account_type)s,%(account_pri
     close_db()
 
 def generate_assets(existing_version_ids,db_conn,batch_result,added_assets):
-       with db_conn.cursor() as cur:
+    """
+    Builds assets for testing.
+    """
+    with db_conn.cursor() as cur:
         for asset in batch_result:
 
             attribute_ids = []

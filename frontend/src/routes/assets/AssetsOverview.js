@@ -29,13 +29,10 @@ const AssetsOverview = () => {
 		console.log(assets);
 	}, []);
 
-	return (<VStack width={'100vw'} height={'80vh'} background='white' justifyContent={'space-between'} overflow='auto' flexDirection={'row-reverse'} display='flex' paddingX={5} paddingY={5} rounded='2xl' boxShadow='0 3px 6px #00000029'>
+	return (<VStack width={'100vw'} background='white' justifyContent={'space-between'} overflow='auto' flexDirection={'row-reverse'} display='flex' paddingX={5} paddingY={5} rounded='2xl' boxShadow='0 3px 6px #00000029'>
 		<div style={{ width: '75vw', flexDirection: 'column', justifyContent: 'center', display: 'flex' }} >
-			<div style={{ width: '75vw', overflow: 'hidden' }}>
-				<AssetTable assets={results} setSelectedAssets={null} preSelIDs={[]} />
-				
-			</div>
 			<VStack>
+				<AssetTable assets={results} setSelectedAssets={null} preSelIDs={[]} />
 				<NavLink to="./graph"><Heading>View Graph</Heading></NavLink>
 				<Button onClick={() => naviagte('./new')} width='50%' paddingY={6} alignSelf='center'>Create Asset</Button>
 			</VStack>

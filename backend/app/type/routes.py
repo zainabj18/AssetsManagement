@@ -360,9 +360,10 @@ Returns:
 @bp.route("/backfill", methods=["POST"])
 def backfill():
     jason = request.json
+    print(jason)
     database = get_db()
     key = {"id": request.json["version_id"]}
-
+    print(key)
     query = """
     SELECT asset_id FROM assets
     WHERE version_id = %(id)s;

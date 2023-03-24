@@ -74,7 +74,8 @@ const TypeEditor = () => {
 	const [wantsToBackfill, set_wantsToBackfill] = useState(false);
 
 	const doBackFill = () => {
-		fetchAllAttributes().then(allAttributes => {
+		fetchAllAttributes().then(res => {
+			let allAttributes=res.data;
 			let new_selectedAttribiteIndexes = TypeMethodManager
 				.getNewAttributeIndexes(selectedAttributes, type.metadata, allAttributes);
 			let new_selectedAttributes = [];
