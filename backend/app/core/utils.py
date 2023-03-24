@@ -10,6 +10,9 @@ from psycopg.errors import UniqueViolation
 from psycopg.rows import dict_row
 from enum import Enum,auto
 def decode_token(request):
+    """
+    Decodes jwt access token from request
+    """
     token = request.cookies.get("access-token")
     if not token:
         abort(
@@ -32,6 +35,9 @@ def decode_token(request):
         abort(401, {"msg": str(e), "error": "Invalid Token"})
 
 def protected(role=UserRole.VIEWER):
+    """
+    A decorator for ensuring request is from a logged in user with the right permissons.
+    """
     def decorated_route(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -61,6 +67,9 @@ def audit_log_event(db,model_id,account_id,object_id,diff_dict,action):
         {"model_id":model_id,"account_id":account_id,"object_id":object_id,"diff":json.dumps(diff_dict),"action":action})
 
 def run_query(db, query, params=None,row_factory=dict_row,return_type=None):
+    """
+    Runs any query
+    """
     try:
         with db.connection() as db_conn:
             with db_conn.cursor(row_factory=row_factory) as cur:   
@@ -79,6 +88,7 @@ def run_query(db, query, params=None,row_factory=dict_row,return_type=None):
                     case QueryResult.ALL:
                         return cur.fetchall()
                     case QueryResult.ALL_JSON:
+                        # used for class row factory to convert pydnatic model into frontend json
                         return [json.loads(row.json(by_alias=True)) for row in cur.fetchall()]
                     case _:
                         return       
@@ -86,7 +96,9 @@ def run_query(db, query, params=None,row_factory=dict_row,return_type=None):
         abort(500,{"msg": "Database Error","data":[str(e)]})
 
 def model_creator(model,err_msg,*args, **kwargs):
-
+    """
+    Attempts to create pydantic object from data.
+    """
     try:
         obj = model(*args, **kwargs)
     except ValidationError as e:

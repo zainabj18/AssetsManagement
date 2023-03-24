@@ -89,6 +89,7 @@ def resouce_not_found(e):
 def interal_server_error(e):
     return e.description, 500
 
+# add sub blueprints to the main api blueprint
 bp.register_blueprint(auth_bp)
 bp.register_blueprint(asset_bp)
 bp.register_blueprint(type_bp)

@@ -54,6 +54,7 @@ class DataAccess(Enum):
 
 
 def custom_pool_config(conn):
+    # enable auto mapping between enums in db and python enums
     register_enum(EnumInfo.fetch(conn, "account_role"), conn, UserRole)
     register_enum(EnumInfo.fetch(conn, "data_classification"), conn, DataAccess)
     register_enum(EnumInfo.fetch(conn, "actions"), conn, Actions)
@@ -61,6 +62,9 @@ def custom_pool_config(conn):
 
 
 def get_db(new=False):
+    """
+    Gets a db connection pool
+    """
     if "db" not in g:
         if new:
             configure = None
