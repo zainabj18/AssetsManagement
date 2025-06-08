@@ -39,77 +39,84 @@ Docker & Docker Compose installed
 (Alternatively) Python 3.10+, Node.js 16+, PostgreSQL 13+
 
 ### Quick Setup (Docker)
-Clone the repo:
+1. Clone the repo:
 
 git clone https://github.com/zainabj18/AssetsManagement.git
+
 cd AssetsManagement
 
-Build and start containers:
+2. Build and start containers:
 
 docker-compose up --build
 
-Access services:
+3. Access services:
 
-Backend API: http://localhost:5000/api/v1/
+- Backend API: http://localhost:5000/api/v1/
 
-Frontend UI: http://localhost:3000/
+- Frontend UI: http://localhost:3000/
 
 ### Manual Setup (Without Docker)
 Backend
-Enter backend folder:
 
-cd backend
+1. Enter backend folder:
 
-Create and activate virtual environment:
+- cd backend
 
-python3 -m venv venv && source venv/bin/activate
+2. Create and activate virtual environment:
 
-Install dependencies:
+- python3 -m venv venv && source venv/bin/activate
 
-pip install -r requirements.txt
-Configure PostgreSQL connection in backend/config.py
+3. Install dependencies:
 
-Create database and run schema:
+- pip install -r requirements.txt
+  
+4. Configure PostgreSQL connection in backend/config.py
 
-psql -U youruser -d yourdb -f backend/db/schema.sql
+5. Create database and run schema:
 
-Start API server:
+- psql -U youruser -d yourdb -f backend/db/schema.sql
+
+6. Start API server:
 
 flask run
+
+
 Frontend
 
-Enter frontend folder:
+1. Enter frontend folder:
 
-cd frontend
-npm install
-Configure API endpoint in .env
+- cd frontend
+- npm install
+  
+2. Configure API endpoint in .env
 
-Start frontend:
+3. Start frontend:
 
-npm start
+- npm start
 
  
 ### Running Tests
 Backend:
 
 cd backend
+
 pytest --cov=.
 
 
 ## API Documentation
-Endpoint	Method	Description
-/api/v1/auth/register	POST	Create user account
-/api/v1/auth/login	POST	Authenticate & receive JWT
-/api/v1/assets	GET	List assets (with search/filter)
-/api/v1/assets	POST	Create new asset
-/api/v1/assets/:id	GET	Retrieve specific asset
-/api/v1/assets/:id	PUT	Update asset details
-/api/v1/assets/:id	DELETE	Delete an asset
-/api/v1/projects	GET/POST	Manage projects
-/api/v1/tags	GET/POST	Manage tags
-/api/v1/types	GET/POST	Manage asset types
 
-Routes require valid JWT unless noted.
+| Endpoint                | Method   | Description                      |
+| ----------------------- | -------- | -------------------------------- |
+| `/api/v1/auth/register` | POST     | Create user account              |
+| `/api/v1/auth/login`    | POST     | Authenticate & receive JWT       |
+| `/api/v1/assets`        | GET      | List assets (with search/filter) |
+| `/api/v1/assets`        | POST     | Create new asset                 |
+| `/api/v1/assets/:id`    | GET      | Retrieve specific asset          |
+| `/api/v1/assets/:id`    | PUT      | Update asset details             |
+| `/api/v1/assets/:id`    | DELETE   | Delete an asset                  |
+| `/api/v1/projects`      | GET/POST | Manage projects                  |
+| `/api/v1/tags`          | GET/POST | Manage tags                      |
+| `/api/v1/types`         | GET/POST | Manage asset types               |
 
 ## Architecture & Directory Layout
 
@@ -127,6 +134,7 @@ frontend/
    ├─ services/      # API call logic
    └─ App.jsx
 docker-compose.yml
+
 
 ## Development Workflow
 
