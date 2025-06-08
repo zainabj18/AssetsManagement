@@ -1,80 +1,166 @@
-# Team Project
+# AssetsManagement
+Centralized application for tracking and managing organizational assets with user authentication and tagging, built with a Flask + React + PostgreSQL stack and fully dockerized.
 
-This repository has been created to store your Team Project.
+## Features
+- User authentication & session management via JWT tokens and secure password handling
 
-You may edit it as you like, but please do not remove the default topics or the project members list. These need to stay as currently defined in order for your lecturer to be able to find and mark your work.
+- Asset CRUD operations, including search, filtering, tagging, and categorization
 
+- Project and tag management with relationships across multiple assets
 
-Backend Flask,Psycopg for connecting to db /backend/app/
--/app/__init__.py creates the flask app and registers custom commands and config
+- RESTful API implemented using Flask blueprints (/auth, /asset, /project, /tag, /type)
 
--/api holds all the endpoints that are registered e.g. /api/v1/auth/login all blueprints are added to this blueprint which is then added to the main blueprint defined in /backend/app/__init__.py
+- Data validation through Pydantic schemas
 
--/asset holds all the endpoints that relates to assets including supporting SQL
+- Persistent PostgreSQL backend, managed via schema and connection modules
 
--/auth holds all the endpoints that relates to auth including supporting SQL
+- Modular and testable codebase, with full Test suite and code coverage tools
 
--/core holds all functions used throughout modules including config and protected route decorator
+- Robust parameter/config management, protected routes, and standardized error responses
 
--/db holds all functions for connecting to db and enum mappings to db enums and schema.sql
+- Docker support, enabling easy local development and deployment
 
--/project holds all the endpoints that relates to project including supporting SQL
+## Tech Stack
 
--/schemas holds all pydantic models used to validating request jsons and mappings to db rows
-
--/tag holds all the endpoints that relates to tags including supporting SQL
-
--/type holds all the endpoints that relates to types including supporting SQL
-
--/test holds all the tests
-
-
-Frontend React 
-/src
-
--/componets hold all resuable components to crate the web pages
-
--/hooks hold all the custom hooks
-
--/routes hold all the pages
-
--/theme hold all the addtional styling ontop of chakra
-
--/App.js holds all the routes
+| Layer        | Technology                |
+|--------------|----------------------------|
+| **Backend**  | Python, Flask, Flask Blueprints |
+| **Validation** | Pydantic models          |
+| **Database** | PostgreSQL via Psycopg     |
+| **Frontend** | React (JSX, REST calls)    |
+| **Dev Tools**| Docker, Docker Compose     |
+| **Testing**  | Pytest, Coverage           |
 
 
-To run install docker and docker compose
+## Getting Started
+Prerequisites
+Docker & Docker Compose installed
 
-Then to run app
+(Alternatively) Python 3.10+, Node.js 16+, PostgreSQL 13+
 
-docker compose  up --build 
+### Quick Setup (Docker)
+Clone the repo:
 
-To init db
+git clone https://github.com/zainabj18/AssetsManagement.git
+cd AssetsManagement
 
-docker exec backend python -m flask init-db
+Build and start containers:
 
-Go to http://localhost:3000
+docker-compose up --build
 
-To run the tests
+Access services:
 
-docker exec backend python -m pytest --reruns 5 --reruns-delay 1
+Backend API: http://localhost:5000/api/v1/
+
+Frontend UI: http://localhost:3000/
+
+### Manual Setup (Without Docker)
+Backend
+Enter backend folder:
+
+cd backend
+
+Create and activate virtual environment:
+
+python3 -m venv venv && source venv/bin/activate
+
+Install dependencies:
+
+pip install -r requirements.txt
+Configure PostgreSQL connection in backend/config.py
+
+Create database and run schema:
+
+psql -U youruser -d yourdb -f backend/db/schema.sql
+
+Start API server:
+
+flask run
+Frontend
+
+Enter frontend folder:
+
+cd frontend
+npm install
+Configure API endpoint in .env
+
+Start frontend:
+
+npm start
+
+ 
+### Running Tests
+Backend:
+
+cd backend
+pytest --cov=.
 
 
-OR
+## API Documentation
+Endpoint	Method	Description
+/api/v1/auth/register	POST	Create user account
+/api/v1/auth/login	POST	Authenticate & receive JWT
+/api/v1/assets	GET	List assets (with search/filter)
+/api/v1/assets	POST	Create new asset
+/api/v1/assets/:id	GET	Retrieve specific asset
+/api/v1/assets/:id	PUT	Update asset details
+/api/v1/assets/:id	DELETE	Delete an asset
+/api/v1/projects	GET/POST	Manage projects
+/api/v1/tags	GET/POST	Manage tags
+/api/v1/types	GET/POST	Manage asset types
 
-Download postgres and run /db/init.sql to create the users and db
+Routes require valid JWT unless noted.
+
+## Architecture & Directory Layout
+
+backend/
+├─ app/
+│  ├─ init.py        # App factory & blueprint setup
+│  ├─ api/           # Route definitions per module
+│  ├─ core/          # Config & shared logic
+│  ├─ db/            # DB connection & enums
+│  ├─ schemas/       # Pydantic data validation models
+│  └─ test/          # Unit and integration tests
+frontend/
+└─ src/
+   ├─ components/
+   ├─ services/      # API call logic
+   └─ App.jsx
+docker-compose.yml
+
+## Development Workflow
+
+1. Clone and install dependencies
+2. Activate backend and configure DB
+3. Containerize or run services manually
+4. Build features in backend or React UI
+5. Write tests for every route/component enhancement
+6. Run pytest + code coverage
+7. Deploy via Docker or host backend/frontend separately
+
+## Future Improvements
+
+- Role-based access control (RBAC)
+
+- Frontend pagination and sorting
+
+- OpenAPI/Swagger auto-generated API docs
+
+- CI pipeline (Test coverage)
+
+- MongoDB or Redis caching layer
+
+- Asset import/export via CSV
+
+## Contact 
+Maintainer: Zainab J.
 
 
-Example .env to be added to the backend folder
 
-DEV_POSTGRES_HOST="localhost"
-DEV_POSTGRES_USER="dbmanager"
-DEV_POSTGRES_PASSWORD="dbmanager"
-DEV_POSTGRES_DB="assets"
-DEV_DEBUG=true
-DEV_SECRET_KEY="TOJAZMiFQOq1PIoImUaltg"
-PROD_POSTGRES_HOST="localhost"
-PROD_POSTGRES_USER="dbmanager"
-PROD_POSTGRES_PASSWORD="dbmanager"
-PROD_POSTGRES_DB="assets"
+
+
+
+
+
+
 
