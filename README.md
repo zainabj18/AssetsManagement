@@ -33,74 +33,74 @@ Centralized application for tracking and managing organizational assets with use
 
 
 ## Getting Started
-Prerequisites
-Docker & Docker Compose installed
+Prerequisites:
+    - Docker & Docker Compose installed
 
-(Alternatively) Python 3.10+, Node.js 16+, PostgreSQL 13+
+      (Alternatively) Python 3.10+, Node.js 16+, PostgreSQL 13+
 
 ### Quick Setup (Docker)
 1. Clone the repo:
 
-git clone https://github.com/zainabj18/AssetsManagement.git
+    git clone https://github.com/zainabj18/AssetsManagement.git
 
-cd AssetsManagement
+    cd AssetsManagement
 
 2. Build and start containers:
 
-docker-compose up --build
+    docker-compose up --build
 
 3. Access services:
 
-- Backend API: http://localhost:5000/api/v1/
+    - Backend API: http://localhost:5000/api/v1/
 
-- Frontend UI: http://localhost:3000/
+    - Frontend UI: http://localhost:3000/
 
 ### Manual Setup (Without Docker)
 Backend
 
 1. Enter backend folder:
 
-- cd backend
+    - cd backend
 
 2. Create and activate virtual environment:
 
-- python3 -m venv venv && source venv/bin/activate
+    - python3 -m venv venv && source venv/bin/activate
 
 3. Install dependencies:
 
-- pip install -r requirements.txt
+    - pip install -r requirements.txt
   
 4. Configure PostgreSQL connection in backend/config.py
 
 5. Create database and run schema:
 
-- psql -U youruser -d yourdb -f backend/db/schema.sql
+    - psql -U youruser -d yourdb -f backend/db/schema.sql
 
 6. Start API server:
 
-flask run
+    flask run
 
 
 Frontend
 
 1. Enter frontend folder:
 
-- cd frontend
-- npm install
+    - cd frontend
+    - npm install
   
 2. Configure API endpoint in .env
 
 3. Start frontend:
 
-- npm start
+    - npm start
 
  
 ### Running Tests
 Backend:
 
-cd backend
+    - cd backend
 
-pytest --cov=.
+    - pytest --cov=.
 
 
 ## API Documentation
